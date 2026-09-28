@@ -1,7 +1,9 @@
 --!strict
 -- Config: every game setting, shared by the server and the client.
--- Economy: 45 levels, level 45 costs ฿22M, about 50 minutes of active brewing (≈ 3.5 hours AFK).
--- Money loop: brew tea at the Brew Station → cash goes straight into your balance → walk to the green pad to upgrade.
+-- Economy: 45 levels, level 45 costs ฿22M. About 50 minutes when you brew along with your staff,
+-- about 2 hours if the staff do all the work (simulated with a buy-the-cheapest-upgrade player).
+-- Money loop: brew tea by hand at the Brew Station → hire staff who sell for you → upgrade recipe and speed
+-- → walk to the green pad (behind each new item's spot) to grow the shop.
 
 local Config = {}
 
@@ -11,6 +13,7 @@ local Config = {}
 Config.BUILD_PLACEHOLDER_PLOTS = true -- no Workspace.Plots → build 6 plots with generated models
 Config.STUDIO_GRANT_ALL_PASSES = false -- true = grant every Game Pass while testing in Studio (live game unaffected)
 Config.PRINT_ECONOMY_CHECK = true -- print the price/income summary to Output when the server starts
+Config.SETUP_LIGHTING = true -- warm afternoon lighting + atmosphere, bloom and color grading (set false to keep your own)
 
 ---------------------------------------------------------------------------
 -- General
@@ -33,7 +36,7 @@ Config.OFFLINE = {
 -- Game Passes: put the IDs from the Creator Dashboard here (0 = not set yet)
 Config.PASSES = {
 	DoubleCash = { Id = 0, Name = "2x Income" },
-	AutoBrew = { Id = 0, Name = "Auto Brew" }, -- brews one cup every AUTO_BREW_INTERVAL seconds, anywhere
+	VipBarista = { Id = 0, Name = "VIP Barista" }, -- a golden barista who sells a cup every VIP_INTERVAL seconds
 	OfflinePlus = { Id = 0, Name = "Full Offline Income (24h)" },
 }
 
@@ -63,9 +66,18 @@ Config.WAIT_GROWTH = 1.083 -- each item takes 8.3% longer to afford
 
 -- Brewing (the main way to earn). "Base income" below is the pacing curve; the player gets it as:
 Config.BREW_COOLDOWN = 0.35 -- seconds between brews (≈ 2.9 brews per second when spamming)
-Config.BREW_SHARE = 0.3 -- cash per brew = 30% of the base income (active play ≈ base income overall)
-Config.PASSIVE_SHARE = 0.25 -- passive income = 25% of the base income, paid straight into Cash
-Config.AUTO_BREW_INTERVAL = 1 -- Auto Brew pass: one free cup per second
+Config.BREW_SHARE = 0.15 -- cash per cup = 15% of the base income curve
+Config.PASSIVE_SHARE = 0.1 -- passive income (tips) = 10% of the base income curve, paid straight into Cash
+Config.STAFF_INTERVAL = 3 -- each hired barista sells one cup every 3 seconds (faster with Faster Service)
+Config.VIP_INTERVAL = 1 -- the VIP Barista pass sells one cup per second
+
+-- Repeatable upgrades bought on the pads next to the Brew Station. Cost = Base × Growth^owned.
+Config.UPGRADES = {
+	Staff = { Name = "Hire Staff", Base = 300, Growth = 3.5, Max = 6 },
+	Recipe = { Name = "Better Recipe", Base = 800, Growth = 3.0, Max = 15, Step = 0.10 }, -- +10% per cup each level
+	Speed = { Name = "Faster Service", Base = 1500, Growth = 3.2, Max = 10, Step = 0.08 }, -- +8% brewing speed each level
+}
+Config.UPGRADE_ORDER = { "Staff", "Recipe", "Speed" }
 
 -- Purchasable items for levels 2..45 (44 items) in 5 tiers
 Config.TIERS = {
@@ -163,18 +175,22 @@ function Config.GetPassive(level: number): number
 	return Config.Passive[math.clamp(level, 1, Config.MAX_LEVEL)]
 end
 
--- Total time (seconds) from level 1 to the last level without passes.
--- active = brewing nonstop; otherwise AFK on passive income only
-function Config.TotalWaitSeconds(active: boolean?): number
-	local total = 0
-	for level = 2, Config.MAX_LEVEL do
-		local rate = Config.Passive[level - 1]
-		if active ~= false then
-			rate += Config.BrewValue[level - 1] / Config.BREW_COOLDOWN
-		end
-		total += Config.Items[level].Price / rate
+-- cost of the next level of an upgrade, or nil when it is maxed out
+function Config.UpgradeCost(key: string, owned: number): number?
+	local u = (Config.UPGRADES :: any)[key]
+	if not u or owned >= u.Max then
+		return nil
 	end
-	return total
+	return nice(u.Base * u.Growth ^ owned)
+end
+
+-- multipliers from upgrade levels
+function Config.RecipeMultiplier(recipe: number): number
+	return 1 + Config.UPGRADES.Recipe.Step * recipe
+end
+
+function Config.SpeedMultiplier(speed: number): number
+	return 1 + Config.UPGRADES.Speed.Step * speed
 end
 
 ---------------------------------------------------------------------------

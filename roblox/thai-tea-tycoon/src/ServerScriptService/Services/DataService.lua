@@ -30,6 +30,9 @@ local function defaultData()
 		Bag = 0, -- legacy field (the old carry bag), merged into Cash on load
 		Stored = 0, -- legacy field (the old register balance), merged into Cash on load
 		Level = 1,
+		Staff = 0, -- hired baristas
+		Recipe = 0, -- Better Recipe level
+		Speed = 0, -- Faster Service level
 		LastSeen = os.time(),
 		Receipts = {}, -- recent granted PurchaseIds (prevents double grants)
 	}
@@ -47,6 +50,9 @@ local function reconcile(saved: any)
 		end
 	end
 	data.Level = math.clamp(math.floor(data.Level), 1, Config.MAX_LEVEL)
+	for key, u in Config.UPGRADES do
+		data[key] = math.clamp(math.floor(data[key]), 0, u.Max)
+	end
 	data.Cash = math.max(0, data.Cash) + math.max(0, data.Stored) + math.max(0, data.Bag)
 	data.Stored = 0
 	data.Bag = 0
@@ -171,6 +177,9 @@ function DataService.Save(player: Player): boolean
 		Bag = 0,
 		Stored = 0,
 		Level = data.Level,
+		Staff = data.Staff,
+		Recipe = data.Recipe,
+		Speed = data.Speed,
 		LastSeen = data.LastSeen,
 		Receipts = table.clone(data.Receipts),
 	}

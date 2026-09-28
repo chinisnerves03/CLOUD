@@ -1,5 +1,5 @@
 -- ClientMain: cash HUD + guidance text + guide arrow + notifications/sounds
--- Reads the Attributes set by the server (Cash, Level, Income, BrewValue, Plot) — display only
+-- Reads the Attributes set by the server (Cash, Level, Income, BrewValue, BrewCooldown, Staff, Recipe, Speed, Plot) — display only
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -43,7 +43,7 @@ local panel = Instance.new("Frame")
 panel.Name = "MoneyPanel"
 panel.AnchorPoint = Vector2.new(1, 0)
 panel.Position = UDim2.new(1, -12, 0, 12)
-panel.Size = UDim2.fromOffset(230, 96)
+panel.Size = UDim2.fromOffset(250, 118)
 panel.BackgroundColor3 = Color3.fromRGB(40, 25, 15)
 panel.BackgroundTransparency = 0.25
 panel.Parent = gui
@@ -66,6 +66,10 @@ local incomeLabel = makeLabel(panel, {
 local levelLabel = makeLabel(panel, {
 	Name = "Level", Position = UDim2.fromOffset(0, 64), Size = UDim2.new(1, 0, 0, 20),
 	TextXAlignment = Enum.TextXAlignment.Right, TextColor3 = Color3.fromRGB(200, 200, 200), Text = "Level 1/45",
+})
+local upgradesLabel = makeLabel(panel, {
+	Name = "Upgrades", Position = UDim2.fromOffset(0, 86), Size = UDim2.new(1, 0, 0, 18),
+	TextXAlignment = Enum.TextXAlignment.Right, TextColor3 = Color3.fromRGB(150, 200, 255), Text = "Staff 0/6 · Recipe 0 · Speed 0",
 })
 
 -- guidance text, top center
@@ -253,6 +257,41 @@ local function getPlot(): Model?
 	return plots:FindFirstChild(plotName) :: Model?
 end
 
+-- "+฿x" floating above each working barista, in time with their sales (visual only; the server pays)
+local staffTimers: { [Instance]: number } = {}
+local function floatAbove(model: Model, text: string)
+	local anchor = model.PrimaryPart
+	if not anchor then
+		return
+	end
+	local board = Instance.new("BillboardGui")
+	board.Size = UDim2.fromOffset(90, 30)
+	board.StudsOffset = Vector3.new(0, 6.5, 0)
+	board.AlwaysOnTop = true
+	board.MaxDistance = 90
+	local label = makeLabel(board, { Size = UDim2.fromScale(1, 1), TextColor3 = YELLOW, Text = text })
+	board.Adornee = anchor
+	board.Parent = playerGui
+	TweenService:Create(board, TweenInfo.new(0.9), { StudsOffset = Vector3.new(0, 9, 0) }):Play()
+	TweenService:Create(label, TweenInfo.new(0.9), { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+	task.delay(0.95, board.Destroy, board)
+end
+
+local function animateStaff(plot: Model, dt: number, cup: number)
+	local speed = Config.SpeedMultiplier(getNumber("Speed"))
+	for _, child in plot:GetChildren() do
+		if child:IsA("Model") and (child.Name:match("^Staff%d+$") or child.Name == "VipBarista") then
+			local interval = (if child.Name == "VipBarista" then Config.VIP_INTERVAL else Config.STAFF_INTERVAL) / speed
+			local t = (staffTimers[child] or math.random() * interval) + dt
+			if t >= interval then
+				t -= interval
+				floatAbove(child, "+" .. Config.FormatMoney(cup))
+			end
+			staffTimers[child] = t
+		end
+	end
+end
+
 local bob = 0
 
 RunService.RenderStepped:Connect(function(dt)
@@ -267,6 +306,8 @@ RunService.RenderStepped:Connect(function(dt)
 	cashLabel.Text = Config.FormatMoney(cash)
 	incomeLabel.Text = "+" .. Config.FormatMoney(perCup) .. "/cup · +" .. Config.FormatRate(income) .. "/s"
 	levelLabel.Text = string.format("Level %d/%d", level, Config.MAX_LEVEL)
+	local staff, recipe, speedLevel = getNumber("Staff"), getNumber("Recipe"), getNumber("Speed")
+	upgradesLabel.Text = string.format("Staff %d/%d · Recipe %d · Speed %d", staff, Config.UPGRADES.Staff.Max, recipe, speedLevel)
 
 	local plot = getPlot()
 	if not plot then
@@ -280,17 +321,37 @@ RunService.RenderStepped:Connect(function(dt)
 	local pad = padSlots and padSlots:FindFirstChild("Pad1") :: BasePart?
 	local station = plot:FindFirstChild("BrewStation")
 	local kettle = station and station:FindFirstChild("Kettle", true) :: BasePart?
+	local upgrades = plot:FindFirstChild("Upgrades")
+	animateStaff(plot, dt, perCup)
 
-	if not nextItem then
+	-- cheapest upgrade the player can afford right now, and the cheapest one overall
+	local affordable, affordableCost, cheapest, cheapestCost = nil, math.huge, nil, math.huge
+	for _, key in Config.UPGRADE_ORDER do
+		local cost = Config.UpgradeCost(key, getNumber(key))
+		if cost and cost < cheapestCost then
+			cheapest, cheapestCost = key, cost
+		end
+		if cost and cost <= cash and cost < affordableCost then
+			affordable, affordableCost = key, cost
+		end
+	end
+
+	if nextItem and cash >= nextItem.Price then
+		hintLabel.Text = string.format("Step on the green pad to build %s (%s)", nextItem.Name, Config.FormatMoney(nextItem.Price))
+		setTarget(pad)
+	elseif affordable and upgrades then
+		hintLabel.Text = string.format("Upgrade: step on %s (%s)", Config.UPGRADES[affordable].Name, Config.FormatMoney(affordableCost))
+		setTarget(upgrades:FindFirstChild(affordable) :: BasePart?)
+	elseif not nextItem and not cheapest then
 		hintLabel.Text = "Your Thai tea empire is complete!"
 		setTarget(nil)
-	elseif cash >= nextItem.Price then
-		hintLabel.Text = string.format("Step on the green pad to buy %s (%s)", nextItem.Name, Config.FormatMoney(nextItem.Price))
-		setTarget(pad)
 	else
-		local missing = nextItem.Price - cash
-		hintLabel.Text = string.format("Brew tea at the Brew Station (press E) — %s more for %s",
-			Config.FormatMoney(math.ceil(missing)), nextItem.Name)
+		local goalName, goalCost = if nextItem then nextItem.Name else "", if nextItem then nextItem.Price else math.huge
+		if cheapest and cheapestCost < goalCost then
+			goalName, goalCost = Config.UPGRADES[cheapest].Name, cheapestCost
+		end
+		hintLabel.Text = string.format("Brew tea (press E) — %s more for %s%s", Config.FormatMoney(math.ceil(goalCost - cash)), goalName,
+			if staff > 0 then " · your staff are selling too" else "")
 		setTarget(kettle)
 	end
 end)

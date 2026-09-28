@@ -1,5 +1,5 @@
 -- MonetizationService: 3 Game Passes + 2 Developer Products
--- Pass ownership is stored as player Attributes: Pass_DoubleCash, Pass_AutoBrew, Pass_OfflinePlus
+-- Pass ownership is stored as player Attributes: Pass_DoubleCash, Pass_VipBarista, Pass_OfflinePlus
 -- No in-game shop buttons yet: call MarketplaceService:PromptGamePassPurchase from UI and this service handles the rest
 
 local MarketplaceService = game:GetService("MarketplaceService")
@@ -79,6 +79,7 @@ function MonetizationService.Init(dataService, plotService)
 		local passKey = passKeyFromId(passId)
 		if passKey then
 			player:SetAttribute(attrName(passKey), true)
+			PlotService.Refresh(player) -- e.g. the VIP Barista appears right away
 			PlotService.Notify(player, "Buy", "Unlocked " .. Config.PASSES[passKey].Name .. "!")
 		end
 	end)

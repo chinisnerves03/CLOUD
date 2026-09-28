@@ -49,7 +49,7 @@ local Builder = {}
 Builder.__index = Builder
 
 local function newBuilder(model: Model, origin: CFrame)
-	return setmetatable({ Model = model, Origin = origin, Count = 0 }, Builder)
+	return setmetatable({ Model = model, Origin = origin, Count = 0, Round = true }, Builder)
 end
 
 -- opts: t = transparency, solid = force collision on/off, name = part name, refl = reflectance
@@ -93,8 +93,32 @@ function Builder:_part(class: string, size: Vector3, cf: CFrame, color: Color3, 
 	return p
 end
 
+-- Furniture-sized opaque boxes get rounded vertical edges (two crossed boxes + four corner cylinders)
+-- so the shop looks softer than plain blocks. Pass opts.flat = true to keep a sharp box.
+local function shouldRound(size: Vector3, opts): boolean
+	if opts and (opts.flat or (opts.t and opts.t > 0)) then
+		return false
+	end
+	return math.min(size.X, size.Z) >= 1.2 and size.Y >= 0.6 and math.max(size.X, size.Y, size.Z) <= 20
+end
+
 function Builder:Box(size: Vector3, cf: CFrame, color: Color3, material: Enum.Material?, opts): Part
-	return self:_part("Part", size, cf, color, material, opts)
+	if not (self.Round and shouldRound(size, opts)) then
+		return self:_part("Part", size, cf, color, material, opts)
+	end
+	local r = math.min(0.6, math.min(size.X, size.Z) * 0.2)
+	-- the returned part spans the full depth, so Front/Back text and lights attach to it
+	local main = self:_part("Part", V3(size.X - 2 * r, size.Y, size.Z), cf, color, material, opts)
+	local sideOpts = { solid = opts and opts.solid }
+	self:_part("Part", V3(size.X, size.Y, size.Z - 2 * r), cf, color, material, sideOpts)
+	for _, sx in { -1, 1 } do
+		for _, sz in { -1, 1 } do
+			local corner = self:_part("Part", V3(size.Y, 2 * r, 2 * r),
+				cf * CF(sx * (size.X / 2 - r), 0, sz * (size.Z / 2 - r)) * ANG(0, 0, rad(90)), color, material, { solid = false })
+			corner.Shape = Enum.PartType.Cylinder
+		end
+	end
+	return main
 end
 
 -- upright cylinder (height h, diameter d)
@@ -274,8 +298,8 @@ end
 function Builder:Shell(cf: CFrame, spec)
 	local w, d, h = spec.w, spec.d, spec.h
 	local t = spec.t or 0.6
-	local wallOpts = { t = spec.wallT, solid = true }
-	self:Box(V3(w - 2 * t, 0.2, d - 2 * t), cf * CF(0, 0.1, 0), spec.floor or PAL.concrete, spec.floorMat or M.Concrete, { solid = true })
+	local wallOpts = { t = spec.wallT, solid = true, flat = true }
+	self:Box(V3(w - 2 * t, 0.2, d - 2 * t), cf * CF(0, 0.1, 0), spec.floor or PAL.concrete, spec.floorMat or M.Concrete, { solid = true, flat = true })
 
 	local sides = {
 		Front = { length = w, place = function(u, y, len, hgt) return V3(len, hgt, t), CF(u, y, -d / 2 + t / 2) end },
@@ -316,7 +340,7 @@ function Builder:Shell(cf: CFrame, spec)
 	end
 
 	if spec.roof ~= false then
-		self:Box(V3(w, 0.6, d), cf * CF(0, h + 0.3, 0), spec.roofColor or spec.wall, spec.wallMat)
+		self:Box(V3(w, 0.6, d), cf * CF(0, h + 0.3, 0), spec.roofColor or spec.wall, spec.wallMat, { flat = true })
 	end
 end
 
@@ -399,19 +423,25 @@ ItemModels.Layout = {
 	L45 = { 0, 0, 54, 0 },
 }
 
+-- Fixed spots in plot space { x, z }: the three upgrade pads, hired staff carts and the VIP barista
+ItemModels.UpgradeSpots = { Staff = { -30, -56 }, Recipe = { -21, -56 }, Speed = { -12, -56 } }
+ItemModels.StaffSpots = { { 8, -55 }, { 12.5, -55 }, { 17, -55 }, { 21.5, -55 }, { 26, -55 }, { 30.5, -55 } }
+ItemModels.VipSpot = { -6.5, -55 }
+
 -- Where the single buy pad sits while that item is the next purchase { x, z } in plot space.
--- Each spot is on open floor next to where the item will appear and clear of every earlier item.
+-- Each spot is behind where the item will appear (the side away from the plaza), on open floor clear of
+-- every earlier item, the Brew Station, the upgrade pads and the staff carts. Exceptions at the back edge:
+-- L38/L40 sit beside their building and L45 sits on the tower's own footprint (it is empty until bought).
 ItemModels.PadSpots = {
-	L02 = { -20, -48 }, L03 = { -27, -48 }, L04 = { -13, -48 }, L05 = { -7, -36 },
-	L06 = { -20, -48 }, L07 = { -20, -48 }, L08 = { -27, -52 }, L09 = { -20, -48 }, L10 = { -34, -45 },
-	L11 = { 20, -47 }, L12 = { 25, -47 }, L13 = { 19, -47 }, L14 = { 31, -31 }, L15 = { 20, -49 },
-	L16 = { 33, -53 }, L17 = { 22, -51 }, L18 = { 13, -47 }, L19 = { 10.5, -31 },
-	L20 = { -31, -25 }, L21 = { -19, -12 }, L22 = { -23.5, -25 }, L23 = { 16.5, -22 }, L24 = { 31, -16 },
-	L25 = { -38, -14 }, L26 = { -29, -12 }, L27 = { 0, -22 }, L28 = { 13, -4 },
-	L29 = { -38, 3 }, L30 = { -22, 4 }, L31 = { 12, 4 }, L32 = { 22, 18 }, L33 = { 42.5, -52 },
-	L34 = { 35, 3 }, L35 = { -6, 4 }, L36 = { -12, -1 }, L37 = { 41, -24 },
-	L38 = { -41.5, 33 }, L39 = { -26.5, 30 }, L40 = { -12.5, 31 }, L41 = { 13, 40 },
-	L42 = { 26.5, 32 }, L43 = { 42, 31 }, L44 = { 0, 32 }, L45 = { 0, 50 },
+	L02 = { -20, -34.4 }, L03 = { -25, -36.5 }, L04 = { -14.1, -35.8 }, L05 = { -13.8, -31.2 }, L06 = { -24.4, -36.6 },
+	L07 = { -20, -34.2 }, L08 = { -30.6, -42.1 }, L09 = { -27.6, -36.9 }, L10 = { -31.5, -32.3 }, L11 = { 20, -31.9 },
+	L12 = { 25.1, -32 }, L13 = { 31.5, -32.7 }, L14 = { 23.5, -27.4 }, L15 = { 32, -37.5 }, L16 = { 32.5, -38.3 },
+	L17 = { 22, -25.3 }, L18 = { 8.1, -32.7 }, L19 = { 17.5, -29 }, L20 = { -30.7, -13.2 }, L21 = { -18.3, -2.2 },
+	L22 = { -23.5, -14.4 }, L23 = { 16.5, -11.3 }, L24 = { 31, -2.2 }, L25 = { -36.8, -1.6 }, L26 = { -29.4, -0.2 },
+	L27 = { 0, -1.9 }, L28 = { 0, 0.5 }, L29 = { -38, 27.5 }, L30 = { -22, 25.2 }, L31 = { 11.5, 16.6 },
+	L32 = { 12.1, 23.3 }, L33 = { 35.4, -52.8 }, L34 = { 35, 26.5 }, L35 = { -6, 24.2 }, L36 = { 11.8, -5 },
+	L37 = { 33.5, -16.1 }, L38 = { -31, 49.5 }, L39 = { -26.5, 58.5 }, L40 = { -3, 46.4 }, L41 = { 13, 60.7 },
+	L42 = { 26.5, 59.5 }, L43 = { 41.1, 59 }, L44 = { 0, 48.6 }, L45 = { 0, 54 },
 }
 
 ---------------------------------------------------------------------------
@@ -2460,6 +2490,29 @@ Decor.BrewStation = function(b)
 	return kettle
 end
 
+-- a hired barista with a small tea cart; variant picks the apron color (0 = gold VIP barista)
+Decor.StaffCart = function(b, variant)
+	local aprons = { PAL.tea, PAL.green, PAL.blue, PAL.red, PAL.pink, PAL.teaDark }
+	local vip = variant == 0
+	local apron = if vip then PAL.gold else aprons[((variant or 1) - 1) % #aprons + 1]
+	b:Box(V3(3.2, 2.9, 1.6), CF(0, 1.45, 0.4), if vip then PAL.gold else PAL.woodLight, if vip then M.Metal else M.WoodPlanks)
+	b:Box(V3(3.4, 0.2, 1.8), CF(0, 3.0, 0.4), PAL.white, M.Marble, { flat = true })
+	local front = b:Box(V3(3.0, 0.8, 0.06), CF(0, 2.1, -0.42), apron, nil, { solid = false })
+	b:Text(front, FACE.Front, if vip then "VIP" else "THAI TEA", { color = PAL.white })
+	b:Cyl(1.0, 0.9, CF(-0.9, 3.6, 0.6), PAL.steel, M.Metal)
+	b:Ellipsoid(V3(0.9, 0.4, 0.9), CF(-0.9, 4.15, 0.6), PAL.steel, M.Metal)
+	b:TeaCup(CF(0.4, 3.1, 0.2), 0.9)
+	b:TeaCup(CF(1.0, 3.1, 0.2), 0.9, rgb(120, 180, 90))
+	local hands = b:Person(CF(0, 0, 1.9), { apron = apron, cap = apron, right = { 150, 20 }, left = { 60, 30 } })
+	b:Cyl(0.6, 0.5, CF(hands.right) * CF(0, -0.1, 0), PAL.steel, M.Metal)
+	b:TeaCup(CF(hands.left) * CF(0, -0.2, 0), 1.1)
+	b:Rod(hands.right - V3(0, 0.4, 0), hands.left + V3(0, 0.8, 0), 0.12, PAL.tea, M.Glass, { t = 0.15 })
+	if vip then
+		local crown = b:Ball(0.5, CF(0, 6.2, 1.9), PAL.gold, M.Neon, { solid = false })
+		b:Light(crown, PAL.gold, 8, 0.6)
+	end
+end
+
 ---------------------------------------------------------------------------
 -- API
 ---------------------------------------------------------------------------
@@ -2481,14 +2534,14 @@ function ItemModels.Build(key: string, origin: CFrame): Model?
 end
 
 -- build a decor piece (Lamp, Tree, Bench, Bin, Fountain); returns an unparented Model
-function ItemModels.BuildDecor(kind: string, origin: CFrame): Model?
+function ItemModels.BuildDecor(kind: string, origin: CFrame, variant: number?): Model?
 	local build = Decor[kind]
 	if not build then
 		return nil
 	end
 	local model = Instance.new("Model")
 	model.Name = kind
-	build(newBuilder(model, origin))
+	build(newBuilder(model, origin), variant)
 	return model
 end
 

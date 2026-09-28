@@ -1,6 +1,6 @@
 -- DevPlotBuilder: builds 6 plots with all 44 item models (from ItemModels) plus plot and plaza decor
 -- The structure matches what PlotService expects:
---   Workspace.Plots.PlotN { Base, Items{L02..L45}, PadSlots{Pad1}, BrewStation{Kettle}, Sign{SurfaceGui.TextLabel} }
+--   Workspace.Plots.PlotN { Base, Items{L02..L45}, PadSlots{Pad1}, Upgrades{Staff,Recipe,Speed}, BrewStation{Kettle}, Sign{SurfaceGui.TextLabel} }
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -96,6 +96,26 @@ local function buildPlot(index: number, origin: CFrame): Model
 			Material = Enum.Material.Neon,
 			CanCollide = false,
 		}).Parent = pads
+	end
+
+	-- upgrade pads next to the Brew Station (repeatable: Hire Staff, Better Recipe, Faster Service)
+	local upgrades = Instance.new("Folder")
+	upgrades.Name = "Upgrades"
+	upgrades.Parent = plot
+	local upgradeColors = {
+		Staff = Color3.fromRGB(60, 140, 230),
+		Recipe = Color3.fromRGB(240, 150, 40),
+		Speed = Color3.fromRGB(170, 90, 220),
+	}
+	for key, spot in ItemModels.UpgradeSpots do
+		part({
+			Name = key,
+			Size = Vector3.new(6, 0.5, 6),
+			CFrame = at(spot[1], 0.25, spot[2]),
+			Color = upgradeColors[key],
+			Material = Enum.Material.Neon,
+			CanCollide = false,
+		}).Parent = upgrades
 	end
 
 	-- Brew Station: players brew tea here by hand (PlotService adds the prompt to its Kettle part)

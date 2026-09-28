@@ -2,6 +2,20 @@
 local DevPlotBuilder = require(modules.DevPlotBuilder or script.Parent:WaitForChild("DevPlotBuilder"))
 local ItemModels = require(script.Parent:WaitForChild("ItemModels"))
 local folder = DevPlotBuilder.Build()
+-- PlotService builds the hired-staff carts at runtime; add them to Plot1 so previews and the web demo have them
+do
+	local plot1 = folder:FindFirstChild("Plot1")
+	local base = plot1:FindFirstChild("Base")
+	local floor = base.CFrame * CFrame.new(0, base.Size.Y / 2, 0)
+	for i, spot in ItemModels.StaffSpots do
+		local cart = ItemModels.BuildDecor("StaffCart", floor * CFrame.new(spot[1], 0, spot[2]), i)
+		cart.Name = "Staff" .. i
+		cart.Parent = plot1
+	end
+	local vip = ItemModels.BuildDecor("StaffCart", floor * CFrame.new(ItemModels.VipSpot[1], 0, ItemModels.VipSpot[2]), 0)
+	vip.Name = "VipBarista"
+	vip.Parent = plot1
+end
 
 local function num(n) return string.format("%.4f", n) end
 local function col(c) return "[" .. num(c.R) .. "," .. num(c.G) .. "," .. num(c.B) .. "]" end

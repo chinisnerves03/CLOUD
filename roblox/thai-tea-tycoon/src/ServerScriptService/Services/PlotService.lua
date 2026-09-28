@@ -1,8 +1,9 @@
 -- PlotService: claims plots, shows items by level, and runs the money loop:
---   brew tea at the Brew Station → cash goes straight into Cash → walk to the green pad to upgrade.
--- Passive income (smaller) also goes into Cash. The single buy pad moves to the next item's spot.
--- Everything is computed on the server; the client only reads these player Attributes:
---   Cash, Level, Income (passive per second), BrewValue, Plot
+--   brew tea by hand at the Brew Station → hire staff who sell for you → upgrade recipe and speed
+--   → walk to the green pad (placed behind each new item's spot) to grow the shop.
+-- Passive tips (small) also go into Cash. Everything is computed on the server; the client only reads
+-- these player Attributes: Cash, Level, Income (per second from staff + tips), BrewValue (per cup),
+-- BrewCooldown, Staff, Recipe, Speed, Plot
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -22,10 +23,14 @@ local PAD_HEIGHT = 7 -- height above the pad that still counts as "standing on i
 type PlotState = {
 	Model: Model,
 	Name: string,
-	Floor: CFrame?, -- floor center of the plot (used to move the pad); nil for custom plots without a Base
+	Floor: CFrame?, -- floor center of the plot; nil for custom plots without a Base
 	Pads: { BasePart },
 	PadLabels: { TextLabel },
 	PadGlow: BasePart,
+	UpgradePads: { [string]: BasePart },
+	UpgradeLabels: { [string]: TextLabel },
+	StaffModels: { Model }, -- hired barista carts (index = hire order), parked in Storage until hired
+	VipModel: Model?,
 	Kettle: BasePart?,
 	SignLabel: TextLabel?,
 	ItemsFolder: Folder,
@@ -37,8 +42,8 @@ type OwnerState = {
 	Plot: PlotState,
 	Data: any,
 	OnPad: { boolean },
+	OnUpgrade: { [string]: boolean },
 	LastBrew: number,
-	AutoBrewTimer: number,
 }
 
 local Monetization
@@ -70,11 +75,11 @@ local function isStandingOn(part: BasePart, position: Vector3): boolean
 		and rel.Y <= half.Y + PAD_HEIGHT
 end
 
-local function makePadLabel(pad: BasePart): TextLabel
+local function makeLabel(pad: BasePart, height: number): TextLabel
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "PadLabel"
 	gui.Size = UDim2.fromOffset(220, 64)
-	gui.StudsOffset = Vector3.new(0, 3.5, 0)
+	gui.StudsOffset = Vector3.new(0, height, 0)
 	gui.MaxDistance = 120
 	gui.AlwaysOnTop = true
 	local text = Instance.new("TextLabel")
@@ -90,7 +95,7 @@ local function makePadLabel(pad: BasePart): TextLabel
 	return text
 end
 
--- a soft green light column over the pad so it is easy to spot across the plot
+-- a soft green light column over the buy pad so it is easy to spot across the plot
 local function makePadGlow(pad: BasePart): BasePart
 	local glow = Instance.new("Part")
 	glow.Name = "PadGlow"
@@ -108,31 +113,43 @@ local function makePadGlow(pad: BasePart): BasePart
 	return glow
 end
 
-local function incomeMultiplier(player: Player): number
+local function cashMultiplier(player: Player): number
 	return Monetization.IncomeMultiplier(player)
+end
+
+-- cash per cup (items raise the base value, Better Recipe multiplies it)
+local function cupValue(player: Player, data): number
+	return Config.GetBrewValue(data.Level) * Config.RecipeMultiplier(data.Recipe) * cashMultiplier(player)
+end
+
+local function brewCooldown(data): number
+	return Config.BREW_COOLDOWN / Config.SpeedMultiplier(data.Speed)
+end
+
+-- cash per second that arrives without brewing by hand: staff, the VIP barista and tips
+local function autoIncome(player: Player, data): number
+	local speed = Config.SpeedMultiplier(data.Speed)
+	local cup = cupValue(player, data)
+	local perSecond = data.Staff * cup * speed / Config.STAFF_INTERVAL
+	if Monetization.HasPass(player, "VipBarista") then
+		perSecond += cup * speed / Config.VIP_INTERVAL
+	end
+	return perSecond + Config.GetPassive(data.Level) * cashMultiplier(player)
 end
 
 function PlotService.GetIncomePerSecond(player: Player): number
 	local state = owners[player]
-	if not state then
-		return 0
-	end
-	return Config.GetPassive(state.Data.Level) * incomeMultiplier(player)
+	return if state then autoIncome(player, state.Data) else 0
 end
 
--- full-strength income per second (brewing + passive pacing), used to size Cash Boost products
+-- full-strength income per second (the pacing curve), used to size Cash Boost products
 function PlotService.GetBaseIncome(player: Player): number
 	local state = owners[player]
 	if not state then
 		return 0
 	end
-	return Config.GetIncome(state.Data.Level) * incomeMultiplier(player)
+	return Config.GetIncome(state.Data.Level) * cashMultiplier(player)
 end
-
-local function brewValue(player: Player, level: number): number
-	return Config.GetBrewValue(level) * incomeMultiplier(player)
-end
-
 
 ---------------------------------------------------------------------------
 -- Plot visuals
@@ -141,24 +158,16 @@ local function refreshPads(plot: PlotState)
 	local state = plot.Owner and owners[plot.Owner]
 	for i, pad in plot.Pads do
 		local labelText = plot.PadLabels[i]
-		if not state then
-			pad.Transparency = 0
+		local item = state and Config.GetItem(state.Data.Level + i)
+		if not item then
+			-- empty plot or everything bought: park the pad
+			pad.Transparency = if state then 1 else 0
 			pad.Color = COLOR_EMPTY
 			labelText.Text = ""
 			plot.PadGlow.Transparency = 1
 			continue
 		end
-
-		local item = Config.GetItem(state.Data.Level + i)
-		if not item then
-			-- everything bought: hide the pad
-			pad.Transparency = 1
-			labelText.Text = ""
-			plot.PadGlow.Transparency = 1
-			continue
-		end
-
-		-- move the pad next to where this item will appear
+		-- move the pad to its spot behind where this item will appear
 		local spot = plot.Floor and ItemModels.PadIn(item.Key, plot.Floor)
 		if spot then
 			pad.CFrame = spot * CFrame.new(0, pad.Size.Y / 2, 0)
@@ -168,6 +177,29 @@ local function refreshPads(plot: PlotState)
 		labelText.Text = item.Name .. "\n" .. Config.FormatMoney(item.Price)
 		plot.PadGlow.CFrame = pad.CFrame * CFrame.new(0, 5, 0) * CFrame.Angles(0, 0, math.rad(90))
 		plot.PadGlow.Transparency = 0.85
+	end
+
+	for key, pad in plot.UpgradePads do
+		local label = plot.UpgradeLabels[key]
+		local u = Config.UPGRADES[key]
+		if not state then
+			pad.Transparency = 0.6
+			label.Text = ""
+			continue
+		end
+		local owned = state.Data[key]
+		local cost = Config.UpgradeCost(key, owned)
+		pad.Transparency = if cost then 0 else 0.6
+		label.Text = string.format("%s (%d/%d)\n%s", u.Name, owned, u.Max, if cost then Config.FormatMoney(cost) else "MAX")
+	end
+
+	-- hired baristas stand at their carts; the rest wait in storage
+	for i, model in plot.StaffModels do
+		model.Parent = if state and i <= state.Data.Staff then plot.Model else plot.Storage
+	end
+	if plot.VipModel then
+		local vip = state and Monetization.HasPass(plot.Owner :: Player, "VipBarista")
+		plot.VipModel.Parent = if vip then plot.Model else plot.Storage
 	end
 end
 
@@ -195,12 +227,19 @@ local function setSign(plot: PlotState, text: string)
 end
 
 ---------------------------------------------------------------------------
--- Brewing / buying
+-- Brewing / buying / upgrading
 ---------------------------------------------------------------------------
 function PlotService.AddCash(player: Player, amount: number)
 	local state = owners[player]
 	if state then
 		state.Data.Cash += amount
+	end
+end
+
+function PlotService.Refresh(player: Player)
+	local state = owners[player]
+	if state then
+		refreshPads(state.Plot)
 	end
 end
 
@@ -211,79 +250,100 @@ local function brew(player: Player, plot: PlotState)
 		return
 	end
 	local now = os.clock()
-	if now - state.LastBrew < Config.BREW_COOLDOWN then
+	if now - state.LastBrew < brewCooldown(state.Data) then
 		return
 	end
 	state.LastBrew = now
-	local value = brewValue(player, state.Data.Level)
+	local value = cupValue(player, state.Data)
 	state.Data.Cash += value
 	PlotService.Notify(player, "Brew", "+" .. Config.FormatMoney(value))
 end
 
-local function tryBuy(player: Player, state: OwnerState, padIndex: number)
+local function tryBuy(player: Player, state: OwnerState)
 	local data = state.Data
-	local item = Config.GetItem(data.Level + padIndex)
+	local item = Config.GetItem(data.Level + 1)
 	if not item then
 		return
 	end
-	if padIndex ~= 1 then
-		return
-	end
 	if data.Cash < item.Price then
-		PlotService.Notify(player, "Error", "Not enough cash — brew " .. Config.FormatMoney(math.ceil(item.Price - data.Cash)) .. " more")
+		PlotService.Notify(player, "Error", "Not enough cash — you need " .. Config.FormatMoney(math.ceil(item.Price - data.Cash)) .. " more")
 		return
 	end
-
-	local oldBrew = brewValue(player, data.Level)
+	local oldCup = cupValue(player, data)
 	data.Cash -= item.Price
 	data.Level = item.Level
 	showItem(state.Plot, item.Level)
 	refreshPads(state.Plot)
-
-	local newBrew = brewValue(player, data.Level)
-	PlotService.Notify(player, "Buy", if newBrew > oldBrew
-		then string.format("Bought %s! Each cup now earns %s (was %s)", item.Name, Config.FormatMoney(newBrew), Config.FormatMoney(oldBrew))
-		else string.format("Bought %s! Your shop earns more every second", item.Name))
+	PlotService.Notify(player, "Buy", string.format("Built %s! Each cup now earns %s (was %s)",
+		item.Name, Config.FormatMoney(cupValue(player, data)), Config.FormatMoney(oldCup)))
 	if data.Level >= Config.MAX_LEVEL then
 		PlotService.Notify(player, "Buy", "Congratulations! Your Thai tea empire is complete!")
 	end
 end
 
+local UPGRADE_MESSAGES = {
+	Staff = "Hired a barista! Staff now sell %s per second for you",
+	Recipe = "Better recipe! Each cup now earns %s",
+	Speed = "Faster service! Brewing and staff are %s faster",
+}
+
+local function tryUpgrade(player: Player, state: OwnerState, key: string)
+	local data = state.Data
+	local cost = Config.UpgradeCost(key, data[key])
+	if not cost then
+		PlotService.Notify(player, "Error", Config.UPGRADES[key].Name .. " is maxed out")
+		return
+	end
+	if data.Cash < cost then
+		PlotService.Notify(player, "Error", "Not enough cash — you need " .. Config.FormatMoney(math.ceil(cost - data.Cash)) .. " more")
+		return
+	end
+	data.Cash -= cost
+	data[key] += 1
+	refreshPads(state.Plot)
+	local detail = if key == "Staff" then Config.FormatRate(autoIncome(player, data))
+		elseif key == "Recipe" then Config.FormatMoney(cupValue(player, data))
+		else string.format("%d%%", math.floor((Config.SpeedMultiplier(data.Speed) - 1) * 100 + 0.5))
+	PlotService.Notify(player, "Buy", string.format(UPGRADE_MESSAGES[key], detail))
+end
+
 local function updateOwner(player: Player, state: OwnerState, dt: number)
 	local data = state.Data
-	data.Cash += PlotService.GetIncomePerSecond(player) * dt
-
-	-- Auto Brew pass: one free cup every AUTO_BREW_INTERVAL seconds, wherever the player is
-	if Monetization.HasPass(player, "AutoBrew") then
-		state.AutoBrewTimer += dt
-		while state.AutoBrewTimer >= Config.AUTO_BREW_INTERVAL do
-			state.AutoBrewTimer -= Config.AUTO_BREW_INTERVAL
-			data.Cash += brewValue(player, data.Level)
-		end
-	end
+	data.Cash += autoIncome(player, data) * dt
 
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	if root and humanoid and humanoid.Health > 0 then
 		local position = root.Position
-
-		-- buy only when stepping onto the pad; standing still never re-buys, step off first
+		-- buy/upgrade only when stepping onto a pad; standing still never re-buys, step off first
 		for i, pad in state.Plot.Pads do
 			local onPad = pad.Transparency < 1 and isStandingOn(pad, position)
 			if onPad and not state.OnPad[i] then
-				tryBuy(player, state, i)
+				tryBuy(player, state)
 			end
 			state.OnPad[i] = onPad
 		end
+		for key, pad in state.Plot.UpgradePads do
+			local on = isStandingOn(pad, position)
+			if on and not state.OnUpgrade[key] then
+				tryUpgrade(player, state, key)
+			end
+			state.OnUpgrade[key] = on
+		end
 	else
 		table.clear(state.OnPad)
+		table.clear(state.OnUpgrade)
 	end
 
 	setAttr(player, "Cash", math.floor(data.Cash))
 	setAttr(player, "Level", data.Level)
-	setAttr(player, "Income", PlotService.GetIncomePerSecond(player))
-	setAttr(player, "BrewValue", brewValue(player, data.Level))
+	setAttr(player, "Income", autoIncome(player, data))
+	setAttr(player, "BrewValue", cupValue(player, data))
+	setAttr(player, "BrewCooldown", brewCooldown(data))
+	setAttr(player, "Staff", data.Staff)
+	setAttr(player, "Recipe", data.Recipe)
+	setAttr(player, "Speed", data.Speed)
 end
 
 ---------------------------------------------------------------------------
@@ -307,7 +367,22 @@ local function setupPlot(model: Model, storageRoot: Folder): PlotState?
 		pad.Anchored = true
 		pad.CanCollide = false
 		table.insert(pads, pad)
-		table.insert(padLabels, makePadLabel(pad))
+		table.insert(padLabels, makeLabel(pad, 3.5))
+	end
+
+	local upgradePads: { [string]: BasePart } = {}
+	local upgradeLabels: { [string]: TextLabel } = {}
+	local upgrades = model:FindFirstChild("Upgrades")
+	for _, key in Config.UPGRADE_ORDER do
+		local pad = upgrades and upgrades:FindFirstChild(key)
+		if pad and pad:IsA("BasePart") then
+			pad.Anchored = true
+			pad.CanCollide = false
+			upgradePads[key] = pad
+			upgradeLabels[key] = makeLabel(pad, 3.5)
+		else
+			warn("[PlotService] " .. model.Name .. " has no Upgrades." .. key .. " pad — that upgrade cannot be bought here")
+		end
 	end
 
 	local itemsFolder = model:FindFirstChild("Items")
@@ -342,6 +417,26 @@ local function setupPlot(model: Model, storageRoot: Folder): PlotState?
 	local base = model:FindFirstChild("Base")
 	local floor = if base and base:IsA("BasePart") then base.CFrame * CFrame.new(0, base.Size.Y / 2, 0) else nil
 
+	-- staff carts (built once, shown as the owner hires) and the VIP barista
+	local staffModels: { Model } = {}
+	local vipModel: Model? = nil
+	if floor then
+		for i, spot in ItemModels.StaffSpots do
+			local cart = ItemModels.BuildDecor("StaffCart", floor * CFrame.new(spot[1], 0, spot[2]), i)
+			if cart then
+				cart.Name = "Staff" .. i
+				cart.Parent = storage
+				table.insert(staffModels, cart)
+			end
+		end
+		local vipSpot = ItemModels.VipSpot
+		vipModel = ItemModels.BuildDecor("StaffCart", floor * CFrame.new(vipSpot[1], 0, vipSpot[2]), 0)
+		if vipModel then
+			vipModel.Name = "VipBarista"
+			vipModel.Parent = storage
+		end
+	end
+
 	-- Brew Station: a ProximityPrompt on its Kettle (press E / tap / click)
 	local station = model:FindFirstChild("BrewStation")
 	local kettle = station and (station:FindFirstChild("Kettle", true) or (if station:IsA("BasePart") then station else nil))
@@ -356,6 +451,10 @@ local function setupPlot(model: Model, storageRoot: Folder): PlotState?
 		Pads = pads,
 		PadLabels = padLabels,
 		PadGlow = makePadGlow(pads[1]),
+		UpgradePads = upgradePads,
+		UpgradeLabels = upgradeLabels,
+		StaffModels = staffModels,
+		VipModel = vipModel,
 		Kettle = kettle,
 		SignLabel = signLabel,
 		ItemsFolder = itemsFolder :: Folder,
@@ -401,9 +500,7 @@ function PlotService.AddPlayer(player: Player, data): boolean
 	end
 
 	plot.Owner = player
-	local state: OwnerState = {
-		Plot = plot, Data = data, OnPad = {}, LastBrew = 0, AutoBrewTimer = 0,
-	}
+	local state: OwnerState = { Plot = plot, Data = data, OnPad = {}, OnUpgrade = {}, LastBrew = 0 }
 	owners[player] = state
 
 	for level = 2, data.Level do
@@ -413,18 +510,18 @@ function PlotService.AddPlayer(player: Player, data): boolean
 	refreshPads(plot)
 	player:SetAttribute("Plot", plot.Name)
 
-	-- Offline earnings (from passive income)
+	-- Offline earnings (staff keep selling while you are away, at the offline rate)
 	local elapsed = os.time() - data.LastSeen
 	if elapsed >= Config.OFFLINE.MIN_SECONDS then
 		local plus = Monetization.HasPass(player, "OfflinePlus")
 		local rate = if plus then Config.OFFLINE.PASS_RATE else Config.OFFLINE.RATE
 		local maxHours = if plus then Config.OFFLINE.PASS_MAX_HOURS else Config.OFFLINE.MAX_HOURS
 		local seconds = math.min(elapsed, maxHours * 3600)
-		local earned = math.floor(PlotService.GetIncomePerSecond(player) * seconds * rate)
+		local earned = math.floor(autoIncome(player, data) * seconds * rate)
 		if earned > 0 then
 			data.Cash += earned
 			task.delay(3, PlotService.Notify, player, "Offline", string.format(
-				"While you were away (%s) your shop earned %s", Config.FormatTime(seconds), Config.FormatMoney(earned)))
+				"While you were away (%s) your staff earned %s", Config.FormatTime(seconds), Config.FormatMoney(earned)))
 		end
 	end
 	data.LastSeen = os.time()

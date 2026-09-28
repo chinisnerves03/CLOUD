@@ -29,7 +29,7 @@ def main():
         c = p["color"]
         color = (round(c[0] * 255) << 16) | (round(c[1] * 255) << 8) | round(c[2] * 255)
         n = len(out)
-        if p["item"] == "base" and p["name"] in ("Pad1",):
+        if p["item"] == "base" and p["name"] in ("Pad1", "Staff", "Recipe", "Speed"):
             special[p["name"]] = n
         if p["item"] == "BrewStation" and p["name"] in ("Kettle", "BrewPad"):
             special[p["name"]] = n

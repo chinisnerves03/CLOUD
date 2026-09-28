@@ -16,12 +16,42 @@ notifyRemote.Name = "TycoonNotify"
 notifyRemote.Parent = ReplicatedStorage
 
 if Config.PRINT_ECONOMY_CHECK then
-	print(string.format("[Config] %d levels, final price %s, top brew %s/cup, full shop ≈ %.1f min brewing (%.1f min AFK)",
+	print(string.format("[Config] %d levels, first item %s, final item %s, cup value %s → %s",
 		Config.MAX_LEVEL,
+		Config.FormatMoney(Config.Items[2].Price),
 		Config.FormatMoney(Config.Items[Config.MAX_LEVEL].Price),
-		Config.FormatMoney(Config.BrewValue[Config.MAX_LEVEL]),
-		Config.TotalWaitSeconds(true) / 60,
-		Config.TotalWaitSeconds(false) / 60))
+		Config.FormatMoney(Config.BrewValue[1]),
+		Config.FormatMoney(Config.BrewValue[Config.MAX_LEVEL])))
+end
+
+-- Warm afternoon look: soft shadows, light haze, gentle bloom and a little extra color.
+-- (Set Lighting.Technology to Future in Studio for the best result; scripts cannot change it.)
+local function setupLighting()
+	local Lighting = game:GetService("Lighting")
+	Lighting.ClockTime = 15.2
+	Lighting.GeographicLatitude = 20
+	Lighting.Brightness = 2.6
+	Lighting.Ambient = Color3.fromRGB(90, 80, 70)
+	Lighting.OutdoorAmbient = Color3.fromRGB(150, 140, 130)
+	Lighting.EnvironmentDiffuseScale = 0.8
+	Lighting.EnvironmentSpecularScale = 0.8
+	Lighting.GlobalShadows = true
+	Lighting.ShadowSoftness = 0.25
+	local function effect(className: string, props)
+		local existing = Lighting:FindFirstChildOfClass(className)
+		local obj = existing or Instance.new(className)
+		for key, value in props do
+			(obj :: any)[key] = value
+		end
+		obj.Parent = Lighting
+	end
+	effect("Atmosphere", { Density = 0.28, Offset = 0.1, Color = Color3.fromRGB(255, 236, 214), Decay = Color3.fromRGB(180, 150, 120), Glare = 0.3, Haze = 1.2 })
+	effect("BloomEffect", { Intensity = 0.35, Size = 28, Threshold = 0.92 })
+	effect("ColorCorrectionEffect", { Brightness = 0.02, Contrast = 0.08, Saturation = 0.18, TintColor = Color3.fromRGB(255, 248, 238) })
+	effect("SunRaysEffect", { Intensity = 0.05, Spread = 0.6 })
+end
+if Config.SETUP_LIGHTING then
+	setupLighting()
 end
 
 DataService.Init()
