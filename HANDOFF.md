@@ -36,6 +36,24 @@
 - แคปชัน: ทำ backend เล็กๆ (เช่น Cloudflare Worker หรือ Node/Express) เรียก Anthropic API โดยเก็บ API key ไว้ฝั่งเซิร์ฟเวอร์เท่านั้น ห้ามใส่ key ในหน้าเว็บ ใช้ prompt เดิมในฟังก์ชัน `$('gen').onclick` (ห้าม AI แต่งข้อมูลที่ไม่มี เช่นวันหมดโปร/ของแถม, ตอบเป็น JSON `{"captions":[{"style","text","hashtags"}]}`)
 - บันทึกรูป: ใช้ `canvas.toBlob` + `<a download>` ธรรมดา
 
+### สถานะหลังย้ายออกจาก claude.ai (ทำแล้ว)
+
+- หน้าเว็บย้ายไปอยู่ที่ `public/index.html` ไม่เรียก `claude.use(...)` แล้ว
+- แคปชัน: หน้าเว็บ `POST /api/captions` ไปที่ Cloudflare Pages Function `functions/api/captions.js` ซึ่งเรียก Anthropic API ด้วย `@anthropic-ai/sdk` (โมเดล `claude-opus-5`, effort `low`, บังคับรูปแบบ JSON ด้วย structured outputs, เปิด server-side fallback) key อยู่ใน env `ANTHROPIC_API_KEY` ฝั่งเซิร์ฟเวอร์เท่านั้น ถ้า backend ใช้ไม่ได้ หน้าเว็บจะใช้แคปชันจากแม่แบบแทน
+- บันทึกรูป: `canvas.toBlob` + `<a download>`
+
+### รัน/deploy
+
+```bash
+npm install
+cp .dev.vars.example .dev.vars   # ใส่ ANTHROPIC_API_KEY
+npm run dev                      # เปิด http://localhost:8788
+```
+
+Deploy: สร้างโปรเจกต์ Cloudflare Pages เชื่อม repo นี้ (build command เว้นว่าง, output directory `public`) แล้วตั้ง secret `ANTHROPIC_API_KEY` ใน Settings → Variables and Secrets หรือใช้ `npx wrangler pages deploy` + `npx wrangler pages secret put ANTHROPIC_API_KEY`
+
+ข้อควรระวัง: `/api/captions` เปิดให้ใครก็เรียกได้และเสียค่า API ทุกครั้ง ก่อนเปิดให้คนนอกใช้ควรใส่ rate limit (เช่น Cloudflare WAF rate limiting rule) หรือ Cloudflare Access
+
 ## ข้อตกลง/ข้อควรระวัง
 
 - UI และข้อความทั้งหมดเป็นภาษาไทย

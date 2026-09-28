@@ -1,0 +1,15 @@
+{
+  "name": "snack-post-maker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler pages dev",
+    "deploy": "wrangler pages deploy"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest"
+  },
+  "devDependencies": {
+    "wrangler": "latest"
+  }
+}
