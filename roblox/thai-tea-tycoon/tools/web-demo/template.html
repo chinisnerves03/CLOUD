@@ -24,7 +24,7 @@ body { margin: 0; background: var(--ground); color: var(--ink); font-family: var
 .panel { background: var(--panel); border: 1px solid var(--panel-edge); border-radius: 14px; backdrop-filter: blur(4px); }
 #money { top: calc(12px + env(safe-area-inset-top, 0px)); right: 16px; padding: 10px 14px; min-width: 190px; text-align: right; display: grid; gap: 2px; }
 #cash { font-family: var(--display); font-weight: 800; font-size: 32px; line-height: 1; color: var(--gold); font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
-#income, #bag { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+#income { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
 #level { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
 #bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.15); overflow: hidden; margin-top: 4px; }
 #bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--tea), var(--gold)); transition: width 0.3s; }
@@ -40,7 +40,6 @@ body { margin: 0; background: var(--ground); color: var(--ink); font-family: var
 #controls button.brew[data-far="1"] { opacity: 0.55; }
 .pop { position: fixed; z-index: 4; pointer-events: none; font: 800 18px var(--display); color: var(--gold); text-shadow: 0 2px 0 rgba(0,0,0,0.6); animation: popup 0.7s forwards; }
 @keyframes popup { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-36px); } }
-#bag.full { color: var(--bad); }
 #controls button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 #help { bottom: calc(14px + env(safe-area-inset-bottom, 0px)); left: 16px; padding: 8px 12px; font-size: 12px; color: var(--muted); max-width: 300px; }
 #help b { color: var(--ink); }
@@ -62,7 +61,6 @@ body { margin: 0; background: var(--ground); color: var(--ink); font-family: var
 <div id="money" class="hud panel">
   <div id="cash">฿0</div>
   <div id="income">+฿3/cup · +฿2.5/s</div>
-  <div id="bag">Bag: ฿0 / ฿240</div>
   <div id="level">Level 1 / 45</div>
   <div id="bar"><i></i></div>
 </div>
@@ -95,9 +93,9 @@ var priceGrowth = Math.pow(LAST_PRICE / FIRST_PRICE, 1 / (MAX_LEVEL - 2)), incom
 var PRICE = [], INCOME = [];
 for (var lv = 2; lv <= MAX_LEVEL; lv++) PRICE[lv] = lv === MAX_LEVEL ? LAST_PRICE : nice(FIRST_PRICE * Math.pow(priceGrowth, lv - 2));
 for (lv = 1; lv <= MAX_LEVEL; lv++) INCOME[lv] = nice((FIRST_PRICE / FIRST_WAIT) * Math.pow(incomeGrowth, lv - 1));
-var BREW_COOLDOWN = 0.35, BREW_SHARE = 0.3, PASSIVE_SHARE = 0.25, BAG_BREWS = 80;   // same as Config.lua
-var BREW = [], PASSIVE = [], BAG = [];
-for (lv = 1; lv <= MAX_LEVEL; lv++) { BREW[lv] = nice(INCOME[lv] * BREW_SHARE); PASSIVE[lv] = INCOME[lv] * PASSIVE_SHARE; BAG[lv] = BREW[lv] * BAG_BREWS; }
+var BREW_COOLDOWN = 0.35, BREW_SHARE = 0.3, PASSIVE_SHARE = 0.25;   // same as Config.lua
+var BREW = [], PASSIVE = [];
+for (lv = 1; lv <= MAX_LEVEL; lv++) { BREW[lv] = nice(INCOME[lv] * BREW_SHARE); PASSIVE[lv] = INCOME[lv] * PASSIVE_SHARE; }
 function money(n) {
   n = Math.floor(n);
   if (n >= 100000) { var s = [[1e12,'T'],[1e9,'B'],[1e6,'M'],[1e3,'K']]; for (var i = 0; i < s.length; i++) if (n >= s[i][0]) return '฿' + (n / s[i][0]).toFixed(2).replace(/\.?0+$/, '') + s[i][1]; }
@@ -107,11 +105,11 @@ function rate(n) { return n < 100 && n !== Math.floor(n) ? '฿' + n.toFixed(1) 
 function time(s) { s = Math.max(0, Math.floor(s)); if (s < 60) return s + 's'; if (s < 3600) return Math.floor(s / 60) + 'm ' + (s % 60) + 's'; return Math.floor(s / 3600) + 'h ' + Math.floor(s % 3600 / 60) + 'm'; }
 
 // ---------------------------------------------------------------- saved state (this browser only)
-var SAVE_KEY = 'thai-tea-tycoon-demo-v2';   // v2: brewing economy (prices ×10)
-var state = { cash: 0, bag: 0, level: 1 };
+var SAVE_KEY = 'thai-tea-tycoon-demo-v2';   // v2: brewing economy (prices ×10); old bag money is merged into cash
+var state = { cash: 0, level: 1 };
 try {
   var saved = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
-  if (saved && saved.level) { state = { cash: Math.max(0, (saved.cash || 0) + (saved.stored || 0)), bag: Math.max(0, saved.bag || 0), level: Math.min(45, Math.max(1, saved.level)) }; }
+  if (saved && saved.level) { state = { cash: Math.max(0, (saved.cash || 0) + (saved.stored || 0) + (saved.bag || 0)), level: Math.min(45, Math.max(1, saved.level)) }; }
 } catch (e) {}
 function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (e) {} }
 
@@ -231,7 +229,7 @@ DATA.parts.forEach(function (p, i) {
   }
 });
 
-// pads + register
+// buy pad + Brew Station
 function areaOf(index) { var p = DATA.parts[index]; return { x: p[5], z: p[7], hx: p[2] / 2 + 0.5, hz: p[4] / 2 + 0.5, y: p[6] }; }
 var pads = ['Pad1'].map(function (n) { var i = DATA.special[n]; return { area: areaOf(i), mesh: partMeshes[i], label: null }; });
 pads.forEach(function (pad) {   // the pad moves, so drive it with position/scale instead of a fixed matrix
@@ -240,7 +238,6 @@ pads.forEach(function (pad) {   // the pad moves, so drive it with position/scal
 });
 var padGlow = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 10, 24, 1, true), new THREE.MeshBasicMaterial({ color: 0x2ecc71, transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthWrite: false }));
 scene.add(padGlow);
-var register = areaOf(DATA.special.Register);
 var brewPad = areaOf(DATA.special.BrewPad), kettle = areaOf(DATA.special.Kettle);
 var PLOT_X = -110, PLOT_Z = 85;   // Plot1 floor center: pad spots are in plot space
 function labelSprite() {
@@ -261,7 +258,6 @@ function drawLabel(l, top, bottom, color) {
   l.tex.needsUpdate = true;
 }
 pads.forEach(function (pad) { pad.label = labelSprite(); scene.add(pad.label.sprite); });
-var regLabel = labelSprite(); regLabel.sprite.position.set(register.x, register.y + 4.8, register.z); scene.add(regLabel.sprite);
 
 // guide arrow
 var arrow = new THREE.Mesh(new THREE.ConeGeometry(0.9, 2, 16), new THREE.MeshBasicMaterial({ color: 0xffd60a }));
@@ -279,7 +275,7 @@ var armL = bodyPart(0.85, 2, 0.85, 0xf2c79c, -1.45, 3), armR = bodyPart(0.85, 2,
 [armL, armR].forEach(function (a) { a.geometry.translate(0, -1, 0); a.position.y = 4; });
 var head = new THREE.Mesh(new THREE.SphereGeometry(0.68, 20, 14), new THREE.MeshStandardMaterial({ color: new THREE.Color(0xf2c79c).convertSRGBToLinear() })); head.position.y = 4.7; head.castShadow = true; player.add(head);
 var cap = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.72, 0.4, 20), new THREE.MeshStandardMaterial({ color: new THREE.Color(0x228b5e).convertSRGBToLinear() })); cap.position.set(0, 5.25, 0); player.add(cap);
-player.position.set(-118, 0, 8);
+player.position.set(-110, 0, 8);
 var heading = 0;   // radians, 0 = facing +Z
 
 // ---------------------------------------------------------------- input
@@ -322,7 +318,7 @@ el('speed').addEventListener('click', function () { speed = speed === 1 ? 10 : s
 var resetArmed = 0;
 el('reset').addEventListener('click', function () {
   if (Date.now() - resetArmed > 3000) { resetArmed = Date.now(); el('reset').textContent = 'Tap again to restart'; setTimeout(function () { el('reset').textContent = 'Restart'; }, 3000); return; }
-  state = { cash: 0, bag: 0, level: 1 }; save(); resetArmed = 0; el('reset').textContent = 'Restart';
+  state = { cash: 0, level: 1 }; save(); resetArmed = 0; el('reset').textContent = 'Restart';
   applyLevel(false); toast('info', 'Fresh start! Your cart is waiting.');
 });
 
@@ -347,21 +343,19 @@ function applyLevel(animateNew) {
 }
 
 // ---------------------------------------------------------------- brewing
-var lastBrew = -1, bagWarned = false;
+var lastBrew = -1;
 function nearStation() { return Math.hypot(player.position.x - brewPad.x, player.position.z - brewPad.z) < 9; }
 function pop(text) {
-  var bagEl = el('bag').getBoundingClientRect(), p = document.createElement('div');
-  p.className = 'pop'; p.textContent = text; p.style.left = (bagEl.left - 70) + 'px'; p.style.top = bagEl.top + 'px';
+  var box = el('cash').getBoundingClientRect(), p = document.createElement('div');
+  p.className = 'pop'; p.textContent = text; p.style.left = (box.left - 80) + 'px'; p.style.top = box.top + 'px';
   document.body.appendChild(p); setTimeout(function () { p.remove(); }, 750);
 }
 function brew() {
   if (clock - lastBrew < BREW_COOLDOWN) return;
   if (!nearStation()) { if (clock - lastBrew > 1) { toast('error', 'Walk to the Brew Station to brew tea'); lastBrew = clock; } return; }
   lastBrew = clock;
-  var cap = BAG[state.level];
-  if (state.bag >= cap) { toast('error', 'Your bag is full! Deposit at COLLECT CASH'); return; }
   var value = BREW[state.level];
-  state.bag = Math.min(cap, state.bag + value); pop('+' + money(value));
+  state.cash += value; pop('+' + money(value));
 }
 var brewHeld = false;
 window.addEventListener('keydown', function (e) { if (e.key === 'e' || e.key === 'E' || e.key === ' ') { brewHeld = true; e.preventDefault(); } });
@@ -371,13 +365,12 @@ brewBtn.addEventListener('pointerdown', function (e) { e.preventDefault(); brewH
 ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (t) { brewBtn.addEventListener(t, function () { brewHeld = false; }); });
 
 // ---------------------------------------------------------------- game loop
-var onPad = [false], onReg = false, last = performance.now(), walkT = 0, saveT = 0, clock = 0;
+var onPad = [false], last = performance.now(), walkT = 0, saveT = 0, clock = 0;
 function inside(a, pos) { return Math.abs(pos.x - a.x) <= a.hx && Math.abs(pos.z - a.z) <= a.hz; }
 function tryBuy(i) {
   var lvl = state.level + 1; if (lvl > MAX_LEVEL) return;
   if (state.cash < PRICE[lvl]) {
-    var missing = Math.ceil(PRICE[lvl] - state.cash);
-    toast('error', state.bag >= missing ? 'Deposit your bag at COLLECT CASH first' : 'Not enough cash — you need ' + money(missing)); return;
+    toast('error', 'Not enough cash — brew ' + money(Math.ceil(PRICE[lvl] - state.cash)) + ' more'); return;
   }
   var before = BREW[state.level];
   state.cash -= PRICE[lvl]; state.level = lvl; save();
@@ -387,12 +380,10 @@ function tryBuy(i) {
 }
 var camTarget = new THREE.Vector3();
 function frame(now) {
-  var dt = Math.min(0.1, (now - last) / 1000); last = now; clock += dt;
-  // passive income goes straight into cash; brewing fills the bag
+  var dt = Math.max(0, Math.min(0.1, (now - last) / 1000)); last = now; clock += dt;   // the first rAF timestamp can be earlier than "last"
+  // passive income + brewing both go straight into cash
   state.cash += PASSIVE[state.level] * dt * speed;
   if (brewHeld) brew();
-  var cap = BAG[state.level];
-  if (state.bag >= cap && !bagWarned) { bagWarned = true; toast('error', 'Your bag is full! Deposit at COLLECT CASH'); }
   // movement
   var mx = 0, mz = 0;
   if (keys.w || keys.arrowup) mz += 1; if (keys.s || keys.arrowdown) mz -= 1;
@@ -414,11 +405,8 @@ function frame(now) {
   var swing = Math.sin(walkT) * 0.6 * Math.min(1, len);
   legL.rotation.x = swing; legR.rotation.x = -swing; armL.rotation.x = -swing; armR.rotation.x = swing;
   player.position.y = player.position.z >= 20 ? 1 : 0;
-  // register + pads (step on to trigger, like the Roblox version)
+  // buy pad (step on to trigger, like the Roblox version)
   var pos = player.position;
-  var nowReg = inside(register, pos);
-  if (nowReg && state.bag >= 1) { var amt = Math.floor(state.bag); state.cash += amt; state.bag -= amt; bagWarned = false; if (!onReg) toast('collect', 'Deposited +' + money(amt)); }
-  onReg = nowReg;
   pads.forEach(function (pad, i) { var on = pad.mesh.visible && inside(pad.area, pos); if (on && !onPad[i]) tryBuy(i); onPad[i] = on; });
   // pop-in animation for new items
   Object.keys(itemGroups).forEach(function (k) {
@@ -430,40 +418,30 @@ function frame(now) {
   var next = state.level + 1, price = PRICE[next], income = INCOME[state.level];
   el('cash').textContent = money(state.cash);
   el('income').textContent = '+' + money(BREW[state.level]) + '/cup · +' + rate(PASSIVE[state.level]) + '/s' + (speed > 1 ? ' (×' + speed + ')' : '');
-  el('bag').textContent = 'Bag: ' + money(state.bag) + ' / ' + money(cap);
-  el('bag').className = state.bag >= cap ? 'full' : '';
   brewBtn.dataset.far = nearStation() ? '0' : '1';
   el('level').textContent = 'Level ' + state.level + ' / ' + MAX_LEVEL;
-  el('bar').firstElementChild.style.width = (next > MAX_LEVEL ? 100 : Math.min(100, (state.cash + state.bag) / price * 100)) + '%';
-  drawRegisterLabel();
+  el('bar').firstElementChild.style.width = (next > MAX_LEVEL ? 100 : Math.min(100, state.cash / price * 100)) + '%';
   var goal = null;
   if (next > MAX_LEVEL) { el('hint').textContent = 'Your Thai tea empire is complete!'; }
-  else if (state.bag >= cap) { el('hint').textContent = 'Your bag is full! Deposit it at COLLECT CASH'; goal = register; }
   else if (state.cash >= price) { el('hint').textContent = 'Step on the green pad to buy ' + NAMES[next - 2] + ' (' + money(price) + ')'; goal = pads[0].area; }
-  else if (state.cash + state.bag >= price) { el('hint').textContent = 'Deposit your bag at COLLECT CASH, then buy ' + NAMES[next - 2]; goal = register; }
-  else { el('hint').textContent = 'Brew tea at the Brew Station (hold E) — ' + money(Math.ceil(price - state.cash - state.bag)) + ' more for ' + NAMES[next - 2]; goal = brewPad; }
+  else { el('hint').textContent = 'Brew tea at the Brew Station (hold E) — ' + money(Math.ceil(price - state.cash)) + ' more for ' + NAMES[next - 2]; goal = brewPad; }
   arrow.visible = ring.visible = !!goal;
   if (goal) { arrow.position.set(goal.x, goal.y + 7 + Math.sin(clock * 4) * 0.6, goal.z); ring.position.set(goal.x, goal.y + 0.35, goal.z); ring.material.opacity = 0.55 + Math.sin(clock * 4) * 0.25; }
   // camera
   camTarget.set(player.position.x, player.position.y + 3.5, player.position.z);
   camera.position.set(camTarget.x - Math.sin(camYaw) * Math.cos(camPitch) * camDist, camTarget.y + Math.sin(camPitch) * camDist, camTarget.z - Math.cos(camYaw) * Math.cos(camPitch) * camDist);
   camera.lookAt(camTarget);
-  archGroup.visible = !(camera.position.z > 8 && camera.position.z < 32 && player.position.z > 20 && Math.abs(camera.position.x + 110) < 30);
+  archGroup.visible = !(camera.position.z < 32 && player.position.z > 18 && Math.abs(camera.position.x + 110) < 34);   // hide the arch while it sits between the camera and the player
   saveT += dt; if (saveT > 3) { saveT = 0; save(); }
   renderer.render(scene, camera);
   requestAnimationFrame(frame);
-}
-var lastRegText = '';
-function drawRegisterLabel() {
-  var text = state.bag >= 1 ? 'Deposit ' + money(state.bag) : 'Deposit your bag here'; if (text === lastRegText) return; lastRegText = text;
-  drawLabel(regLabel, 'COLLECT CASH', text, '#ffd60a');
 }
 var camera = new THREE.PerspectiveCamera(55, 1, 0.3, 1200);
 function resize() { var w = window.innerWidth, h = window.innerHeight; renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); }
 window.addEventListener('resize', resize); resize();
 applyLevel(false);
 var loader = document.getElementById('loading'); if (loader) loader.remove();
-toast('info', state.level > 1 ? 'Welcome back! Level ' + state.level : 'Welcome! Brew tea at the Brew Station, then deposit at COLLECT CASH.');
+toast('info', state.level > 1 ? 'Welcome back! Level ' + state.level : 'Welcome! Brew tea at the Brew Station, then walk to the green pad to upgrade.');
 requestAnimationFrame(frame);
 window.__game = { state: state, tp: function (x, z) { player.position.x = x; player.position.z = z; } };   // test hook
 })();

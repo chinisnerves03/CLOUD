@@ -1,5 +1,5 @@
 -- MonetizationService: 3 Game Passes + 2 Developer Products
--- Pass ownership is stored as player Attributes: Pass_DoubleCash, Pass_AutoCollect, Pass_OfflinePlus
+-- Pass ownership is stored as player Attributes: Pass_DoubleCash, Pass_AutoBrew, Pass_OfflinePlus
 -- No in-game shop buttons yet: call MarketplaceService:PromptGamePassPurchase from UI and this service handles the rest
 
 local MarketplaceService = game:GetService("MarketplaceService")

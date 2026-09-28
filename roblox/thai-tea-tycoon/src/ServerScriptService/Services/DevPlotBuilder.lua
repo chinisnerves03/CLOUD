@@ -1,6 +1,6 @@
 -- DevPlotBuilder: builds 6 plots with all 44 item models (from ItemModels) plus plot and plaza decor
 -- The structure matches what PlotService expects:
---   Workspace.Plots.PlotN { Base, Items{L02..L45}, PadSlots{Pad1..Pad3}, Register, Sign{SurfaceGui.TextLabel} }
+--   Workspace.Plots.PlotN { Base, Items{L02..L45}, PadSlots{Pad1}, BrewStation{Kettle}, Sign{SurfaceGui.TextLabel} }
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -25,23 +25,6 @@ local function part(props): Part
 		(p :: any)[k] = v
 	end
 	return p
-end
-
-local function billboard(parent: Instance, text: string, offsetY: number)
-	local gui = Instance.new("BillboardGui")
-	gui.Size = UDim2.fromOffset(160, 40)
-	gui.StudsOffset = Vector3.new(0, offsetY, 0)
-	gui.MaxDistance = 60
-	local label = Instance.new("TextLabel")
-	label.Size = UDim2.fromScale(1, 1)
-	label.BackgroundTransparency = 1
-	label.Font = Enum.Font.GothamBlack
-	label.TextScaled = true
-	label.TextColor3 = Color3.fromRGB(255, 214, 10)
-	label.TextStrokeTransparency = 0.2
-	label.Text = text
-	label.Parent = gui
-	gui.Parent = parent
 end
 
 local function buildPlot(index: number, origin: CFrame): Model
@@ -116,23 +99,13 @@ local function buildPlot(index: number, origin: CFrame): Model
 	end
 
 	-- Brew Station: players brew tea here by hand (PlotService adds the prompt to its Kettle part)
-	local brew = ItemModels.BuildDecor("BrewStation", at(-8, 0, FRONT + 10))
+	local brew = ItemModels.BuildDecor("BrewStation", at(0, 0, FRONT + 10))
 	if brew then
 		brew.Name = "BrewStation"
 		brew.Parent = plot
 	end
 
-	local register = part({
-		Name = "Register",
-		Size = Vector3.new(7, 0.6, 7),
-		CFrame = at(8, 0.3, FRONT + 8),
-		Color = Color3.fromRGB(255, 196, 0),
-		Material = Enum.Material.Neon,
-		CanCollide = false,
-	})
-	billboard(register, "COLLECT CASH", 3)
-	register.Parent = plot
-	for _, spec in { { "RegisterBooth", at(8, 0, FRONT + 13) }, { "SignLamps", at(-33, 9, FRONT + 4) }, { "Arch", at(0, 0, FRONT + 1) } } do
+	for _, spec in { { "SignLamps", at(-33, 9, FRONT + 4) }, { "Arch", at(0, 0, FRONT + 1) } } do
 		local model = ItemModels.BuildDecor(spec[1], spec[2])
 		if model then
 			model.Parent = decor
