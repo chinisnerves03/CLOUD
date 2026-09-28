@@ -1,0 +1,90 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#9cc9ee}canvas{display:block}</style></head>
+<body><script type="module">
+import * as THREE from './three.module.js';
+const parts = (await (await fetch('parts.jsonl')).text()).split('\n').filter(l => l.startsWith('{')).map(l => JSON.parse(l));
+const q = new URLSearchParams(location.search);
+const W = +q.get('w') || 1280, H = +q.get('h') || 800;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H); renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x9cc9ee);
+scene.add(new THREE.HemisphereLight(0xdfefff, 0x6b6250, 1.1));
+const sun = new THREE.DirectionalLight(0xfff4e0, 2.2); sun.position.set(-60, 120, -80); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048); const sc = sun.shadow.camera; sc.left = -80; sc.right = 80; sc.top = 80; sc.bottom = -80; sc.near = 1; sc.far = 400;
+sun.target.position.set(0, 0, 70); scene.add(sun); scene.add(sun.target);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000), new THREE.MeshStandardMaterial({ color: 0x6f8f5a }));
+ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+
+function wedgeGeo(w, h, d) {
+  const x = w / 2, y = h / 2, z = d / 2;
+  const v = [
+    // bottom
+    -x,-y,-z,  x,-y,-z,  x,-y, z,   -x,-y,-z,  x,-y, z, -x,-y, z,
+    // back (z=+z)
+    -x,-y, z,  x,-y, z,  x, y, z,   -x,-y, z,  x, y, z, -x, y, z,
+    // slope: from bottom-front edge to top-back edge
+    -x,-y,-z, -x, y, z,  x, y, z,   -x,-y,-z,  x, y, z,  x,-y,-z,
+    // left tri
+    -x,-y,-z, -x,-y, z, -x, y, z,
+    // right tri
+     x,-y,-z,  x, y, z,  x,-y, z,
+  ];
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(v, 3)); g.computeVertexNormals();
+  return g;
+}
+function textPlane(t, size) {
+  const dims = { Front: [size[0], size[1], size[2] / 2], Back: [size[0], size[1], size[2] / 2], Left: [size[2], size[1], size[0] / 2], Right: [size[2], size[1], size[0] / 2], Top: [size[0], size[2], size[1] / 2], Bottom: [size[0], size[2], size[1] / 2] }[t.face];
+  const [fw, fh, off] = dims; const [rx, ry, rw, rh] = t.region;
+  const pw = fw * rw, ph = fh * rh; const scale = 60;
+  const cw = Math.max(8, Math.round(pw * scale)), ch = Math.max(8, Math.round(ph * scale));
+  const cv = document.createElement('canvas'); cv.width = cw; cv.height = ch; const g = cv.getContext('2d');
+  if (t.bgT < 1) { g.fillStyle = `rgba(${t.bg.map(c=>Math.round(c*255)).join(',')},${1-t.bgT})`; g.fillRect(0,0,cw,ch); }
+  const lines = t.text.split('\n'); let fs = ch;
+  const fit = () => { g.font = `900 ${fs}px sans-serif`; return Math.max(...lines.map(l => g.measureText(l).width)) <= cw * 0.96 && fs * lines.length * 1.15 <= ch; };
+  while (fs > 4 && !fit()) fs -= 1;
+  g.fillStyle = `rgb(${t.color.map(c=>Math.round(c*255)).join(',')})`; g.textAlign = 'center'; g.textBaseline = 'middle';
+  lines.forEach((l, i) => g.fillText(l, cw / 2, ch / 2 + (i - (lines.length - 1) / 2) * fs * 1.15));
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
+  const mat = t.glow ? new THREE.MeshBasicMaterial({ map: tex, transparent: true }) : new THREE.MeshStandardMaterial({ map: tex, transparent: true });
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(pw, ph), mat);
+  const cx = -fw / 2 + fw * (rx + rw / 2), cy = fh / 2 - fh * (ry + rh / 2);
+  const o = off + 0.02;
+  switch (t.face) {
+    case 'Front': m.rotation.y = Math.PI; m.position.set(-cx, cy, -o); break;
+    case 'Back': m.position.set(cx, cy, o); break;
+    case 'Right': m.rotation.y = Math.PI / 2; m.position.set(o, cy, -cx); break;
+    case 'Left': m.rotation.y = -Math.PI / 2; m.position.set(-o, cy, cx); break;
+    case 'Top': m.rotation.x = -Math.PI / 2; m.position.set(cx, o, -cy); break;
+    default: m.rotation.x = Math.PI / 2; m.position.set(cx, -o, cy);
+  }
+  return m;
+}
+const glassy = new Set(['Glass']);
+for (const p of parts) {
+  if (p.t >= 1 && p.texts.length === 0) continue;
+  let geo; const [sx, sy, sz] = p.size;
+  if (p.shape === 'Block') geo = new THREE.BoxGeometry(sx, sy, sz);
+  else if (p.shape === 'Cylinder') { const r = Math.min(sy, sz) / 2; geo = new THREE.CylinderGeometry(r, r, sx, 28); geo.rotateZ(Math.PI / 2); }
+  else if (p.shape === 'Ball') geo = new THREE.SphereGeometry(Math.min(sx, sy, sz) / 2, 20, 14);
+  else if (p.shape === 'Ellipsoid') { geo = new THREE.SphereGeometry(0.5, 24, 16); geo.scale(sx, sy, sz); }
+  else if (p.shape === 'Wedge') geo = wedgeGeo(sx, sy, sz);
+  const color = new THREE.Color(...p.color).convertSRGBToLinear();
+  const neon = p.mat === 'Neon';
+  const mat = new THREE.MeshStandardMaterial({ color, roughness: p.mat === 'Metal' ? 0.35 : glassy.has(p.mat) ? 0.1 : 0.75, metalness: p.mat === 'Metal' ? 0.5 : 0,
+    emissive: neon ? color : 0x000000, emissiveIntensity: neon ? 1.2 : 0, transparent: p.t > 0, opacity: 1 - p.t, side: p.shape === 'Wedge' ? THREE.DoubleSide : THREE.FrontSide });
+  const r = p.rot;
+  const group = new THREE.Group();
+  group.matrixAutoUpdate = false;
+  group.matrix.set(r[0], r[1], r[2], p.pos[0], r[3], r[4], r[5], p.pos[1], r[6], r[7], r[8], p.pos[2], 0, 0, 0, 1);
+  if (p.t < 1 && geo) { const mesh = new THREE.Mesh(geo, mat); mesh.castShadow = p.t < 0.5; mesh.receiveShadow = true; group.add(mesh); }
+  for (const t of p.texts) group.add(textPlane(t, p.size));
+  if (p.light && q.get("lights")) { const l = new THREE.PointLight(new THREE.Color(...p.light), 0.8, 14); group.add(l); }
+  scene.add(group);
+}
+const cam = new THREE.PerspectiveCamera(+q.get('fov') || 50, W / H, 0.1, 2000);
+const e = (q.get('eye') || '0,70,-10').split(',').map(Number), t = (q.get('at') || '0,0,70').split(',').map(Number);
+cam.position.set(...e); cam.lookAt(...t);
+renderer.render(scene, cam);
+document.title = 'done';
+</script></body></html>

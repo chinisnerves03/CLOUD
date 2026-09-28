@@ -1,0 +1,7 @@
+node_modules/
+run.luau
+parts.jsonl
+shots/
+three.module.js
+three.core.js
+package-lock.json

@@ -1,16 +1,18 @@
--- DevPlotBuilder: สร้างฐานจำลอง 6 ฐาน (บล็อกสีตามขั้น) ไว้ทดสอบ ก่อนมีโมเดลจริง
+-- DevPlotBuilder: สร้างฐาน 6 ฐานพร้อมโมเดลของทั้ง 44 ชิ้น (จาก ItemModels) ไว้ทดสอบ/ใช้งาน ก่อนมีโมเดลที่ทำเอง
 -- โครงสร้างที่สร้างตรงกับที่ PlotService ต้องการ:
 --   Workspace.Plots.PlotN { Base, Items{L02..L45}, PadSlots{Pad1..Pad3}, Register, Sign{SurfaceGui.TextLabel} }
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage:WaitForChild("Config"))
+local ItemModels = require(script.Parent:WaitForChild("ItemModels"))
 
 local DevPlotBuilder = {}
 
-local PLOT_SIZE = 60
-local ROW_OFFSET = 50 -- ระยะจากกลางลานถึงกลางฐาน (แกน Z)
-local COLUMN_GAP = 70 -- ระยะห่างฐานแต่ละฐาน (แกน X)
+local PLOT_WIDTH = 80 -- แกน X
+local PLOT_DEPTH = 100 -- แกน Z (ด้านหน้า -Z หันเข้าลาน)
+local PLAZA_HALF = 20 -- ครึ่งหนึ่งของความกว้างลานกลาง
+local COLUMN_GAP = 90 -- ระยะห่างกึ่งกลางฐานตามแกน X
 local FLOOR_TOP = 1 -- ความสูงผิวพื้นฐาน
 
 local function part(props): Part
@@ -24,39 +26,61 @@ local function part(props): Part
 	return p
 end
 
-local function label(parent: Instance, text: string, offsetY: number, maxDistance: number)
+local function billboard(parent: Instance, text: string, offsetY: number)
 	local gui = Instance.new("BillboardGui")
-	gui.Name = "Label"
-	gui.Size = UDim2.fromOffset(160, 36)
+	gui.Size = UDim2.fromOffset(160, 40)
 	gui.StudsOffset = Vector3.new(0, offsetY, 0)
-	gui.MaxDistance = maxDistance
-	local text_ = Instance.new("TextLabel")
-	text_.Size = UDim2.fromScale(1, 1)
-	text_.BackgroundTransparency = 1
-	text_.Text = text
-	text_.TextScaled = true
-	text_.Font = Enum.Font.GothamBold
-	text_.TextColor3 = Color3.new(1, 1, 1)
-	text_.TextStrokeTransparency = 0.3
-	text_.Parent = gui
+	gui.MaxDistance = 60
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.fromScale(1, 1)
+	label.BackgroundTransparency = 1
+	label.Font = Enum.Font.GothamBlack
+	label.TextScaled = true
+	label.TextColor3 = Color3.fromRGB(255, 214, 10)
+	label.TextStrokeTransparency = 0.2
+	label.Text = text
+	label.Parent = gui
 	gui.Parent = parent
 end
 
 local function buildPlot(index: number, origin: CFrame): Model
 	local plot = Instance.new("Model")
 	plot.Name = "Plot" .. index
+	local floor = origin * CFrame.new(0, FLOOR_TOP, 0)
+	local function at(x: number, y: number, z: number): CFrame
+		return floor * CFrame.new(x, y, z)
+	end
 
 	local base = part({
 		Name = "Base",
-		Size = Vector3.new(PLOT_SIZE, 1, PLOT_SIZE),
-		CFrame = origin * CFrame.new(0, FLOOR_TOP - 0.5, 0),
-		Color = Color3.fromRGB(196, 164, 132),
-		Material = Enum.Material.WoodPlanks,
+		Size = Vector3.new(PLOT_WIDTH, 1, PLOT_DEPTH),
+		CFrame = at(0, -0.5, 0),
+		Color = Color3.fromRGB(222, 210, 188),
+		Material = Enum.Material.Concrete,
 	})
 	base.Parent = plot
 	plot.PrimaryPart = base
 
-	-- แผ่นซื้อของด้านหน้า (ฝั่ง -Z ของฐาน = ฝั่งลานกลาง)
+	-- ทางเดินหน้าร้าน + แนวพุ่มไม้ข้างฐาน
+	part({
+		Name = "FrontWalk",
+		Size = Vector3.new(PLOT_WIDTH, 0.1, 14),
+		CFrame = at(0, 0.05, -PLOT_DEPTH / 2 + 7),
+		Color = Color3.fromRGB(150, 140, 130),
+		Material = Enum.Material.Pavement,
+		CanCollide = false,
+	}).Parent = plot
+	for _, x in { -PLOT_WIDTH / 2 + 0.6, PLOT_WIDTH / 2 - 0.6 } do
+		part({
+			Name = "Hedge",
+			Size = Vector3.new(1.2, 1.6, 66),
+			CFrame = at(x, 0.8, -3),
+			Color = Color3.fromRGB(70, 140, 60),
+			Material = Enum.Material.Grass,
+		}).Parent = plot
+	end
+
+	-- แผ่นซื้อของด้านหน้า
 	local pads = Instance.new("Folder")
 	pads.Name = "PadSlots"
 	pads.Parent = plot
@@ -64,33 +88,43 @@ local function buildPlot(index: number, origin: CFrame): Model
 		part({
 			Name = "Pad" .. i,
 			Size = Vector3.new(9, 0.6, 9),
-			CFrame = origin * CFrame.new((i - 2) * 14, FLOOR_TOP + 0.3, -22),
+			CFrame = at((i - 2) * 14, 0.3, -42),
 			Color = Color3.fromRGB(46, 204, 113),
 			Material = Enum.Material.SmoothPlastic,
 			CanCollide = false,
 		}).Parent = pads
 	end
 
-	part({
+	local register = part({
 		Name = "Register",
 		Size = Vector3.new(7, 0.6, 7),
-		CFrame = origin * CFrame.new(23, FLOOR_TOP + 0.3, -12),
+		CFrame = at(25, 0.3, -42),
 		Color = Color3.fromRGB(255, 196, 0),
 		Material = Enum.Material.Neon,
 		CanCollide = false,
-	}).Parent = plot
+	})
+	billboard(register, "ตู้เก็บเงิน", 3)
+	register.Parent = plot
 
+	-- ป้ายชื่อเจ้าของร้าน (มุมหน้าซ้าย)
+	part({
+		Name = "SignPost",
+		Size = Vector3.new(1, 8, 1),
+		CFrame = at(-33, 4, -46),
+		Color = Color3.fromRGB(90, 45, 15),
+		Material = Enum.Material.Wood,
+	}).Parent = plot
 	local sign = part({
 		Name = "Sign",
-		Size = Vector3.new(30, 6, 1),
-		CFrame = origin * CFrame.new(0, FLOOR_TOP + 11, 29),
+		Size = Vector3.new(13, 4, 0.8),
+		CFrame = at(-33, 9, -46),
 		Color = Color3.fromRGB(120, 60, 20),
 		Material = Enum.Material.Wood,
 	})
 	local surface = Instance.new("SurfaceGui")
 	surface.Face = Enum.NormalId.Front
 	surface.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-	surface.PixelsPerStud = 20
+	surface.PixelsPerStud = 25
 	local text = Instance.new("TextLabel")
 	text.Size = UDim2.fromScale(1, 1)
 	text.BackgroundTransparency = 1
@@ -102,38 +136,19 @@ local function buildPlot(index: number, origin: CFrame): Model
 	surface.Parent = sign
 	sign.Parent = plot
 
-	-- เสาค้ำป้าย
-	for _, x in { -13, 13 } do
-		part({
-			Name = "SignPost",
-			Size = Vector3.new(1, 8, 1),
-			CFrame = origin * CFrame.new(x, FLOOR_TOP + 4, 29),
-			Color = Color3.fromRGB(90, 45, 15),
-		}).Parent = plot
-	end
-
-	-- ของ 44 ชิ้น: ตาราง 11 คอลัมน์ × 4 แถว
+	-- ของ 44 ชิ้น
 	local items = Instance.new("Folder")
 	items.Name = "Items"
 	items.Parent = plot
 	for level = 2, Config.MAX_LEVEL do
-		local item = Config.Items[level]
-		local n = level - 2
-		local column, row = n % 11, math.floor(n / 11)
-		local height = 1.5 + item.Tier * 1.2
-		local model = Instance.new("Model")
-		model.Name = item.Key
-		local block = part({
-			Name = "Block",
-			Size = Vector3.new(3.6, height, 3.6),
-			CFrame = origin * CFrame.new(-25 + column * 5, FLOOR_TOP + height / 2, -3 + row * 7),
-			Color = Config.TIERS[item.Tier].Color,
-			Material = Enum.Material.SmoothPlastic,
-		})
-		block.Parent = model
-		model.PrimaryPart = block
-		label(block, item.Name, height / 2 + 1.2, 45)
-		model.Parent = items
+		local key = Config.Items[level].Key
+		local spot = ItemModels.PlaceIn(key, floor)
+		local model = spot and ItemModels.Build(key, spot)
+		if model then
+			model.Parent = items
+		else
+			warn("[DevPlotBuilder] ไม่มีโมเดลสำหรับ " .. key)
+		end
 	end
 
 	return plot
@@ -145,11 +160,12 @@ function DevPlotBuilder.Build(): Folder
 	folder.Name = "Plots"
 
 	local perRow = math.ceil(Config.PLOT_COUNT / 2)
+	local rowOffset = PLAZA_HALF + PLOT_DEPTH / 2
 	for i = 1, Config.PLOT_COUNT do
 		local topRow = i <= perRow
 		local column = (i - 1) % perRow
 		local x = (column - (perRow - 1) / 2) * COLUMN_GAP
-		local z = if topRow then ROW_OFFSET else -ROW_OFFSET
+		local z = if topRow then rowOffset else -rowOffset
 		-- ด้านหน้าของฐาน (-Z ในตัวฐาน) ต้องหันเข้าลานกลาง: แถวล่างหมุน 180°
 		local origin = CFrame.new(x, 0, z) * CFrame.Angles(0, if topRow then 0 else math.pi, 0)
 		buildPlot(i, origin).Parent = folder
@@ -166,7 +182,7 @@ function DevPlotBuilder.Build(): Folder
 	end
 
 	folder.Parent = workspace
-	print("[DevPlotBuilder] สร้างฐานจำลอง " .. Config.PLOT_COUNT .. " ฐานแล้ว")
+	print("[DevPlotBuilder] สร้างฐาน " .. Config.PLOT_COUNT .. " ฐานพร้อมโมเดลของครบ")
 	return folder
 end
 

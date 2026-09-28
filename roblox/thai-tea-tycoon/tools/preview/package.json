@@ -1,0 +1,7 @@
+{
+  "name": "thai-tea-tycoon-preview",
+  "private": true,
+  "type": "module",
+  "dependencies": { "three": "^0.180.0", "playwright": "^1.55.0" },
+  "scripts": { "setup": "cp node_modules/three/build/three.module.js node_modules/three/build/three.core.js ." }
+}
