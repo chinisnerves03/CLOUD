@@ -1,4 +1,4 @@
--- DevPlotBuilder: สร้างฐาน 6 ฐานพร้อมโมเดลของทั้ง 44 ชิ้น (จาก ItemModels) ไว้ทดสอบ/ใช้งาน ก่อนมีโมเดลที่ทำเอง
+-- DevPlotBuilder: สร้างฐาน 6 ฐานพร้อมโมเดลของทั้ง 44 ชิ้น (จาก ItemModels) + ของตกแต่งฐานและลานกลาง
 -- โครงสร้างที่สร้างตรงกับที่ PlotService ต้องการ:
 --   Workspace.Plots.PlotN { Base, Items{L02..L45}, PadSlots{Pad1..Pad3}, Register, Sign{SurfaceGui.TextLabel} }
 
@@ -9,10 +9,11 @@ local ItemModels = require(script.Parent:WaitForChild("ItemModels"))
 
 local DevPlotBuilder = {}
 
-local PLOT_WIDTH = 80 -- แกน X
-local PLOT_DEPTH = 100 -- แกน Z (ด้านหน้า -Z หันเข้าลาน)
+local PLOT_WIDTH = 100 -- แกน X
+local PLOT_DEPTH = 130 -- แกน Z (ด้านหน้า -Z หันเข้าลาน)
 local PLAZA_HALF = 20 -- ครึ่งหนึ่งของความกว้างลานกลาง
-local COLUMN_GAP = 90 -- ระยะห่างกึ่งกลางฐานตามแกน X
+local COLUMN_GAP = 110 -- ระยะห่างกึ่งกลางฐานตามแกน X
+local FRONT = -PLOT_DEPTH / 2 -- ขอบหน้าฐาน
 local FLOOR_TOP = 1 -- ความสูงผิวพื้นฐาน
 
 local function part(props): Part
@@ -61,11 +62,11 @@ local function buildPlot(index: number, origin: CFrame): Model
 	base.Parent = plot
 	plot.PrimaryPart = base
 
-	-- ทางเดินหน้าร้าน + แนวพุ่มไม้ข้างฐาน
+	-- ทางเดินหน้าร้าน + แนวพุ่มไม้ข้างฐาน + ไฟทางเดิน
 	part({
 		Name = "FrontWalk",
 		Size = Vector3.new(PLOT_WIDTH, 0.1, 14),
-		CFrame = at(0, 0.05, -PLOT_DEPTH / 2 + 7),
+		CFrame = at(0, 0.05, FRONT + 7),
 		Color = Color3.fromRGB(150, 140, 130),
 		Material = Enum.Material.Pavement,
 		CanCollide = false,
@@ -73,11 +74,30 @@ local function buildPlot(index: number, origin: CFrame): Model
 	for _, x in { -PLOT_WIDTH / 2 + 0.6, PLOT_WIDTH / 2 - 0.6 } do
 		part({
 			Name = "Hedge",
-			Size = Vector3.new(1.2, 1.6, 66),
-			CFrame = at(x, 0.8, -3),
+			Size = Vector3.new(1.2, 1.6, 114),
+			CFrame = at(x, 0.8, 7),
 			Color = Color3.fromRGB(70, 140, 60),
 			Material = Enum.Material.Grass,
 		}).Parent = plot
+	end
+
+	local decor = Instance.new("Folder")
+	decor.Name = "Decor"
+	decor.Parent = plot
+	for _, side in { -1, 1 } do
+		for _, z in { -45, -25, -5, 30 } do
+			-- โคมหันเข้ากลางฐาน
+			local lamp = ItemModels.BuildDecor("Lamp", at(side * (PLOT_WIDTH / 2 - 2.2), 0, z) * CFrame.Angles(0, side * math.pi / 2, 0))
+			if lamp then
+				lamp.Parent = decor
+			end
+		end
+	end
+	for _, spot in { { -44, FRONT + 4, "Bench" }, { 44, FRONT + 4, "Bench" }, { -40, FRONT + 4, "Bin" }, { 40, FRONT + 4, "Bin" } } do
+		local model = ItemModels.BuildDecor(spot[3], at(spot[1], 0, spot[2]))
+		if model then
+			model.Parent = decor
+		end
 	end
 
 	-- แผ่นซื้อของด้านหน้า
@@ -88,7 +108,7 @@ local function buildPlot(index: number, origin: CFrame): Model
 		part({
 			Name = "Pad" .. i,
 			Size = Vector3.new(9, 0.6, 9),
-			CFrame = at((i - 2) * 14, 0.3, -42),
+			CFrame = at((i - 2) * 14, 0.3, FRONT + 8),
 			Color = Color3.fromRGB(46, 204, 113),
 			Material = Enum.Material.SmoothPlastic,
 			CanCollide = false,
@@ -98,7 +118,7 @@ local function buildPlot(index: number, origin: CFrame): Model
 	local register = part({
 		Name = "Register",
 		Size = Vector3.new(7, 0.6, 7),
-		CFrame = at(25, 0.3, -42),
+		CFrame = at(25, 0.3, FRONT + 8),
 		Color = Color3.fromRGB(255, 196, 0),
 		Material = Enum.Material.Neon,
 		CanCollide = false,
@@ -110,14 +130,14 @@ local function buildPlot(index: number, origin: CFrame): Model
 	part({
 		Name = "SignPost",
 		Size = Vector3.new(1, 8, 1),
-		CFrame = at(-33, 4, -46),
+		CFrame = at(-33, 4, FRONT + 4),
 		Color = Color3.fromRGB(90, 45, 15),
 		Material = Enum.Material.Wood,
 	}).Parent = plot
 	local sign = part({
 		Name = "Sign",
 		Size = Vector3.new(13, 4, 0.8),
-		CFrame = at(-33, 9, -46),
+		CFrame = at(-33, 9, FRONT + 4),
 		Color = Color3.fromRGB(120, 60, 20),
 		Material = Enum.Material.Wood,
 	})
@@ -170,6 +190,34 @@ function DevPlotBuilder.Build(): Folder
 		local origin = CFrame.new(x, 0, z) * CFrame.Angles(0, if topRow then 0 else math.pi, 0)
 		buildPlot(i, origin).Parent = folder
 	end
+
+	-- ลานกลาง: น้ำพุระหว่างฐาน ต้นไม้ ม้านั่ง ไฟทาง
+	local plaza = Instance.new("Folder")
+	plaza.Name = "PlazaDecor"
+	local function place(kind: string, cf: CFrame)
+		local model = ItemModels.BuildDecor(kind, cf)
+		if model then
+			model.Parent = plaza
+		end
+	end
+	for _, x in { -COLUMN_GAP / 2, COLUMN_GAP / 2 } do
+		place("Fountain", CFrame.new(x, 0, 0))
+		-- ม้านั่งหันหน้าเข้าน้ำพุ
+		place("Bench", CFrame.new(x, 0, -10) * CFrame.Angles(0, math.pi, 0))
+		place("Bench", CFrame.new(x, 0, 10))
+	end
+	for _, x in { -135, -80, -30, 30, 80, 135 } do
+		for _, z in { -14, 14 } do
+			place("Tree", CFrame.new(x, 0, z))
+		end
+	end
+	for _, x in { -110, 0, 110 } do
+		for _, z in { -16, 16 } do
+			place("Lamp", CFrame.new(x + 12, 0, z) * CFrame.Angles(0, if z < 0 then math.pi else 0, 0))
+			place("Lamp", CFrame.new(x - 12, 0, z) * CFrame.Angles(0, if z < 0 then math.pi else 0, 0))
+		end
+	end
+	plaza.Parent = workspace
 
 	if not workspace:FindFirstChildWhichIsA("SpawnLocation", true) then
 		local spawn = Instance.new("SpawnLocation")

@@ -9,7 +9,13 @@ local function esc(s) return (s:gsub("\\", "\\\\"):gsub('"', '\\"'):gsub("\n", "
 
 local counts = {}
 local total = 0
-for _, plot in folder:GetChildren() do
+local groups = folder:GetChildren()
+local plaza = workspace:FindFirstChild("PlazaDecor")
+if plaza then
+	plaza.Name = "Plot1"
+	table.insert(groups, plaza)
+end
+for _, plot in groups do
 	local plotName = plot.Name
 	for _, obj in plot:GetDescendants() do
 		if obj:IsA("BasePart") then

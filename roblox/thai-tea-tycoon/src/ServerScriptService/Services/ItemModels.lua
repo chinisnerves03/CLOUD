@@ -79,6 +79,9 @@ function Builder:_part(class: string, size: Vector3, cf: CFrame, color: Color3, 
 		end
 	end
 	p.CanCollide = solid
+	if math.max(size.X, size.Y, size.Z) < 1.5 then
+		p.CastShadow = false
+	end
 	if not solid then
 		p.CanQuery = false
 	end
@@ -227,6 +230,12 @@ function Builder:Person(cf: CFrame, style)
 	if style.cap then
 		self:Cyl(0.4, 1.45, cf * CF(0, 5.3, 0.05), style.cap)
 		self:Box(V3(1.1, 0.1, 0.7), cf * CF(0, 5.15, -0.75), style.cap, nil, { solid = false })
+	elseif style.chefHat then
+		self:Cyl(0.8, 1.3, cf * CF(0, 5.55, 0.05), PAL.white)
+		self:Ellipsoid(V3(1.6, 0.7, 1.6), cf * CF(0, 6.0, 0.05), PAL.white)
+	elseif style.ngob then -- งอบชาวไร่
+		self:Ellipsoid(V3(2.4, 0.5, 2.4), cf * CF(0, 5.35, 0.05), rgb(215, 185, 120))
+		self:Ellipsoid(V3(1.1, 0.6, 1.1), cf * CF(0, 5.6, 0.05), rgb(200, 165, 100))
 	end
 	return hands
 end
@@ -258,6 +267,73 @@ function Builder:Legs(width: number, depth: number, height: number, thick: numbe
 	end
 end
 
+-- อาคารกลวงเดินเข้าได้: พื้น + ผนัง 4 ด้าน (เจาะประตู/หน้าต่าง) + หลังคาแบน
+-- spec: w, d, h, t (ความหนาผนัง), wall, wallMat, wallT, floor, floorMat, roof (false = ไม่ทำ), roofColor
+--       openings = { { side = "Front"|"Back"|"Left"|"Right", x = กึ่งกลางตามแนวผนัง, y = ขอบล่าง, w, h, glass = true/false } }
+-- ประตูที่เดินผ่านได้: glass = false, y = 0, h >= 7
+function Builder:Shell(cf: CFrame, spec)
+	local w, d, h = spec.w, spec.d, spec.h
+	local t = spec.t or 0.6
+	local wallOpts = { t = spec.wallT, solid = true }
+	self:Box(V3(w - 2 * t, 0.2, d - 2 * t), cf * CF(0, 0.1, 0), spec.floor or PAL.concrete, spec.floorMat or M.Concrete, { solid = true })
+
+	local sides = {
+		Front = { length = w, place = function(u, y, len, hgt) return V3(len, hgt, t), CF(u, y, -d / 2 + t / 2) end },
+		Back = { length = w, place = function(u, y, len, hgt) return V3(len, hgt, t), CF(u, y, d / 2 - t / 2) end },
+		Left = { length = d - 2 * t, place = function(u, y, len, hgt) return V3(t, hgt, len), CF(-w / 2 + t / 2, y, u) end },
+		Right = { length = d - 2 * t, place = function(u, y, len, hgt) return V3(t, hgt, len), CF(w / 2 - t / 2, y, u) end },
+	}
+	for sideName, side in sides do
+		local openings = {}
+		for _, o in spec.openings or {} do
+			if o.side == sideName then
+				table.insert(openings, o)
+			end
+		end
+		table.sort(openings, function(a, b)
+			return a.x < b.x
+		end)
+		local function piece(u0: number, u1: number, y0: number, y1: number)
+			if u1 - u0 > 0.01 and y1 - y0 > 0.01 then
+				local size, at = side.place((u0 + u1) / 2, (y0 + y1) / 2, u1 - u0, y1 - y0)
+				self:Box(size, cf * at, spec.wall, spec.wallMat, wallOpts)
+			end
+		end
+		local cursor = -side.length / 2
+		for _, o in openings do
+			local a, b = o.x - o.w / 2, o.x + o.w / 2
+			piece(cursor, a, 0, h)
+			piece(a, b, 0, o.y)
+			piece(a, b, o.y + o.h, h)
+			if o.glass then
+				local size, at = side.place(o.x, o.y + o.h / 2, o.w, o.h)
+				local pane = if sideName == "Front" or sideName == "Back" then V3(size.X, size.Y, 0.15) else V3(0.15, size.Y, size.Z)
+				self:Box(pane, cf * at, PAL.glass, M.Glass, { t = 0.45, solid = true })
+			end
+			cursor = b
+		end
+		piece(cursor, side.length / 2, 0, h)
+	end
+
+	if spec.roof ~= false then
+		self:Box(V3(w, 0.6, d), cf * CF(0, h + 0.3, 0), spec.roofColor or spec.wall, spec.wallMat)
+	end
+end
+
+-- ชั้นวางของติดผนัง: ยาวตามแกน X ของ cf, ของบนชั้นมาจาก fill(ช่องที่, x, yบนชั้น)
+function Builder:Shelf(cf: CFrame, length: number, depth: number, levels: { number }, color: Color3, fill)
+	local height = levels[#levels] + 1.2
+	for _, x in { -length / 2, length / 2 } do
+		self:Box(V3(0.25, height, depth), cf * CF(x, height / 2, 0), color, M.Metal)
+	end
+	for level, y in levels do
+		self:Box(V3(length, 0.15, depth), cf * CF(0, y, 0), color, M.Metal, { solid = true })
+		if fill then
+			fill(level, y + 0.08)
+		end
+	end
+end
+
 -- ตัวสุ่มแบบกำหนดผลได้ (ให้ทุกฐานหน้าตาเหมือนกัน)
 local function seeded(seed: number)
 	local state = seed
@@ -269,58 +345,58 @@ end
 
 ---------------------------------------------------------------------------
 -- ผังวางของในฐาน { x, y, z, หมุนรอบแกน Y (องศา) }
--- ฐานกว้าง 80 (x -40..40) ลึก 100 (z -50 หน้า .. 50 หลัง)
+-- ฐานกว้าง 100 (x -50..50) ลึก 130 (z -65 หน้า .. 65 หลัง)
 ---------------------------------------------------------------------------
 ItemModels.Layout = {
 	-- ขั้น 1: รถเข็นชาไทย (หน้าซ้าย)
-	L02 = { -20, 0, -26, 0 },
-	L03 = { -25.4, 0, -26, 0 },
-	L04 = { -14.2, 0, -25.5, 0 },
-	L05 = { -13.8, 0, -20.5, 0 },
-	L06 = { -18.4, 3, -26, 0 },
-	L07 = { -20, 0, -23.4, 0 },
-	L08 = { -27, 0, -31.5, 0 },
-	L09 = { -21.6, 3, -26, 0 },
-	L10 = { -31.5, 0, -22, 0 },
+	L02 = { -20, 0, -41, 0 },
+	L03 = { -25.4, 0, -41, 0 },
+	L04 = { -14.2, 0, -40.5, 0 },
+	L05 = { -13.8, 0, -35.5, 0 },
+	L06 = { -18.4, 3, -41, 0 },
+	L07 = { -20, 0, -38.4, 0 },
+	L08 = { -27, 0, -46.5, 0 },
+	L09 = { -21.6, 3, -41, 0 },
+	L10 = { -31.5, 0, -37, 0 },
 	-- ขั้น 2: ร้านเล็กริมทาง (หน้าขวา)
-	L11 = { 20, 0, -22, 0 },
-	L12 = { 24.8, 3.5, -21.6, 0 },
-	L13 = { 19.5, 3.5, -22, 0 },
-	L14 = { 23.5, 0, -17.2, 0 },
-	L15 = { 20, 0, -26.8, 0 },
-	L16 = { 32.5, 0, -30, 0 },
-	L17 = { 22, 0, -24, 0 },
-	L18 = { 14.2, 3.5, -22, 0 },
-	L19 = { 17.5, 0, -18.6, 0 },
+	L11 = { 20, 0, -37, 0 },
+	L12 = { 24.8, 3.5, -36.6, 0 },
+	L13 = { 19.5, 3.5, -37, 0 },
+	L14 = { 23.5, 0, -32.2, 0 },
+	L15 = { 20, 0, -41.8, 0 },
+	L16 = { 32.5, 0, -45, 0 },
+	L17 = { 22, 0, -39, 0 },
+	L18 = { 14.2, 3.5, -37, 0 },
+	L19 = { 17.5, 0, -33.6, 0 },
 	-- ขั้น 3: คาเฟ่ (กลาง)
-	L20 = { -31, 0, -4, 0 },
-	L21 = { -19, 0, 9, 0 },
-	L22 = { -23.5, 0, -4, 0 },
-	L23 = { 16.5, 0, -1, 0 },
-	L24 = { 31, 0, 6, 0 },
-	L25 = { -37.2, 0, 7, 0 },
-	L26 = { -29.5, 0, 10.5, 0 },
-	L27 = { 0, 0, 2, 0 },
-	L28 = { 0, 0, 11.5, 0 },
-	-- ขั้น 4: ครัวกลาง (หลังกลาง)
-	L29 = { -31, 0, 24, 0 },
-	L30 = { -15, 0, 24, 0 },
-	L31 = { 12, 0, 20, 0 },
-	L32 = { 12, 0, 27, 0 },
-	L33 = { 35, 0, -44, 0 },
-	L34 = { 31, 0, 24, 0 },
-	L35 = { -2.5, 0, 24, 0 },
-	L36 = { 0, 0, 5.3, 0 },
-	L37 = { 33.5, 0, -6, 0 },
-	-- ขั้น 5: อาณาจักรชาไทย (แถวหลังสุด)
-	L38 = { -33, 0, 43, 0 },
-	L39 = { -19.5, 0, 43, 0 },
-	L40 = { -8.5, 0, 43, 0 },
-	L41 = { 8.5, 0, 44, 0 },
-	L42 = { 20, 0, 43, 0 },
-	L43 = { 32.5, 0, 43, 0 },
-	L44 = { 0, 0, 34.5, 0 },
-	L45 = { 0, 0, 44, 0 },
+	L20 = { -31, 0, -19, 0 },
+	L21 = { -19, 0, -6, 0 },
+	L22 = { -23.5, 0, -19, 0 },
+	L23 = { 16.5, 0, -16, 0 },
+	L24 = { 31, 0, -9, 0 },
+	L25 = { -37.2, 0, -8, 0 },
+	L26 = { -29.5, 0, -4.5, 0 },
+	L27 = { 0, 0, -13, 0 },
+	L28 = { 0, 0, -3.5, 0 },
+	-- ขั้น 4: ครัวกลาง + โลจิสติกส์ (อาคารเดินเข้าได้)
+	L29 = { -38, 0, 16, 0 },
+	L30 = { -22, 0, 16, 0 },
+	L31 = { 12, 0, 11, 0 },
+	L32 = { 12, 0, 18, 0 },
+	L33 = { 35, 0, -59, 0 },
+	L34 = { 35, 0, 16, 0 },
+	L35 = { -6, 0, 16, 0 },
+	L36 = { 0, 0, -9.7, 0 },
+	L37 = { 33.5, 0, -21, 0 },
+	-- ขั้น 5: อาณาจักรชาไทย (แถวหลังสุด อาคารเดินเข้าได้)
+	L38 = { -41.5, 0, 50, 0 },
+	L39 = { -26.5, 0, 46, 0 },
+	L40 = { -12.5, 0, 48, 0 },
+	L41 = { 13, 0, 52, 0 },
+	L42 = { 26.5, 0, 48, 0 },
+	L43 = { 42, 0, 44, 0 },
+	L44 = { 0, 0, 40, 0 },
+	L45 = { 0, 0, 54, 0 },
 }
 
 ---------------------------------------------------------------------------
@@ -834,35 +910,115 @@ end
 
 -- ขั้น 4 ---------------------------------------------------------------
 
-Build.L29 = function(b) -- อาคารครัวกลาง
-	b:Box(V3(16.4, 0.6, 14.4), CF(0, 0.3, 0), PAL.steelDark, M.Concrete)
-	b:Box(V3(16, 8, 14), CF(0, 4.6, 0), rgb(236, 232, 224), M.Concrete)
-	b:Box(V3(16.4, 0.8, 14.4), CF(0, 8.9, 0), PAL.tea)
-	b:Box(V3(6, 5, 0.1), CF(-3.5, 3.1, -7.05), PAL.steelDark, M.Metal)
-	for i = 1, 9 do
-		b:Box(V3(6, 0.06, 0.05), CF(-3.5, 0.9 + i * 0.5, -7.12), PAL.steel, nil, { solid = false })
+Build.L29 = function(b) -- ครัวกลาง (เดินเข้าได้: เตา หม้อต้มชา เครื่องดูดควัน โต๊ะเตรียม พ่อครัว)
+	local W, D, H = 20, 16, 9
+	b:Shell(CF(), {
+		w = W, d = D, h = H, wall = rgb(236, 232, 224), wallMat = M.Concrete,
+		floor = rgb(150, 72, 55), floorMat = M.Slate, roofColor = rgb(205, 205, 205),
+		openings = {
+			{ side = "Front", x = -4.5, y = 0, w = 7, h = 7 },
+			{ side = "Front", x = 5, y = 0, w = 3.6, h = 7.2 },
+			{ side = "Left", x = -3, y = 3.5, w = 4, h = 2.5, glass = true },
+			{ side = "Left", x = 3, y = 3.5, w = 4, h = 2.5, glass = true },
+			{ side = "Right", x = -3, y = 3.5, w = 4, h = 2.5, glass = true },
+			{ side = "Right", x = 3, y = 3.5, w = 4, h = 2.5, glass = true },
+		},
+	})
+	-- ภายนอก
+	local band = b:Box(V3(W + 0.4, 0.9, D + 0.4), CF(0, H + 1.05, 0), PAL.tea)
+	b:Text(band, FACE.Front, "ครัวกลาง  CENTRAL KITCHEN", { color = PAL.white, region = { 0.15, 0.05, 0.7, 0.9 } })
+	b:HCyl(7.4, 1, CF(-4.5, 7.5, -D / 2 - 0.5), PAL.steelDark, M.Metal)
+	for _, x in { -8.1, -0.9 } do
+		b:Box(V3(0.25, 7, 0.3), CF(x, 3.5, -D / 2 - 0.15), PAL.steelDark, M.Metal, { solid = false })
 	end
-	b:Box(V3(2, 3.6, 0.1), CF(3, 2.4, -7.05), PAL.glass, M.Glass, { t = 0.3 })
-	b:Box(V3(2.4, 0.2, 1.2), CF(3, 4.5, -7.5), PAL.tea)
-	for _, x in { -3.5, 4 } do
-		b:Box(V3(3.4, 1.6, 0.1), CF(x, 6.4, -7.05), PAL.glass, M.Glass, { t = 0.2 })
+	b:Box(V3(4.4, 0.2, 1.6), CF(5, 7.5, -D / 2 - 0.8), PAL.tea)
+	local lamp = b:Box(V3(0.8, 0.3, 0.3), CF(5, 7.2, -D / 2 - 0.2), PAL.warm, M.Neon, { solid = false })
+	b:Light(lamp, PAL.warm, 10, 0.6)
+	for _, x in { -4, 1 } do
+		b:Cyl(1, 1.6, CF(x, H + 2, 2), PAL.steel, M.Metal)
+		b:Cyl(0.2, 2, CF(x, H + 2.6, 2), PAL.steelDark, M.Metal)
 	end
-	for _, x in { -8.05, 8.05 } do
-		for _, z in { -3, 3 } do
-			b:Box(V3(0.1, 1.6, 3), CF(x, 6.4, z), PAL.glass, M.Glass, { t = 0.2 })
+	b:Cyl(3, 0.8, CF(6, H + 3, 4), PAL.steelDark, M.Metal)
+	for i, d in { 1.2, 1.6, 2.0 } do
+		b:Ball(d, CF(6 + i * 0.2, H + 4.6 + i * 0.9, 4), PAL.white, nil, { t = 0.6, solid = false })
+	end
+	b:Box(V3(3, 1.4, 2), CF(-6, H + 2.2, -3.5), PAL.steel, M.Metal)
+
+	-- ไลน์เตาหลังห้อง
+	b:Box(V3(12, 3, 2.6), CF(-2, 1.7, 6.1), PAL.steel, M.Metal)
+	for _, x in { -6, -2, 2 } do
+		b:Box(V3(3.2, 1.6, 0.08), CF(x, 1.4, 4.78), PAL.steelDark, M.Metal, { solid = false })
+		b:Box(V3(2, 0.12, 0.12), CF(x, 2.35, 4.7), PAL.steel, M.Metal, { solid = false })
+	end
+	for i, x in { -6.5, -3.5, -0.5, 2.5 } do
+		b:Cyl(0.15, 1.8, CF(x, 3.28, 6.1), PAL.black)
+		b:Cyl(2, 2.2, CF(x, 4.35, 6.1), PAL.steel, M.Metal)
+		b:Cyl(0.12, 2.3, CF(x, 5.3, 6.1), PAL.steelDark, M.Metal)
+		b:Cyl(0.05, 2.0, CF(x, 5.22, 6.1), if i == 4 then PAL.pearl else PAL.teaDark)
+		b:Ball(1, CF(x + 0.2, 6.1, 6.1), PAL.white, nil, { t = 0.6, solid = false })
+	end
+	b:Box(V3(12, 3.5, 0.1), CF(-2, 5, 7.35), PAL.white, M.Marble, { solid = false })
+	b:Box(V3(13, 1.2, 3), CF(-2, 7.8, 6.0), PAL.steel, M.Metal)
+	b:Box(V3(2.4, 0.8, 2), CF(-2, 8.6, 6.3), PAL.steel, M.Metal)
+	b:Box(V3(11, 0.1, 0.4), CF(-2, 7.15, 4.7), PAL.warm, M.Neon, { solid = false })
+	b:Box(V3(4, 0.05, 1.6), CF(-2, 0.23, 3.9), PAL.black, nil, { solid = false })
+
+	-- อ่างล้าง
+	b:Box(V3(4, 3, 2.4), CF(6.5, 1.7, 6.2), PAL.steel, M.Metal)
+	b:Box(V3(3, 0.1, 1.6), CF(6.5, 3.22, 6.1), PAL.steelDark, M.Metal, { solid = false })
+	b:Cyl(1, 0.2, CF(6.5, 3.7, 7.0), PAL.steel, M.Metal)
+	b:Tube(V3(6.5, 4.2, 7.0), V3(6.5, 4.2, 6.3), 0.15, PAL.steel, M.Metal)
+	for i = 0, 3 do
+		b:Box(V3(0.1, 0.9, 0.9), CF(5.1 + i * 0.25, 3.7, 5.6), PAL.white, nil, { solid = false })
+	end
+
+	-- ชั้นวางวัตถุดิบ (ผนังซ้าย)
+	local shelf = CF(-W / 2 + 1.5, 0.2, -1) * ANG(0, rad(90), 0)
+	b:Shelf(shelf, 8, 1.6, { 1, 2.8, 4.6, 6.4 }, PAL.steel, function(level, y)
+		for k = 1, 4 do
+			local at = shelf * CF(-3 + (k - 1) * 2, y, 0)
+			if (k + level) % 2 == 0 then
+				local sack = b:Box(V3(1.4, 1.2, 1.2), at * CF(0, 0.6, 0), PAL.cream, M.Fabric, { solid = false })
+				sack.Name = "Sack"
+			else
+				b:Cyl(1.2, 1.0, at * CF(0, 0.6, 0), PAL.white, M.Glass, { t = 0.5, solid = false })
+				b:Cyl(0.8, 0.9, at * CF(0, 0.45, 0), if k == 1 then PAL.teaDark else PAL.leafDark, nil, { solid = false })
+			end
+		end
+	end)
+	b:HCyl(0.1, 1.2, CF(-W / 2 + 0.65, 6.8, 5), PAL.white, nil, { solid = false })
+
+	-- โต๊ะเตรียม 2 ตัว
+	for _, x in { -3, 4 } do
+		b:Box(V3(6, 0.2, 3), CF(x, 3.1, -1.5), PAL.steel, M.Metal, { solid = true })
+		b:Legs(5.6, 2.6, 3, 0.2, CF(x, 0.2, -1.5), PAL.steelDark)
+		b:Box(V3(5.6, 0.1, 2.6), CF(x, 1.0, -1.5), PAL.steel, M.Metal, { solid = false })
+	end
+	b:Box(V3(1.6, 0.1, 1), CF(-4.5, 3.25, -1.5), PAL.woodLight, M.Wood, { solid = false })
+	for i = 0, 2 do
+		b:Cyl(0.35, 0.9, CF(-2.6 + i * 1, 3.38, -1.8), PAL.white, nil, { solid = false })
+		b:Cyl(0.1, 0.75, CF(-2.6 + i * 1, 3.5, -1.8), ({ PAL.teaDark, PAL.leafDark, PAL.pearl })[i + 1], nil, { solid = false })
+	end
+	b:Cyl(1, 0.7, CF(-1, 3.7, -0.8), PAL.steel, M.Metal, { solid = false })
+	for i = 0, 5 do
+		b:TeaCup(CF(1.8 + i * 0.9, 3.2, -2.3), 0.9, if i % 3 == 2 then rgb(120, 180, 90) else nil)
+	end
+	for i = 0, 2 do
+		b:Cyl(0.5, 0.4, CF(5.4 + i * 0.5, 3.45, -0.8), if i == 1 then PAL.white else PAL.red, nil, { solid = false })
+	end
+
+	-- พ่อครัว 2 คน
+	local chef1 = b:Person(CF(-4, 0.2, 3.3) * ANG(0, rad(180), 0), { shirt = PAL.white, apron = PAL.white, chefHat = true, right = { 75, 10 }, left = { 40, 0 } })
+	b:Rod(chef1.right, V3(-3.8, 5.2, 6.1), 0.12, PAL.woodDark, M.Wood)
+	b:Person(CF(4, 0.2, 0.8), { shirt = PAL.white, apron = PAL.tea, chefHat = true, right = { 60, 25 }, left = { 60, 25 } })
+
+	-- ไฟเพดาน
+	for i, z in { -4, 0.5, 4.5 } do
+		local strip = b:Box(V3(8, 0.15, 0.7), CF(0, H - 0.1, z), PAL.white, M.Neon, { solid = false })
+		if i == 2 then
+			b:Light(strip, PAL.white, 18, 0.8)
 		end
 	end
-	local sign = b:Box(V3(9, 1.3, 0.2), CF(0, 8.0, -7.3), PAL.green)
-	b:Text(sign, FACE.Front, "ครัวกลาง", { color = PAL.cream })
-	for _, x in { -4, 1 } do
-		b:Cyl(1, 1.6, CF(x, 9.8, 2), PAL.steel, M.Metal)
-		b:Cyl(0.2, 2, CF(x, 10.4, 2), PAL.steelDark, M.Metal)
-	end
-	b:Cyl(3, 0.8, CF(5.5, 10.8, 4), PAL.steelDark, M.Metal)
-	for i, d in { 1.2, 1.6, 2.0 } do
-		b:Ball(d, CF(5.5 + i * 0.2, 12.4 + i * 0.9, 4), PAL.white, nil, { t = 0.6, solid = false })
-	end
-	b:Box(V3(3, 1.4, 2), CF(-5, 9.9, -3.5), PAL.steel, M.Metal)
 end
 
 Build.L30 = function(b) -- รถส่งของ (หัวรถหันหน้าออกลาน)
@@ -981,30 +1137,99 @@ Build.L33 = function(b) -- จุดรับออร์เดอร์ออ�
 	b:Text(delivery, FACE.Back, "ชาไทย", { color = PAL.white })
 end
 
-Build.L34 = function(b) -- ห้องเย็น
-	b:Box(V3(12, 8, 12), CF(0, 4, 0), rgb(234, 240, 246))
-	b:Box(V3(12.1, 0.6, 12.1), CF(0, 7.7, 0), PAL.blue)
-	for _, x in { -4.5, -3, 2, 3.5, 5 } do
-		b:Box(V3(0.08, 7.4, 0.06), CF(x, 3.7, -6.02), rgb(200, 208, 216), nil, { solid = false })
+Build.L34 = function(b) -- ห้องเย็น (เดินเข้าได้: ม่านพลาสติก ชั้นวางลังนม น้ำแข็ง พัดลมคอยล์เย็น)
+	local W, D, H = 14, 14, 9
+	local ICE = rgb(190, 230, 250)
+	b:Shell(CF(), {
+		w = W, d = D, h = H, wall = rgb(234, 240, 246), wallMat = M.SmoothPlastic,
+		floor = rgb(205, 220, 230), floorMat = M.Marble,
+		openings = { { side = "Front", x = -2, y = 0, w = 4.2, h = 7.4 } },
+	})
+	b:Box(V3(W + 0.2, 0.8, D + 0.2), CF(0, H + 1.0, 0), PAL.blue)
+	for _, x in { -4.35, 0.35 } do
+		b:Box(V3(0.5, 7.8, 0.9), CF(x, 3.9, -D / 2 - 0.1), PAL.steel, M.Metal)
 	end
-	b:Box(V3(3, 5.6, 0.3), CF(-0.6, 2.8, -6.1), PAL.steel, M.Metal)
-	b:Box(V3(0.25, 1.4, 0.3), CF(0.6, 2.8, -6.35), PAL.steelDark, M.Metal, { solid = false })
-	for i = 0, 5 do
-		b:Box(V3(0.45, 5.4, 0.03), CF(-1.85 + i * 0.5, 2.8, -6.3), PAL.glass, M.Glass, { t = 0.55, solid = false })
+	b:Box(V3(5.2, 0.5, 0.9), CF(-2, 7.65, -D / 2 - 0.1), PAL.steel, M.Metal)
+	for i = 0, 7 do
+		b:Box(V3(0.5, 7.2, 0.05), CF(-3.75 + i * 0.5, 3.8, -D / 2 + 0.5), PAL.glass, M.Glass, { t = 0.5, solid = false })
 	end
-	local temp = b:Box(V3(1.8, 0.8, 0.1), CF(3.4, 5.4, -6.05), PAL.black)
+	for _, x in { -5.5, 1.8, 3.6, 5.4 } do
+		b:Box(V3(0.08, 8.4, 0.06), CF(x, 4.2, -D / 2 - 0.03), rgb(200, 208, 216), nil, { solid = false })
+	end
+	local temp = b:Box(V3(1.8, 0.8, 0.1), CF(3.6, 5.4, -D / 2 - 0.05), PAL.black)
 	b:Text(temp, FACE.Front, "-18°C", { color = rgb(255, 70, 70), glow = true })
-	b:Box(V3(4, 1.5, 3), CF(0, 8.75, 2), PAL.steel, M.Metal)
-	b:Cyl(0.2, 2.2, CF(0, 9.6, 2), PAL.black)
-	local sign = b:Box(V3(6, 0.9, 0.15), CF(-2, 6.8, -6.1), PAL.blue)
+	local sign = b:Box(V3(4.5, 0.9, 0.15), CF(3.6, 6.8, -D / 2 - 0.08), PAL.blue)
 	b:Text(sign, FACE.Front, "ห้องเย็น", { color = PAL.white })
-	b:Box(V3(2.6, 0.4, 2.6), CF(4.3, 0.2, -8.2), PAL.wood, M.WoodPlanks)
-	for _, p in { V3(3.7, 0.95, -8.8), V3(4.9, 0.95, -8.8), V3(3.7, 0.95, -7.6), V3(4.9, 0.95, -7.6), V3(4.3, 2.05, -8.2) } do
-		b:Box(V3(1.1, 1.1, 1.1), CF(p), rgb(200, 160, 110), M.SmoothPlastic)
+	b:Box(V3(4, 1.5, 3), CF(0, H + 2.15, 2), PAL.steel, M.Metal)
+	b:Cyl(0.2, 2.2, CF(0, H + 3, 2), PAL.black)
+	b:Box(V3(2.6, 0.4, 2.6), CF(4.3, 0.2, -D / 2 - 2), PAL.wood, M.WoodPlanks)
+	for _, p in { V3(3.7, 0.95, -9.6), V3(4.9, 0.95, -9.6), V3(3.7, 0.95, -8.4), V3(4.9, 0.95, -8.4), V3(4.3, 2.05, -9.0) } do
+		b:Box(V3(1.1, 1.1, 1.1), CF(p), rgb(200, 160, 110))
+	end
+
+	-- ชั้นวางผนังหลัง: ลังนม + กล่อง
+	local back = CF(0, 0.2, 5.4)
+	b:Shelf(back, 11, 1.8, { 1.2, 3.2, 5.2 }, PAL.blue, function(level, y)
+		for k = 1, 5 do
+			local at = back * CF(-4.4 + (k - 1) * 2.2, y, 0)
+			if (k + level) % 2 == 0 then
+				b:Box(V3(1.8, 1.0, 1.5), at * CF(0, 0.5, 0), if k % 4 == 0 then PAL.red else PAL.blue, nil, { solid = false })
+				b:Box(V3(1.5, 0.12, 1.2), at * CF(0, 1.05, 0), PAL.white, nil, { solid = false })
+			else
+				b:Box(V3(1.8, 1.3, 1.5), at * CF(0, 0.65, 0), rgb(200, 160, 110), nil, { solid = false })
+				b:Box(V3(1.0, 0.4, 0.02), at * CF(0, 0.7, -0.76), PAL.white, nil, { solid = false })
+			end
+		end
+	end)
+	-- ชั้นวางผนังซ้าย: ของแช่แข็ง
+	local left = CF(-5.4, 0.2, -0.5) * ANG(0, rad(90), 0)
+	b:Shelf(left, 8, 1.6, { 1.2, 3.2, 5.2 }, PAL.blue, function(level, y)
+		for k = 1, 3 do
+			local at = left * CF(-2.6 + (k - 1) * 2.6, y, 0)
+			b:Box(V3(1.6, 1.1, 1.4), at * CF(0, 0.55, 0), if (k + level) % 2 == 0 then PAL.white else rgb(150, 200, 240), nil, { solid = false })
+		end
+	end)
+	-- ก้อนน้ำแข็ง + พาเลทนม
+	for i = 0, 5 do
+		local x = 3.6 + (i % 2) * 1.4
+		local y = 0.85 + math.floor(i / 4) * 1.3
+		local z = -4.2 + (math.floor(i / 2) % 2) * 1.4
+		b:Box(V3(1.3, 1.3, 1.3), CF(x, y, z), ICE, M.Glass, { t = 0.25 })
+	end
+	b:Box(V3(2.6, 0.4, 2.6), CF(3.6, 0.4, 1.5), PAL.wood, M.WoodPlanks)
+	for i = 0, 7 do
+		local x = 3.05 + (i % 2) * 1.1
+		local z = 0.95 + (math.floor(i / 2) % 2) * 1.1
+		local y = 1.3 + math.floor(i / 4) * 1.45
+		local carton = b:Box(V3(1.05, 1.4, 1.05), CF(x, y, z), PAL.white, nil, { solid = false })
+		if i % 4 == 0 then
+			b:Text(carton, FACE.Front, "นม", { color = PAL.blue })
+		end
+	end
+	-- พัดลมคอยล์เย็น + น้ำแข็งย้อย
+	b:Box(V3(6, 1.4, 1.3), CF(0, 7.9, 5.9), PAL.steel, M.Metal)
+	for _, x in { -1.5, 1.5 } do
+		b:HCyl(0.1, 1.1, CF(x, 7.9, 5.22) * ANG(0, rad(90), 0), PAL.black, nil, { solid = false })
+	end
+	for i = 0, 5 do
+		b:Cyl(0.6, 0.18, CF(-2.5 + i, 6.9, 5.6), PAL.white, M.Glass, { t = 0.2, solid = false })
+	end
+	for _, p in { V3(-2, 0.22, -2), V3(1.5, 0.22, 3), V3(-3.5, 0.22, 2.5) } do
+		b:Box(V3(2, 0.04, 1.5), CF(p), PAL.white, nil, { t = 0.3, solid = false })
+	end
+	-- พนักงานใส่เสื้อกันหนาวยกลัง
+	local jacket = rgb(40, 90, 160)
+	local worker = b:Person(CF(-1.5, 0.2, 1) * ANG(0, rad(150), 0), { shirt = jacket, apron = jacket, cap = rgb(200, 40, 40), right = { 70, 20 }, left = { 70, 20 } })
+	b:Box(V3(1.6, 1, 1.3), CF((worker.left + worker.right) / 2) * CF(0, 0.4, 0), PAL.blue, nil, { solid = false })
+	for i, z in { -2, 2 } do
+		local strip = b:Box(V3(6, 0.15, 0.6), CF(0, H - 0.1, z), rgb(200, 235, 255), M.Neon, { solid = false })
+		if i == 1 then
+			b:Light(strip, rgb(170, 220, 255), 16, 0.9)
+		end
 	end
 end
 
-Build.L35 = function(b) -- โรงคั่วชา (ถังคั่ว + กระสอบใบชา)
+Build.L35 = function(b) -- โรงคั่วชา (ถังคั่วใต้เพิงหลังคาจั่ว + กระสอบ + คนงานกวาดใบชา)
 	for _, x in { -1.8, 1.8 } do
 		for _, z in { -1, 1 } do
 			b:Box(V3(0.4, 2, 0.4), CF(x, 1, z), PAL.black, M.Metal)
@@ -1014,6 +1239,7 @@ Build.L35 = function(b) -- โรงคั่วชา (ถังคั่ว + 
 	for _, x in { -2.6, 2.6 } do
 		b:HCyl(0.25, 3.4, CF(x, 3.2, 0), PAL.black, M.Metal)
 	end
+	b:HCyl(0.1, 1.2, CF(2.75, 3.2, 0), PAL.steel, M.Metal, { solid = false })
 	b:Box(V3(1.4, 3.2, 3), CF(-3.4, 1.6, 0), PAL.black, M.Metal)
 	b:Ball(0.35, CF(-3.4, 2.4, -1.55), rgb(255, 120, 40), M.Neon, { solid = false })
 	b:Box(V3(1.6, 1.4, 1.6), CF(0.5, 5.3, 0), PAL.steel, M.Metal)
@@ -1025,10 +1251,25 @@ Build.L35 = function(b) -- โรงคั่วชา (ถังคั่ว + 
 	b:Cyl(0.08, 3.1, CF(0, 1.27, -3.4), rgb(110, 60, 30), nil, { solid = false })
 	b:Box(V3(3, 0.1, 0.2), CF(0, 1.4, -3.4) * ANG(0, rad(30), 0), PAL.steelDark, M.Metal, { solid = false })
 	b:Legs(2.4, 2.4, 0.75, 0.2, CF(0, 0, -3.4), PAL.black)
-	for _, p in { V3(3.6, 0.8, -1.5), V3(3.6, 0.8, -0.4), V3(3.6, 2.4, -0.95) } do
+	for _, p in { V3(3.6, 0.8, -1.5), V3(3.6, 0.8, -0.4), V3(3.6, 2.4, -0.95), V3(4.8, 0.8, 1.2) } do
 		local sack = b:Box(V3(1.2, 1.6, 1.0), CF(p), rgb(200, 175, 130), M.Fabric)
 		b:Text(sack, FACE.Front, "TEA", { color = PAL.teaDark, region = { 0.1, 0.3, 0.8, 0.4 } })
 	end
+	-- เพิงหลังคาจั่ว
+	for _, x in { -5.6, 5.6 } do
+		for _, z in { -4.4, 4.4 } do
+			b:Box(V3(0.5, 7.4, 0.5), CF(x, 3.7, z), PAL.woodDark, M.Wood)
+		end
+	end
+	local roof = rgb(150, 70, 40)
+	b:Box(V3(12.6, 0.3, 10.2), CF(0, 7.55, 0), PAL.woodDark, M.Wood)
+	b:Wedge(V3(12.6, 1.4, 5.1), CF(0, 8.4, -2.55), roof, M.Wood)
+	b:Wedge(V3(12.6, 1.4, 5.1), CF(0, 8.4, 2.55) * ANG(0, rad(180), 0), roof, M.Wood)
+	local lantern = b:Ball(0.6, CF(-2.5, 6.6, -2), PAL.warm, M.Neon, { solid = false })
+	b:Box(V3(0.05, 0.7, 0.05), CF(-2.5, 7.1, -2), PAL.black, nil, { solid = false })
+	b:Light(lantern, PAL.warm, 12, 0.8)
+	local worker = b:Person(CF(-1.2, 0, -5.4) * ANG(0, rad(180), 0), { shirt = rgb(90, 110, 80), apron = PAL.teaDark, cap = PAL.teaDark, right = { 55, 10 }, left = { 45, 10 } })
+	b:Rod(worker.right, V3(-0.3, 1.35, -3.6), 0.12, PAL.woodDark, M.Wood)
 end
 
 Build.L36 = function(b) -- ทีมบาริสต้า 3 คน (หลังบาร์)
@@ -1068,87 +1309,186 @@ end
 
 -- ขั้น 5 ---------------------------------------------------------------
 
-Build.L38 = function(b) -- ไร่ชาขั้นบันได + กระท่อม
-	local STEP = 1.8
-	local layers = {
-		{ V3(12, STEP, 12), 0 },
-		{ V3(9.5, STEP, 9.5), 1.2 },
-		{ V3(7, STEP, 7), 2.4 },
-		{ V3(4.5, STEP, 4.5), 3.6 },
-	}
-	for i, layer in layers do
-		b:Box(layer[1], CF(0, (i - 0.5) * STEP, layer[2]), if i == 1 then rgb(120, 90, 60) else rgb(110, 150, 70), if i == 1 then M.Ground else M.Grass)
+Build.L38 = function(b) -- ไร่ชาขั้นบันได 5 ชั้น (แถวต้นชา บันได คนเก็บชาใส่งอบ กระท่อม ราวตากใบชา)
+	local STEP, W, DEPTH = 1.5, 14, 24
+	local fronts = {}
+	for i = 1, 5 do
+		local front = -DEPTH / 2 + (i - 1) * 4.5
+		fronts[i] = front
+		local depth = DEPTH / 2 - front
+		b:Box(V3(W, STEP, depth), CF(0, (i - 0.5) * STEP, front + depth / 2), if i == 1 then rgb(120, 90, 60) else rgb(110, 150, 70), if i == 1 then M.Ground else M.Grass)
 	end
 	local rand = seeded(38)
-	for i = 1, 3 do
-		local size = layers[i][1]
-		local nextSize = layers[i + 1][1]
-		local frontEdge = layers[i][2] - size.Z / 2
-		local nextFront = layers[i + 1][2] - nextSize.Z / 2
-		local z = (frontEdge + nextFront) / 2
-		local count = math.floor(size.X / 1.5)
-		for k = 0, count - 1 do
-			local x = -size.X / 2 + 0.75 + k * 1.5
-			b:Ellipsoid(V3(1.3, 0.9 + rand() * 0.3, 1.2), CF(x, i * STEP + 0.35, z), if k % 2 == 0 then PAL.leaf else PAL.leafDark)
+	for i = 1, 4 do
+		for _, dz in { 1.2, 3.3 } do
+			for k = 0, 9 do
+				local x = -6.3 + k * 1.4
+				if math.abs(x) > 1 then
+					b:Ellipsoid(V3(1.3, 0.9 + rand() * 0.3, 1.2), CF(x, i * STEP + 0.35, fronts[i] + dz), if (k + i) % 2 == 0 then PAL.leaf else PAL.leafDark)
+				end
+			end
 		end
+		b:Wedge(V3(1.8, STEP, 2.2), CF(0, i * STEP + STEP / 2, fronts[i + 1] - 1.1), rgb(150, 120, 80), M.Ground)
 	end
-	local hut = CF(0, 4 * STEP, 3.6)
-	b:Box(V3(2.6, 1.8, 2.2), hut * CF(0, 0.9, 0), PAL.wood, M.WoodPlanks)
-	b:Wedge(V3(3.0, 0.9, 1.3), hut * CF(0, 2.25, -0.65), PAL.teaDark, M.Wood)
-	b:Wedge(V3(3.0, 0.9, 1.3), hut * CF(0, 2.25, 0.65) * ANG(0, rad(180), 0), PAL.teaDark, M.Wood)
-	b:Box(V3(0.8, 1.2, 0.05), hut * CF(0, 0.6, -1.12), PAL.woodDark, nil, { solid = false })
-	local sign = b:Box(V3(2.6, 1.0, 0.2), CF(3.8, 1.3, -6.3), PAL.woodDark, M.Wood)
+	-- คนเก็บชา
+	for i, spot in { { 3.2, 1 }, { -2.6, 2 } } do
+		local z = fronts[spot[2]] + 2.25
+		local y = spot[2] * STEP
+		local picker = b:Person(CF(spot[1], y, z), { shirt = if i == 1 then PAL.blue else PAL.red, apron = rgb(60, 50, 40), ngob = true, right = { 50, 10 }, left = { 50, 10 } })
+		b:Cyl(1.2, 1.3, CF(spot[1], y + 3, z + 0.9), PAL.woodLight, M.Wood, { solid = false })
+		b:Ball(0.3, CF(picker.right), PAL.leaf, nil, { solid = false })
+	end
+	-- กระท่อม + ราวตากใบชา บนชั้นบนสุด
+	local topY = 5 * STEP
+	local hut = CF(2.5, topY, 9)
+	b:Box(V3(3.4, 2.4, 2.8), hut * CF(0, 1.2, 0), PAL.wood, M.WoodPlanks)
+	b:Wedge(V3(3.8, 1.1, 1.6), hut * CF(0, 2.95, -0.8), PAL.teaDark, M.Wood)
+	b:Wedge(V3(3.8, 1.1, 1.6), hut * CF(0, 2.95, 0.8) * ANG(0, rad(180), 0), PAL.teaDark, M.Wood)
+	b:Box(V3(0.9, 1.5, 0.05), hut * CF(0, 0.75, -1.42), PAL.woodDark, nil, { solid = false })
+	b:Box(V3(0.8, 0.6, 0.05), hut * CF(1.1, 1.4, -1.42), PAL.glass, M.Glass, { solid = false })
+	local rack = CF(-3.5, topY, 9)
+	for _, x in { -1.2, 1.2 } do
+		b:Box(V3(0.2, 2.4, 0.2), rack * CF(x, 1.2, 0), PAL.woodDark, M.Wood, { solid = false })
+	end
+	for i = 0, 2 do
+		b:Box(V3(2.4, 0.1, 1.1), rack * CF(0, 0.7 + i * 0.7, 0), PAL.woodLight, M.Wood, { solid = false })
+		b:Box(V3(2.2, 0.08, 0.9), rack * CF(0, 0.78 + i * 0.7, 0), rgb(120, 70, 35), nil, { solid = false })
+	end
+	b:Cyl(0.7, 1, CF(-1, topY + 0.35, 7.2), PAL.woodLight, M.Wood, { solid = false })
+	local sign = b:Box(V3(3, 1.1, 0.2), CF(5, 1.4, -DEPTH / 2 - 0.8), PAL.woodDark, M.Wood)
 	b:Text(sign, FACE.Front, "ไร่ชา", { color = PAL.cream })
-	b:Box(V3(0.2, 1.2, 0.2), CF(3.8, 0.6, -6.3), PAL.woodDark, M.Wood)
+	b:Box(V3(0.25, 1.3, 0.25), CF(5, 0.65, -DEPTH / 2 - 0.8), PAL.woodDark, M.Wood, { solid = false })
 end
 
-Build.L39 = function(b) -- โรงงานบรรจุขวด (หลังคาฟันเลื่อย + ไซโล + ขวดยักษ์)
-	b:Box(V3(11, 6, 10), CF(0, 3, 1), rgb(200, 196, 190), M.Concrete)
-	for i, z in { -2.33, 1, 4.33 } do
-		b:Wedge(V3(11, 2, 3.33), CF(0, 7, z), PAL.steelDark, M.Metal)
-		b:Box(V3(11, 1.8, 0.08), CF(0, 7, z + 1.7), PAL.glass, M.Glass, { t = 0.3, solid = false })
-		if i == 1 then
-			b:Box(V3(11.02, 0.3, 10.02), CF(0, 5.9, 1), PAL.tea)
-		end
+Build.L39 = function(b) -- โรงงานบรรจุขวด (เดินเข้าได้: สายพาน เครื่องเติม เครื่องปิดฝา ถังผสม นั่งร้าน)
+	local W, D, H = 14, 18, 10
+	local COPPER = rgb(190, 120, 70)
+	b:Shell(CF(), {
+		w = W, d = D, h = H, wall = rgb(200, 196, 190), wallMat = M.Concrete,
+		floor = rgb(140, 142, 145), floorMat = M.Concrete, roof = false,
+		openings = {
+			{ side = "Front", x = 0, y = 0, w = 6, h = 7.8 },
+			{ side = "Left", x = -5, y = 5, w = 3, h = 2.5, glass = true },
+			{ side = "Left", x = 0, y = 5, w = 3, h = 2.5, glass = true },
+			{ side = "Left", x = 5, y = 5, w = 3, h = 2.5, glass = true },
+			{ side = "Right", x = -5, y = 5, w = 3, h = 2.5, glass = true },
+			{ side = "Right", x = 0, y = 5, w = 3, h = 2.5, glass = true },
+			{ side = "Right", x = 5, y = 5, w = 3, h = 2.5, glass = true },
+		},
+	})
+	-- หลังคาฟันเลื่อย
+	for _, z in { -6.75, -2.25, 2.25, 6.75 } do
+		b:Wedge(V3(W, 2.4, 4.5), CF(0, H + 1.2, z), PAL.steelDark, M.Metal)
+		b:Box(V3(W, 2.2, 0.1), CF(0, H + 1.2, z + 2.3), PAL.glass, M.Glass, { t = 0.3, solid = false })
 	end
-	for _, x in { -4.2, 4.2 } do
-		b:Cyl(8, 2.2, CF(x, 4, -5), PAL.steel, M.Metal)
-		b:Ellipsoid(V3(2.2, 1.2, 2.2), CF(x, 8, -5), PAL.steel, M.Metal)
-		b:Cyl(0.3, 2.3, CF(x, 2.5, -5), PAL.tea)
+	for _, z in { -D / 2 - 0.05, D / 2 + 0.05 } do
+		b:Box(V3(W + 0.1, 0.5, 0.1), CF(0, H - 1.2, z), PAL.tea, nil, { solid = false })
 	end
-	b:HCyl(8.4, 0.4, CF(0, 7, -5), rgb(190, 120, 70), M.Metal)
-	b:Box(V3(3.4, 3.4, 0.1), CF(0, 1.7, -4.05), PAL.steelDark, M.Metal)
-	for i = 1, 5 do
-		b:Box(V3(3.4, 0.05, 0.05), CF(0, i * 0.6, -4.12), PAL.steel, nil, { solid = false })
+	-- ไซโล + ท่อ + ป้าย
+	for _, x in { -5.3, 5.3 } do
+		b:Cyl(9, 2.2, CF(x, 4.5, -D / 2 - 1.3), PAL.steel, M.Metal)
+		b:Ellipsoid(V3(2.2, 1.2, 2.2), CF(x, 9, -D / 2 - 1.3), PAL.steel, M.Metal)
+		b:Cyl(0.3, 2.3, CF(x, 2.5, -D / 2 - 1.3), PAL.tea)
+		b:Cyl(0.3, 2.3, CF(x, 6.5, -D / 2 - 1.3), PAL.tea)
 	end
-	local sign = b:Box(V3(5, 1, 0.2), CF(0, 4.6, -4.12), PAL.tea)
+	b:HCyl(10.6, 0.4, CF(0, 9.2, -D / 2 - 1.3), COPPER, M.Metal)
+	local sign = b:Box(V3(5.5, 1, 0.2), CF(0, 8.6, -D / 2 - 0.15), PAL.tea)
 	b:Text(sign, FACE.Front, "โรงงานบรรจุขวด", { color = PAL.white })
-	for _, x in { -2.2, 2.2 } do
-		b:Box(V3(1.2, 1.2, 0.1), CF(x, 3.4, -4.05), PAL.glass, M.Glass, { t = 0.2 })
-	end
 	-- ขวดยักษ์บนหลังคา
-	b:Cyl(3, 1.8, CF(0, 9.5, 1), PAL.tea)
-	b:Cyl(1, 1.85, CF(0, 9.6, 1), PAL.cream)
-	b:Cyl(0.6, 1.2, CF(0, 11.3, 1), PAL.tea)
-	b:Cyl(0.8, 0.6, CF(0, 12, 1), PAL.tea, M.Glass, { t = 0.2 })
-	b:Cyl(0.3, 0.7, CF(0, 12.55, 1), PAL.red)
+	b:Box(V3(3, 0.3, 3), CF(0, H + 2.55, 0), PAL.steelDark, M.Metal)
+	b:Cyl(3, 1.8, CF(0, H + 4.2, 0), PAL.tea)
+	b:Cyl(1, 1.85, CF(0, H + 4.3, 0), PAL.cream)
+	b:Cyl(0.6, 1.2, CF(0, H + 6.0, 0), PAL.tea)
+	b:Cyl(0.8, 0.6, CF(0, H + 6.7, 0), PAL.tea, M.Glass, { t = 0.2 })
+	b:Cyl(0.3, 0.7, CF(0, H + 7.25, 0), PAL.red)
+
+	-- สายพานบรรจุขวด (วิ่งตามแกน Z ชิดผนังขวา)
+	local line = CF(3.8, 0.2, 0) * ANG(0, rad(90), 0)
+	for _, u in { -5.5, 0, 5.5 } do
+		for _, v in { -0.8, 0.8 } do
+			b:Box(V3(0.3, 2.6, 0.3), line * CF(u, 1.3, v), PAL.steelDark, M.Metal, { solid = false })
+		end
+	end
+	for _, v in { -1, 1 } do
+		b:Box(V3(12, 0.5, 0.2), line * CF(0, 2.8, v), PAL.steel, M.Metal)
+	end
+	b:Box(V3(12, 0.2, 1.8), line * CF(0, 2.9, 0), PAL.black)
+	for i = 0, 9 do
+		local at = line * CF(-5.4 + i * 1.2, 3.0, 0)
+		b:Cyl(1.0, 0.45, at * CF(0, 0.5, 0), PAL.tea, M.Glass, { t = 0.1, solid = false })
+		b:Cyl(0.4, 0.22, at * CF(0, 1.2, 0), if i < 5 then PAL.red else PAL.tea, nil, { solid = false })
+	end
+	-- เครื่องเติม
+	for _, v in { -1.5, 1.5 } do
+		b:Box(V3(0.4, 5.2, 0.4), line * CF(2, 2.6, v), PAL.steelDark, M.Metal)
+	end
+	b:Box(V3(2.6, 1.2, 3.6), line * CF(2, 5.8, 0), PAL.steel, M.Metal)
+	for _, u in { 1.4, 2, 2.6 } do
+		b:Cyl(0.7, 0.25, line * CF(u, 4.9, 0), PAL.black, nil, { solid = false })
+	end
+	b:Box(V3(2.4, 1.6, 0.1), line * CF(2, 4.2, -1.3), PAL.glass, M.Glass, { t = 0.6, solid = false })
+	b:Ball(0.35, line * CF(2, 6.5, -1.8), rgb(90, 230, 120), M.Neon, { solid = false })
+	-- เครื่องปิดฝา
+	b:Box(V3(1.6, 3.2, 1.6), line * CF(-2.5, 1.8, 1.9), PAL.red)
+	b:Box(V3(1.2, 0.9, 1.6), line * CF(-2.5, 3.9, 1.1), PAL.red)
+	b:Cyl(1, 1.3, line * CF(-2.5, 4.9, 1.9), PAL.steel, M.Metal)
+	for i = 0, 3 do
+		b:Ball(0.3, line * CF(-2.9 + i * 0.3, 5.45, 1.9), PAL.red, nil, { solid = false })
+	end
+	-- ลังขวดที่เสร็จแล้ว
+	for i = 0, 1 do
+		local crate = CF(1.5, 0.2 + i * 1, -6.6)
+		b:Box(V3(2, 0.9, 1.5), crate * CF(0, 0.45, 0), PAL.yellow)
+		for k = 0, 5 do
+			b:Cyl(0.35, 0.4, crate * CF(-0.6 + (k % 3) * 0.6, 1.05, -0.35 + math.floor(k / 3) * 0.7), PAL.tea, nil, { solid = false })
+		end
+	end
+
+	-- ถังผสม 2 ใบ + นั่งร้าน + บันได
+	for _, z in { 4.5, -1 } do
+		b:Cyl(6, 3, CF(-3.8, 3.3, z), PAL.steel, M.Metal)
+		b:Ellipsoid(V3(3, 1.2, 3), CF(-3.8, 6.3, z), PAL.steel, M.Metal)
+		b:Cyl(0.3, 3.05, CF(-3.8, 1.5, z), PAL.tea)
+		b:Box(V3(0.2, 3, 0.05), CF(-2.3, 3.5, z), PAL.tea, M.Glass, { t = 0.2, solid = false })
+		b:Box(V3(0.05, 3, 0.2), CF(-2.28, 3.5, z), PAL.tea, M.Glass, { t = 0.2, solid = false })
+		b:Tube(V3(-2.3, 5.4, z), V3(3.8, 5.6, -2), 0.35, COPPER, M.Metal)
+	end
+	b:Box(V3(2, 0.25, 9), CF(-1.3, 6.2, 1.75), PAL.steelDark, M.DiamondPlate, { solid = true })
+	b:Box(V3(0.12, 0.12, 9), CF(-0.35, 7.3, 1.75), PAL.yellow, M.Metal, { solid = false })
+	for _, z in { -2.5, 1.75, 6 } do
+		b:Box(V3(0.25, 6.1, 0.25), CF(-0.4, 3.2, z), PAL.steelDark, M.Metal, { solid = false })
+		b:Box(V3(0.12, 1.1, 0.12), CF(-0.35, 6.8, z), PAL.yellow, M.Metal, { solid = false })
+	end
+	for _, x in { -1.9, -0.9 } do
+		b:Box(V3(0.15, 6.2, 0.15), CF(x, 3.3, -2.9), PAL.yellow, M.Metal, { solid = false })
+	end
+	for i = 1, 6 do
+		b:Box(V3(1.0, 0.12, 0.12), CF(-1.4, i * 0.95, -2.9), PAL.yellow, M.Metal, { solid = false })
+	end
+	-- แผงควบคุม
+	b:Box(V3(2.2, 2.8, 0.9), CF(-5.2, 1.6, -7.2), PAL.steel, M.Metal)
+	local screen = b:Box(V3(1.6, 0.9, 0.05), CF(-5.2, 2.3, -7.68), rgb(40, 110, 220), M.Neon, { solid = false })
+	b:Text(screen, FACE.Front, "LINE 1 OK", { color = PAL.white })
+	for i, c in { PAL.red, rgb(90, 220, 120), PAL.yellow } do
+		b:Ball(0.25, CF(-5.9 + i * 0.35, 1.4, -7.66), c, M.Neon, { solid = false })
+	end
+	-- คนงาน + เส้นทางเดิน + ป้ายเตือน
+	b:Person(CF(1.4, 0.2, -2) * ANG(0, rad(-90), 0), { shirt = rgb(60, 90, 140), apron = rgb(60, 90, 140), cap = PAL.yellow, right = { 60, 10 }, left = { 60, 10 } })
+	for _, x in { 1.2, -2.9 } do
+		b:Box(V3(0.2, 0.03, 16), CF(x, 0.215, 0), PAL.yellow, nil, { solid = false })
+	end
+	local warnSign = b:Box(V3(0.05, 1.2, 1.2), CF(W / 2 - 0.65, 5, -6), PAL.yellow, nil, { solid = false })
+	b:Text(warnSign, FACE.Left, "⚠", { color = PAL.black })
+	for i, z in { -4.5, 0, 4.5 } do
+		local strip = b:Box(V3(10, 0.15, 0.6), CF(0, H - 0.1, z), PAL.white, M.Neon, { solid = false })
+		if i == 2 then
+			b:Light(strip, PAL.white, 20, 0.8)
+		end
+	end
 end
 
-Build.L40 = function(b) -- ศูนย์กระจายสินค้า + รถยก
-	b:Box(V3(8, 5, 12), CF(0, 2.5, 0), rgb(125, 155, 185), M.Metal)
-	b:Wedge(V3(12, 1.8, 4), CF(-2, 5.9, 0) * ANG(0, rad(90), 0), rgb(85, 100, 120), M.Metal)
-	b:Wedge(V3(12, 1.8, 4), CF(2, 5.9, 0) * ANG(0, rad(-90), 0), rgb(85, 100, 120), M.Metal)
-	for _, x in { -2.6, 0, 2.6 } do
-		b:Box(V3(2, 3, 0.1), CF(x, 1.5, -6.05), PAL.steelDark, M.Metal)
-		for i = 1, 4 do
-			b:Box(V3(2, 0.05, 0.05), CF(x, i * 0.6, -6.12), PAL.steel, nil, { solid = false })
-		end
-		b:Box(V3(0.3, 0.6, 0.3), CF(x - 1.2, 0.8, -6.15), PAL.black, nil, { solid = false })
-	end
-	local sign = b:Box(V3(7, 0.9, 0.1), CF(0, 4.1, -6.05), PAL.tea)
-	b:Text(sign, FACE.Front, "ศูนย์กระจายสินค้า", { color = PAL.white })
-	-- รถยก
-	local fl = CF(-1.6, 0, -8.4)
+-- รถยก (ใช้ในศูนย์กระจายสินค้า)
+local function forklift(b, fl: CFrame)
 	b:Box(V3(1.4, 1.2, 2), fl * CF(0, 0.9, 0.2), PAL.yellow)
 	for _, x in { -0.65, 0.65 } do
 		for _, z in { -0.5, 0.9 } do
@@ -1160,71 +1500,330 @@ Build.L40 = function(b) -- ศูนย์กระจายสินค้า +
 	end
 	b:Box(V3(1.4, 0.1, 1.6), fl * CF(0, 3.1, 0.2), PAL.black, M.Metal, { solid = false })
 	b:Box(V3(0.8, 0.3, 0.6), fl * CF(0, 1.65, 0.6), PAL.black)
-	-- พาเลทสินค้า
-	b:Box(V3(2.4, 0.4, 2.4), CF(1.9, 0.2, -8.4), PAL.wood, M.WoodPlanks)
-	for _, p in { V3(1.3, 0.95, -9), V3(2.5, 0.95, -9), V3(1.3, 0.95, -7.8), V3(2.5, 0.95, -7.8), V3(1.9, 2.05, -8.4) } do
-		local box = b:Box(V3(1.1, 1.1, 1.1), CF(p), rgb(200, 160, 110), M.SmoothPlastic)
-		box.Name = "Carton"
+	b:Ball(0.3, fl * CF(0, 3.25, 0.2), rgb(255, 150, 40), M.Neon, { solid = false })
+end
+
+Build.L40 = function(b) -- ศูนย์กระจายสินค้า (เดินเข้าได้: ชั้นพาเลทสูง รถยก โต๊ะแพ็กของ)
+	local W, D, H = 12, 20, 8
+	local CARTON = rgb(200, 160, 110)
+	b:Shell(CF(), {
+		w = W, d = D, h = H, wall = rgb(125, 155, 185), wallMat = M.Metal,
+		floor = rgb(165, 165, 160), floorMat = M.Concrete, roofColor = rgb(85, 100, 120),
+		openings = {
+			{ side = "Front", x = -2.8, y = 0, w = 4.4, h = 6.5 },
+			{ side = "Left", x = -5, y = 5.2, w = 2.4, h = 1.2, glass = true },
+			{ side = "Left", x = 0, y = 5.2, w = 2.4, h = 1.2, glass = true },
+			{ side = "Left", x = 5, y = 5.2, w = 2.4, h = 1.2, glass = true },
+			{ side = "Right", x = -5, y = 5.2, w = 2.4, h = 1.2, glass = true },
+			{ side = "Right", x = 0, y = 5.2, w = 2.4, h = 1.2, glass = true },
+			{ side = "Right", x = 5, y = 5.2, w = 2.4, h = 1.2, glass = true },
+		},
+	})
+	b:Wedge(V3(D, 2.2, W / 2), CF(-W / 4, H + 1.7, 0) * ANG(0, rad(90), 0), rgb(85, 100, 120), M.Metal)
+	b:Wedge(V3(D, 2.2, W / 2), CF(W / 4, H + 1.7, 0) * ANG(0, rad(-90), 0), rgb(85, 100, 120), M.Metal)
+	-- ภายนอก: ประตูม้วน ป้าย กันชนท่าโหลด
+	b:Box(V3(4.4, 6, 0.1), CF(2.8, 3, -D / 2 - 0.08), PAL.steelDark, M.Metal)
+	for i = 1, 7 do
+		b:Box(V3(4.4, 0.05, 0.05), CF(2.8, i * 0.8, -D / 2 - 0.15), PAL.steel, nil, { solid = false })
+	end
+	for _, x in { -5.2, -0.4, 0.4, 5.2 } do
+		b:Box(V3(0.4, 0.8, 0.3), CF(x, 0.8, -D / 2 - 0.2), PAL.black, nil, { solid = false })
+	end
+	local sign = b:Box(V3(8, 1, 0.12), CF(0, 7.1, -D / 2 - 0.1), PAL.tea)
+	b:Text(sign, FACE.Front, "ศูนย์กระจายสินค้า", { color = PAL.white })
+	for _, x in { -2.8, 2.8 } do
+		b:Ball(0.35, CF(x, 6.7, -D / 2 - 0.3), PAL.warm, M.Neon, { solid = false })
+	end
+	b:Box(V3(2.4, 0.4, 2.4), CF(3.2, 0.2, -D / 2 - 2), PAL.wood, M.WoodPlanks)
+	b:Box(V3(2.2, 1.6, 2.2), CF(3.2, 1.2, -D / 2 - 2), PAL.white, nil, { t = 0.2 })
+
+	-- ชั้นพาเลทสองข้าง
+	for _, side in { -1, 1 } do
+		local rack = CF(side * 4.3, 0.2, 1.5) * ANG(0, rad(90), 0)
+		b:Shelf(rack, 14, 2, { 2.3, 4.5, 6.6 }, rgb(235, 120, 40), function(level, y)
+			for k = 1, 4 do
+				local at = rack * CF(-5.25 + (k - 1) * 3.5, y, 0)
+				local wrapped = (k + level) % 3 == 0
+				b:Box(V3(2.8, 1.5, 1.7), at * CF(0, 0.75, 0), if wrapped then PAL.white else CARTON, nil, { t = if wrapped then 0.15 else 0, solid = false })
+			end
+		end)
+		for _, u in { -3.5, 0, 3.5 } do
+			for _, v in { -0.9, 0.9 } do
+				b:Box(V3(0.25, 7.6, 0.25), rack * CF(u, 3.8, v), PAL.blue, M.Metal, { solid = false })
+			end
+		end
+		for k = 1, 4 do
+			local at = rack * CF(-5.25 + (k - 1) * 3.5, 0, 0)
+			b:Box(V3(2.8, 0.3, 1.8), at * CF(0, 0.15, 0), PAL.wood, M.WoodPlanks, { solid = false })
+			b:Box(V3(2.6, 1.4, 1.6), at * CF(0, 1.0, 0), CARTON, nil, { solid = false })
+		end
+	end
+	-- รถยก + แฮนด์ลิฟต์ + พาเลท
+	forklift(b, CF(0, 0.2, -1.5))
+	b:Box(V3(2.4, 0.3, 2.4), CF(0, 0.35, 5), PAL.wood, M.WoodPlanks)
+	for i = 0, 3 do
+		b:Box(V3(1.1, 1.1, 1.1), CF(-0.6 + (i % 2) * 1.2, 1.05, 4.4 + math.floor(i / 2) * 1.2), CARTON, nil, { solid = false })
+	end
+	b:Rod(V3(0, 0.4, 6.3), V3(0, 2.4, 7.2), 0.15, PAL.red, M.Metal)
+	b:Box(V3(0.8, 0.12, 0.12), CF(0, 2.4, 7.2), PAL.black, nil, { solid = false })
+	-- โต๊ะแพ็กของ + พนักงานเสื้อกั๊กสะท้อนแสง
+	b:Box(V3(3.5, 0.2, 1.6), CF(3.4, 3.0, -7.8), PAL.woodLight, M.Wood, { solid = true })
+	b:Legs(3.1, 1.2, 2.8, 0.2, CF(3.4, 0.2, -7.8), PAL.steelDark)
+	for i = 0, 3 do
+		b:Box(V3(0.8, 0.6, 0.6), CF(2.2 + i * 0.8, 3.4, -7.9 + (i % 2) * 0.3), CARTON, nil, { solid = false })
+	end
+	b:HCyl(0.3, 0.6, CF(4.8, 3.4, -7.4) * ANG(0, rad(90), 0), PAL.tea, nil, { solid = false })
+	b:Person(CF(3.4, 0.2, -6.6), { shirt = rgb(240, 120, 40), apron = PAL.yellow, right = { 60, 15 }, left = { 60, 15 } })
+	-- ไฟห้อย + เส้นช่องทาง
+	for i, z in { -5, 1, 7 } do
+		b:Box(V3(0.06, 1.4, 0.06), CF(0, H - 0.7, z), PAL.black, nil, { solid = false })
+		b:Cyl(0.5, 1.6, CF(0, H - 1.6, z), PAL.black, M.Metal, { solid = false })
+		local bulb = b:Ball(0.5, CF(0, H - 1.95, z), PAL.warm, M.Neon, { solid = false })
+		if i == 2 then
+			b:Light(bulb, PAL.warm, 18, 0.9)
+		end
+	end
+	for _, x in { -2.8, 2.8 } do
+		b:Box(V3(0.2, 0.03, 14), CF(x, 0.215, 1.5), PAL.yellow, nil, { solid = false })
 	end
 end
 
-Build.L41 = function(b) -- สำนักงานใหญ่ (ตึกกระจก + ลานจอดเฮลิคอปเตอร์)
-	b:Box(V3(8, 3, 8), CF(0, 1.5, 0), rgb(120, 170, 200), M.Glass, { t = 0.15 })
-	b:Box(V3(2, 2.4, 0.1), CF(0, 1.2, -4.05), PAL.black, M.Glass)
-	b:Box(V3(3.4, 0.2, 1.6), CF(0, 2.8, -4.7), PAL.white)
-	for k = 1, 6 do
-		local y = 3 + (k - 1) * 3
-		b:Box(V3(8.2, 0.4, 8.2), CF(0, y + 0.2, 0), PAL.white, M.Concrete)
-		b:Box(V3(7.8, 2.6, 7.8), CF(0, y + 1.7, 0), rgb(90, 150, 200), M.Glass, { t = 0.1 })
+Build.L41 = function(b) -- สำนักงานใหญ่ (ล็อบบี้เดินเข้าได้ + 7 ชั้นกระจกเห็นโต๊ะทำงาน + ลานเฮลิคอปเตอร์)
+	local W, D, LOBBY, FLOORS, STOREY = 10, 10, 6, 7, 3
+	local GLASS = rgb(90, 150, 200)
+	b:Shell(CF(), {
+		w = W, d = D, h = LOBBY, wall = GLASS, wallMat = M.Glass, wallT = 0.35,
+		floor = PAL.white, floorMat = M.Marble, roof = false,
+		openings = { { side = "Front", x = 0, y = 0, w = 3.2, h = 5 } },
+	})
+	for _, x in { -W / 2 + 0.1, W / 2 - 0.1 } do
+		for _, z in { -D / 2 + 0.1, D / 2 - 0.1 } do
+			b:Box(V3(0.6, LOBBY, 0.6), CF(x, LOBBY / 2, z), PAL.white, M.Concrete)
+		end
 	end
-	b:Box(V3(8.4, 1, 8.4), CF(0, 21.5, 0), PAL.tea)
-	local pad = b:Cyl(0.3, 6, CF(0, 22.15, 0), PAL.steelDark, M.Concrete)
+	b:Box(V3(4.4, 0.25, 2.2), CF(0, 5.4, -D / 2 - 1.1), PAL.white)
+	b:Box(V3(3.4, 0.1, 0.1), CF(0, 5.25, -D / 2 - 2.1), PAL.tea, M.Neon, { solid = false })
+	-- ชั้นบน
+	for k = 1, FLOORS do
+		local y0 = LOBBY + (k - 1) * STOREY
+		b:Box(V3(W + 0.4, 0.4, D + 0.4), CF(0, y0 + 0.2, 0), PAL.white, M.Concrete)
+		b:Box(V3(W - 0.2, STOREY - 0.4, D - 0.2), CF(0, y0 + 0.4 + (STOREY - 0.4) / 2, 0), GLASS, M.Glass, { t = 0.3 })
+		for _, x in { -2.2, 2.2 } do
+			b:Box(V3(2.4, 0.9, 1.2), CF(x, y0 + 0.85, -1), PAL.woodLight, nil, { solid = false })
+			b:Box(V3(0.8, 0.6, 0.1), CF(x, y0 + 1.6, -0.6), PAL.black, nil, { solid = false })
+		end
+	end
+	local top = LOBBY + FLOORS * STOREY
+	b:Box(V3(W + 0.6, 1, D + 0.6), CF(0, top + 0.5, 0), PAL.tea)
+	local pad = b:Cyl(0.3, 7, CF(0, top + 1.15, 0), PAL.steelDark, M.Concrete)
 	b:Text(pad, FACE.Right, "H", { color = PAL.white })
-	local sign = b:Box(V3(6, 1.4, 0.2), CF(0, 20.2, -4.3), PAL.tea)
+	local sign = b:Box(V3(7, 1.5, 0.2), CF(0, top - 1.2, -D / 2 - 0.3), PAL.tea)
 	b:Text(sign, FACE.Front, "ชาไทย HQ", { color = PAL.white })
-	b:Cyl(4, 0.2, CF(3.2, 24, 3.2), PAL.steelDark, M.Metal)
-	b:Ball(0.4, CF(3.2, 26.1, 3.2), PAL.red, M.Neon, { solid = false })
+	b:Cyl(4, 0.2, CF(3.5, top + 3, 3.5), PAL.steelDark, M.Metal)
+	b:Ball(0.4, CF(3.5, top + 5.1, 3.5), PAL.red, M.Neon, { solid = false })
+
+	-- ล็อบบี้
+	b:Box(V3(4.4, 2.4, 1.3), CF(0, 1.4, 1.8), PAL.tea)
+	b:Box(V3(4.6, 0.15, 1.5), CF(0, 2.68, 1.8), PAL.white, M.Marble)
+	b:Box(V3(0.9, 0.6, 0.08), CF(0.9, 3.05, 2.1), PAL.black, nil, { solid = false })
+	local logo = b:Box(V3(6, 3.5, 0.3), CF(0, 3.2, 4.4), PAL.green)
+	b:Text(logo, FACE.Front, "THAI TEA\nHQ", { color = PAL.cream })
+	b:Person(CF(0, 0.2, 3.0), { shirt = PAL.white, apron = PAL.green, right = { 40, 10 }, left = { 40, 10 } })
+	b:Box(V3(1.6, 1.2, 4), CF(-3.6, 0.8, -1.5), rgb(60, 60, 70), M.Fabric)
+	b:Box(V3(0.5, 1.5, 4), CF(-4.3, 1.9, -1.5), rgb(60, 60, 70), M.Fabric)
+	b:Box(V3(1.4, 0.9, 2), CF(-1.9, 0.65, -1.5), PAL.woodDark, M.Wood)
+	b:Box(V3(0.6, 0.05, 0.8), CF(-1.9, 1.12, -1.3), PAL.tea, nil, { solid = false })
+	b:Plant(CF(-3.7, 0.2, -3.8), 2.2)
+	b:Plant(CF(3.7, 0.2, -3.8), 2.2)
+	for _, z in { -2.4, 0.2 } do
+		b:Box(V3(0.12, 3.6, 2), CF(W / 2 - 0.45, 2.0, z), PAL.steel, M.Metal, { solid = false })
+		b:Box(V3(0.13, 3.6, 0.05), CF(W / 2 - 0.45, 2.0, z), PAL.steelDark, nil, { solid = false })
+		b:Box(V3(0.12, 0.35, 0.9), CF(W / 2 - 0.45, 4.1, z), rgb(255, 170, 60), M.Neon, { solid = false })
+	end
+	for i, x in { -2, 2 } do
+		local strip = b:Box(V3(0.4, 0.12, 7), CF(x, LOBBY - 0.1, 0), PAL.white, M.Neon, { solid = false })
+		if i == 1 then
+			b:Light(strip, PAL.white, 14, 0.7)
+		end
+	end
 end
 
-Build.L42 = function(b) -- สาขาในห้าง
-	b:Box(V3(11, 7, 10), CF(0, 3.5, 1), rgb(242, 230, 212), M.Concrete)
-	b:Box(V3(11.2, 0.6, 10.2), CF(0, 7.3, 1), PAL.tea)
-	b:Box(V3(5, 4.5, 0.1), CF(0, 2.25, -4.05), PAL.glass, M.Glass, { t = 0.3 })
-	b:Box(V3(0.1, 4.5, 0.12), CF(0, 2.25, -4.1), PAL.steelDark, M.Metal, { solid = false })
-	b:Box(V3(7, 0.3, 2), CF(0, 4.8, -5), PAL.white)
-	for _, x in { -3.3, 3.3 } do
-		b:Box(V3(0.2, 4.7, 0.2), CF(x, 2.35, -5.8), PAL.steelDark, M.Metal, { solid = false })
+Build.L42 = function(b) -- สาขาในห้าง (ร้านชาจริง: เคาน์เตอร์ เมนูไฟ ตู้เย็น ที่นั่ง ลูกค้าต่อคิว)
+	local W, D, H = 14, 16, 9
+	b:Shell(CF(), {
+		w = W, d = D, h = H, wall = rgb(242, 230, 212), wallMat = M.Concrete,
+		floor = PAL.woodLight, floorMat = M.WoodPlanks, roofColor = PAL.white,
+		openings = {
+			{ side = "Front", x = -3.25, y = 0.4, w = 5.5, h = 5.6, glass = true },
+			{ side = "Front", x = 2, y = 0, w = 3, h = 7.2 },
+			{ side = "Front", x = 5.25, y = 0.4, w = 2.5, h = 5.6, glass = true },
+			{ side = "Left", x = -4, y = 3, w = 4, h = 3, glass = true },
+			{ side = "Left", x = 2, y = 3, w = 4, h = 3, glass = true },
+		},
+	})
+	-- ภายนอก
+	local band = b:Box(V3(W + 0.4, 1.2, D + 0.4), CF(0, H + 1.2, 0), PAL.tea)
+	b:Text(band, FACE.Front, "ชาไทย สาขาห้าง", { color = PAL.white, region = { 0.2, 0.05, 0.6, 0.9 } })
+	for i = 0, 6 do
+		b:Box(V3(2, 0.2, 2.2), CF(-6 + i * 2, 7.7, -D / 2 - 1.1) * ANG(rad(-12), 0, 0), if i % 2 == 0 then PAL.tea else PAL.white, M.Fabric, { solid = false })
 	end
-	local sign = b:Box(V3(8, 1.2, 0.2), CF(0, 5.9, -4.1), PAL.green)
-	b:Text(sign, FACE.Front, "ชาไทย สาขาห้าง", { color = PAL.cream })
-	for _, x in { -5.55, 5.55 } do
-		b:Box(V3(0.1, 2, 8), CF(x, 4.5, 1), PAL.glass, M.Glass, { t = 0.2 })
+	b:Cyl(3, 2.2, CF(0, H + 3.3, -1.5), PAL.tea)
+	b:Cyl(0.6, 2.3, CF(0, H + 5.1, -1.5), PAL.milk)
+	b:Ellipsoid(V3(2.3, 1.2, 2.3), CF(0, H + 5.5, -1.5), PAL.white, M.Glass, { t = 0.35 })
+	b:Tube(V3(0.3, H + 5.4, -1.5), V3(0.8, H + 7.8, -1.3), 0.3, PAL.green)
+	for i, x in { -6.4, 6.4 } do
+		b:Cyl(7, 0.15, CF(x, 3.5, -D / 2 - 2.6), PAL.steel, M.Metal)
+		b:Box(V3(1.6, 1, 0.05), CF(x + (if i == 1 then 0.85 else -0.85), 6.4, -D / 2 - 2.6), if i == 1 then PAL.tea else PAL.green, M.Fabric, { solid = false })
 	end
-	-- แก้วยักษ์บนหลังคา
-	b:Cyl(3, 2.2, CF(0, 9.1, -1.5), PAL.tea)
-	b:Cyl(0.6, 2.3, CF(0, 10.9, -1.5), PAL.milk)
-	b:Ellipsoid(V3(2.3, 1.2, 2.3), CF(0, 11.3, -1.5), PAL.white, M.Glass, { t = 0.35 })
-	b:Tube(V3(0.3, 11.2, -1.5), V3(0.8, 13.6, -1.3), 0.3, PAL.green)
-	for i, x in { -5, 5 } do
-		b:Cyl(6, 0.15, CF(x, 3, -5.6), PAL.steel, M.Metal)
-		b:Box(V3(1.6, 1, 0.05), CF(x + 0.85, 5.4, -5.6), if i == 1 then PAL.tea else PAL.green, M.Fabric, { solid = false })
+	b:Plant(CF(-0.2, 0, -D / 2 - 0.9), 1.8)
+	b:Plant(CF(4.2, 0, -D / 2 - 0.9), 1.8)
+
+	-- เคาน์เตอร์ + อุปกรณ์หลังร้าน + เมนูไฟ
+	b:Box(V3(9.6, 3.2, 2), CF(0.4, 1.8, 3.8), PAL.tea)
+	b:Box(V3(9.9, 0.2, 2.3), CF(0.4, 3.5, 3.8), PAL.white, M.Marble)
+	for i = 0, 5 do
+		b:Box(V3(0.3, 2.6, 0.08), CF(-3.6 + i * 1.6, 1.8, 2.78), PAL.woodLight, M.Wood, { solid = false })
+	end
+	b:Box(V3(12, 3.4, 1.2), CF(0, 1.9, 6.7), PAL.steel, M.Metal)
+	for _, x in { -4, -2.8 } do
+		b:Cyl(1.4, 0.8, CF(x, 4.3, 6.7), PAL.steel, M.Metal)
+	end
+	b:Box(V3(0.6, 0.5, 0.6), CF(-0.8, 3.85, 6.7), PAL.black)
+	b:Cyl(1, 0.5, CF(-0.8, 4.6, 6.7), PAL.white, M.Glass, { t = 0.5, solid = false })
+	for i = 0, 3 do
+		b:Cyl(1.4, 0.5, CF(1.2 + i * 0.7, 4.3, 6.7), PAL.white, M.Glass, { t = 0.45, solid = false })
+	end
+	-- เรียงจากซ้ายไปขวาเมื่อมองจากหน้าร้าน (+X อยู่ซ้ายมือคนดู)
+	local menus = { "ชาไทย 45\nชาเขียว 50", "ชานมไข่มุก 55\nโกโก้ 50", "โปรวันนี้!\nแก้วที่ 2 ลด 50%" }
+	for i, x in { 3.6, 0, -3.6 } do
+		local board = b:Box(V3(3.2, 2.2, 0.12), CF(x, 6.4, D / 2 - 0.7), PAL.black)
+		b:Text(board, FACE.Front, menus[i], { color = if i == 3 then PAL.yellow else PAL.cream, glow = true })
+	end
+	b:Box(V3(0.7, 0.5, 0.6), CF(-3.2, 3.85, 3.8), PAL.black)
+	b:Box(V3(0.6, 0.4, 0.05), CF(-3.2, 4.3, 3.6) * ANG(rad(-20), 0, 0), rgb(70, 150, 255), M.Neon, { solid = false })
+	for i = 0, 2 do
+		b:TeaCup(CF(1 + i * 0.8, 3.6, 3.4), 1, if i == 1 then rgb(120, 180, 90) else nil)
+	end
+	b:Cyl(0.7, 0.5, CF(4, 3.95, 3.5), PAL.white, M.Glass, { t = 0.4, solid = false })
+	b:Person(CF(-2.5, 0.2, 5.45), { apron = PAL.tea, cap = PAL.tea, right = { 60, 20 }, left = { 60, 20 } })
+	local pour = b:Person(CF(2.5, 0.2, 5.45), { apron = PAL.green, cap = PAL.green, right = { 150, 20 }, left = { 60, 30 } })
+	b:Cyl(0.6, 0.5, CF(pour.right) * CF(0, -0.1, 0), PAL.steel, M.Metal)
+	b:TeaCup(CF(pour.left) * CF(0, -0.2, 0), 1.2)
+	b:Rod(pour.right - V3(0, 0.4, 0), pour.left + V3(0, 0.9, 0), 0.14, PAL.tea, M.Glass, { t = 0.15 })
+
+	-- ตู้เย็นเครื่องดื่ม (หันเข้าร้าน)
+	b:Box(V3(1.4, 5, 2.4), CF(-5.7, 2.7, 2.2), rgb(40, 40, 45))
+	local fridgeGlass = b:Box(V3(0.1, 4, 2.0), CF(-4.95, 2.7, 2.2), PAL.glass, M.Glass, { t = 0.55 })
+	b:Light(fridgeGlass, PAL.white, 6, 0.5)
+	for i = 0, 5 do
+		b:Cyl(0.7, 0.35, CF(-5.3, 1.6 + math.floor(i / 3) * 1.6, 1.5 + (i % 3) * 0.7), if i % 2 == 0 then PAL.tea else PAL.leaf, M.Glass, { t = 0.1, solid = false })
+	end
+	-- โต๊ะลูกค้า
+	for i, spot in { V3(-4, 0.2, -5.2), V3(-4, 0.2, -1.4), V3(5, 0.2, -3.5) } do
+		local t = CF(spot)
+		b:Cyl(0.15, 1.2, t * CF(0, 0.08, 0), PAL.black)
+		b:Cyl(2.4, 0.25, t * CF(0, 1.3, 0), PAL.black)
+		b:Cyl(0.15, 2, t * CF(0, 2.6, 0), PAL.white)
+		for _, dx in { -1.4, 1.4 } do
+			b:Cyl(1.6, 0.2, t * CF(dx, 0.8, 0), PAL.steelDark, M.Metal)
+			b:Cyl(0.3, 1, t * CF(dx, 1.75, 0), if i == 2 then PAL.green else PAL.tea)
+		end
+		b:TeaCup(t * CF(-0.3, 2.68, 0.2), 0.9)
+		if i ~= 2 then
+			b:TeaCup(t * CF(0.4, 2.68, -0.2), 0.9, rgb(120, 180, 90))
+		end
+	end
+	-- ที่กั้นคิว + ลูกค้า
+	for _, z in { -1, 1.5 } do
+		b:Cyl(2.8, 0.2, CF(0.6, 1.6, z), PAL.gold, M.Metal)
+		b:Cyl(0.15, 0.7, CF(0.6, 0.28, z), PAL.gold, M.Metal)
+	end
+	b:Rod(V3(0.6, 2.6, -1), V3(0.6, 2.6, 1.5), 0.12, PAL.red, M.Fabric)
+	b:Person(CF(2.2, 0.2, 1.7) * ANG(0, rad(180), 0), { shirt = PAL.pink, apron = PAL.pink, pants = PAL.blue, left = { 10, 0 }, right = { 10, 0 } })
+	b:Person(CF(2.2, 0.2, -0.6) * ANG(0, rad(170), 0), { shirt = PAL.blue, apron = PAL.blue, pants = PAL.black, left = { 40, 20 }, right = { 10, 0 } })
+	-- โปสเตอร์ + ไฟห้อย
+	local poster = b:Box(V3(0.1, 2.4, 3), CF(-W / 2 + 0.65, 5.2, -3.5), PAL.cream, nil, { solid = false })
+	b:Text(poster, FACE.Right, "ชาไทยแท้\nชงสดทุกแก้ว", { color = PAL.teaDark })
+	for i, x in { -3, 0.4, 3.8 } do
+		b:Box(V3(0.06, 1.4, 0.06), CF(x, H - 0.7, 3.8), PAL.black, nil, { solid = false })
+		b:Cyl(0.6, 1.1, CF(x, H - 1.6, 3.8), PAL.tea, M.Metal, { solid = false })
+		local bulb = b:Ball(0.45, CF(x, H - 1.95, 3.8), PAL.warm, M.Neon, { solid = false })
+		if i == 2 then
+			b:Light(bulb, PAL.warm, 16, 0.9)
+		end
 	end
 end
 
-Build.L43 = function(b) -- สาขาสนามบิน (อาคาร + หอบังคับการ + เครื่องบิน)
-	b:Box(V3(8, 3.5, 5), CF(1, 1.75, -3), PAL.white)
-	b:Box(V3(7.6, 2.4, 0.1), CF(1, 1.7, -5.55), PAL.glass, M.Glass, { t = 0.25 })
-	b:Box(V3(9, 0.4, 6), CF(1, 3.7, -3), rgb(210, 214, 220), M.Metal)
-	b:Wedge(V3(9, 0.8, 1.5), CF(1, 3.7, -6.75), rgb(210, 214, 220), M.Metal)
-	local sign = b:Box(V3(6, 0.9, 0.1), CF(1, 4.4, -5.7), PAL.tea)
-	b:Text(sign, FACE.Front, "สาขาสนามบิน ✈", { color = PAL.white })
-	b:Cyl(8, 1.4, CF(-4.5, 4, -2), PAL.white)
-	b:Cyl(1.6, 2.6, CF(-4.5, 8.8, -2), rgb(80, 160, 200), M.Glass, { t = 0.2 })
-	b:Cyl(0.3, 2.9, CF(-4.5, 9.75, -2), PAL.white)
-	b:Cyl(1.5, 0.12, CF(-4.5, 10.6, -2), PAL.steelDark, M.Metal)
-	b:Ball(0.3, CF(-4.5, 11.4, -2), PAL.red, M.Neon, { solid = false })
-	-- เครื่องบิน (ลำตัวตามแกน X)
-	local plane = CF(1, 0, 3.5)
+Build.L43 = function(b) -- สาขาสนามบิน (อาคารผู้โดยสารเดินเข้าได้ + หอบังคับการ + เครื่องบิน)
+	local W, D, H = 13, 9, 7
+	local T = CF(0, 0, -2)
+	b:Shell(T, {
+		w = W, d = D, h = H, wall = PAL.white, wallMat = M.SmoothPlastic,
+		floor = rgb(220, 220, 225), floorMat = M.Marble, roofColor = rgb(210, 214, 220),
+		openings = {
+			{ side = "Front", x = -3.8, y = 0.5, w = 4.6, h = 5, glass = true },
+			{ side = "Front", x = 1, y = 0, w = 3, h = 6.5 },
+			{ side = "Front", x = 4.6, y = 0.5, w = 3.2, h = 5, glass = true },
+			{ side = "Back", x = 0, y = 1, w = 9, h = 4.5, glass = true },
+		},
+	})
+	b:Wedge(V3(W + 1, 0.8, 1.6), T * CF(0, H + 0.2, -D / 2 - 0.8), rgb(210, 214, 220), M.Metal)
+	local fascia = b:Box(V3(W + 0.2, 0.9, 0.2), T * CF(0, H + 1.05, -D / 2 + 0.1), PAL.tea)
+	b:Text(fascia, FACE.Front, "สาขาสนามบิน ✈", { color = PAL.white, region = { 0.2, 0, 0.6, 1 } })
+	-- หอบังคับการ
+	b:Box(V3(2, 0.4, 2), CF(-7.3, 0.2, -3), PAL.concrete, M.Concrete)
+	b:Cyl(8, 1.4, CF(-7.3, 4.2, -3), PAL.white)
+	b:Cyl(1.6, 2.6, CF(-7.3, 9, -3), rgb(80, 160, 200), M.Glass, { t = 0.2 })
+	b:Cyl(0.3, 2.9, CF(-7.3, 9.95, -3), PAL.white)
+	b:Cyl(1.5, 0.12, CF(-7.3, 10.8, -3), PAL.steelDark, M.Metal)
+	b:Ball(0.3, CF(-7.3, 11.6, -3), PAL.red, M.Neon, { solid = false })
+
+	-- ร้านชาในอาคาร
+	b:Box(V3(4, 3.2, 1.6), T * CF(-3.6, 1.8, 0.4), PAL.tea)
+	b:Box(V3(4.2, 0.2, 1.8), T * CF(-3.6, 3.5, 0.4), PAL.white, M.Marble)
+	local kiosk = b:Box(V3(3, 0.8, 0.1), T * CF(-3.6, 5.8, 0.4), PAL.green)
+	b:Text(kiosk, FACE.Front, "ชาไทย", { color = PAL.cream })
+	b:Box(V3(0.06, 1.0, 0.06), T * CF(-3.6, 6.7, 0.4), PAL.black, nil, { solid = false })
+	b:Person(T * CF(-3.6, 0.2, 1.65), { apron = PAL.tea, cap = PAL.tea, right = { 60, 20 }, left = { 60, 20 } })
+	for i = 0, 2 do
+		b:TeaCup(T * CF(-4.6 + i * 0.9, 3.6, 0), 0.9)
+	end
+	-- ป้ายเที่ยวบิน
+	local board = b:Box(V3(5, 1.8, 0.3), T * CF(2.8, 5.2, 1.4), PAL.black)
+	b:Text(board, FACE.Front, "เที่ยวบิน  ปลายทาง  เวลา\nTG101  เชียงใหม่  10:30\nFD202  ภูเก็ต  11:15", { color = PAL.yellow, glow = true, font = Enum.Font.Code })
+	for _, x in { 1, 4.6 } do
+		b:Box(V3(0.08, 0.9, 0.08), T * CF(x, 6.55, 1.4), PAL.black, nil, { solid = false })
+	end
+	-- เก้าอี้รอขึ้นเครื่อง 2 แถว
+	for _, z in { -1.8, -4.2 } do
+		local row = T * CF(3.8, 0.2, z)
+		b:Box(V3(4.2, 0.2, 0.3), row * CF(0, 0.8, 0), PAL.steelDark, M.Metal, { solid = false })
+		for _, x in { -1.6, 1.6 } do
+			b:Box(V3(0.2, 1.4, 0.2), row * CF(x, 0.7, 0), PAL.steelDark, M.Metal, { solid = false })
+		end
+		for k = -1, 1 do
+			b:Box(V3(1.2, 0.2, 1.1), row * CF(k * 1.35, 1.6, 0), PAL.blue)
+			b:Box(V3(1.2, 1.2, 0.15), row * CF(k * 1.35, 2.3, 0.55), PAL.blue, nil, { solid = false })
+		end
+	end
+	-- กระเป๋าเดินทาง + ผู้โดยสาร
+	for i, c in { PAL.red, PAL.green, PAL.yellow } do
+		local at = T * CF(-3.2 + i * 1.0, 0.2, -5.0)
+		b:Box(V3(0.9, 1.3, 0.5), at * CF(0, 0.85, 0), c)
+		b:Box(V3(0.5, 0.6, 0.08), at * CF(0, 1.8, 0), PAL.black, nil, { solid = false })
+	end
+	local traveler = b:Person(T * CF(-0.3, 0.2, -3) * ANG(0, rad(160), 0), { shirt = PAL.yellow, apron = PAL.yellow, pants = PAL.blue, right = { 10, 0 }, left = { 10, 0 } })
+	b:Box(V3(0.9, 1.4, 0.5), CF(traveler.right) * CF(0, -0.4, 0), PAL.blue, nil, { solid = false })
+	b:Plant(T * CF(-5.4, 0.2, -3.6), 2)
+	for i, x in { -2.5, 2.5 } do
+		local strip = b:Box(V3(0.5, 0.12, 7), T * CF(x, H - 0.1, 0), PAL.white, M.Neon, { solid = false })
+		if i == 1 then
+			b:Light(strip, PAL.white, 14, 0.7)
+		end
+	end
+
+	-- เครื่องบิน (ลำตัวตามแกน X) จอดหลังอาคาร
+	local plane = CF(0, 0, 8)
 	b:HCyl(9, 1.4, plane * CF(0, 1.6, 0), PAL.white)
 	b:Ball(1.4, plane * CF(-4.5, 1.6, 0), PAL.white)
 	b:Ellipsoid(V3(2.4, 1.1, 1.1), plane * CF(4.9, 1.8, 0), PAL.white)
@@ -1236,11 +1835,16 @@ Build.L43 = function(b) -- สาขาสนามบิน (อาคาร + 
 	end
 	for _, z in { -0.71, 0.71 } do
 		b:Box(V3(6, 0.18, 0.02), plane * CF(-0.3, 1.9, z), PAL.black, nil, { solid = false })
+		b:Box(V3(6, 0.25, 0.02), plane * CF(-0.3, 1.2, z * 1.001), PAL.tea, nil, { solid = false })
 	end
 	b:Box(V3(0.5, 0.25, 1.42), plane * CF(-4.2, 2.0, 0), PAL.black, M.Glass, { solid = false })
 	for _, x in { -3.5, 1 } do
 		b:Box(V3(0.15, 0.9, 0.15), plane * CF(x, 0.45, 0), PAL.black, nil, { solid = false })
 	end
+	-- รถลากกระเป๋า
+	b:Box(V3(1.4, 0.8, 1), plane * CF(-3, 0.6, -2.6), PAL.yellow)
+	b:Box(V3(2, 0.2, 1.2), plane * CF(-0.9, 0.5, -2.6), PAL.steelDark, M.Metal)
+	b:Box(V3(0.9, 0.8, 0.6), plane * CF(-0.9, 1.0, -2.6), PAL.red, nil, { solid = false })
 end
 
 Build.L44 = function(b) -- แฟรนไชส์ทั่วประเทศ (ลูกโลกบนแท่น)
@@ -1269,25 +1873,42 @@ Build.L44 = function(b) -- แฟรนไชส์ทั่วประเท�
 	b:Text(plaque, FACE.Front, "แฟรนไชส์ทั่วประเทศ", { color = PAL.black })
 end
 
-Build.L45 = function(b) -- ตึกแลนด์มาร์กทรงแก้วชาไทยไข่มุก
-	b:Box(V3(8, 0.6, 8), CF(0, 0.3, 0), PAL.white, M.Marble)
-	b:Box(V3(6, 0.3, 1), CF(0, 0.15, -4.4), PAL.white, M.Marble)
-	b:Cyl(3, 7, CF(0, 2.1, 0), PAL.white, M.Concrete)
-	local sign = b:Box(V3(5, 1.1, 0.2), CF(0, 2.4, -3.5), PAL.tea)
+Build.L45 = function(b) -- ตึกแลนด์มาร์กทรงแก้วชาไทยไข่มุก (ล็อบบี้เดินเข้าได้ + ร้านของที่ระลึก + ลิฟต์ชมวิว)
+	local LW, LH = 12, 6
+	b:Box(V3(14, 0.4, 14), CF(0, 0.2, 0), PAL.white, M.Marble)
+	b:Box(V3(6, 0.2, 1), CF(0, 0.1, -7.4), PAL.white, M.Marble)
+	local lobby = CF(0, 0.4, 0)
+	b:Shell(lobby, {
+		w = LW, d = LW, h = LH, wall = PAL.white, wallMat = M.Concrete,
+		floor = rgb(235, 225, 210), floorMat = M.Marble, roofColor = PAL.white,
+		openings = {
+			{ side = "Front", x = 0, y = 0, w = 4, h = 5.2 },
+			{ side = "Front", x = -4, y = 0.6, w = 3, h = 4.4, glass = true },
+			{ side = "Front", x = 4, y = 0.6, w = 3, h = 4.4, glass = true },
+			{ side = "Left", x = 0, y = 0.6, w = 8, h = 4.4, glass = true },
+			{ side = "Right", x = 0, y = 0.6, w = 8, h = 4.4, glass = true },
+		},
+	})
+	local sign = b:Box(V3(6, 1, 0.2), CF(0, LH + 0.1, -LW / 2 - 0.15), PAL.tea)
 	b:Text(sign, FACE.Front, "THAI TEA TOWER", { color = PAL.white })
-	local sections = 8
-	local top = 3.6
-	for i = 0, sections - 1 do
+	for _, x in { -6.4, 6.4 } do
+		b:Plant(CF(x, 0.4, -6.6), 2.4)
+	end
+
+	-- ตัวตึกทรงแก้ว
+	local base = 0.4 + LH + 0.6
+	b:Cyl(0.8, 8, CF(0, base + 0.4, 0), PAL.white, M.Concrete)
+	local top = base + 0.8
+	for i = 0, 7 do
 		local d = 5 + i * 0.28
 		local color = if i == 0 then PAL.pearl elseif i % 2 == 0 then PAL.tea else rgb(222, 108, 40)
 		b:Cyl(3, d, CF(0, top + 1.5, 0), color, M.SmoothPlastic, { solid = true })
 		b:Cyl(0.3, d + 0.12, CF(0, top + 3, 0), PAL.warm, M.Neon)
 		top += 3
 	end
-	-- ไข่มุกรอบชั้นล่าง
 	for k = 0, 11 do
 		local a = rad(k * 30)
-		b:Ball(1, CF(math.cos(a) * 2.55, 4.8 + (k % 2) * 0.9, math.sin(a) * 2.55), PAL.pearl, M.Glass)
+		b:Ball(1, CF(math.cos(a) * 2.55, base + 2 + (k % 2) * 0.9, math.sin(a) * 2.55), PAL.pearl, M.Glass)
 	end
 	b:Cyl(2, 7.3, CF(0, top + 1, 0), PAL.milk)
 	b:Ellipsoid(V3(7.5, 4, 7.5), CF(0, top + 2, 0), PAL.white, M.Glass, { t = 0.35 })
@@ -1295,6 +1916,94 @@ Build.L45 = function(b) -- ตึกแลนด์มาร์กทรงแ�
 	b:Tube(V3(0.6, top + 2, 0.4), strawTop, 0.9, PAL.green, M.SmoothPlastic)
 	local beacon = b:Ball(1, CF(strawTop), PAL.red, M.Neon, { solid = false })
 	b:Light(beacon, PAL.red, 20, 1)
+
+	-- ล็อบบี้: เคาน์เตอร์ข้อมูล ลิฟต์ทอง ร้านของที่ระลึก เก้าอี้ไข่มุก
+	local f = 0.6
+	b:Box(V3(3.4, 2.4, 1.2), CF(0, f + 1.2, 0.8), PAL.tea)
+	b:Box(V3(3.6, 0.15, 1.4), CF(0, f + 2.45, 0.8), PAL.white, M.Marble)
+	b:Person(CF(0, f, 2.2), { apron = PAL.tea, shirt = PAL.white, right = { 45, 15 }, left = { 30, 0 } })
+	b:Box(V3(2.8, 4.4, 0.15), CF(0, f + 2.2, LW / 2 - 0.7), PAL.gold, M.Metal, { solid = false })
+	b:Box(V3(0.06, 4.4, 0.16), CF(0, f + 2.2, LW / 2 - 0.71), PAL.woodDark, nil, { solid = false })
+	local lift = b:Box(V3(3.2, 0.7, 0.1), CF(0, f + 4.9, LW / 2 - 0.75), PAL.black, nil, { solid = false })
+	b:Text(lift, FACE.Front, "ขึ้นชมวิว ↑", { color = PAL.yellow, glow = true })
+	local gifts = CF(-LW / 2 + 1.3, f, 0) * ANG(0, rad(90), 0)
+	b:Shelf(gifts, 6, 1.2, { 1.0, 2.4, 3.8 }, PAL.woodLight, function(level, y)
+		for k = 1, 3 do
+			local at = gifts * CF(-2 + (k - 1) * 2, y, 0)
+			if (k + level) % 2 == 0 then
+				b:TeaCup(at, 0.9)
+			else
+				b:Ball(0.8, at * CF(0, 0.4, 0), PAL.pearl, nil, { solid = false })
+			end
+		end
+	end)
+	for _, p in { V3(3.2, f + 0.7, -2.2), V3(4.6, f + 0.7, -3.4), V3(3.4, f + 0.7, -4.4) } do
+		b:Ball(1.4, CF(p), PAL.pearl, M.Fabric)
+	end
+	b:Box(V3(1.2, 1.2, 1.2), CF(3.8, f + 0.6, 3), PAL.white, M.Marble)
+	b:TeaCup(CF(3.8, f + 1.2, 3), 2.2)
+	for i, x in { -3, 3 } do
+		local strip = b:Box(V3(0.4, 0.12, 9), CF(x, 0.4 + LH - 0.1, 0), PAL.white, M.Neon, { solid = false })
+		if i == 1 then
+			b:Light(strip, PAL.warm, 14, 0.8)
+		end
+	end
+end
+
+---------------------------------------------------------------------------
+-- ของตกแต่งส่วนกลาง (ไม่ต้องซื้อ): ไฟทางเดิน ต้นไม้ ม้านั่ง ถังขยะ น้ำพุ
+---------------------------------------------------------------------------
+local Decor = {}
+
+Decor.Lamp = function(b)
+	b:Cyl(0.3, 1.2, CF(0, 0.15, 0), PAL.black, M.Metal)
+	b:Cyl(9, 0.35, CF(0, 4.8, 0), PAL.black, M.Metal)
+	b:Box(V3(0.2, 0.2, 1.6), CF(0, 9.1, -0.7), PAL.black, M.Metal, { solid = false })
+	b:Box(V3(0.9, 0.5, 0.9), CF(0, 8.9, -1.4), PAL.black, M.Metal, { solid = false })
+	local bulb = b:Box(V3(0.7, 0.15, 0.7), CF(0, 8.6, -1.4), PAL.warm, M.Neon, { solid = false })
+	b:Light(bulb, PAL.warm, 16, 0.7)
+end
+
+Decor.Tree = function(b)
+	b:Cyl(0.4, 2.4, CF(0, 0.2, 0), rgb(120, 110, 100), M.Cobblestone)
+	b:Cyl(5, 0.8, CF(0, 2.5, 0), PAL.woodDark, M.Wood)
+	b:Ellipsoid(V3(5, 3.6, 5), CF(0, 6.2, 0), PAL.leaf)
+	b:Ellipsoid(V3(3.6, 2.8, 3.6), CF(0.8, 7.6, -0.5), PAL.leafDark)
+	b:Ellipsoid(V3(3, 2.4, 3), CF(-1, 7.2, 0.8), rgb(100, 175, 80))
+end
+
+Decor.Bench = function(b)
+	for _, x in { -1.6, 1.6 } do
+		b:Box(V3(0.3, 1.5, 1.4), CF(x, 0.75, 0), PAL.black, M.Metal)
+	end
+	for i = 0, 2 do
+		b:Box(V3(4, 0.15, 0.4), CF(0, 1.55, -0.45 + i * 0.45), PAL.wood, M.Wood)
+	end
+	for i = 0, 1 do
+		b:Box(V3(4, 0.4, 0.12), CF(0, 2.1 + i * 0.5, 0.75), PAL.wood, M.Wood, { solid = false })
+	end
+end
+
+Decor.Bin = function(b)
+	b:Cyl(2, 1.1, CF(0, 1, 0), PAL.green)
+	b:Cyl(0.2, 1.2, CF(0, 2.1, 0), PAL.greenDark)
+end
+
+Decor.Fountain = function(b)
+	local WATER = rgb(90, 170, 220)
+	b:Cyl(1.2, 13, CF(0, 0.6, 0), rgb(215, 205, 190), M.Marble)
+	b:Cyl(0.2, 11.6, CF(0, 1.1, 0), WATER, M.Glass, { t = 0.25 })
+	b:Cyl(3.4, 1.8, CF(0, 2.8, 0), rgb(215, 205, 190), M.Marble)
+	b:Cyl(0.6, 5.5, CF(0, 4.6, 0), rgb(215, 205, 190), M.Marble)
+	b:Cyl(0.1, 5, CF(0, 4.9, 0), WATER, M.Glass, { t = 0.25, solid = false })
+	b:Ellipsoid(V3(5.4, 3, 5.4), CF(0, 3.3, 0), PAL.white, M.Glass, { t = 0.75 })
+	b:Cyl(1.2, 0.8, CF(0, 5.5, 0), rgb(215, 205, 190), M.Marble)
+	-- แก้วชาไทยบนยอดน้ำพุ
+	b:TeaCup(CF(0, 6.1, 0), 2.4)
+	for k = 0, 7 do
+		local a = rad(k * 45)
+		b:Ball(0.5, CF(math.cos(a) * 5.4, 1.4, math.sin(a) * 5.4), PAL.white, nil, { t = 0.5, solid = false })
+	end
 end
 
 ---------------------------------------------------------------------------
@@ -1314,6 +2023,18 @@ function ItemModels.Build(key: string, origin: CFrame): Model?
 	model.Name = key
 	local b = newBuilder(model, origin)
 	build(b)
+	return model
+end
+
+-- สร้างของตกแต่ง (Lamp, Tree, Bench, Bin, Fountain) คืน Model ที่ยังไม่ได้ใส่ Parent
+function ItemModels.BuildDecor(kind: string, origin: CFrame): Model?
+	local build = Decor[kind]
+	if not build then
+		return nil
+	end
+	local model = Instance.new("Model")
+	model.Name = kind
+	build(newBuilder(model, origin))
 	return model
 end
 

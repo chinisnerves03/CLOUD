@@ -8,11 +8,12 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffe
 renderer.setSize(W, H); renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 document.body.appendChild(renderer.domElement);
+if (q.get('clip')) renderer.clippingPlanes = [new THREE.Plane(new THREE.Vector3(0, -1, 0), +q.get('clip'))];
 const scene = new THREE.Scene(); scene.background = new THREE.Color(0x9cc9ee);
 scene.add(new THREE.HemisphereLight(0xdfefff, 0x6b6250, 1.1));
-const sun = new THREE.DirectionalLight(0xfff4e0, 2.2); sun.position.set(-60, 120, -80); sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048); const sc = sun.shadow.camera; sc.left = -80; sc.right = 80; sc.top = 80; sc.bottom = -80; sc.near = 1; sc.far = 400;
-sun.target.position.set(0, 0, 70); scene.add(sun); scene.add(sun.target);
+const sun = new THREE.DirectionalLight(0xfff4e0, 2.2); sun.position.set(-170, 120, 5); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048); const sc = sun.shadow.camera; sc.left = -110; sc.right = 110; sc.top = 110; sc.bottom = -110; sc.near = 1; sc.far = 400;
+sun.target.position.set(-110, 0, 85); scene.add(sun); scene.add(sun.target);
 const ground = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000), new THREE.MeshStandardMaterial({ color: 0x6f8f5a }));
 ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
 
