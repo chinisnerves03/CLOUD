@@ -1,48 +1,48 @@
 --!strict
--- Config: ค่าตั้งทั้งหมดของเกม (ใช้ร่วมกันทั้งเซิร์ฟเวอร์และไคลเอนต์)
--- เศรษฐกิจ: 45 เลเวล, ราคาเลเวล 45 = ฿2.2M, รวมเวลารอประมาณ 52 นาที (ไม่นับเวลาเดิน)
+-- Config: every game setting, shared by the server and the client.
+-- Economy: 45 levels, level 45 costs ฿2.2M, about 52 minutes of total waiting (walking not included).
 
 local Config = {}
 
 ---------------------------------------------------------------------------
--- สวิตช์สำหรับทดสอบ
+-- Testing switches
 ---------------------------------------------------------------------------
-Config.BUILD_PLACEHOLDER_PLOTS = true -- ไม่มี Workspace.Plots → สร้างฐานจำลอง 6 ฐานให้เอง
-Config.STUDIO_GRANT_ALL_PASSES = false -- true = ใน Studio ให้ Game Pass ทุกอัน (ไม่มีผลกับเกมจริง)
-Config.PRINT_ECONOMY_CHECK = true -- พิมพ์ตารางราคา/รายได้ลง Output ตอนเริ่มเซิร์ฟเวอร์
+Config.BUILD_PLACEHOLDER_PLOTS = true -- no Workspace.Plots → build 6 plots with generated models
+Config.STUDIO_GRANT_ALL_PASSES = false -- true = grant every Game Pass while testing in Studio (live game unaffected)
+Config.PRINT_ECONOMY_CHECK = true -- print the price/income summary to Output when the server starts
 
 ---------------------------------------------------------------------------
--- ระบบทั่วไป
+-- General
 ---------------------------------------------------------------------------
 Config.PLOT_COUNT = 6
 Config.PAD_COUNT = 3
-Config.TICK = 0.1 -- วินาทีต่อรอบของลูปเซิร์ฟเวอร์
+Config.TICK = 0.1 -- seconds per server loop step
 Config.AUTOSAVE_INTERVAL = 60
 Config.DATASTORE_NAME = "ThaiTeaTycoon_v1"
 Config.CURRENCY = "฿"
 
 Config.OFFLINE = {
-	MIN_SECONDS = 60, -- ไม่อยู่น้อยกว่านี้ไม่คิดรายได้ออฟไลน์
-	RATE = 0.5, -- ได้ 50% ของรายได้ปกติ
+	MIN_SECONDS = 60, -- shorter absences earn nothing
+	RATE = 0.5, -- 50% of normal income
 	MAX_HOURS = 8,
-	PASS_RATE = 1.0, -- มี Pass OfflinePlus ได้ 100%
+	PASS_RATE = 1.0, -- 100% with the OfflinePlus pass
 	PASS_MAX_HOURS = 24,
 }
 
--- Game Pass: ใส่ ID จาก Creator Dashboard (0 = ยังไม่ได้ตั้ง)
+-- Game Passes: put the IDs from the Creator Dashboard here (0 = not set yet)
 Config.PASSES = {
-	DoubleCash = { Id = 0, Name = "รายได้ x2" },
-	AutoCollect = { Id = 0, Name = "เก็บเงินอัตโนมัติ" },
-	OfflinePlus = { Id = 0, Name = "รายได้ออฟไลน์เต็ม 24 ชม." },
+	DoubleCash = { Id = 0, Name = "2x Income" },
+	AutoCollect = { Id = 0, Name = "Auto Collect" },
+	OfflinePlus = { Id = 0, Name = "Full Offline Income (24h)" },
 }
 
--- Developer Product: ให้เงินเท่ากับรายได้ N วินาที (ขั้นต่ำ Min)
+-- Developer Products: grant cash equal to N seconds of income (at least Min)
 Config.PRODUCTS = {
-	CashSmall = { Id = 0, Name = "เงินด่วน 10 นาที", Seconds = 600, Min = 100 },
-	CashBig = { Id = 0, Name = "เงินด่วน 1 ชั่วโมง", Seconds = 3600, Min = 1000 },
+	CashSmall = { Id = 0, Name = "Cash Boost (10 min)", Seconds = 600, Min = 100 },
+	CashBig = { Id = 0, Name = "Cash Boost (1 hour)", Seconds = 3600, Min = 1000 },
 }
 
--- เสียง: ใส่ "rbxassetid://..." (ว่าง = ไม่เล่นเสียง)
+-- Sounds: "rbxassetid://..." (empty = no sound)
 Config.SOUNDS = {
 	Buy = "",
 	Collect = "",
@@ -50,50 +50,50 @@ Config.SOUNDS = {
 }
 
 ---------------------------------------------------------------------------
--- เศรษฐกิจ
+-- Economy
 ---------------------------------------------------------------------------
 Config.MAX_LEVEL = 45
 Config.START_CASH = 0
-Config.FIRST_PRICE = 8 -- ราคาเลเวล 2
-Config.LAST_PRICE = 2_200_000 -- ราคาเลเวล 45
-Config.FIRST_WAIT = 8 -- วินาทีที่ต้องรอซื้อชิ้นแรก
-Config.WAIT_GROWTH = 1.083 -- เวลารอแต่ละชิ้นยาวขึ้น 8.3% (รวม ≈ 52 นาที)
+Config.FIRST_PRICE = 8 -- price of level 2
+Config.LAST_PRICE = 2_200_000 -- price of level 45
+Config.FIRST_WAIT = 8 -- seconds of waiting for the first item
+Config.WAIT_GROWTH = 1.083 -- each item takes 8.3% longer to afford (≈ 52 minutes total)
 
--- ชื่อของที่ซื้อ เลเวล 2..45 (44 ชิ้น) แบ่ง 5 ขั้น
+-- Purchasable items for levels 2..45 (44 items) in 5 tiers
 Config.TIERS = {
-	{ Name = "รถเข็นชาไทย", Color = Color3.fromRGB(230, 126, 34) },
-	{ Name = "ร้านเล็กริมทาง", Color = Color3.fromRGB(241, 196, 15) },
-	{ Name = "คาเฟ่ชาไทย", Color = Color3.fromRGB(46, 204, 113) },
-	{ Name = "ครัวกลาง", Color = Color3.fromRGB(52, 152, 219) },
-	{ Name = "อาณาจักรชาไทย", Color = Color3.fromRGB(155, 89, 182) },
+	{ Name = "Thai Tea Cart", Color = Color3.fromRGB(230, 126, 34) },
+	{ Name = "Street Shop", Color = Color3.fromRGB(241, 196, 15) },
+	{ Name = "Thai Tea Cafe", Color = Color3.fromRGB(46, 204, 113) },
+	{ Name = "Central Kitchen", Color = Color3.fromRGB(52, 152, 219) },
+	{ Name = "Thai Tea Empire", Color = Color3.fromRGB(155, 89, 182) },
 }
 
 local ITEM_LIST: { { string | number } } = {
-	-- ขั้น 1
-	{ "โต๊ะพับ", 1 }, { "กระติกน้ำแข็ง", 1 }, { "หม้อต้มชา", 1 },
-	{ "ถุงกรองชา", 1 }, { "แก้วพลาสติก", 1 }, { "ร่มกันแดด", 1 },
-	{ "ป้ายร้าน", 1 }, { "เครื่องซีลแก้ว", 1 }, { "ตู้เย็นเล็ก", 1 },
-	-- ขั้น 2
-	{ "เคาน์เตอร์ไม้", 2 }, { "เครื่องชงชาไฟฟ้า", 2 }, { "ตู้ท็อปปิ้ง", 2 },
-	{ "หม้อไข่มุก", 2 }, { "เก้าอี้ลูกค้า", 2 }, { "โต๊ะหน้าร้าน", 2 },
-	{ "ไฟประดับ", 2 }, { "เครื่องคิดเงิน", 2 }, { "พนักงานชงชา", 2 },
-	-- ขั้น 3
-	{ "เครื่องทำน้ำแข็ง", 3 }, { "เมนูบอร์ดไฟ", 3 }, { "เครื่องปั่น", 3 },
-	{ "ตู้เค้ก", 3 }, { "มุมถ่ายรูป", 3 }, { "แอร์", 3 },
-	{ "ชั้นวางใบชา", 3 }, { "บาร์ชงโชว์", 3 }, { "ป้ายไฟนีออน", 3 },
-	-- ขั้น 4
-	{ "ครัวกลาง", 4 }, { "รถส่งของ", 4 }, { "สายพานแก้ว", 4 },
-	{ "เครื่องชงอัตโนมัติ", 4 }, { "จุดรับออร์เดอร์ออนไลน์", 4 }, { "ห้องเย็น", 4 },
-	{ "โรงคั่วชา", 4 }, { "ทีมบาริสต้า", 4 }, { "ป้ายบิลบอร์ด", 4 },
-	-- ขั้น 5
-	{ "ไร่ชา", 5 }, { "โรงงานบรรจุขวด", 5 }, { "ศูนย์กระจายสินค้า", 5 },
-	{ "สำนักงานใหญ่", 5 }, { "สาขาในห้าง", 5 }, { "สาขาสนามบิน", 5 },
-	{ "แฟรนไชส์ทั่วประเทศ", 5 }, { "ตึกชาไทยแลนด์มาร์ก", 5 },
+	-- Tier 1
+	{ "Folding Table", 1 }, { "Ice Cooler", 1 }, { "Tea Pot", 1 },
+	{ "Tea Filter Sock", 1 }, { "Plastic Cups", 1 }, { "Market Umbrella", 1 },
+	{ "Shop Sign", 1 }, { "Cup Sealer", 1 }, { "Mini Fridge", 1 },
+	-- Tier 2
+	{ "Wooden Counter", 2 }, { "Tea Brewer", 2 }, { "Topping Bar", 2 },
+	{ "Pearl Pot", 2 }, { "Bar Stools", 2 }, { "Patio Table", 2 },
+	{ "String Lights", 2 }, { "Cash Register", 2 }, { "Tea Master", 2 },
+	-- Tier 3
+	{ "Ice Machine", 3 }, { "Menu Board", 3 }, { "Blender Station", 3 },
+	{ "Cake Display", 3 }, { "Photo Corner", 3 }, { "Air Conditioner", 3 },
+	{ "Tea Leaf Shelf", 3 }, { "Show Bar", 3 }, { "Neon Sign", 3 },
+	-- Tier 4
+	{ "Central Kitchen", 4 }, { "Delivery Van", 4 }, { "Cup Conveyor", 4 },
+	{ "Auto Brewer", 4 }, { "Online Order Kiosk", 4 }, { "Cold Room", 4 },
+	{ "Tea Roastery", 4 }, { "Barista Team", 4 }, { "Billboard", 4 },
+	-- Tier 5
+	{ "Tea Plantation", 5 }, { "Bottling Factory", 5 }, { "Distribution Center", 5 },
+	{ "Headquarters", 5 }, { "Mall Branch", 5 }, { "Airport Branch", 5 },
+	{ "Nationwide Franchise", 5 }, { "Thai Tea Tower", 5 },
 }
 
 export type Item = { Level: number, Key: string, Name: string, Tier: number, Price: number }
 
--- ปัดเป็นเลขสวย 2 หลักสำคัญ (เช่น 1,234 → 1,200)
+-- Round to 2 significant digits (e.g. 1,234 → 1,200)
 local function nice(n: number): number
 	if n < 100 then
 		return math.max(1, math.floor(n + 0.5))
@@ -102,8 +102,8 @@ local function nice(n: number): number
 	return math.floor(n / mag + 0.5) * mag
 end
 
--- Config.Items[level] = ของที่ได้เมื่อถึงเลเวลนั้น (level 2..45)
--- Config.Income[level] = รายได้ต่อวินาทีเมื่ออยู่เลเวลนั้น (level 1..45)
+-- Config.Items[level] = the item unlocked at that level (levels 2..45)
+-- Config.Income[level] = income per second at that level (levels 1..45)
 Config.Items = {} :: { [number]: Item }
 Config.Income = {} :: { [number]: number }
 
@@ -111,7 +111,7 @@ do
 	local steps = Config.MAX_LEVEL - 2
 	local priceGrowth = (Config.LAST_PRICE / Config.FIRST_PRICE) ^ (1 / steps)
 	local incomeGrowth = priceGrowth / Config.WAIT_GROWTH
-	assert(#ITEM_LIST == Config.MAX_LEVEL - 1, "ITEM_LIST ต้องมี " .. (Config.MAX_LEVEL - 1) .. " ชิ้น")
+	assert(#ITEM_LIST == Config.MAX_LEVEL - 1, "ITEM_LIST must have " .. (Config.MAX_LEVEL - 1) .. " items")
 
 	for level = 2, Config.MAX_LEVEL do
 		local entry = ITEM_LIST[level - 1]
@@ -141,7 +141,7 @@ function Config.GetIncome(level: number): number
 	return Config.Income[math.clamp(level, 1, Config.MAX_LEVEL)]
 end
 
--- เวลารอรวม (วินาที) ตั้งแต่เลเวล 1 ถึงเลเวลสุดท้าย ถ้าไม่มี Pass
+-- Total waiting time (seconds) from level 1 to the last level without passes
 function Config.TotalWaitSeconds(): number
 	local total = 0
 	for level = 2, Config.MAX_LEVEL do
@@ -151,7 +151,7 @@ function Config.TotalWaitSeconds(): number
 end
 
 ---------------------------------------------------------------------------
--- แสดงตัวเลขเงิน
+-- Number formatting
 ---------------------------------------------------------------------------
 local SUFFIXES = { { 1e12, "T" }, { 1e9, "B" }, { 1e6, "M" }, { 1e3, "K" } }
 
@@ -181,11 +181,11 @@ end
 function Config.FormatTime(seconds: number): string
 	seconds = math.max(0, math.floor(seconds))
 	if seconds < 60 then
-		return seconds .. " วินาที"
+		return seconds .. "s"
 	elseif seconds < 3600 then
-		return math.floor(seconds / 60) .. " นาที " .. (seconds % 60) .. " วินาที"
+		return math.floor(seconds / 60) .. "m " .. (seconds % 60) .. "s"
 	end
-	return math.floor(seconds / 3600) .. " ชม. " .. math.floor(seconds % 3600 / 60) .. " นาที"
+	return math.floor(seconds / 3600) .. "h " .. math.floor(seconds % 3600 / 60) .. "m"
 end
 
 return Config

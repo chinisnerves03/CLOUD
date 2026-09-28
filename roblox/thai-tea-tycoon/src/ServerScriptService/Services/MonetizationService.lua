@@ -1,6 +1,6 @@
--- MonetizationService: Game Pass 3 อัน + Developer Product 2 อัน
--- สถานะ Pass เก็บเป็น Attribute บนตัวผู้เล่น: Pass_DoubleCash, Pass_AutoCollect, Pass_OfflinePlus
--- ปุ่มขายในเกมยังไม่ได้ทำ: เรียก MarketplaceService:PromptGamePassPurchase จาก UI ได้เลย ระบบนี้รับต่อให้
+-- MonetizationService: 3 Game Passes + 2 Developer Products
+-- Pass ownership is stored as player Attributes: Pass_DoubleCash, Pass_AutoCollect, Pass_OfflinePlus
+-- No in-game shop buttons yet: call MarketplaceService:PromptGamePassPurchase from UI and this service handles the rest
 
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
@@ -41,7 +41,7 @@ function MonetizationService.HasPass(player: Player, passKey: string): boolean
 	return player:GetAttribute(attrName(passKey)) == true
 end
 
--- ตัวคูณรายได้รวมจาก Pass
+-- total income multiplier from passes
 function MonetizationService.IncomeMultiplier(player: Player): number
 	return if MonetizationService.HasPass(player, "DoubleCash") then 2 else 1
 end
@@ -57,11 +57,11 @@ function MonetizationService.LoadPasses(player: Player)
 			if ok then
 				owned = result
 			else
-				warn("[Monetization] เช็ก Pass " .. passKey .. " ไม่ได้: " .. tostring(result))
+				warn("[Monetization] Could not check pass " .. passKey .. ": " .. tostring(result))
 			end
 		elseif pass.Id == 0 and not grantAll and not warnedMissingIds then
 			warnedMissingIds = true
-			warn("[Monetization] ยังไม่ได้ใส่ ID ของ Game Pass บางอันใน Config.PASSES")
+			warn("[Monetization] Some Game Pass IDs in Config.PASSES are not set yet")
 		end
 		player:SetAttribute(attrName(passKey), owned)
 	end
@@ -71,7 +71,7 @@ function MonetizationService.Init(dataService, plotService)
 	DataService = dataService
 	PlotService = plotService
 
-	-- ซื้อ Game Pass ระหว่างเล่น
+	-- Game Pass bought during play
 	MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, passId, purchased)
 		if not purchased then
 			return
@@ -79,15 +79,15 @@ function MonetizationService.Init(dataService, plotService)
 		local passKey = passKeyFromId(passId)
 		if passKey then
 			player:SetAttribute(attrName(passKey), true)
-			PlotService.Notify(player, "Buy", "ได้รับ " .. Config.PASSES[passKey].Name .. " แล้ว!")
+			PlotService.Notify(player, "Buy", "Unlocked " .. Config.PASSES[passKey].Name .. "!")
 		end
 	end)
 
-	-- Developer Product (ซื้อซ้ำได้)
+	-- Developer Products (repeatable)
 	MarketplaceService.ProcessReceipt = function(receipt)
 		local player = Players:GetPlayerByUserId(receipt.PlayerId)
 		if not player or not DataService.Get(player) then
-			-- ผู้เล่นยังโหลดไม่เสร็จหรือออกไปแล้ว Roblox จะส่งมาใหม่ภายหลัง
+			-- player not loaded yet or already gone; Roblox retries later
 			return Enum.ProductPurchaseDecision.NotProcessedYet
 		end
 
@@ -98,7 +98,7 @@ function MonetizationService.Init(dataService, plotService)
 
 		local productKey = productKeyFromId(receipt.ProductId)
 		if not productKey then
-			warn("[Monetization] ไม่รู้จัก Product ID " .. tostring(receipt.ProductId))
+			warn("[Monetization] Unknown Product ID " .. tostring(receipt.ProductId))
 			return Enum.ProductPurchaseDecision.NotProcessedYet
 		end
 
@@ -106,10 +106,10 @@ function MonetizationService.Init(dataService, plotService)
 		local amount = math.max(product.Min, PlotService.GetIncomePerSecond(player) * product.Seconds)
 		PlotService.AddCash(player, amount)
 		DataService.AddReceipt(player, purchaseId)
-		PlotService.Notify(player, "Buy", product.Name .. ": ได้ " .. Config.FormatMoney(amount))
+		PlotService.Notify(player, "Buy", product.Name .. ": +" .. Config.FormatMoney(amount))
 
-		-- ต้องเซฟสำเร็จก่อนบอก Roblox ว่าให้ของแล้ว
-		-- ถ้าเซฟไม่ได้ ใบเสร็จอยู่ในหน่วยความจำแล้ว รอบหน้าจะไม่ให้ซ้ำ
+		-- only confirm the grant to Roblox after a successful save
+		-- if saving fails the receipt is already in memory, so a retry will not double-grant
 		if DataService.Save(player) then
 			return Enum.ProductPurchaseDecision.PurchaseGranted
 		end

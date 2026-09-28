@@ -1,5 +1,5 @@
--- Main: จุดเริ่มต้นฝั่งเซิร์ฟเวอร์ ต่อระบบทั้งหมดเข้าด้วยกัน
--- ลำดับตอนผู้เล่นเข้า: DataService.Load → Monetization.LoadPasses → PlotService.AddPlayer
+-- Main: server entry point that wires every service together
+-- Join order: DataService.Load → Monetization.LoadPasses → PlotService.AddPlayer
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -10,13 +10,13 @@ local DataService = require(Services:WaitForChild("DataService"))
 local PlotService = require(Services:WaitForChild("PlotService"))
 local MonetizationService = require(Services:WaitForChild("MonetizationService"))
 
--- ช่องส่งข้อความแจ้งเตือนไปหาไคลเอนต์ (kind, text)
+-- Channel for client notifications (kind, text)
 local notifyRemote = Instance.new("RemoteEvent")
 notifyRemote.Name = "TycoonNotify"
 notifyRemote.Parent = ReplicatedStorage
 
 if Config.PRINT_ECONOMY_CHECK then
-	print(string.format("[Config] %d เลเวล, ราคาเลเวลสุดท้าย %s, รายได้สูงสุด %s/วินาที, เวลารอรวม ≈ %.1f นาที",
+	print(string.format("[Config] %d levels, final price %s, max income %s/s, total wait ≈ %.1f min",
 		Config.MAX_LEVEL,
 		Config.FormatMoney(Config.Items[Config.MAX_LEVEL].Price),
 		Config.FormatMoney(Config.Income[Config.MAX_LEVEL]),
@@ -30,7 +30,7 @@ MonetizationService.Init(DataService, PlotService)
 local function onPlayerAdded(player: Player)
 	local data = DataService.Load(player)
 	if not player:IsDescendantOf(Players) then
-		-- ออกไปก่อนโหลดเสร็จ
+		-- left before loading finished
 		DataService.Release(player)
 		return
 	end

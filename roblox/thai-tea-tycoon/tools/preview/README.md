@@ -1,11 +1,13 @@
-# Preview (ใช้ตอนพัฒนา ไม่ต้องใส่ใน Roblox)
+# Preview (development only — not part of the Roblox game)
 
-วาดรูปตัวอย่างโมเดลจาก `ItemModels.lua` โดยไม่ต้องเปิด Studio: รันโค้ดกับ Roblox API จำลอง (`mock.luau`) แล้ววาดด้วย three.js
+Renders the models from `ItemModels.lua` without Roblox Studio: the builders run against a small Roblox API mock (`mock.luau`) and three.js draws the result.
 
 ```bash
 npm install && npm run setup
-LUAU=/path/to/luau ./build.sh            # เขียน parts.jsonl (Plot1) + พิมพ์จำนวน Part ต่อชิ้น
+LUAU=/path/to/luau ./build.sh            # writes parts.jsonl (Plot1 + plaza) and prints part counts per item
 python3 -m http.server 8765 &
-node shoot.mjs '{"overview":"eye=-90,75,-15&at=-90,0,62"}'   # บันทึกรูปลง shots/
+node shoot.mjs '{"overview":"eye=-110,100,-25&at=-110,0,82"}'   # saves shots/overview.png
 ```
-พิกัดกล้องเป็นพิกัดโลก Plot1 อยู่กลางที่ (-90, 1, 70) ด้านหน้าหัน -Z
+
+Camera coordinates are world space. Plot1's floor center is at (-110, 1, 85) and its front faces -Z.
+Add `&clip=Y` to cut away everything above height Y (to look inside buildings). Set `CHROME=/path/to/chrome` if Playwright cannot find a browser.

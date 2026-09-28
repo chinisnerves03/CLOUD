@@ -1,5 +1,5 @@
--- ClientMain: หน้าจอเงิน + ข้อความนำทาง + ลูกศรชี้เป้าหมาย + แจ้งเตือน/เสียง
--- อ่านค่าจาก Attribute ที่เซิร์ฟเวอร์ตั้งให้ (Cash, Stored, Level, Income, Plot) — แสดงผลอย่างเดียว
+-- ClientMain: cash HUD + guidance text + guide arrow + notifications/sounds
+-- Reads the Attributes set by the server (Cash, Stored, Level, Income, Plot) — display only
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -16,7 +16,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 local YELLOW = Color3.fromRGB(255, 214, 10)
 
 ---------------------------------------------------------------------------
--- สร้าง UI
+-- Build the UI
 ---------------------------------------------------------------------------
 local gui = Instance.new("ScreenGui")
 gui.Name = "TycoonHUD"
@@ -38,7 +38,7 @@ local function makeLabel(parent: Instance, props): TextLabel
 	return label
 end
 
--- กล่องเงินขวาบน
+-- cash panel, top right
 local panel = Instance.new("Frame")
 panel.Name = "MoneyPanel"
 panel.AnchorPoint = Vector2.new(1, 0)
@@ -61,29 +61,29 @@ local cashLabel = makeLabel(panel, {
 })
 local incomeLabel = makeLabel(panel, {
 	Name = "Income", Position = UDim2.fromOffset(0, 42), Size = UDim2.new(1, 0, 0, 20),
-	TextXAlignment = Enum.TextXAlignment.Right, Text = "+฿0/วินาที",
+	TextXAlignment = Enum.TextXAlignment.Right, Text = "+฿0/s",
 })
 local storedLabel = makeLabel(panel, {
 	Name = "Stored", Position = UDim2.fromOffset(0, 64), Size = UDim2.new(1, 0, 0, 20),
-	TextXAlignment = Enum.TextXAlignment.Right, Text = "ในตู้: ฿0",
+	TextXAlignment = Enum.TextXAlignment.Right, Text = "In register: ฿0",
 })
 local levelLabel = makeLabel(panel, {
 	Name = "Level", Position = UDim2.fromOffset(0, 86), Size = UDim2.new(1, 0, 0, 20),
-	TextXAlignment = Enum.TextXAlignment.Right, TextColor3 = Color3.fromRGB(200, 200, 200), Text = "เลเวล 1/45",
+	TextXAlignment = Enum.TextXAlignment.Right, TextColor3 = Color3.fromRGB(200, 200, 200), Text = "Level 1/45",
 })
 
--- ข้อความนำทางกลางบน
+-- guidance text, top center
 local hintLabel = makeLabel(gui, {
 	Name = "Hint", AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 12),
 	Size = UDim2.new(0.5, 0, 0, 34), BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 0.45,
-	Text = "กำลังเตรียมร้าน...",
+	Text = "Setting up your shop...",
 })
 Instance.new("UICorner").Parent = hintLabel
 local hintSizeLimit = Instance.new("UITextSizeConstraint")
 hintSizeLimit.MaxTextSize = 24
 hintSizeLimit.Parent = hintLabel
 
--- แจ้งเตือนกลางจอ (ซ้อนกันได้)
+-- stacked notifications, center
 local toastList = Instance.new("Frame")
 toastList.Name = "Toasts"
 toastList.AnchorPoint = Vector2.new(0.5, 0)
@@ -118,7 +118,7 @@ local function showToast(kind: string, text: string)
 	limit.MaxTextSize = 22
 	limit.Parent = toast
 
-	-- เก็บไว้ไม่เกิน 4 อัน
+	-- keep at most 4
 	local toasts = {}
 	for _, child in toastList:GetChildren() do
 		if child:IsA("TextLabel") then
@@ -165,7 +165,7 @@ notifyRemote.OnClientEvent:Connect(function(kind: string, text: string)
 end)
 
 ---------------------------------------------------------------------------
--- ลูกศรนำทาง: ลูกศรเหลืองลอยเหนือเป้าหมาย + เส้นจากตัวละครไปเป้าหมาย
+-- Guide: yellow arrow above the target + a beam from the character to it
 ---------------------------------------------------------------------------
 local arrowGui = Instance.new("BillboardGui")
 arrowGui.Name = "GuideArrow"
@@ -216,11 +216,11 @@ local function setTarget(part: BasePart?)
 			rootAttachment.Parent = root
 		end
 		beam.Attachment0 = rootAttachment
-		-- เก็บ Beam ไว้ในกล้อง ไม่ผูกกับตัวละคร (ตัวละครถูกลบตอนตาย)
+		-- keep the Beam under the camera, not the character (characters are destroyed on death)
 		if beam.Parent ~= workspace.CurrentCamera then
 			beam.Parent = workspace.CurrentCamera
 		end
-		-- ซ่อนเส้นเมื่อยืนใกล้เป้าหมายแล้ว
+		-- hide the beam once close to the target
 		beam.Enabled = ((root :: BasePart).Position - part.Position).Magnitude > 8
 	else
 		beam.Enabled = false
@@ -228,7 +228,7 @@ local function setTarget(part: BasePart?)
 end
 
 ---------------------------------------------------------------------------
--- อัปเดตทุกเฟรม
+-- Per-frame update
 ---------------------------------------------------------------------------
 local function getNumber(name: string): number
 	return tonumber(player:GetAttribute(name)) or 0
@@ -255,13 +255,13 @@ RunService.RenderStepped:Connect(function(dt)
 	local income = getNumber("Income")
 
 	cashLabel.Text = Config.FormatMoney(cash)
-	incomeLabel.Text = "+" .. Config.FormatMoney(income) .. "/วินาที"
-	storedLabel.Text = "ในตู้: " .. Config.FormatMoney(stored)
-	levelLabel.Text = string.format("เลเวล %d/%d", level, Config.MAX_LEVEL)
+	incomeLabel.Text = "+" .. Config.FormatMoney(income) .. "/s"
+	storedLabel.Text = "In register: " .. Config.FormatMoney(stored)
+	levelLabel.Text = string.format("Level %d/%d", level, Config.MAX_LEVEL)
 
 	local plot = getPlot()
 	if not plot then
-		hintLabel.Text = "กำลังเตรียมร้าน..."
+		hintLabel.Text = "Setting up your shop..."
 		setTarget(nil)
 		return
 	end
@@ -273,18 +273,18 @@ RunService.RenderStepped:Connect(function(dt)
 	local autoCollect = player:GetAttribute("Pass_AutoCollect") == true
 
 	if not nextItem then
-		hintLabel.Text = "ร้านชาไทยของคุณครบทุกชิ้นแล้ว!"
+		hintLabel.Text = "Your Thai tea empire is complete!"
 		setTarget(nil)
 	elseif cash >= nextItem.Price then
-		hintLabel.Text = string.format("เหยียบแผ่นเขียวเพื่อซื้อ %s (%s)", nextItem.Name, Config.FormatMoney(nextItem.Price))
+		hintLabel.Text = string.format("Step on the green pad to buy %s (%s)", nextItem.Name, Config.FormatMoney(nextItem.Price))
 		setTarget(pad)
 	elseif not autoCollect and cash + stored >= nextItem.Price then
-		hintLabel.Text = "ไปเก็บเงินที่ตู้ (แผ่นสีทอง) แล้วซื้อ " .. nextItem.Name
+		hintLabel.Text = "Collect cash at the register (gold pad), then buy " .. nextItem.Name
 		setTarget(register)
 	else
 		local missing = nextItem.Price - cash - stored
 		local seconds = if income > 0 then math.ceil(missing / income) else 0
-		hintLabel.Text = string.format("สะสมเงินซื้อ %s — อีกประมาณ %s", nextItem.Name, Config.FormatTime(seconds))
+		hintLabel.Text = string.format("Saving up for %s — about %s left", nextItem.Name, Config.FormatTime(seconds))
 		setTarget(if autoCollect then pad else register)
 	end
 end)

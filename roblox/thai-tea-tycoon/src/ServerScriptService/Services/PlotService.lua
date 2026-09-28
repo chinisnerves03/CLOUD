@@ -1,5 +1,5 @@
--- PlotService: จองฐาน, แสดงของตามเลเวล, รายได้เข้าตู้, เหยียบแผ่นเพื่อซื้อ, เหยียบตู้เพื่อเก็บเงิน
--- ทุกอย่างคำนวณที่เซิร์ฟเวอร์ ไคลเอนต์อ่านผลจาก Attribute บนตัวผู้เล่น:
+-- PlotService: claims plots, shows items by level, fills the register, handles buy pads and cash collection.
+-- Everything is computed on the server; the client only reads these player Attributes:
 --   Cash, Stored, Level, Income, Plot
 
 local Players = game:GetService("Players")
@@ -14,8 +14,8 @@ local PlotService = {}
 local COLOR_ACTIVE = Color3.fromRGB(46, 204, 113)
 local COLOR_PREVIEW = Color3.fromRGB(120, 120, 120)
 local COLOR_EMPTY = Color3.fromRGB(80, 80, 80)
-local PAD_MARGIN = 0.5 -- ยืนเลยขอบแผ่นได้นิดหน่อย
-local PAD_HEIGHT = 7 -- ความสูงเหนือแผ่นที่ยังนับว่า "ยืนอยู่"
+local PAD_MARGIN = 0.5 -- a little slack past the pad edge
+local PAD_HEIGHT = 7 -- height above the pad that still counts as "standing on it"
 
 type PlotState = {
 	Model: Model,
@@ -42,7 +42,7 @@ local plots: { PlotState } = {}
 local owners: { [Player]: OwnerState } = {}
 
 ---------------------------------------------------------------------------
--- ตัวช่วย
+-- Helpers
 ---------------------------------------------------------------------------
 function PlotService.Notify(player: Player, kind: string, text: string)
 	if player.Parent then
@@ -85,7 +85,7 @@ local function makePadLabel(pad: BasePart): TextLabel
 end
 
 ---------------------------------------------------------------------------
--- การแสดงผลของฐาน
+-- Plot visuals
 ---------------------------------------------------------------------------
 local function refreshPads(plot: PlotState)
 	local state = plot.Owner and owners[plot.Owner]
@@ -100,7 +100,7 @@ local function refreshPads(plot: PlotState)
 
 		local item = Config.GetItem(state.Data.Level + i)
 		if not item then
-			-- ซื้อครบแล้ว ซ่อนแผ่นที่เหลือ
+			-- everything bought: hide the remaining pads
 			pad.Transparency = 1
 			labelText.Text = ""
 		elseif i == 1 then
@@ -112,7 +112,7 @@ local function refreshPads(plot: PlotState)
 			pad.Transparency = 0.4
 			pad.Color = COLOR_PREVIEW
 			labelText.TextColor3 = Color3.fromRGB(200, 200, 200)
-			labelText.Text = "ถัดไป: " .. item.Name .. "\n" .. Config.FormatMoney(item.Price)
+			labelText.Text = "Next: " .. item.Name .. "\n" .. Config.FormatMoney(item.Price)
 		end
 	end
 end
@@ -141,13 +141,13 @@ local function setSign(plot: PlotState, text: string)
 end
 
 ---------------------------------------------------------------------------
--- เตรียมฐานตอนเริ่มเซิร์ฟเวอร์
+-- Plot setup at server start
 ---------------------------------------------------------------------------
 local function setupPlot(model: Model, storageRoot: Folder): PlotState?
 	local padSlots = model:FindFirstChild("PadSlots")
 	local register = model:FindFirstChild("Register")
 	if not padSlots or not (register and register:IsA("BasePart")) then
-		warn("[PlotService] " .. model.Name .. " ไม่มี PadSlots หรือ Register — ข้ามฐานนี้")
+		warn("[PlotService] " .. model.Name .. " has no PadSlots or Register — skipping this plot")
 		return nil
 	end
 
@@ -156,7 +156,7 @@ local function setupPlot(model: Model, storageRoot: Folder): PlotState?
 	for i = 1, Config.PAD_COUNT do
 		local pad = padSlots:FindFirstChild("Pad" .. i)
 		if not (pad and pad:IsA("BasePart")) then
-			warn("[PlotService] " .. model.Name .. " ไม่มี PadSlots.Pad" .. i .. " — ข้ามฐานนี้")
+			warn("[PlotService] " .. model.Name .. " has no PadSlots.Pad" .. i .. " — skipping this plot")
 			return nil
 		end
 		pad.Anchored = true
@@ -172,7 +172,7 @@ local function setupPlot(model: Model, storageRoot: Folder): PlotState?
 		itemsFolder.Parent = model
 	end
 
-	-- ย้ายของทั้งหมดไปซ่อนใน ServerStorage ก่อน (ตำแหน่งเดิมไม่เปลี่ยน)
+	-- hide every item in ServerStorage first (positions are kept)
 	local storage = Instance.new("Folder")
 	storage.Name = model.Name
 	storage.Parent = storageRoot
@@ -188,8 +188,8 @@ local function setupPlot(model: Model, storageRoot: Folder): PlotState?
 		end
 	end
 	if #missing > 0 then
-		warn("[PlotService] " .. model.Name .. " ยังไม่มีโมเดล: " .. table.concat(missing, ", ")
-			.. " (ซื้อได้ปกติ แต่จะไม่มีอะไรโผล่)")
+		warn("[PlotService] " .. model.Name .. " is missing models: " .. table.concat(missing, ", ")
+			.. " (they can still be bought, nothing will appear)")
 	end
 
 	local sign = model:FindFirstChild("Sign")
@@ -206,13 +206,13 @@ local function setupPlot(model: Model, storageRoot: Folder): PlotState?
 		Storage = storage,
 		Owner = nil,
 	}
-	setSign(plot, "ฐานว่าง")
+	setSign(plot, "Empty Plot")
 	refreshPads(plot)
 	return plot
 end
 
 ---------------------------------------------------------------------------
--- ซื้อ / เก็บเงิน
+-- Buying / collecting
 ---------------------------------------------------------------------------
 function PlotService.GetIncomePerSecond(player: Player): number
 	local state = owners[player]
@@ -237,11 +237,11 @@ local function tryBuy(player: Player, state: OwnerState, padIndex: number)
 	end
 	if padIndex ~= 1 then
 		local nextItem = Config.GetItem(data.Level + 1)
-		PlotService.Notify(player, "Error", "ต้องซื้อ " .. (nextItem and nextItem.Name or "ชิ้นก่อนหน้า") .. " ก่อน")
+		PlotService.Notify(player, "Error", "Buy " .. (nextItem and nextItem.Name or "the previous item") .. " first")
 		return
 	end
 	if data.Cash < item.Price then
-		PlotService.Notify(player, "Error", "เงินไม่พอ ขาดอีก " .. Config.FormatMoney(math.ceil(item.Price - data.Cash)))
+		PlotService.Notify(player, "Error", "Not enough cash — you need " .. Config.FormatMoney(math.ceil(item.Price - data.Cash)))
 		return
 	end
 
@@ -252,10 +252,10 @@ local function tryBuy(player: Player, state: OwnerState, padIndex: number)
 	refreshPads(state.Plot)
 
 	local newIncome = PlotService.GetIncomePerSecond(player)
-	PlotService.Notify(player, "Buy", string.format("ซื้อ %s แล้ว! รายได้ %s → %s/วินาที",
+	PlotService.Notify(player, "Buy", string.format("Bought %s! Income %s → %s/s",
 		item.Name, Config.FormatMoney(oldIncome), Config.FormatMoney(newIncome)))
 	if data.Level >= Config.MAX_LEVEL then
-		PlotService.Notify(player, "Buy", "ยินดีด้วย! ร้านชาไทยของคุณครบทุกชิ้นแล้ว")
+		PlotService.Notify(player, "Buy", "Congratulations! Your Thai tea empire is complete!")
 	end
 end
 
@@ -284,7 +284,7 @@ local function updateOwner(player: Player, state: OwnerState, dt: number)
 		end
 		state.OnRegister = onRegister
 
-		-- ซื้อเฉพาะตอน "ก้าวขึ้น" แผ่น ยืนค้างไว้ไม่ซื้อซ้ำ ต้องเดินออกก่อน
+		-- buy only when stepping onto a pad; standing still never re-buys, step off first
 		for i, pad in state.Plot.Pads do
 			local onPad = pad.Transparency < 1 and isStandingOn(pad, position)
 			if onPad and not state.OnPad[i] then
@@ -304,7 +304,7 @@ local function updateOwner(player: Player, state: OwnerState, dt: number)
 end
 
 ---------------------------------------------------------------------------
--- ผู้เล่นเข้า/ออก
+-- Players joining / leaving
 ---------------------------------------------------------------------------
 function PlotService.AddPlayer(player: Player, data): boolean
 	local plot: PlotState? = nil
@@ -315,7 +315,7 @@ function PlotService.AddPlayer(player: Player, data): boolean
 		end
 	end
 	if not plot then
-		player:Kick("เซิร์ฟเวอร์เต็ม ไม่มีฐานว่าง ลองเข้าใหม่อีกครั้ง")
+		player:Kick("This server is full (no free plot). Please try another server.")
 		return false
 	end
 
@@ -326,11 +326,11 @@ function PlotService.AddPlayer(player: Player, data): boolean
 	for level = 2, data.Level do
 		showItem(plot, level)
 	end
-	setSign(plot, "ร้านชาไทยของ " .. player.DisplayName)
+	setSign(plot, player.DisplayName .. "'s Thai Tea")
 	refreshPads(plot)
 	player:SetAttribute("Plot", plot.Name)
 
-	-- รายได้ออฟไลน์
+	-- Offline earnings
 	local elapsed = os.time() - data.LastSeen
 	if elapsed >= Config.OFFLINE.MIN_SECONDS then
 		local plus = Monetization.HasPass(player, "OfflinePlus")
@@ -341,7 +341,7 @@ function PlotService.AddPlayer(player: Player, data): boolean
 		if earned > 0 then
 			data.Cash += earned
 			task.delay(3, PlotService.Notify, player, "Offline", string.format(
-				"ระหว่างที่ไม่อยู่ %s ร้านขายได้ %s", Config.FormatTime(seconds), Config.FormatMoney(earned)))
+				"While you were away (%s) your shop earned %s", Config.FormatTime(seconds), Config.FormatMoney(earned)))
 		end
 	end
 	data.LastSeen = os.time()
@@ -361,12 +361,12 @@ function PlotService.RemovePlayer(player: Player)
 	local plot = state.Plot
 	plot.Owner = nil
 	hideAllItems(plot)
-	setSign(plot, "ฐานว่าง")
+	setSign(plot, "Empty Plot")
 	refreshPads(plot)
 end
 
 ---------------------------------------------------------------------------
--- เริ่มระบบ
+-- Startup
 ---------------------------------------------------------------------------
 function PlotService.Init(monetization, remote: RemoteEvent)
 	Monetization = monetization
@@ -377,7 +377,7 @@ function PlotService.Init(monetization, remote: RemoteEvent)
 		if Config.BUILD_PLACEHOLDER_PLOTS then
 			folder = DevPlotBuilder.Build()
 		else
-			error("[PlotService] ไม่พบ Workspace.Plots และปิด BUILD_PLACEHOLDER_PLOTS อยู่")
+			error("[PlotService] Workspace.Plots not found and BUILD_PLACEHOLDER_PLOTS is off")
 		end
 	end
 
@@ -391,7 +391,7 @@ function PlotService.Init(monetization, remote: RemoteEvent)
 			table.insert(models, child)
 		end
 	end
-	-- เรียง Plot1, Plot2, ... ตามตัวเลข
+	-- sort Plot1, Plot2, ... numerically
 	table.sort(models, function(a, b)
 		local na = tonumber(a.Name:match("%d+")) or 0
 		local nb = tonumber(b.Name:match("%d+")) or 0
@@ -405,10 +405,10 @@ function PlotService.Init(monetization, remote: RemoteEvent)
 	end
 
 	if #plots < Players.MaxPlayers then
-		warn(string.format("[PlotService] มี %d ฐาน แต่ Max Players = %d (ควรตั้งให้เท่ากัน)",
+		warn(string.format("[PlotService] %d plots but Max Players = %d (they should match)",
 			#plots, Players.MaxPlayers))
 	end
-	print("[PlotService] พร้อมใช้งาน " .. #plots .. " ฐาน")
+	print("[PlotService] Ready with " .. #plots .. " plots")
 
 	task.spawn(function()
 		local last = os.clock()
@@ -420,7 +420,7 @@ function PlotService.Init(monetization, remote: RemoteEvent)
 			for player, state in owners do
 				local ok, err = pcall(updateOwner, player, state, dt)
 				if not ok then
-					warn("[PlotService] อัปเดต " .. player.Name .. " ผิดพลาด: " .. tostring(err))
+					warn("[PlotService] Update failed for " .. player.Name .. ": " .. tostring(err))
 				end
 			end
 		end

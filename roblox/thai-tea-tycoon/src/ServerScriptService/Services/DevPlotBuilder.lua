@@ -1,5 +1,5 @@
--- DevPlotBuilder: สร้างฐาน 6 ฐานพร้อมโมเดลของทั้ง 44 ชิ้น (จาก ItemModels) + ของตกแต่งฐานและลานกลาง
--- โครงสร้างที่สร้างตรงกับที่ PlotService ต้องการ:
+-- DevPlotBuilder: builds 6 plots with all 44 item models (from ItemModels) plus plot and plaza decor
+-- The structure matches what PlotService expects:
 --   Workspace.Plots.PlotN { Base, Items{L02..L45}, PadSlots{Pad1..Pad3}, Register, Sign{SurfaceGui.TextLabel} }
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -9,12 +9,12 @@ local ItemModels = require(script.Parent:WaitForChild("ItemModels"))
 
 local DevPlotBuilder = {}
 
-local PLOT_WIDTH = 100 -- แกน X
-local PLOT_DEPTH = 130 -- แกน Z (ด้านหน้า -Z หันเข้าลาน)
-local PLAZA_HALF = 20 -- ครึ่งหนึ่งของความกว้างลานกลาง
-local COLUMN_GAP = 110 -- ระยะห่างกึ่งกลางฐานตามแกน X
-local FRONT = -PLOT_DEPTH / 2 -- ขอบหน้าฐาน
-local FLOOR_TOP = 1 -- ความสูงผิวพื้นฐาน
+local PLOT_WIDTH = 100 -- X axis
+local PLOT_DEPTH = 130 -- Z axis (front is -Z, facing the plaza)
+local PLAZA_HALF = 20 -- half the plaza width
+local COLUMN_GAP = 110 -- distance between plot centers along X
+local FRONT = -PLOT_DEPTH / 2 -- front edge of the plot
+local FLOOR_TOP = 1 -- height of the plot floor surface
 
 local function part(props): Part
 	local p = Instance.new("Part")
@@ -62,7 +62,7 @@ local function buildPlot(index: number, origin: CFrame): Model
 	base.Parent = plot
 	plot.PrimaryPart = base
 
-	-- ทางเดินหน้าร้าน + แนวพุ่มไม้ข้างฐาน + ไฟทางเดิน
+	-- front walkway + side hedges + path lamps
 	part({
 		Name = "FrontWalk",
 		Size = Vector3.new(PLOT_WIDTH, 0.1, 14),
@@ -86,7 +86,7 @@ local function buildPlot(index: number, origin: CFrame): Model
 	decor.Parent = plot
 	for _, side in { -1, 1 } do
 		for _, z in { -45, -25, -5, 30 } do
-			-- โคมหันเข้ากลางฐาน
+			-- lamp heads face the middle of the plot
 			local lamp = ItemModels.BuildDecor("Lamp", at(side * (PLOT_WIDTH / 2 - 2.2), 0, z) * CFrame.Angles(0, side * math.pi / 2, 0))
 			if lamp then
 				lamp.Parent = decor
@@ -100,7 +100,7 @@ local function buildPlot(index: number, origin: CFrame): Model
 		end
 	end
 
-	-- แผ่นซื้อของด้านหน้า
+	-- buy pads at the front
 	local pads = Instance.new("Folder")
 	pads.Name = "PadSlots"
 	pads.Parent = plot
@@ -113,6 +113,10 @@ local function buildPlot(index: number, origin: CFrame): Model
 			Material = Enum.Material.SmoothPlastic,
 			CanCollide = false,
 		}).Parent = pads
+		local frame = ItemModels.BuildDecor("PadFrame", at((i - 2) * 14, 0, FRONT + 8))
+		if frame then
+			frame.Parent = decor
+		end
 	end
 
 	local register = part({
@@ -123,10 +127,16 @@ local function buildPlot(index: number, origin: CFrame): Model
 		Material = Enum.Material.Neon,
 		CanCollide = false,
 	})
-	billboard(register, "ตู้เก็บเงิน", 3)
+	billboard(register, "COLLECT CASH", 3)
 	register.Parent = plot
+	for _, spec in { { "RegisterBooth", at(25, 0, FRONT + 13) }, { "SignLamps", at(-33, 9, FRONT + 4) }, { "Arch", at(0, 0, FRONT + 1) } } do
+		local model = ItemModels.BuildDecor(spec[1], spec[2])
+		if model then
+			model.Parent = decor
+		end
+	end
 
-	-- ป้ายชื่อเจ้าของร้าน (มุมหน้าซ้าย)
+	-- owner name sign (front corner)
 	part({
 		Name = "SignPost",
 		Size = Vector3.new(1, 8, 1),
@@ -151,12 +161,12 @@ local function buildPlot(index: number, origin: CFrame): Model
 	text.Font = Enum.Font.GothamBlack
 	text.TextScaled = true
 	text.TextColor3 = Color3.fromRGB(255, 240, 200)
-	text.Text = "ฐานว่าง"
+	text.Text = "Empty Plot"
 	text.Parent = surface
 	surface.Parent = sign
 	sign.Parent = plot
 
-	-- ของ 44 ชิ้น
+	-- the 44 items
 	local items = Instance.new("Folder")
 	items.Name = "Items"
 	items.Parent = plot
@@ -167,14 +177,14 @@ local function buildPlot(index: number, origin: CFrame): Model
 		if model then
 			model.Parent = items
 		else
-			warn("[DevPlotBuilder] ไม่มีโมเดลสำหรับ " .. key)
+			warn("[DevPlotBuilder] No model for " .. key)
 		end
 	end
 
 	return plot
 end
 
--- สร้าง Workspace.Plots พร้อมจุดเกิดกลางลาน
+-- build Workspace.Plots plus a plaza spawn
 function DevPlotBuilder.Build(): Folder
 	local folder = Instance.new("Folder")
 	folder.Name = "Plots"
@@ -186,12 +196,12 @@ function DevPlotBuilder.Build(): Folder
 		local column = (i - 1) % perRow
 		local x = (column - (perRow - 1) / 2) * COLUMN_GAP
 		local z = if topRow then rowOffset else -rowOffset
-		-- ด้านหน้าของฐาน (-Z ในตัวฐาน) ต้องหันเข้าลานกลาง: แถวล่างหมุน 180°
+		-- the plot front (local -Z) must face the plaza: rotate the bottom row 180°
 		local origin = CFrame.new(x, 0, z) * CFrame.Angles(0, if topRow then 0 else math.pi, 0)
 		buildPlot(i, origin).Parent = folder
 	end
 
-	-- ลานกลาง: น้ำพุระหว่างฐาน ต้นไม้ ม้านั่ง ไฟทาง
+	-- plaza: fountains between plots, trees, benches, lamps
 	local plaza = Instance.new("Folder")
 	plaza.Name = "PlazaDecor"
 	local function place(kind: string, cf: CFrame)
@@ -202,7 +212,7 @@ function DevPlotBuilder.Build(): Folder
 	end
 	for _, x in { -COLUMN_GAP / 2, COLUMN_GAP / 2 } do
 		place("Fountain", CFrame.new(x, 0, 0))
-		-- ม้านั่งหันหน้าเข้าน้ำพุ
+		-- benches face the fountain
 		place("Bench", CFrame.new(x, 0, -10) * CFrame.Angles(0, math.pi, 0))
 		place("Bench", CFrame.new(x, 0, 10))
 	end
@@ -230,7 +240,7 @@ function DevPlotBuilder.Build(): Folder
 	end
 
 	folder.Parent = workspace
-	print("[DevPlotBuilder] สร้างฐาน " .. Config.PLOT_COUNT .. " ฐานพร้อมโมเดลของครบ")
+	print("[DevPlotBuilder] Built " .. Config.PLOT_COUNT .. " plots with all item models")
 	return folder
 end
 

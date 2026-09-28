@@ -1,5 +1,5 @@
--- DataService: โหลด/เซฟข้อมูลผู้เล่นด้วย DataStore แบบง่าย
--- หมายเหตุ: ไม่มีระบบล็อกเซสชัน ก่อนเปิดจริงแนะนำเปลี่ยนเป็น ProfileStore/ProfileService
+-- DataService: simple DataStore load/save for player data
+-- Note: no session locking. Switch to ProfileStore/ProfileService before launch.
 
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -18,8 +18,8 @@ local sessions: { [Player]: any } = {}
 local function warnStore(message: string)
 	if not storeWarned then
 		storeWarned = true
-		warn("[DataService] " .. message .. " — เกมเล่นได้ แต่จะไม่เซฟข้อมูล "
-			.. "(เปิด Game Settings → Security → Enable Studio Access to API Services)")
+		warn("[DataService] " .. message .. " — the game still works but nothing will be saved "
+			.. "(enable Game Settings → Security → Enable Studio Access to API Services)")
 	end
 end
 
@@ -30,11 +30,11 @@ local function defaultData()
 		Stored = 0,
 		Level = 1,
 		LastSeen = os.time(),
-		Receipts = {}, -- รายการ PurchaseId ล่าสุดที่ให้ของแล้ว (กันให้ซ้ำ)
+		Receipts = {}, -- recent granted PurchaseIds (prevents double grants)
 	}
 end
 
--- เติมช่องที่ขาดจากข้อมูลเก่า และกันค่าผิดรูป
+-- fill fields missing from older saves and reject malformed values
 local function reconcile(saved: any)
 	local data = defaultData()
 	if type(saved) ~= "table" then
@@ -76,10 +76,10 @@ function DataService.Init()
 	if ok then
 		store = result
 	else
-		warnStore("เปิด DataStore ไม่ได้: " .. tostring(result))
+		warnStore("could not open DataStore: " .. tostring(result))
 	end
 
-	-- เซฟอัตโนมัติ
+	-- autosave
 	task.spawn(function()
 		while true do
 			task.wait(Config.AUTOSAVE_INTERVAL)
@@ -89,7 +89,7 @@ function DataService.Init()
 		end
 	end)
 
-	-- เซิร์ฟเวอร์ปิด: เซฟทุกคนก่อน
+	-- server shutdown: save everyone first
 	game:BindToClose(function()
 		local pending = 0
 		for player in sessions do
@@ -106,7 +106,7 @@ function DataService.Init()
 	end)
 end
 
--- คืนตารางข้อมูลของผู้เล่น (ตารางเดียวกันตลอดเซสชัน แก้ไขได้ตรง ๆ)
+-- returns the player's data table (same table for the whole session; mutate it directly)
 function DataService.Load(player: Player)
 	if sessions[player] then
 		return sessions[player]
@@ -121,9 +121,9 @@ function DataService.Load(player: Player)
 			data = reconcile(result)
 		else
 			data = defaultData()
-			-- โหลดไม่สำเร็จ: ห้ามเซฟทับ ไม่งั้นข้อมูลเดิมจะหาย
+			-- load failed: never overwrite, or the real save would be lost
 			data.NoSave = true
-			warnStore("โหลดข้อมูล " .. player.Name .. " ไม่ได้: " .. tostring(result))
+			warnStore("could not load data for " .. player.Name .. ": " .. tostring(result))
 		end
 	else
 		data = defaultData()
@@ -138,7 +138,7 @@ function DataService.Get(player: Player)
 	return sessions[player]
 end
 
--- บันทึกว่าให้ของจาก Developer Product ไปแล้ว
+-- remember Developer Product grants
 function DataService.HasReceipt(player: Player, purchaseId: string): boolean
 	local data = sessions[player]
 	return data ~= nil and table.find(data.Receipts, purchaseId) ~= nil
@@ -155,7 +155,7 @@ function DataService.AddReceipt(player: Player, purchaseId: string)
 	end
 end
 
--- คืน true ถ้าเซฟสำเร็จ
+-- returns true when the save succeeded
 function DataService.Save(player: Player): boolean
 	local data = sessions[player]
 	if not data or data.NoSave or not store then
@@ -177,12 +177,12 @@ function DataService.Save(player: Player): boolean
 		end)
 	end)
 	if not ok then
-		warn("[DataService] เซฟข้อมูล " .. player.Name .. " ไม่สำเร็จ: " .. tostring(err))
+		warn("[DataService] Save failed for " .. player.Name .. ": " .. tostring(err))
 	end
 	return ok
 end
 
--- ผู้เล่นออก: เซฟครั้งสุดท้ายแล้วลบออกจากหน่วยความจำ
+-- player left: final save, then drop from memory
 function DataService.Release(player: Player)
 	if not sessions[player] then
 		return
