@@ -100,36 +100,39 @@ local function buildPlot(index: number, origin: CFrame): Model
 		end
 	end
 
-	-- buy pads at the front
+	-- the single buy pad (PlotService moves it to ItemModels.PadSpots for the next item)
 	local pads = Instance.new("Folder")
 	pads.Name = "PadSlots"
 	pads.Parent = plot
 	for i = 1, Config.PAD_COUNT do
 		part({
 			Name = "Pad" .. i,
-			Size = Vector3.new(9, 0.6, 9),
-			CFrame = at((i - 2) * 14, 0.3, FRONT + 8),
+			Size = Vector3.new(6, 0.5, 6),
+			CFrame = at(-20, 0.25, -48),
 			Color = Color3.fromRGB(46, 204, 113),
-			Material = Enum.Material.SmoothPlastic,
+			Material = Enum.Material.Neon,
 			CanCollide = false,
 		}).Parent = pads
-		local frame = ItemModels.BuildDecor("PadFrame", at((i - 2) * 14, 0, FRONT + 8))
-		if frame then
-			frame.Parent = decor
-		end
+	end
+
+	-- Brew Station: players brew tea here by hand (PlotService adds the prompt to its Kettle part)
+	local brew = ItemModels.BuildDecor("BrewStation", at(-8, 0, FRONT + 10))
+	if brew then
+		brew.Name = "BrewStation"
+		brew.Parent = plot
 	end
 
 	local register = part({
 		Name = "Register",
 		Size = Vector3.new(7, 0.6, 7),
-		CFrame = at(25, 0.3, FRONT + 8),
+		CFrame = at(8, 0.3, FRONT + 8),
 		Color = Color3.fromRGB(255, 196, 0),
 		Material = Enum.Material.Neon,
 		CanCollide = false,
 	})
 	billboard(register, "COLLECT CASH", 3)
 	register.Parent = plot
-	for _, spec in { { "RegisterBooth", at(25, 0, FRONT + 13) }, { "SignLamps", at(-33, 9, FRONT + 4) }, { "Arch", at(0, 0, FRONT + 1) } } do
+	for _, spec in { { "RegisterBooth", at(8, 0, FRONT + 13) }, { "SignLamps", at(-33, 9, FRONT + 4) }, { "Arch", at(0, 0, FRONT + 1) } } do
 		local model = ItemModels.BuildDecor(spec[1], spec[2])
 		if model then
 			model.Parent = decor

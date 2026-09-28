@@ -26,8 +26,9 @@ end
 local function defaultData()
 	return {
 		Version = 1,
-		Cash = Config.START_CASH,
-		Stored = 0,
+		Cash = Config.START_CASH, -- deposited cash (spendable)
+		Bag = 0, -- brewed cash the player is carrying (deposit it at COLLECT CASH)
+		Stored = 0, -- legacy field from older saves (the old register balance)
 		Level = 1,
 		LastSeen = os.time(),
 		Receipts = {}, -- recent granted PurchaseIds (prevents double grants)
@@ -46,8 +47,9 @@ local function reconcile(saved: any)
 		end
 	end
 	data.Level = math.clamp(math.floor(data.Level), 1, Config.MAX_LEVEL)
-	data.Cash = math.max(0, data.Cash)
-	data.Stored = math.max(0, data.Stored)
+	data.Cash = math.max(0, data.Cash) + math.max(0, data.Stored)
+	data.Stored = 0
+	data.Bag = math.max(0, data.Bag)
 	return data
 end
 
@@ -166,7 +168,8 @@ function DataService.Save(player: Player): boolean
 	local snapshot = {
 		Version = data.Version,
 		Cash = data.Cash,
-		Stored = data.Stored,
+		Bag = data.Bag,
+		Stored = 0,
 		Level = data.Level,
 		LastSeen = data.LastSeen,
 		Receipts = table.clone(data.Receipts),

@@ -1,5 +1,5 @@
 -- ClientMain: cash HUD + guidance text + guide arrow + notifications/sounds
--- Reads the Attributes set by the server (Cash, Stored, Level, Income, Plot) — display only
+-- Reads the Attributes set by the server (Cash, Bag, BagMax, Level, Income, BrewValue, Plot) — display only
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -61,11 +61,11 @@ local cashLabel = makeLabel(panel, {
 })
 local incomeLabel = makeLabel(panel, {
 	Name = "Income", Position = UDim2.fromOffset(0, 42), Size = UDim2.new(1, 0, 0, 20),
-	TextXAlignment = Enum.TextXAlignment.Right, Text = "+฿0/s",
+	TextXAlignment = Enum.TextXAlignment.Right, Text = "+฿3/cup",
 })
-local storedLabel = makeLabel(panel, {
-	Name = "Stored", Position = UDim2.fromOffset(0, 64), Size = UDim2.new(1, 0, 0, 20),
-	TextXAlignment = Enum.TextXAlignment.Right, Text = "In register: ฿0",
+local bagLabel = makeLabel(panel, {
+	Name = "Bag", Position = UDim2.fromOffset(0, 64), Size = UDim2.new(1, 0, 0, 20),
+	TextXAlignment = Enum.TextXAlignment.Right, Text = "Bag: ฿0 / ฿240",
 })
 local levelLabel = makeLabel(panel, {
 	Name = "Level", Position = UDim2.fromOffset(0, 86), Size = UDim2.new(1, 0, 0, 20),
@@ -142,7 +142,7 @@ local function showToast(kind: string, text: string)
 	end)
 end
 
-local SOUND_FOR_KIND = { Buy = "Buy", Collect = "Collect", Error = "Error" }
+local SOUND_FOR_KIND = { Buy = "Buy", Collect = "Collect", Error = "Error", Brew = "Brew" }
 
 local function playSound(kind: string)
 	local soundKey = SOUND_FOR_KIND[kind]
@@ -159,8 +159,22 @@ local function playSound(kind: string)
 	end
 end
 
+-- small "+฿x" that floats up next to the bag line on every brew (brews are too frequent for toasts)
+local function showBrewPop(text: string)
+	local pop = makeLabel(gui, {
+		Name = "BrewPop", AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -250, 0, 70),
+		Size = UDim2.fromOffset(90, 24), TextColor3 = YELLOW, Text = text,
+	})
+	TweenService:Create(pop, TweenInfo.new(0.7), { Position = UDim2.new(1, -250, 0, 40), TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+	task.delay(0.75, pop.Destroy, pop)
+end
+
 notifyRemote.OnClientEvent:Connect(function(kind: string, text: string)
-	showToast(kind, text)
+	if kind == "Brew" then
+		showBrewPop(text)
+	else
+		showToast(kind, text)
+	end
 	playSound(kind)
 end)
 
@@ -250,13 +264,16 @@ RunService.RenderStepped:Connect(function(dt)
 	arrowGui.StudsOffset = Vector3.new(0, 5 + math.sin(bob * 4) * 0.6, 0)
 
 	local cash = getNumber("Cash")
-	local stored = getNumber("Stored")
+	local bag = getNumber("Bag")
+	local bagMax = math.max(1, getNumber("BagMax"))
 	local level = math.max(1, getNumber("Level"))
 	local income = getNumber("Income")
+	local perCup = getNumber("BrewValue")
 
 	cashLabel.Text = Config.FormatMoney(cash)
-	incomeLabel.Text = "+" .. Config.FormatMoney(income) .. "/s"
-	storedLabel.Text = "In register: " .. Config.FormatMoney(stored)
+	incomeLabel.Text = "+" .. Config.FormatMoney(perCup) .. "/cup · +" .. Config.FormatRate(income) .. "/s"
+	bagLabel.Text = "Bag: " .. Config.FormatMoney(bag) .. " / " .. Config.FormatMoney(bagMax)
+	bagLabel.TextColor3 = if bag >= bagMax then Color3.fromRGB(231, 76, 60) else Color3.new(1, 1, 1)
 	levelLabel.Text = string.format("Level %d/%d", level, Config.MAX_LEVEL)
 
 	local plot = getPlot()
@@ -270,21 +287,26 @@ RunService.RenderStepped:Connect(function(dt)
 	local padSlots = plot:FindFirstChild("PadSlots")
 	local pad = padSlots and padSlots:FindFirstChild("Pad1") :: BasePart?
 	local register = plot:FindFirstChild("Register") :: BasePart?
+	local station = plot:FindFirstChild("BrewStation")
+	local kettle = station and station:FindFirstChild("Kettle", true) :: BasePart?
 	local autoCollect = player:GetAttribute("Pass_AutoCollect") == true
 
 	if not nextItem then
 		hintLabel.Text = "Your Thai tea empire is complete!"
 		setTarget(nil)
+	elseif not autoCollect and bag >= bagMax then
+		hintLabel.Text = "Your bag is full! Deposit it at COLLECT CASH"
+		setTarget(register)
 	elseif cash >= nextItem.Price then
 		hintLabel.Text = string.format("Step on the green pad to buy %s (%s)", nextItem.Name, Config.FormatMoney(nextItem.Price))
 		setTarget(pad)
-	elseif not autoCollect and cash + stored >= nextItem.Price then
-		hintLabel.Text = "Collect cash at the register (gold pad), then buy " .. nextItem.Name
+	elseif not autoCollect and cash + bag >= nextItem.Price then
+		hintLabel.Text = "Deposit your bag at COLLECT CASH, then buy " .. nextItem.Name
 		setTarget(register)
 	else
-		local missing = nextItem.Price - cash - stored
-		local seconds = if income > 0 then math.ceil(missing / income) else 0
-		hintLabel.Text = string.format("Saving up for %s — about %s left", nextItem.Name, Config.FormatTime(seconds))
-		setTarget(if autoCollect then pad else register)
+		local missing = nextItem.Price - cash - bag
+		hintLabel.Text = string.format("Brew tea at the Brew Station (press E) — %s more for %s",
+			Config.FormatMoney(math.ceil(missing)), nextItem.Name)
+		setTarget(kettle)
 	end
 end)

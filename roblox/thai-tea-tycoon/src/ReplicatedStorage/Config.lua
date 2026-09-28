@@ -1,6 +1,7 @@
 --!strict
 -- Config: every game setting, shared by the server and the client.
--- Economy: 45 levels, level 45 costs ฿2.2M, about 52 minutes of total waiting (walking not included).
+-- Economy: 45 levels, level 45 costs ฿22M, about 50 minutes of active brewing (≈ 3.5 hours AFK).
+-- Money loop: brew tea at the Brew Station → cash goes into your bag → deposit it at COLLECT CASH → spend it on the buy pad.
 
 local Config = {}
 
@@ -15,7 +16,7 @@ Config.PRINT_ECONOMY_CHECK = true -- print the price/income summary to Output wh
 -- General
 ---------------------------------------------------------------------------
 Config.PLOT_COUNT = 6
-Config.PAD_COUNT = 3
+Config.PAD_COUNT = 1 -- one buy pad that moves to wherever the next item will appear
 Config.TICK = 0.1 -- seconds per server loop step
 Config.AUTOSAVE_INTERVAL = 60
 Config.DATASTORE_NAME = "ThaiTeaTycoon_v1"
@@ -32,18 +33,19 @@ Config.OFFLINE = {
 -- Game Passes: put the IDs from the Creator Dashboard here (0 = not set yet)
 Config.PASSES = {
 	DoubleCash = { Id = 0, Name = "2x Income" },
-	AutoCollect = { Id = 0, Name = "Auto Collect" },
+	AutoCollect = { Id = 0, Name = "Auto Deposit" }, -- the bag deposits itself, no walking to COLLECT CASH
 	OfflinePlus = { Id = 0, Name = "Full Offline Income (24h)" },
 }
 
 -- Developer Products: grant cash equal to N seconds of income (at least Min)
 Config.PRODUCTS = {
-	CashSmall = { Id = 0, Name = "Cash Boost (10 min)", Seconds = 600, Min = 100 },
-	CashBig = { Id = 0, Name = "Cash Boost (1 hour)", Seconds = 3600, Min = 1000 },
+	CashSmall = { Id = 0, Name = "Cash Boost (10 min)", Seconds = 600, Min = 1000 },
+	CashBig = { Id = 0, Name = "Cash Boost (1 hour)", Seconds = 3600, Min = 10000 },
 }
 
 -- Sounds: "rbxassetid://..." (empty = no sound)
 Config.SOUNDS = {
+	Brew = "",
 	Buy = "",
 	Collect = "",
 	Error = "",
@@ -54,10 +56,16 @@ Config.SOUNDS = {
 ---------------------------------------------------------------------------
 Config.MAX_LEVEL = 45
 Config.START_CASH = 0
-Config.FIRST_PRICE = 8 -- price of level 2
-Config.LAST_PRICE = 2_200_000 -- price of level 45
+Config.FIRST_PRICE = 80 -- price of level 2
+Config.LAST_PRICE = 22_000_000 -- price of level 45
 Config.FIRST_WAIT = 8 -- seconds of waiting for the first item
-Config.WAIT_GROWTH = 1.083 -- each item takes 8.3% longer to afford (≈ 52 minutes total)
+Config.WAIT_GROWTH = 1.083 -- each item takes 8.3% longer to afford
+
+-- Brewing (the main way to earn). "Base income" below is the pacing curve; the player gets it as:
+Config.BREW_COOLDOWN = 0.35 -- seconds between brews (≈ 2.9 brews per second when spamming)
+Config.BREW_SHARE = 0.3 -- cash per brew = 30% of the base income (active play ≈ base income overall)
+Config.PASSIVE_SHARE = 0.25 -- passive income = 25% of the base income, paid straight into Cash
+Config.BAG_BREWS = 80 -- the bag holds 80 brews' worth of cash, then you must deposit
 
 -- Purchasable items for levels 2..45 (44 items) in 5 tiers
 Config.TIERS = {
@@ -103,9 +111,14 @@ local function nice(n: number): number
 end
 
 -- Config.Items[level] = the item unlocked at that level (levels 2..45)
--- Config.Income[level] = income per second at that level (levels 1..45)
+-- Config.Income[level] = base income per second at that level (levels 1..45), the pacing curve
+-- Config.BrewValue[level] = cash per brewed cup, Config.Passive[level] = passive cash per second,
+-- Config.BagCapacity[level] = how much brewed cash the bag can hold
 Config.Items = {} :: { [number]: Item }
 Config.Income = {} :: { [number]: number }
+Config.BrewValue = {} :: { [number]: number }
+Config.Passive = {} :: { [number]: number }
+Config.BagCapacity = {} :: { [number]: number }
 
 do
 	local steps = Config.MAX_LEVEL - 2
@@ -129,7 +142,11 @@ do
 
 	local firstIncome = Config.FIRST_PRICE / Config.FIRST_WAIT
 	for level = 1, Config.MAX_LEVEL do
-		Config.Income[level] = nice(firstIncome * incomeGrowth ^ (level - 1))
+		local income = nice(firstIncome * incomeGrowth ^ (level - 1))
+		Config.Income[level] = income
+		Config.BrewValue[level] = nice(income * Config.BREW_SHARE)
+		Config.Passive[level] = income * Config.PASSIVE_SHARE
+		Config.BagCapacity[level] = Config.BrewValue[level] * Config.BAG_BREWS
 	end
 end
 
@@ -141,11 +158,28 @@ function Config.GetIncome(level: number): number
 	return Config.Income[math.clamp(level, 1, Config.MAX_LEVEL)]
 end
 
--- Total waiting time (seconds) from level 1 to the last level without passes
-function Config.TotalWaitSeconds(): number
+function Config.GetBrewValue(level: number): number
+	return Config.BrewValue[math.clamp(level, 1, Config.MAX_LEVEL)]
+end
+
+function Config.GetPassive(level: number): number
+	return Config.Passive[math.clamp(level, 1, Config.MAX_LEVEL)]
+end
+
+function Config.GetBagCapacity(level: number): number
+	return Config.BagCapacity[math.clamp(level, 1, Config.MAX_LEVEL)]
+end
+
+-- Total time (seconds) from level 1 to the last level without passes.
+-- active = brewing nonstop (deposit walks not counted); otherwise AFK on passive income only
+function Config.TotalWaitSeconds(active: boolean?): number
 	local total = 0
 	for level = 2, Config.MAX_LEVEL do
-		total += Config.Items[level].Price / Config.Income[level - 1]
+		local rate = Config.Passive[level - 1]
+		if active ~= false then
+			rate += Config.BrewValue[level - 1] / Config.BREW_COOLDOWN
+		end
+		total += Config.Items[level].Price / rate
 	end
 	return total
 end
@@ -176,6 +210,14 @@ function Config.FormatMoney(n: number): string
 		end
 	end
 	return Config.CURRENCY .. withCommas(n)
+end
+
+-- per-second rates can be fractional (e.g. ฿2.5/s), so keep one decimal for small values
+function Config.FormatRate(n: number): string
+	if n < 100 and n ~= math.floor(n) then
+		return Config.CURRENCY .. string.format("%.1f", n)
+	end
+	return Config.FormatMoney(n)
 end
 
 function Config.FormatTime(seconds: number): string

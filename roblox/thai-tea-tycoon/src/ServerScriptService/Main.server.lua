@@ -16,11 +16,12 @@ notifyRemote.Name = "TycoonNotify"
 notifyRemote.Parent = ReplicatedStorage
 
 if Config.PRINT_ECONOMY_CHECK then
-	print(string.format("[Config] %d levels, final price %s, max income %s/s, total wait ≈ %.1f min",
+	print(string.format("[Config] %d levels, final price %s, top brew %s/cup, full shop ≈ %.1f min brewing (%.1f min AFK)",
 		Config.MAX_LEVEL,
 		Config.FormatMoney(Config.Items[Config.MAX_LEVEL].Price),
-		Config.FormatMoney(Config.Income[Config.MAX_LEVEL]),
-		Config.TotalWaitSeconds() / 60))
+		Config.FormatMoney(Config.BrewValue[Config.MAX_LEVEL]),
+		Config.TotalWaitSeconds(true) / 60,
+		Config.TotalWaitSeconds(false) / 60))
 end
 
 DataService.Init()

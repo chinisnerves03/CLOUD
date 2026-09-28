@@ -399,6 +399,21 @@ ItemModels.Layout = {
 	L45 = { 0, 0, 54, 0 },
 }
 
+-- Where the single buy pad sits while that item is the next purchase { x, z } in plot space.
+-- Each spot is on open floor next to where the item will appear and clear of every earlier item.
+ItemModels.PadSpots = {
+	L02 = { -20, -48 }, L03 = { -27, -48 }, L04 = { -13, -48 }, L05 = { -7, -36 },
+	L06 = { -20, -48 }, L07 = { -20, -48 }, L08 = { -27, -52 }, L09 = { -20, -48 }, L10 = { -34, -45 },
+	L11 = { 20, -47 }, L12 = { 25, -47 }, L13 = { 19, -47 }, L14 = { 31, -31 }, L15 = { 20, -49 },
+	L16 = { 33, -53 }, L17 = { 22, -51 }, L18 = { 13, -47 }, L19 = { 10.5, -31 },
+	L20 = { -31, -25 }, L21 = { -19, -12 }, L22 = { -23.5, -25 }, L23 = { 16.5, -22 }, L24 = { 31, -16 },
+	L25 = { -38, -14 }, L26 = { -29, -12 }, L27 = { 0, -22 }, L28 = { 13, -4 },
+	L29 = { -38, 3 }, L30 = { -22, 4 }, L31 = { 12, 4 }, L32 = { 22, 18 }, L33 = { 42.5, -52 },
+	L34 = { 35, 3 }, L35 = { -6, 4 }, L36 = { -12, -1 }, L37 = { 41, -24 },
+	L38 = { -41.5, 33 }, L39 = { -26.5, 30 }, L40 = { -12.5, 31 }, L41 = { 13, 40 },
+	L42 = { 26.5, 32 }, L43 = { 42, 31 }, L44 = { 0, 32 }, L45 = { 0, 50 },
+}
+
 ---------------------------------------------------------------------------
 -- Item models
 ---------------------------------------------------------------------------
@@ -2417,6 +2432,34 @@ Decor.SignLamps = function(b)
 	b:Box(V3(13.6, 0.3, 1.1), CF(0, -2.15, 0), PAL.woodDark, M.Wood)
 end
 
+-- the Brew Station: a tea cart where the player brews by hand (the "Kettle" part holds the prompt)
+Decor.BrewStation = function(b)
+	b:Box(V3(7, 0.4, 7), CF(0, 0.2, 0), PAL.tea, M.SmoothPlastic, { solid = false, name = "BrewPad" })
+	b:Box(V3(5, 3, 2.4), CF(0, 1.9, 1.2), PAL.woodLight, M.WoodPlanks)
+	b:Box(V3(5.3, 0.25, 2.7), CF(0, 3.5, 1.2), PAL.white, M.Marble)
+	local front = b:Box(V3(5, 1.2, 0.08), CF(0, 2.3, -0.04), PAL.green, nil, { solid = false })
+	b:Text(front, FACE.Front, "BREW TEA", { color = PAL.cream })
+	b:Cyl(0.3, 1.8, CF(-1.2, 3.75, 1.3), PAL.black)
+	b:Cyl(0.1, 1.4, CF(-1.2, 3.92, 1.3), rgb(80, 150, 255), M.Neon, { solid = false })
+	local kettle = b:Cyl(1.6, 1.6, CF(-1.2, 4.75, 1.3), PAL.steel, M.Metal, { name = "Kettle" })
+	b:Ellipsoid(V3(1.6, 0.6, 1.6), CF(-1.2, 5.55, 1.3), PAL.steel, M.Metal)
+	b:Tube(V3(-0.5, 5.0, 1.0), V3(0.2, 5.5, 0.6), 0.2, PAL.steel, M.Metal)
+	b:Box(V3(0.2, 0.9, 0.2), CF(-2.05, 4.9, 1.3), PAL.black, nil, { solid = false })
+	b:Ball(0.8, CF(-1.0, 6.3, 1.3), PAL.white, nil, { t = 0.6, solid = false, name = "Steam" })
+	for i = 0, 2 do
+		b:TeaCup(CF(0.8 + i * 0.6, 3.62, 0.8), 1, if i == 1 then rgb(120, 180, 90) else nil)
+	end
+	b:Cyl(1.3, 0.5, CF(2.1, 3.62 + 0.65, 1.8), PAL.white, M.Glass, { t = 0.45, solid = false })
+	for _, x in { -2.3, 2.3 } do
+		b:Box(V3(0.25, 4.2, 0.25), CF(x, 5.7, 2.3), PAL.woodDark, M.Wood)
+	end
+	local sign = b:Box(V3(5.4, 1.1, 0.25), CF(0, 8.2, 2.3), PAL.tea)
+	b:Text(sign, FACE.Front, "BREW STATION", { color = PAL.white })
+	local lamp = b:Ball(0.4, CF(0, 7.45, 2.1), PAL.warm, M.Neon, { solid = false })
+	b:Light(lamp, PAL.warm, 12, 0.7)
+	return kettle
+end
+
 ---------------------------------------------------------------------------
 -- API
 ---------------------------------------------------------------------------
@@ -2447,6 +2490,15 @@ function ItemModels.BuildDecor(kind: string, origin: CFrame): Model?
 	model.Name = kind
 	build(newBuilder(model, origin))
 	return model
+end
+
+-- world CFrame of the buy pad spot for key (on the floor), or nil
+function ItemModels.PadIn(key: string, plotFloor: CFrame): CFrame?
+	local spot = ItemModels.PadSpots[key]
+	if not spot then
+		return nil
+	end
+	return plotFloor * CF(spot[1], 0, spot[2])
 end
 
 -- world CFrame for key, given the CFrame of the plot's floor center

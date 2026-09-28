@@ -103,7 +103,7 @@ function MonetizationService.Init(dataService, plotService)
 		end
 
 		local product = Config.PRODUCTS[productKey]
-		local amount = math.max(product.Min, PlotService.GetIncomePerSecond(player) * product.Seconds)
+		local amount = math.max(product.Min, PlotService.GetBaseIncome(player) * product.Seconds)
 		PlotService.AddCash(player, amount)
 		DataService.AddReceipt(player, purchaseId)
 		PlotService.Notify(player, "Buy", product.Name .. ": +" .. Config.FormatMoney(amount))

@@ -6,6 +6,7 @@ The page loads three.js r128 from cdnjs and embeds every part of Plot1 plus the 
 """
 import json
 import pathlib
+import re
 
 HERE = pathlib.Path(__file__).parent
 SRC = HERE.parent / "preview" / "parts.jsonl"
@@ -28,7 +29,9 @@ def main():
         c = p["color"]
         color = (round(c[0] * 255) << 16) | (round(c[1] * 255) << 8) | round(c[2] * 255)
         n = len(out)
-        if p["item"] == "base" and p["name"] in ("Pad1", "Pad2", "Pad3", "Register"):
+        if p["item"] == "base" and p["name"] in ("Pad1", "Register"):
+            special[p["name"]] = n
+        if p["item"] == "BrewStation" and p["name"] in ("Kettle", "BrewPad"):
             special[p["name"]] = n
         for t in p["texts"]:
             hex_color = "#%02x%02x%02x" % tuple(round(x * 255) for x in t["color"])
@@ -36,7 +39,10 @@ def main():
         out.append([index(items, p["item"]), SHAPES.index(p["shape"])]
                    + [r(v) for v in p["size"]] + [r(v) for v in p["pos"]] + [r(v) for v in p["rot"]]
                    + [color, r(p["t"]), index(mats, p["mat"])])
-    data = json.dumps({"items": items, "mats": mats, "parts": out, "texts": texts, "special": special},
+    models = (HERE.parent.parent / "src" / "ServerScriptService" / "Services" / "ItemModels.lua").read_text(encoding="utf-8")
+    body = models.split("ItemModels.PadSpots = {")[1].split("\n}\n")[0]
+    pad_spots = {k: [float(x), float(z)] for k, x, z in re.findall(r"(L\d\d) = \{ (-?[\d.]+), (-?[\d.]+) \}", body)}
+    data = json.dumps({"items": items, "mats": mats, "parts": out, "texts": texts, "special": special, "padSpots": pad_spots},
                       separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
     html = (HERE / "template.html").read_text(encoding="utf-8").replace("__DATA__", data)
     (HERE / "web-demo.html").write_text(html, encoding="utf-8")
