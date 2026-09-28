@@ -1,0 +1,413 @@
+<title>Thai Tea Tycoon</title>
+<style>
+/* Layout: full-screen 3D view with a HUD layered on top — cash panel top-right, guidance top-center, controls bottom */
+:root {
+  --ground: #1d2a22;
+  --panel: rgba(34, 22, 12, 0.78);
+  --panel-edge: rgba(255, 214, 140, 0.25);
+  --ink: #fff8ec;
+  --muted: #d9c9b0;
+  --tea: #e8772e;
+  --gold: #ffd60a;
+  --good: #2ecc71;
+  --bad: #e74c3c;
+  --info: #5aa9ff;
+  --display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--body); overflow: hidden; }
+#view { position: fixed; inset: 0; }
+#view canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.hud { position: fixed; pointer-events: none; z-index: 2; }
+.panel { background: var(--panel); border: 1px solid var(--panel-edge); border-radius: 14px; backdrop-filter: blur(4px); }
+#money { top: calc(12px + env(safe-area-inset-top, 0px)); right: 16px; padding: 10px 14px; min-width: 190px; text-align: right; display: grid; gap: 2px; }
+#cash { font-family: var(--display); font-weight: 800; font-size: 32px; line-height: 1; color: var(--gold); font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
+#income, #stored { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+#level { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+#bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.15); overflow: hidden; margin-top: 4px; }
+#bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--tea), var(--gold)); transition: width 0.3s; }
+#hint { top: calc(12px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); padding: 8px 16px; font-weight: 800; font-size: 15px; text-align: center; max-width: min(560px, calc(100vw - 260px)); text-wrap: balance; }
+#toasts { top: calc(64px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; width: min(520px, calc(100vw - 32px)); }
+.toast { padding: 6px 14px; border-radius: 999px; background: rgba(0,0,0,0.6); font-weight: 800; font-size: 14px; animation: rise 2.6s forwards; text-align: center; }
+.toast.buy { color: var(--good); } .toast.collect { color: var(--gold); } .toast.error { color: var(--bad); } .toast.info { color: var(--info); }
+@keyframes rise { 0% { opacity: 0; transform: translateY(6px); } 8%, 80% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-6px); } }
+#controls { bottom: calc(14px + env(safe-area-inset-bottom, 0px)); right: 16px; display: flex; gap: 8px; pointer-events: auto; flex-wrap: wrap; justify-content: flex-end; }
+#controls button { font: 800 13px var(--body); color: var(--ink); background: var(--panel); border: 1px solid var(--panel-edge); border-radius: 10px; padding: 8px 12px; cursor: pointer; }
+#controls button:hover { border-color: var(--gold); }
+#controls button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+#help { bottom: calc(14px + env(safe-area-inset-bottom, 0px)); left: 16px; padding: 8px 12px; font-size: 12px; color: var(--muted); max-width: 300px; }
+#help b { color: var(--ink); }
+#stick { position: fixed; z-index: 3; width: 110px; height: 110px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.35); background: rgba(0,0,0,0.2); display: none; pointer-events: none; }
+#stick i { position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; background: rgba(255,214,10,0.8); }
+#loading { position: fixed; inset: 0; display: grid; place-items: center; z-index: 5; background: var(--ground); font: 800 22px var(--display); color: var(--gold); }
+@media (max-width: 640px) {
+  #money { min-width: 0; padding: 8px 10px; }
+  #cash { font-size: 24px; }
+  #hint { top: auto; bottom: calc(64px + env(safe-area-inset-bottom, 0px)); max-width: calc(100vw - 32px); font-size: 13px; }
+  #help { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .toast { animation-duration: 0.01s; animation-fill-mode: forwards; } }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;800&display=swap">
+
+<div id="view"></div>
+<div id="loading">Brewing your shop…</div>
+<div id="money" class="hud panel">
+  <div id="cash">฿0</div>
+  <div id="income">+฿1/s</div>
+  <div id="stored">In register: ฿0</div>
+  <div id="level">Level 1 / 45</div>
+  <div id="bar"><i></i></div>
+</div>
+<div id="hint" class="hud panel">Setting up your shop…</div>
+<div id="toasts" class="hud"></div>
+<div id="help" class="hud panel"><b>Move</b> WASD or arrow keys · <b>Look</b> drag · <b>Zoom</b> scroll<br>Phone: drag the left side to walk, the right side to look.</div>
+<div id="controls" class="hud">
+  <button id="speed" type="button" title="Demo only: speeds up income so you can see every item">Speed ×1</button>
+  <button id="reset" type="button">Restart</button>
+</div>
+<div id="stick"><i></i></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script id="parts" type="application/json">__DATA__</script>
+<script>
+(function () {
+'use strict';
+var DATA = JSON.parse(document.getElementById('parts').textContent);
+
+// ---------------------------------------------------------------- economy (same formulas as Config.lua)
+var MAX_LEVEL = 45, FIRST_PRICE = 8, LAST_PRICE = 2200000, FIRST_WAIT = 8, WAIT_GROWTH = 1.083;
+var NAMES = ['Folding Table','Ice Cooler','Tea Pot','Tea Filter Sock','Plastic Cups','Market Umbrella','Shop Sign','Cup Sealer','Mini Fridge',
+  'Wooden Counter','Tea Brewer','Topping Bar','Pearl Pot','Bar Stools','Patio Table','String Lights','Cash Register','Tea Master',
+  'Ice Machine','Menu Board','Blender Station','Cake Display','Photo Corner','Air Conditioner','Tea Leaf Shelf','Show Bar','Neon Sign',
+  'Central Kitchen','Delivery Van','Cup Conveyor','Auto Brewer','Online Order Kiosk','Cold Room','Tea Roastery','Barista Team','Billboard',
+  'Tea Plantation','Bottling Factory','Distribution Center','Headquarters','Mall Branch','Airport Branch','Nationwide Franchise','Thai Tea Tower'];
+function nice(n) { if (n < 100) return Math.max(1, Math.floor(n + 0.5)); var mag = Math.pow(10, Math.floor(Math.log10(n)) - 1); return Math.floor(n / mag + 0.5) * mag; }
+var priceGrowth = Math.pow(LAST_PRICE / FIRST_PRICE, 1 / (MAX_LEVEL - 2)), incomeGrowth = priceGrowth / WAIT_GROWTH;
+var PRICE = [], INCOME = [];
+for (var lv = 2; lv <= MAX_LEVEL; lv++) PRICE[lv] = lv === MAX_LEVEL ? LAST_PRICE : nice(FIRST_PRICE * Math.pow(priceGrowth, lv - 2));
+for (lv = 1; lv <= MAX_LEVEL; lv++) INCOME[lv] = nice((FIRST_PRICE / FIRST_WAIT) * Math.pow(incomeGrowth, lv - 1));
+function money(n) {
+  n = Math.floor(n);
+  if (n >= 100000) { var s = [[1e12,'T'],[1e9,'B'],[1e6,'M'],[1e3,'K']]; for (var i = 0; i < s.length; i++) if (n >= s[i][0]) return '฿' + (n / s[i][0]).toFixed(2).replace(/\.?0+$/, '') + s[i][1]; }
+  return '฿' + n.toLocaleString('en-US');
+}
+function time(s) { s = Math.max(0, Math.floor(s)); if (s < 60) return s + 's'; if (s < 3600) return Math.floor(s / 60) + 'm ' + (s % 60) + 's'; return Math.floor(s / 3600) + 'h ' + Math.floor(s % 3600 / 60) + 'm'; }
+
+// ---------------------------------------------------------------- saved state (this browser only)
+var SAVE_KEY = 'thai-tea-tycoon-demo-v1';
+var state = { cash: 0, stored: 0, level: 1 };
+try { var saved = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); if (saved && saved.level) state = saved; } catch (e) {}
+function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (e) {} }
+
+// ---------------------------------------------------------------- renderer
+var view = document.getElementById('view');
+var renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.95;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+view.appendChild(renderer.domElement);
+var scene = new THREE.Scene();
+scene.background = new THREE.Color(0x9fd0f2).convertSRGBToLinear();
+scene.fog = new THREE.Fog(new THREE.Color(0x9fd0f2).convertSRGBToLinear(), 220, 520);
+scene.add(new THREE.HemisphereLight(0xe6f2ff, 0x6b6250, 0.75));
+var sun = new THREE.DirectionalLight(0xfff1dc, 1.6);
+sun.position.set(-170, 130, 10); sun.target.position.set(-110, 0, 80);
+sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+var sc = sun.shadow.camera; sc.left = -95; sc.right = 95; sc.top = 95; sc.bottom = -95; sc.near = 10; sc.far = 400; sun.shadow.bias = -0.0005;
+scene.add(sun); scene.add(sun.target);
+var ground = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), new THREE.MeshLambertMaterial({ color: new THREE.Color(0x6f9a57).convertSRGBToLinear() }));
+ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+var plaza = new THREE.Mesh(new THREE.PlaneGeometry(330, 40), new THREE.MeshLambertMaterial({ color: new THREE.Color(0xcfc6b4).convertSRGBToLinear() }));
+plaza.rotation.x = -Math.PI / 2; plaza.position.set(0, 0.02, 0); plaza.receiveShadow = true; scene.add(plaza);
+
+// shared unit geometries
+function wedgeGeo() {
+  var x = 0.5, y = 0.5, z = 0.5;
+  var v = [-x,-y,-z, x,-y,-z, x,-y,z, -x,-y,-z, x,-y,z, -x,-y,z,
+           -x,-y,z, x,-y,z, x,y,z, -x,-y,z, x,y,z, -x,y,z,
+           -x,-y,-z, -x,y,z, x,y,z, -x,-y,-z, x,y,z, x,-y,-z,
+           -x,-y,-z, -x,-y,z, -x,y,z,  x,-y,-z, x,y,z, x,-y,z];
+  var g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(v, 3)); g.computeVertexNormals(); return g;
+}
+var cyl = new THREE.CylinderGeometry(0.5, 0.5, 1, 24); cyl.rotateZ(Math.PI / 2);
+var GEO = [new THREE.BoxGeometry(1, 1, 1), cyl, new THREE.SphereGeometry(0.5, 18, 12), new THREE.SphereGeometry(0.5, 20, 14), wedgeGeo()];
+var matCache = {};
+function material(color, t, matName) {
+  var key = color + '|' + t + '|' + matName;
+  if (matCache[key]) return matCache[key];
+  var c = new THREE.Color(color).convertSRGBToLinear();
+  var neon = matName === 'Neon', metal = matName === 'Metal' || matName === 'DiamondPlate', glass = matName === 'Glass';
+  var m = new THREE.MeshStandardMaterial({ color: c, roughness: metal ? 0.35 : glass ? 0.12 : 0.8, metalness: metal ? 0.45 : 0,
+    emissive: neon ? c : 0x000000, emissiveIntensity: neon ? 0.9 : 0, transparent: t > 0, opacity: 1 - t, depthWrite: t < 0.5,
+    side: THREE.FrontSide });
+  matCache[key] = m; return m;
+}
+
+function textMesh(t, size) {
+  var face = t[1], text = t[2], color = t[3], glow = t[4], reg = t[5];
+  var dims = { Front: [size[0], size[1], size[2] / 2], Back: [size[0], size[1], size[2] / 2], Left: [size[2], size[1], size[0] / 2], Right: [size[2], size[1], size[0] / 2], Top: [size[0], size[2], size[1] / 2], Bottom: [size[0], size[2], size[1] / 2] }[face];
+  var fw = dims[0], fh = dims[1], off = dims[2] + 0.03;
+  var pw = fw * reg[2], ph = fh * reg[3];
+  var cw = Math.max(16, Math.min(1024, Math.round(pw * 48))), ch = Math.max(16, Math.min(1024, Math.round(ph * 48)));
+  var cv = document.createElement('canvas'); cv.width = cw; cv.height = ch; var g = cv.getContext('2d');
+  var lines = text.split('\n'), fs = ch;
+  function fits() { g.font = '800 ' + fs + 'px Nunito, system-ui, sans-serif'; var w = 0; lines.forEach(function (l) { w = Math.max(w, g.measureText(l).width); }); return w <= cw * 0.94 && fs * lines.length * 1.15 <= ch; }
+  while (fs > 4 && !fits()) fs--;
+  g.fillStyle = color; g.textAlign = 'center'; g.textBaseline = 'middle';
+  lines.forEach(function (l, i) { g.fillText(l, cw / 2, ch / 2 + (i - (lines.length - 1) / 2) * fs * 1.15); });
+  var tex = new THREE.CanvasTexture(cv); tex.encoding = THREE.sRGBEncoding; tex.anisotropy = 4;
+  var mat = glow ? new THREE.MeshBasicMaterial({ map: tex, transparent: true }) : new THREE.MeshStandardMaterial({ map: tex, transparent: true, roughness: 0.9 });
+  var m = new THREE.Mesh(new THREE.PlaneGeometry(pw, ph), mat);
+  var cx = -fw / 2 + fw * (reg[0] + reg[2] / 2), cy = fh / 2 - fh * (reg[1] + reg[3] / 2);
+  if (face === 'Front') { m.rotation.y = Math.PI; m.position.set(-cx, cy, -off); }
+  else if (face === 'Back') { m.position.set(cx, cy, off); }
+  else if (face === 'Right') { m.rotation.y = Math.PI / 2; m.position.set(off, cy, -cx); }
+  else if (face === 'Left') { m.rotation.y = -Math.PI / 2; m.position.set(-off, cy, cx); }
+  else if (face === 'Top') { m.rotation.x = -Math.PI / 2; m.position.set(cx, off, -cy); }
+  else { m.rotation.x = Math.PI / 2; m.position.set(cx, -off, cy); }
+  return m;
+}
+
+// ---------------------------------------------------------------- build the world
+var textsByPart = {};
+DATA.texts.forEach(function (t) { (textsByPart[t[0]] = textsByPart[t[0]] || []).push(t); });
+var itemGroups = {};   // "L02" -> { group, pivot }
+var partMeshes = [];
+function partMatrix(p) {
+  var m = new THREE.Matrix4();
+  m.set(p[8], p[9], p[10], p[5], p[11], p[12], p[13], p[6], p[14], p[15], p[16], p[7], 0, 0, 0, 1);
+  return m;
+}
+// pivots: bottom-center of each item's parts
+var bounds = {};
+DATA.parts.forEach(function (p) {
+  var name = DATA.items[p[0]]; if (!/^L\d\d$/.test(name)) return;
+  var b = bounds[name] = bounds[name] || { x0: 1e9, x1: -1e9, y0: 1e9, z0: 1e9, z1: -1e9 };
+  b.x0 = Math.min(b.x0, p[5]); b.x1 = Math.max(b.x1, p[5]); b.z0 = Math.min(b.z0, p[7]); b.z1 = Math.max(b.z1, p[7]); b.y0 = Math.min(b.y0, p[6] - p[3] / 2);
+});
+Object.keys(bounds).forEach(function (name) {
+  var b = bounds[name], group = new THREE.Group();
+  var pivot = new THREE.Vector3((b.x0 + b.x1) / 2, Math.max(1, b.y0), (b.z0 + b.z1) / 2);
+  group.position.copy(pivot); scene.add(group);
+  itemGroups[name] = { group: group, pivot: pivot, pop: 1 };
+});
+var archGroup = new THREE.Group(); scene.add(archGroup);   // entrance arch: hidden while it blocks the camera
+DATA.parts.forEach(function (p, i) {
+  var name = DATA.items[p[0]], shape = p[1], sx = p[2], sy = p[3], sz = p[4];
+  var base = partMatrix(p);
+  var parent = scene, local = base;
+  if (name === 'Arch') parent = archGroup;
+  if (itemGroups[name]) { parent = itemGroups[name].group; local = new THREE.Matrix4().makeTranslation(-itemGroups[name].pivot.x, -itemGroups[name].pivot.y, -itemGroups[name].pivot.z).multiply(base); }
+  if (p[18] < 1) {
+    var scale = shape === 1 ? [sx, Math.min(sy, sz), Math.min(sy, sz)] : shape === 2 ? [Math.min(sx, sy, sz), Math.min(sx, sy, sz), Math.min(sx, sy, sz)] : [sx, sy, sz];
+    var mesh = new THREE.Mesh(GEO[shape], material(p[17], p[18], DATA.mats[p[19]]));
+    mesh.matrixAutoUpdate = false;
+    mesh.matrix.copy(local).multiply(new THREE.Matrix4().makeScale(scale[0], scale[1], scale[2]));
+    mesh.castShadow = Math.max(sx, sy, sz) >= 1.5 && p[18] < 0.5; mesh.receiveShadow = true;
+    parent.add(mesh); partMeshes[i] = mesh;
+  }
+  if (textsByPart[i]) {
+    var holder = new THREE.Object3D(); holder.matrixAutoUpdate = false; holder.matrix.copy(local); parent.add(holder);
+    textsByPart[i].forEach(function (t) { holder.add(textMesh(t, [sx, sy, sz])); });
+  }
+});
+
+// pads + register
+function areaOf(index) { var p = DATA.parts[index]; return { x: p[5], z: p[7], hx: p[2] / 2 + 0.5, hz: p[4] / 2 + 0.5, y: p[6] }; }
+var pads = ['Pad1', 'Pad2', 'Pad3'].map(function (n) { var i = DATA.special[n]; return { area: areaOf(i), mesh: partMeshes[i], label: null }; });
+var register = areaOf(DATA.special.Register);
+function labelSprite() {
+  var cv = document.createElement('canvas'); cv.width = 512; cv.height = 160;
+  var tex = new THREE.CanvasTexture(cv); tex.encoding = THREE.sRGBEncoding;
+  var sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false }));
+  sprite.scale.set(8, 2.5, 1); sprite.renderOrder = 10;
+  return { sprite: sprite, canvas: cv, tex: tex };
+}
+function drawLabel(l, top, bottom, color) {
+  var g = l.canvas.getContext('2d'); g.clearRect(0, 0, 512, 160);
+  g.textAlign = 'center'; g.lineJoin = 'round';
+  [[top, 58, 50], [bottom, 118, 46]].forEach(function (row) {
+    if (!row[0]) return;
+    g.font = '800 ' + row[2] + 'px Nunito, system-ui, sans-serif'; g.lineWidth = 8; g.strokeStyle = 'rgba(0,0,0,0.75)';
+    g.strokeText(row[0], 256, row[1]); g.fillStyle = color; g.fillText(row[0], 256, row[1]);
+  });
+  l.tex.needsUpdate = true;
+}
+pads.forEach(function (pad) { pad.label = labelSprite(); pad.label.sprite.position.set(pad.area.x, pad.area.y + 4.2, pad.area.z); scene.add(pad.label.sprite); });
+var regLabel = labelSprite(); regLabel.sprite.position.set(register.x, register.y + 4.8, register.z); scene.add(regLabel.sprite);
+
+// guide arrow
+var arrow = new THREE.Mesh(new THREE.ConeGeometry(0.9, 2, 16), new THREE.MeshBasicMaterial({ color: 0xffd60a }));
+arrow.rotation.x = Math.PI; scene.add(arrow);
+var ring = new THREE.Mesh(new THREE.RingGeometry(4.6, 5.1, 40), new THREE.MeshBasicMaterial({ color: 0xffd60a, transparent: true, opacity: 0.8, side: THREE.DoubleSide }));
+ring.rotation.x = -Math.PI / 2; scene.add(ring);
+
+// ---------------------------------------------------------------- player
+var player = new THREE.Group(); scene.add(player);
+function bodyPart(w, h, d, color, x, y) { var m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ color: new THREE.Color(color).convertSRGBToLinear(), roughness: 0.8 })); m.position.set(x, y, 0); m.castShadow = true; player.add(m); return m; }
+var legL = bodyPart(0.9, 2, 0.9, 0x2d3a8c, -0.5, 1), legR = bodyPart(0.9, 2, 0.9, 0x2d3a8c, 0.5, 1);
+[legL, legR].forEach(function (l) { l.geometry.translate(0, -1, 0); l.position.y = 2; });
+bodyPart(2, 2, 1, 0xe8772e, 0, 3);
+var armL = bodyPart(0.85, 2, 0.85, 0xf2c79c, -1.45, 3), armR = bodyPart(0.85, 2, 0.85, 0xf2c79c, 1.45, 3);
+[armL, armR].forEach(function (a) { a.geometry.translate(0, -1, 0); a.position.y = 4; });
+var head = new THREE.Mesh(new THREE.SphereGeometry(0.68, 20, 14), new THREE.MeshStandardMaterial({ color: new THREE.Color(0xf2c79c).convertSRGBToLinear() })); head.position.y = 4.7; head.castShadow = true; player.add(head);
+var cap = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.72, 0.4, 20), new THREE.MeshStandardMaterial({ color: new THREE.Color(0x228b5e).convertSRGBToLinear() })); cap.position.set(0, 5.25, 0); player.add(cap);
+player.position.set(-110, 0, 6);
+var heading = 0;   // radians, 0 = facing +Z
+
+// ---------------------------------------------------------------- input
+var keys = {};
+window.addEventListener('keydown', function (e) { keys[e.key.toLowerCase()] = true; if (/^arrow/.test(e.key.toLowerCase())) e.preventDefault(); });
+window.addEventListener('keyup', function (e) { keys[e.key.toLowerCase()] = false; });
+var camYaw = 0, camPitch = 0.68, camDist = 28;
+var drag = null, stick = null, stickEl = document.getElementById('stick'), stickKnob = stickEl.firstElementChild;
+var canvas = renderer.domElement;
+canvas.addEventListener('pointerdown', function (e) {
+  canvas.setPointerCapture(e.pointerId);
+  if (e.pointerType === 'touch' && e.clientX < window.innerWidth / 2 && !stick) {
+    stick = { id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, dy: 0 };
+    stickEl.style.display = 'block'; stickEl.style.left = (e.clientX - 55) + 'px'; stickEl.style.top = (e.clientY - 55) + 'px'; stickKnob.style.transform = '';
+  } else { drag = { id: e.pointerId, x: e.clientX, y: e.clientY }; }
+});
+canvas.addEventListener('pointermove', function (e) {
+  if (stick && e.pointerId === stick.id) {
+    var dx = e.clientX - stick.x, dy = e.clientY - stick.y, len = Math.hypot(dx, dy), max = 45;
+    if (len > max) { dx *= max / len; dy *= max / len; }
+    stick.dx = dx / max; stick.dy = dy / max; stickKnob.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+  } else if (drag && e.pointerId === drag.id) {
+    camYaw -= (e.clientX - drag.x) * 0.006; camPitch = Math.min(1.25, Math.max(0.12, camPitch + (e.clientY - drag.y) * 0.004));
+    drag.x = e.clientX; drag.y = e.clientY;
+  }
+});
+function endPointer(e) { if (stick && e.pointerId === stick.id) { stick = null; stickEl.style.display = 'none'; } if (drag && e.pointerId === drag.id) drag = null; }
+canvas.addEventListener('pointerup', endPointer); canvas.addEventListener('pointercancel', endPointer);
+canvas.addEventListener('wheel', function (e) { e.preventDefault(); camDist = Math.min(80, Math.max(10, camDist * (e.deltaY > 0 ? 1.1 : 0.9))); }, { passive: false });
+
+// ---------------------------------------------------------------- HUD
+var el = function (id) { return document.getElementById(id); };
+function toast(kind, text) {
+  var t = document.createElement('div'); t.className = 'toast ' + kind; t.textContent = text;
+  var box = el('toasts'); box.appendChild(t); while (box.children.length > 4) box.removeChild(box.firstChild);
+  setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 2700);
+}
+var speed = 1;
+el('speed').addEventListener('click', function () { speed = speed === 1 ? 10 : speed === 10 ? 50 : 1; el('speed').textContent = 'Speed ×' + speed; });
+var resetArmed = 0;
+el('reset').addEventListener('click', function () {
+  if (Date.now() - resetArmed > 3000) { resetArmed = Date.now(); el('reset').textContent = 'Tap again to restart'; setTimeout(function () { el('reset').textContent = 'Restart'; }, 3000); return; }
+  state = { cash: 0, stored: 0, level: 1 }; save(); resetArmed = 0; el('reset').textContent = 'Restart';
+  applyLevel(false); toast('info', 'Fresh start! Your cart is waiting.');
+});
+
+function applyLevel(animateNew) {
+  for (var l = 2; l <= MAX_LEVEL; l++) {
+    var key = 'L' + (l < 10 ? '0' : '') + l, g = itemGroups[key]; if (!g) continue;
+    var show = state.level >= l;
+    if (show && !g.group.visible && animateNew) { g.pop = 0; }
+    g.group.visible = show; if (!animateNew) g.pop = 1;
+  }
+  pads.forEach(function (pad, i) {
+    var lvl = state.level + i + 1, show = lvl <= MAX_LEVEL;
+    pad.mesh.visible = show; pad.label.sprite.visible = show;
+    if (!show) return;
+    pad.mesh.material = material(i === 0 ? 0x2ecc71 : 0x7a7a7a, i === 0 ? 0 : 0.4, 'SmoothPlastic');
+    drawLabel(pad.label, (i === 0 ? '' : 'Next: ') + NAMES[lvl - 2], money(PRICE[lvl]), i === 0 ? '#ffffff' : '#cfcfcf');
+  });
+}
+
+// ---------------------------------------------------------------- game loop
+var onPad = [false, false, false], onReg = false, last = performance.now(), walkT = 0, saveT = 0, clock = 0;
+function inside(a, pos) { return Math.abs(pos.x - a.x) <= a.hx && Math.abs(pos.z - a.z) <= a.hz; }
+function tryBuy(i) {
+  var lvl = state.level + i + 1; if (lvl > MAX_LEVEL) return;
+  if (i > 0) { toast('error', 'Buy ' + NAMES[state.level - 1] + ' first'); return; }
+  if (state.cash < PRICE[lvl]) { toast('error', 'Not enough cash — you need ' + money(Math.ceil(PRICE[lvl] - state.cash))); return; }
+  var before = INCOME[state.level];
+  state.cash -= PRICE[lvl]; state.level = lvl; save();
+  applyLevel(true);
+  toast('buy', 'Bought ' + NAMES[lvl - 2] + '! Income ' + money(before) + ' → ' + money(INCOME[lvl]) + '/s');
+  if (lvl === MAX_LEVEL) toast('buy', 'Congratulations! Your Thai tea empire is complete!');
+}
+var camTarget = new THREE.Vector3();
+function frame(now) {
+  var dt = Math.min(0.1, (now - last) / 1000); last = now; clock += dt;
+  // income
+  state.stored += INCOME[state.level] * dt * speed;
+  // movement
+  var mx = 0, mz = 0;
+  if (keys.w || keys.arrowup) mz += 1; if (keys.s || keys.arrowdown) mz -= 1;
+  if (keys.a || keys.arrowleft) mx += 1; if (keys.d || keys.arrowright) mx -= 1;
+  if (stick) { mx -= stick.dx; mz -= stick.dy; }
+  var len = Math.hypot(mx, mz);
+  if (len > 0.1) {
+    if (len > 1) { mx /= len; mz /= len; }
+    var fx = Math.sin(camYaw), fz = Math.cos(camYaw);         // camera forward on the ground
+    var vx = fx * mz + fz * mx, vz = fz * mz - fx * mx;
+    var sp = 16 * Math.min(1, len);
+    player.position.x = Math.min(-58, Math.max(-162, player.position.x + vx * sp * dt));
+    player.position.z = Math.min(150, Math.max(-18, player.position.z + vz * sp * dt));
+    var target = Math.atan2(vx, vz), diff = Math.atan2(Math.sin(target - heading), Math.cos(target - heading));
+    heading += diff * Math.min(1, dt * 12);
+    walkT += dt * 9;
+  } else { walkT *= 0.8; }
+  player.rotation.y = heading;
+  var swing = Math.sin(walkT) * 0.6 * Math.min(1, len);
+  legL.rotation.x = swing; legR.rotation.x = -swing; armL.rotation.x = -swing; armR.rotation.x = swing;
+  player.position.y = player.position.z >= 20 ? 1 : 0;
+  // register + pads (step on to trigger, like the Roblox version)
+  var pos = player.position;
+  var nowReg = inside(register, pos);
+  if (nowReg && state.stored >= 1) { var amt = Math.floor(state.stored); state.cash += amt; state.stored -= amt; if (!onReg) toast('collect', '+' + money(amt)); }
+  onReg = nowReg;
+  pads.forEach(function (pad, i) { var on = pad.mesh.visible && inside(pad.area, pos); if (on && !onPad[i]) tryBuy(i); onPad[i] = on; });
+  // pop-in animation for new items
+  Object.keys(itemGroups).forEach(function (k) {
+    var g = itemGroups[k]; if (g.pop >= 1) return;
+    g.pop = Math.min(1, g.pop + dt * 2.2); var t = g.pop, s = 1 + 2.2 * Math.pow(t - 1, 3) + 1.2 * Math.pow(t - 1, 2);
+    g.group.scale.setScalar(Math.max(0.01, s));
+  });
+  // HUD + guide
+  var next = state.level + 1, price = PRICE[next], income = INCOME[state.level];
+  el('cash').textContent = money(state.cash);
+  el('income').textContent = '+' + money(income) + '/s' + (speed > 1 ? '  (×' + speed + ' demo)' : '');
+  el('stored').textContent = 'In register: ' + money(state.stored);
+  el('level').textContent = 'Level ' + state.level + ' / ' + MAX_LEVEL;
+  el('bar').firstElementChild.style.width = (next > MAX_LEVEL ? 100 : Math.min(100, (state.cash + state.stored) / price * 100)) + '%';
+  drawRegisterLabel();
+  var goal = null;
+  if (next > MAX_LEVEL) { el('hint').textContent = 'Your Thai tea empire is complete!'; }
+  else if (state.cash >= price) { el('hint').textContent = 'Step on the green pad to buy ' + NAMES[next - 2] + ' (' + money(price) + ')'; goal = pads[0].area; }
+  else if (state.cash + state.stored >= price) { el('hint').textContent = 'Collect cash at the register (gold pad), then buy ' + NAMES[next - 2]; goal = register; }
+  else { el('hint').textContent = 'Saving up for ' + NAMES[next - 2] + ' — about ' + time((price - state.cash - state.stored) / (income * speed)) + ' left'; goal = register; }
+  arrow.visible = ring.visible = !!goal;
+  if (goal) { arrow.position.set(goal.x, goal.y + 7 + Math.sin(clock * 4) * 0.6, goal.z); ring.position.set(goal.x, goal.y + 0.35, goal.z); ring.material.opacity = 0.55 + Math.sin(clock * 4) * 0.25; }
+  // camera
+  camTarget.set(player.position.x, player.position.y + 3.5, player.position.z);
+  camera.position.set(camTarget.x - Math.sin(camYaw) * Math.cos(camPitch) * camDist, camTarget.y + Math.sin(camPitch) * camDist, camTarget.z - Math.cos(camYaw) * Math.cos(camPitch) * camDist);
+  camera.lookAt(camTarget);
+  archGroup.visible = !(camera.position.z > 8 && camera.position.z < 32 && player.position.z > 20 && Math.abs(camera.position.x + 110) < 30);
+  saveT += dt; if (saveT > 3) { saveT = 0; save(); }
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+var lastRegText = '';
+function drawRegisterLabel() {
+  var text = money(state.stored); if (text === lastRegText) return; lastRegText = text;
+  drawLabel(regLabel, 'COLLECT CASH', text, '#ffd60a');
+}
+var camera = new THREE.PerspectiveCamera(55, 1, 0.3, 1200);
+function resize() { var w = window.innerWidth, h = window.innerHeight; renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+window.addEventListener('resize', resize); resize();
+applyLevel(false);
+var loader = document.getElementById('loading'); if (loader) loader.remove();
+toast('info', state.level > 1 ? 'Welcome back! Level ' + state.level : 'Welcome! Walk to the gold pad to collect cash.');
+requestAnimationFrame(frame);
+window.__game = { state: state, tp: function (x, z) { player.position.x = x; player.position.z = z; } };   // test hook
+})();
+</script>

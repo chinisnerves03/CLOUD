@@ -48,8 +48,8 @@ for _, plot in groups do
 					end
 				end
 				local light = obj:FindFirstChildWhichIsA("PointLight")
-				print(string.format('{"item":"%s","shape":"%s","size":[%s,%s,%s],"pos":[%s,%s,%s],"rot":[%s],"color":%s,"t":%s,"mat":"%s","texts":[%s],"light":%s}',
-					item, shape, num(obj.Size.X), num(obj.Size.Y), num(obj.Size.Z),
+				print(string.format('{"item":"%s","name":"%s","shape":"%s","size":[%s,%s,%s],"pos":[%s,%s,%s],"rot":[%s],"color":%s,"t":%s,"mat":"%s","texts":[%s],"light":%s}',
+					item, esc(obj.Name), shape, num(obj.Size.X), num(obj.Size.Y), num(obj.Size.Z),
 					num(cf.p.X), num(cf.p.Y), num(cf.p.Z),
 					table.concat({ num(r[1]), num(r[2]), num(r[3]), num(r[4]), num(r[5]), num(r[6]), num(r[7]), num(r[8]), num(r[9]) }, ","),
 					col(obj.Color or Color3.new(0.6, 0.6, 0.6)), num(obj.Transparency or 0), obj.Material and obj.Material.Name or "Plastic",
