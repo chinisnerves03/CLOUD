@@ -1,5 +1,5 @@
 #!/bin/bash
-# รันโค้ดสร้างโมเดลนอก Studio (ใช้ Roblox API จำลองใน mock.luau) แล้วเขียน parts.jsonl ของ Plot1
+# Run the model builders outside Studio (against the Roblox API mock in mock.luau) and write parts.jsonl for Plot1
 set -e
 cd "$(dirname "$0")"
 SRC=../../src
