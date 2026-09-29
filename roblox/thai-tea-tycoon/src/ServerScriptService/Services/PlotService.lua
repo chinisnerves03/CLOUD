@@ -1,8 +1,8 @@
 -- PlotService: claims plots, shows items by level, and runs the money loop:
---   brew tea by hand at the Brew Station → hire staff who sell for you → upgrade recipe and speed
---   → walk to the green pad (placed behind each new item's spot) to grow the shop.
--- Passive tips (small) also go into Cash. Everything is computed on the server; the client only reads
--- these player Attributes: Cash, Level, Income (per second from staff + tips), BrewValue (per cup),
+--   the shop sells by itself from the start (counter sales) → brew by hand at the Brew Station to earn faster
+--   → hire staff who sell for you → upgrade recipe and speed
+--   → walk to the green pad (placed behind each new item's spot) to grow the shop (or own Auto Build). Everything is computed on the server; the client only reads
+-- these player Attributes: Cash, Level, Income (per second from counter sales + staff), BrewValue (per cup),
 -- BrewCooldown, Staff, Recipe, Speed, Plot
 
 local Players = game:GetService("Players")
@@ -126,7 +126,7 @@ local function brewCooldown(data): number
 	return Config.BREW_COOLDOWN / Config.SpeedMultiplier(data.Speed)
 end
 
--- cash per second that arrives without brewing by hand: staff, the VIP barista and tips
+-- cash per second that arrives without brewing by hand: counter sales, staff and the VIP barista
 local function autoIncome(player: Player, data): number
 	local speed = Config.SpeedMultiplier(data.Speed)
 	local cup = cupValue(player, data)
@@ -134,7 +134,8 @@ local function autoIncome(player: Player, data): number
 	if Monetization.HasPass(player, "VipBarista") then
 		perSecond += cup * speed / Config.VIP_INTERVAL
 	end
-	return perSecond + Config.GetPassive(data.Level) * cashMultiplier(player)
+	local counter = Config.GetPassive(data.Level) * Config.RecipeMultiplier(data.Recipe) * speed * cashMultiplier(player)
+	return perSecond + counter
 end
 
 function PlotService.GetIncomePerSecond(player: Player): number
@@ -282,7 +283,7 @@ local function tryBuy(player: Player, state: OwnerState)
 end
 
 local UPGRADE_MESSAGES = {
-	Staff = "Hired a barista! Staff now sell %s per second for you",
+	Staff = "Hired a barista! Your shop now earns %s per second by itself",
 	Recipe = "Better recipe! Each cup now earns %s",
 	Speed = "Faster service! Brewing and staff are %s faster",
 }
@@ -310,6 +311,10 @@ end
 local function updateOwner(player: Player, state: OwnerState, dt: number)
 	local data = state.Data
 	data.Cash += autoIncome(player, data) * dt
+	local nextItem = Config.GetItem(data.Level + 1)
+	if nextItem and data.Cash >= nextItem.Price and Monetization.HasPass(player, "AutoBuild") then
+		tryBuy(player, state)
+	end
 
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
@@ -521,7 +526,7 @@ function PlotService.AddPlayer(player: Player, data): boolean
 		if earned > 0 then
 			data.Cash += earned
 			task.delay(3, PlotService.Notify, player, "Offline", string.format(
-				"While you were away (%s) your staff earned %s", Config.FormatTime(seconds), Config.FormatMoney(earned)))
+				"While you were away (%s) your shop earned %s", Config.FormatTime(seconds), Config.FormatMoney(earned)))
 		end
 	end
 	data.LastSeen = os.time()

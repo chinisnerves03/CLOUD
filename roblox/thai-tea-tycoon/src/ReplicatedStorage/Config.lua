@@ -1,9 +1,9 @@
 --!strict
 -- Config: every game setting, shared by the server and the client.
--- Economy: 45 levels, level 45 costs ฿22M. About 50 minutes when you brew along with your staff,
--- about 2 hours if the staff do all the work (simulated with a buy-the-cheapest-upgrade player).
--- Money loop: brew tea by hand at the Brew Station → hire staff who sell for you → upgrade recipe and speed
--- → walk to the green pad (behind each new item's spot) to grow the shop.
+-- Economy: 45 levels, level 45 costs ฿22M. About 40 minutes when you brew along with your staff,
+-- about 70 minutes without ever brewing (simulated with a buy-the-cheapest-upgrade player).
+-- Money loop: the shop sells tea by itself from the start (money never stops) → brew by hand to earn faster
+-- → hire staff, upgrade recipe and speed → walk to the green pad (behind each new item's spot) to grow the shop.
 
 local Config = {}
 
@@ -38,6 +38,7 @@ Config.PASSES = {
 	DoubleCash = { Id = 0, Name = "2x Income" },
 	VipBarista = { Id = 0, Name = "VIP Barista" }, -- a golden barista who sells a cup every VIP_INTERVAL seconds
 	OfflinePlus = { Id = 0, Name = "Full Offline Income (24h)" },
+	AutoBuild = { Id = 0, Name = "Auto Build" }, -- builds the next item the moment you can afford it
 }
 
 -- Developer Products: grant cash equal to N seconds of income (at least Min)
@@ -64,10 +65,11 @@ Config.LAST_PRICE = 22_000_000 -- price of level 45
 Config.FIRST_WAIT = 8 -- seconds of waiting for the first item
 Config.WAIT_GROWTH = 1.083 -- each item takes 8.3% longer to afford
 
--- Brewing (the main way to earn). "Base income" below is the pacing curve; the player gets it as:
+-- "Base income" below is the pacing curve; the player gets it as:
 Config.BREW_COOLDOWN = 0.35 -- seconds between brews (≈ 2.9 brews per second when spamming)
 Config.BREW_SHARE = 0.15 -- cash per cup = 15% of the base income curve
-Config.PASSIVE_SHARE = 0.1 -- passive income (tips) = 10% of the base income curve, paid straight into Cash
+Config.PASSIVE_SHARE = 0.25 -- counter sales: the shop sells 25% of the base curve per second by itself,
+-- from the very start and wherever you are (Better Recipe, Faster Service and 2x Income boost it too)
 Config.STAFF_INTERVAL = 3 -- each hired barista sells one cup every 3 seconds (faster with Faster Service)
 Config.VIP_INTERVAL = 1 -- the VIP Barista pass sells one cup per second
 

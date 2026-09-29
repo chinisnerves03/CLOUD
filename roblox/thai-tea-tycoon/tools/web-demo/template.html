@@ -68,9 +68,10 @@ body { margin: 0; background: var(--ground); color: var(--ink); font-family: var
 </div>
 <div id="hint" class="hud panel">Setting up your shop…</div>
 <div id="toasts" class="hud"></div>
-<div id="help" class="hud panel"><b>Move</b> WASD or arrow keys · <b>Brew</b> hold E at the Brew Station · <b>Upgrade</b> step on the colored pads · <b>Look</b> drag · <b>Zoom</b> scroll<br>Phone: drag the left side to walk, the right side to look.</div>
+<div id="help" class="hud panel"><b>Move</b> WASD or arrow keys · <b>Earn</b> your shop sells by itself · hold E at the Brew Station to earn faster · <b>Upgrade</b> step on the colored pads · <b>Look</b> drag · <b>Zoom</b> scroll<br>Phone: drag the left side to walk, the right side to look.</div>
 <div id="controls" class="hud">
   <button id="brew" type="button" class="brew">Brew Tea (E)</button>
+  <button id="auto" type="button" title="A Game Pass in Roblox: builds the next item as soon as you can afford it">Auto Build: Off</button>
   <button id="speed" type="button" title="Demo only: speeds up income so you can see every item">Speed ×1</button>
   <button id="reset" type="button">Restart</button>
 </div>
@@ -95,7 +96,7 @@ var priceGrowth = Math.pow(LAST_PRICE / FIRST_PRICE, 1 / (MAX_LEVEL - 2)), incom
 var PRICE = [], INCOME = [];
 for (var lv = 2; lv <= MAX_LEVEL; lv++) PRICE[lv] = lv === MAX_LEVEL ? LAST_PRICE : nice(FIRST_PRICE * Math.pow(priceGrowth, lv - 2));
 for (lv = 1; lv <= MAX_LEVEL; lv++) INCOME[lv] = nice((FIRST_PRICE / FIRST_WAIT) * Math.pow(incomeGrowth, lv - 1));
-var BREW_COOLDOWN = 0.35, BREW_SHARE = 0.15, PASSIVE_SHARE = 0.1, STAFF_INTERVAL = 3;   // same as Config.lua
+var BREW_COOLDOWN = 0.35, BREW_SHARE = 0.15, PASSIVE_SHARE = 0.25, STAFF_INTERVAL = 3;   // same as Config.lua
 var UPGRADES = {
   Staff: { name: 'Hire Staff', base: 300, growth: 3.5, max: 6, color: 0x3c8ce6 },
   Recipe: { name: 'Better Recipe', base: 800, growth: 3.0, max: 15, step: 0.10, color: 0xf09628 },
@@ -105,7 +106,8 @@ var UP_ORDER = ['Staff', 'Recipe', 'Speed'];
 function upCost(key) { var u = UPGRADES[key], owned = state[key.toLowerCase()]; return owned >= u.max ? null : nice(u.base * Math.pow(u.growth, owned)); }
 function speedMult() { return 1 + UPGRADES.Speed.step * state.speed; }
 function cupValue() { return BREW[state.level] * (1 + UPGRADES.Recipe.step * state.recipe); }
-function autoIncome() { return state.staff * cupValue() * speedMult() / STAFF_INTERVAL + PASSIVE[state.level]; }
+// counter sales (the shop sells by itself from the start) + staff
+function autoIncome() { return (state.staff * cupValue() / STAFF_INTERVAL + PASSIVE[state.level] * (1 + UPGRADES.Recipe.step * state.recipe)) * speedMult(); }
 var BREW = [], PASSIVE = [];
 for (lv = 1; lv <= MAX_LEVEL; lv++) { BREW[lv] = nice(INCOME[lv] * BREW_SHARE); PASSIVE[lv] = INCOME[lv] * PASSIVE_SHARE; }
 function money(n) {
@@ -118,10 +120,10 @@ function time(s) { s = Math.max(0, Math.floor(s)); if (s < 60) return s + 's'; i
 
 // ---------------------------------------------------------------- saved state (this browser only)
 var SAVE_KEY = 'thai-tea-tycoon-demo-v3';   // v3: staff + recipe + speed upgrades
-var state = { cash: 0, level: 1, staff: 0, recipe: 0, speed: 0 };
+var state = { cash: 0, level: 1, staff: 0, recipe: 0, speed: 0, autoBuild: false };
 try {
   var saved = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
-  if (saved && saved.level) { state = { cash: Math.max(0, saved.cash || 0), level: Math.min(45, Math.max(1, saved.level)), staff: saved.staff || 0, recipe: saved.recipe || 0, speed: saved.speed || 0 }; }
+  if (saved && saved.level) { state = { cash: Math.max(0, saved.cash || 0), level: Math.min(45, Math.max(1, saved.level)), staff: saved.staff || 0, recipe: saved.recipe || 0, speed: saved.speed || 0, autoBuild: !!saved.autoBuild }; }
 } catch (e) {}
 function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (e) {} }
 
@@ -333,11 +335,14 @@ function toast(kind, text) {
   setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 2700);
 }
 var speed = 1;
+function autoLabel() { el('auto').textContent = 'Auto Build: ' + (state.autoBuild ? 'On' : 'Off'); }
+autoLabel();
+el('auto').addEventListener('click', function () { state.autoBuild = !state.autoBuild; save(); autoLabel(); });
 el('speed').addEventListener('click', function () { speed = speed === 1 ? 10 : speed === 10 ? 50 : 1; el('speed').textContent = 'Speed ×' + speed; });
 var resetArmed = 0;
 el('reset').addEventListener('click', function () {
   if (Date.now() - resetArmed > 3000) { resetArmed = Date.now(); el('reset').textContent = 'Tap again to restart'; setTimeout(function () { el('reset').textContent = 'Restart'; }, 3000); return; }
-  state = { cash: 0, level: 1, staff: 0, recipe: 0, speed: 0 }; save(); resetArmed = 0; el('reset').textContent = 'Restart';
+  state = { cash: 0, level: 1, staff: 0, recipe: 0, speed: 0, autoBuild: state.autoBuild }; save(); resetArmed = 0; el('reset').textContent = 'Restart';
   applyLevel(false); toast('info', 'Fresh start! Your cart is waiting.');
 });
 
@@ -412,14 +417,14 @@ function tryUpgrade(key) {
   if (cost === null) { toast('error', u.name + ' is maxed out'); return; }
   if (state.cash < cost) { toast('error', 'Not enough cash — you need ' + money(Math.ceil(cost - state.cash)) + ' more'); return; }
   state.cash -= cost; state[field] += 1; save(); refreshUpgrades();
-  if (key === 'Staff') toast('buy', 'Hired a barista! Staff now sell ' + rate(autoIncome()) + ' per second for you');
+  if (key === 'Staff') toast('buy', 'Hired a barista! Your shop now earns ' + rate(autoIncome()) + ' per second by itself');
   else if (key === 'Recipe') toast('buy', 'Better recipe! Each cup now earns ' + money(cupValue()));
   else toast('buy', 'Faster service! Brewing and staff are ' + Math.round((speedMult() - 1) * 100) + '% faster');
 }
 function tryBuy(i) {
   var lvl = state.level + 1; if (lvl > MAX_LEVEL) return;
   if (state.cash < PRICE[lvl]) {
-    toast('error', 'Not enough cash — brew ' + money(Math.ceil(PRICE[lvl] - state.cash)) + ' more'); return;
+    toast('error', 'Not enough cash — you need ' + money(Math.ceil(PRICE[lvl] - state.cash)) + ' more'); return;
   }
   var before = cupValue();
   state.cash -= PRICE[lvl]; state.level = lvl; save();
@@ -430,8 +435,9 @@ function tryBuy(i) {
 var camTarget = new THREE.Vector3();
 function frame(now) {
   var dt = Math.max(0, Math.min(0.1, (now - last) / 1000)); last = now; clock += dt;   // the first rAF timestamp can be earlier than "last"
-  // staff + tips arrive every second; brewing by hand adds on top
+  // counter sales + staff arrive every second wherever you are; brewing by hand adds on top
   state.cash += autoIncome() * dt * speed;
+  if (state.autoBuild && state.level < MAX_LEVEL && state.cash >= PRICE[state.level + 1]) tryBuy(0);
   if (brewHeld) brew();
   // movement
   var mx = 0, mz = 0;
@@ -488,13 +494,15 @@ function frame(now) {
     if (c < cheapestCost) { cheapest = key; cheapestCost = c; }
     if (c <= state.cash && c < affordableCost) { affordable = key; affordableCost = c; }
   });
-  if (next <= MAX_LEVEL && state.cash >= price) { el('hint').textContent = 'Step on the green pad to build ' + NAMES[next - 2] + ' (' + money(price) + ')'; goal = pads[0].area; }
+  if (next <= MAX_LEVEL && state.cash >= price && state.autoBuild) { el('hint').textContent = 'Auto Build is building ' + NAMES[next - 2] + '…'; }
+  else if (next <= MAX_LEVEL && state.cash >= price) { el('hint').textContent = 'Step on the green pad to build ' + NAMES[next - 2] + ' (' + money(price) + ')'; goal = pads[0].area; }
   else if (affordable) { el('hint').textContent = 'Upgrade: step on ' + UPGRADES[affordable].name + ' (' + money(affordableCost) + ')'; goal = upPads[affordable].area; }
   else if (next > MAX_LEVEL && !cheapest) { el('hint').textContent = 'Your Thai tea empire is complete!'; }
   else {
     var goalName = next <= MAX_LEVEL ? NAMES[next - 2] : '', goalCost = next <= MAX_LEVEL ? price : Infinity;
     if (cheapest && cheapestCost < goalCost) { goalName = UPGRADES[cheapest].name; goalCost = cheapestCost; }
-    el('hint').textContent = 'Brew tea (hold E) — ' + money(Math.ceil(goalCost - state.cash)) + ' more for ' + goalName + (state.staff > 0 ? ' · your staff are selling too' : '');
+    var inc = autoIncome() * speed;
+    el('hint').textContent = 'Your shop earns ' + rate(inc) + '/s — ' + goalName + (inc > 0 ? ' in ' + time(Math.ceil((goalCost - state.cash) / inc)) : '') + ' · brew (E) to get there faster';
     goal = brewPad;
   }
   arrow.visible = ring.visible = !!goal;
@@ -513,7 +521,7 @@ function resize() { var w = window.innerWidth, h = window.innerHeight; renderer.
 window.addEventListener('resize', resize); resize();
 applyLevel(false);
 var loader = document.getElementById('loading'); if (loader) loader.remove();
-toast('info', state.level > 1 ? 'Welcome back! Level ' + state.level : 'Welcome! Brew tea at the Brew Station, hire staff, then build your shop.');
+toast('info', state.level > 1 ? 'Welcome back! Level ' + state.level : 'Welcome! Your shop sells tea by itself — brew at the Brew Station to earn faster, then build and upgrade.');
 requestAnimationFrame(frame);
 window.__game = { state: state, tp: function (x, z) { player.position.x = x; player.position.z = z; } };   // test hook
 })();

@@ -350,8 +350,9 @@ RunService.RenderStepped:Connect(function(dt)
 		if cheapest and cheapestCost < goalCost then
 			goalName, goalCost = Config.UPGRADES[cheapest].Name, cheapestCost
 		end
-		hintLabel.Text = string.format("Brew tea (press E) — %s more for %s%s", Config.FormatMoney(math.ceil(goalCost - cash)), goalName,
-			if staff > 0 then " · your staff are selling too" else "")
+		local waitText = if income > 0 then " in " .. Config.FormatTime(math.ceil((goalCost - cash) / income)) else ""
+		hintLabel.Text = string.format("Your shop earns %s/s — %s%s · brew (E) to get there faster",
+			Config.FormatRate(income), goalName, waitText)
 		setTarget(kettle)
 	end
 end)
