@@ -39,7 +39,12 @@
 
 (สร้าง Folder ชื่อ `Services` ใน ServerScriptService ก่อน แล้วสร้าง ModuleScript ทั้ง 5 ตัวข้างใน)
 
-โครงโฟลเดอร์ `src/` ตั้งตามแบบ Rojo ถ้าใช้ Rojo อยู่แล้วก็ sync เข้า Studio ได้เลย
+### ทางลัด: sync อัตโนมัติด้วย Rojo (ไม่ต้องคัดลอกทีละไฟล์)
+มีไฟล์ `default.project.json` ให้แล้ว ทำครั้งเดียวบนเครื่องที่ใช้ Studio:
+1. ติดตั้ง Rojo: ดาวน์โหลดจาก https://rojo.space (หรือ `aftman add rojo-rbx/rojo` / `rokit add rojo-rbx/rojo`) แล้วติดตั้ง Rojo plugin ใน Studio (แท็บ Plugins → Manage Plugins หรือ `rojo plugin install`)
+2. `git clone` repo นี้ลงเครื่อง แล้วในโฟลเดอร์ `roblox/thai-tea-tycoon` รัน `rojo serve`
+3. ใน Studio เปิดเพลส → แท็บ Plugins → Rojo → **Connect** สคริปต์ทั้ง 8 ตัวจะเข้าไปอยู่ถูกที่เอง
+4. ทุกครั้งที่อัปเดต: `git pull` แล้ว Studio จะเปลี่ยนตามทันทีขณะเชื่อมต่ออยู่ (ของอื่นที่สร้างเองใน Studio จะไม่ถูกลบ)
 
 ## 3) กด Play ทดสอบ
 ตอนนี้ `Config.BUILD_PLACEHOLDER_PLOTS = true` ระบบจะ **สร้างฐาน 6 ฐานพร้อมโมเดลของครบ 44 ชิ้นให้เอง** (จาก `ItemModels.lua` ประกอบจาก Part ล้วน ไม่ต้องลากโมเดลเข้าเอง)
