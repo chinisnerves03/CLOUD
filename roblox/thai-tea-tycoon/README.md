@@ -120,7 +120,13 @@
 2. นำ ID ไปใส่ใน `Config.PASSES` และ `Config.PRODUCTS` (ราคาตั้งที่หน้า Dashboard ไม่ได้อยู่ในโค้ด)
 3. อยากลองผลของ Pass ใน Studio ให้ตั้ง `STUDIO_GRANT_ALL_PASSES = true` จะได้ Pass ทุกอัน (ไม่กระทบเกมที่ปล่อยจริง) ค่าเริ่มต้นเป็น `false` เพื่อให้เช็กลิสต์ข้อ 3 ตรง (ถ้าเปิด ได้เงิน x2 และมี VIP Barista)
 4. ใส่ `rbxassetid://...` ของเสียงใน `Config.SOUNDS` ถ้าต้องการเสียงซื้อของ/เก็บเงิน/ซื้อไม่ได้
-5. **ยังไม่ได้ทำปุ่มขายในเกม** (ต้องเรียก `MarketplaceService:PromptGamePassPurchase` / `PromptProductPurchase` จากปุ่ม UI) ตอนนี้ระบบรับซื้อ/ให้ของทำงานแล้ว แต่ยังไม่มีปุ่มให้ผู้เล่นกด
+
+### หน้าร้านค้าในเกม (ShopClient)
+ปุ่ม **SHOP** สีส้มกลางขอบซ้ายของจอ กดแล้วเปิดหน้าต่าง "Thai Tea Shop" มีการ์ด Game Pass 4 ใบ และ Cash Boost 2 ใบ (โค้ดอยู่ที่ `StarterPlayerScripts/ShopClient.client.lua`)
+- ปุ่มบนการ์ด: ID เป็น 0 → "Coming soon" (กดไม่ได้) · ใส่ ID แล้ว → แสดงราคา "R$ xx" ที่ดึงจาก Roblox เอง · ซื้อ Pass แล้ว → "Owned"
+- การ์ด Cash Boost บอกยอดเงินที่จะได้ตามเลเวลตอนนี้ เช่น "+฿9,000 now"
+- ชื่อ คำอธิบาย สี และตัวอักษรบนวงกลมแก้ได้ใน `Config.PASSES` / `Config.PRODUCTS` (`Name`, `Desc`, `Color`, `Badge`) ถ้ามีรูปไอคอนให้ใส่ `Icon = "rbxassetid://..."` จะใช้รูปแทนวงกลม ลำดับการ์ดอยู่ใน `PASS_ORDER` / `PRODUCT_ORDER`
+- หน้าต่างย่อเองบนจอเล็ก (มือถือ) และเลื่อนขึ้นลงได้
 
 Developer Product ให้ของแค่ครั้งเดียวต่อใบเสร็จ (จำ `PurchaseId` 50 ใบล่าสุดไว้ในข้อมูลผู้เล่น) และจะตอบ Roblox ว่าให้ของแล้วก็ต่อเมื่อเซฟสำเร็จ
 

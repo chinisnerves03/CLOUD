@@ -33,19 +33,22 @@ Config.OFFLINE = {
 	PASS_MAX_HOURS = 24,
 }
 
--- Game Passes: put the IDs from the Creator Dashboard here (0 = not set yet)
+-- Game Passes: put the IDs from the Creator Dashboard here (0 = not set yet, shown as "Coming soon" in the shop)
+-- Icon = "rbxassetid://..." image for the shop card (empty = colored badge with Badge text)
 Config.PASSES = {
-	DoubleCash = { Id = 0, Name = "2x Income" },
-	VipBarista = { Id = 0, Name = "VIP Barista" }, -- a golden barista who sells a cup every VIP_INTERVAL seconds
-	OfflinePlus = { Id = 0, Name = "Full Offline Income (24h)" },
-	AutoBuild = { Id = 0, Name = "Auto Build" }, -- builds the next item the moment you can afford it
+	DoubleCash = { Id = 0, Name = "2x Income", Desc = "Every cup, staff sale and counter sale earns double.", Icon = "", Badge = "x2", Color = Color3.fromRGB(46, 204, 113) },
+	VipBarista = { Id = 0, Name = "VIP Barista", Desc = "A golden barista who sells a cup every second.", Icon = "", Badge = "VIP", Color = Color3.fromRGB(241, 196, 15) }, -- sells a cup every VIP_INTERVAL seconds
+	OfflinePlus = { Id = 0, Name = "Full Offline Income (24h)", Desc = "Earn 100% while away, for up to 24 hours (normally 50%, 8h).", Icon = "", Badge = "24h", Color = Color3.fromRGB(52, 152, 219) },
+	AutoBuild = { Id = 0, Name = "Auto Build", Desc = "Builds the next item the moment you can afford it.", Icon = "", Badge = "AUTO", Color = Color3.fromRGB(155, 89, 182) }, -- builds the next item the moment you can afford it
 }
+Config.PASS_ORDER = { "DoubleCash", "VipBarista", "AutoBuild", "OfflinePlus" }
 
 -- Developer Products: grant cash equal to N seconds of income (at least Min)
 Config.PRODUCTS = {
-	CashSmall = { Id = 0, Name = "Cash Boost (10 min)", Seconds = 600, Min = 1000 },
-	CashBig = { Id = 0, Name = "Cash Boost (1 hour)", Seconds = 3600, Min = 10000 },
+	CashSmall = { Id = 0, Name = "Cash Boost (10 min)", Desc = "Instant cash: 10 minutes of income.", Icon = "", Badge = "10m", Color = Color3.fromRGB(230, 126, 34), Seconds = 600, Min = 1000 },
+	CashBig = { Id = 0, Name = "Cash Boost (1 hour)", Desc = "Instant cash: a full hour of income.", Icon = "", Badge = "1h", Color = Color3.fromRGB(231, 76, 60), Seconds = 3600, Min = 10000 },
 }
+Config.PRODUCT_ORDER = { "CashSmall", "CashBig" }
 
 -- Sounds: "rbxassetid://..." (empty = no sound)
 Config.SOUNDS = {

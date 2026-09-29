@@ -1,6 +1,6 @@
 -- MonetizationService: 4 Game Passes + 2 Developer Products
 -- Pass ownership is stored as player Attributes: Pass_DoubleCash, Pass_VipBarista, Pass_OfflinePlus, Pass_AutoBuild
--- No in-game shop buttons yet: call MarketplaceService:PromptGamePassPurchase from UI and this service handles the rest
+-- The shop window (StarterPlayerScripts/ShopClient) only opens Roblox's purchase prompts; this service grants everything
 
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")

@@ -16,6 +16,7 @@ Never put a model name in commits, PRs or code.
 | `Services/DevPlotBuilder.lua` | builds 6 plots + plaza when `Workspace.Plots` is missing |
 | `Services/ItemModels.lua` | every model built from Parts (Builder DSL), item layout, pad spots, decor (BrewStation, StaffCart, Customer, PlotGround, …) |
 | `StarterPlayerScripts/ClientMain.client.lua` | HUD, hints + guide arrow, toasts, staff "+฿" pops, client-side customer queue animation |
+| `StarterPlayerScripts/ShopClient.client.lua` | SHOP button + window: pass/product cards from `Config.PASS_ORDER`/`PRODUCT_ORDER`, prices via GetProductInfo, "Owned" from `Pass_*` attributes |
 | `default.project.json` | Rojo project (syncs `src/` into Studio, leaves other instances alone) |
 | `tools/preview/` | runs the builders against a Roblox API mock (`mock.luau`) → `parts.jsonl` → three.js render (`render.html`, `shoot.mjs`) |
 | `tools/web-demo/` | `build.py` turns `parts.jsonl` into a playable browser demo (`template.html` mirrors the game rules) |
@@ -57,9 +58,7 @@ Never put a model name in commits, PRs or code.
 1. ~~First real run in Studio~~ — done 2026-09-29: README checklist passes, no red errors. Test by driving Studio
    MCP `run_script_in_play_mode` (server-side script that teleports the character onto pads and logs attributes);
    press E through the real client for brewing (the prompt only triggers on a key held ~0.15 s).
-2. **In-game shop UI**: a Shop button + window selling the 4 Game Passes and 2 Cash Boost products
-   (`MarketplaceService:PromptGamePassPurchase` / `PromptProductPurchase`); MonetizationService already handles
-   the purchases. Without it the game earns nothing.
+2. ~~In-game shop UI~~ — done (`ShopClient`). Cards say "Coming soon" until the IDs are set.
 3. **Sounds**: fill `Config.SOUNDS` with Creator Store audio IDs (brew, buy, collect, error) + a background loop.
 4. **Creator Dashboard**: create the passes/products, put their IDs in `Config.PASSES` / `Config.PRODUCTS`.
 5. **Icon + thumbnail** for the game page.
