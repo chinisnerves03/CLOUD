@@ -37,10 +37,17 @@ Never put a model name in commits, PRs or code.
   staff, offline and Cash Boost size). Rewards (daily, codes, quests) are base income × seconds, with a floor.
 - The Roblox player list shows leaderstats (Level, Rebirths), so the HUD cash panel sits mid-right, not top-right.
 - Pacing target (simulated): ~40 min to finish when brewing, ~70 min without. First item ≈ 30 s.
+- Real-world scale: character 5.5 studs ≈ 1.75 m. Small props are built life-size; tier 4-5 buildings are enlarged
+  after building (`ItemModels.Footprint`: Shell parts and parts spanning half the building grow in X/Z, other
+  parts move as clusters of touching parts and keep their size; `ItemModels.Uniform`: whole-model ScaleTo).
+- Plot space: 120 wide, z -65 (front) .. 140 (back); Base centred at `ItemModels.PlotCenterZ`, PlotService reads
+  the offset from the Base attribute `ItemOriginZ`. Plot centers are 130 apart.
 - Part budget: ≈ 4,950 parts per full plot, ≈ 30,000 for the map. StreamingEnabled recommended.
 
 ## Conventions
 
+- After moving/enlarging items, recompute tier 4-5 `PadSpots` in Studio (closest free 6x6 spot behind each item,
+  1 stud clear of earlier items) and check overlaps with bounding boxes.
 - Builder DSL in `ItemModels.lua`: `Box/Cyl/HCyl/Ball/Ellipsoid/Wedge/Rod/Tube/Text/Light` plus `Person`, `TeaCup`,
   `Plant`, `Legs`, `Shell`, `Shelf`. Models face -Z (toward the plaza), y = 0 is the floor. Wedges: tall edge +Z.
   Boxes ≥ 1.2 wide get rounded corners automatically; pass `{ flat = true }` for a sharp box.

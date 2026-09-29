@@ -23,7 +23,7 @@ local PAD_HEIGHT = 7 -- height above the pad that still counts as "standing on i
 type PlotState = {
 	Model: Model,
 	Name: string,
-	Floor: CFrame?, -- floor center of the plot; nil for custom plots without a Base
+	Floor: CFrame?, -- plot space origin on the floor (ItemModels coordinates); nil for custom plots without a Base
 	Pads: { BasePart },
 	PadLabels: { TextLabel },
 	PadGlow: BasePart,
@@ -486,7 +486,10 @@ local function setupPlot(model: Model, storageRoot: Folder): PlotState?
 	local sign = model:FindFirstChild("Sign")
 	local signLabel = sign and sign:FindFirstChildWhichIsA("TextLabel", true)
 	local base = model:FindFirstChild("Base")
-	local floor = if base and base:IsA("BasePart") then base.CFrame * CFrame.new(0, base.Size.Y / 2, 0) else nil
+	-- plot space origin: the Base top, moved along Z when the Base is not centred on it (ItemOriginZ attribute)
+	local floor = if base and base:IsA("BasePart")
+		then base.CFrame * CFrame.new(0, base.Size.Y / 2, tonumber(base:GetAttribute("ItemOriginZ")) or 0)
+		else nil
 
 	-- staff carts (built once, shown as the owner hires) and the VIP barista
 	local staffModels: { Model } = {}

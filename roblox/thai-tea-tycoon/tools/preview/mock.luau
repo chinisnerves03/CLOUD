@@ -21,9 +21,12 @@ V3mt.__index = function(v, k)
 	if k == "Lerp" then return function(a, b, t) return a + (b - a) * t end end
 	if k == "Dot" then return function(a, b) return a.X * b.X + a.Y * b.Y + a.Z * b.Z end end
 	if k == "Cross" then return function(a, b) return V3(a.Y * b.Z - a.Z * b.Y, a.Z * b.X - a.X * b.Z, a.X * b.Y - a.Y * b.X) end end
+	if k == "Abs" then return function(a) return V3(math.abs(a.X), math.abs(a.Y), math.abs(a.Z)) end end
+	if k == "Min" then return function(a, b) return V3(math.min(a.X, b.X), math.min(a.Y, b.Y), math.min(a.Z, b.Z)) end end
+	if k == "Max" then return function(a, b) return V3(math.max(a.X, b.X), math.max(a.Y, b.Y), math.max(a.Z, b.Z)) end end
 	error("Vector3 has no member " .. tostring(k))
 end
-Vector3 = { new = V3 }
+Vector3 = { new = V3, zero = V3(0, 0, 0) }
 
 -- CFrame (R stored row-major: r[1..9]) --------------------------------------
 local CFmt = {}
@@ -47,12 +50,23 @@ CFmt.__mul = function(a, b)
 	if getmetatable(b) == CFmt then return mkCF(rotV(a.r, b.p) + a.p, mulR(a.r, b.r)) end
 	return rotV(a.r, b) + a.p
 end
+CFmt.__add = function(a, v) return mkCF(a.p + v, a.r) end
+local function transpose(r) return { r[1], r[4], r[7], r[2], r[5], r[8], r[3], r[6], r[9] } end
 CFmt.__index = function(cf, k)
 	if k == "Position" then return cf.p end
 	if k == "X" then return cf.p.X end
 	if k == "Y" then return cf.p.Y end
 	if k == "Z" then return cf.p.Z end
 	if k == "LookVector" then return V3(-cf.r[3], -cf.r[6], -cf.r[9]) end
+	if k == "RightVector" then return V3(cf.r[1], cf.r[4], cf.r[7]) end
+	if k == "UpVector" then return V3(cf.r[2], cf.r[5], cf.r[8]) end
+	if k == "Rotation" then return mkCF(V3(0, 0, 0), cf.r) end
+	if k == "ToObjectSpace" then
+		return function(self, other)
+			local inv = transpose(self.r)
+			return mkCF(rotV(inv, other.p - self.p), mulR(inv, other.r))
+		end
+	end
 	if k == "PointToObjectSpace" then
 		return function(self, v)
 			local d = v - self.p
@@ -128,6 +142,19 @@ Inst.__newindex = function(obj, k, v)
 	obj._props[k] = v
 end
 function methods.GetChildren(self) return table.clone(self._children) end
+function methods.SetAttribute(self, k, v) self._attrs = self._attrs or {}; self._attrs[k] = v end
+function methods.GetAttribute(self, k) return self._attrs and self._attrs[k] end
+-- uniform scale about WorldPivot (enough for ItemModels.Uniform)
+function methods.ScaleTo(self, k)
+	local pivot = self.WorldPivot
+	for _, d in self:GetDescendants() do
+		if d:IsA("BasePart") then
+			local rel = pivot:ToObjectSpace(d.CFrame)
+			d.CFrame = pivot * mkCF(rel.p * k, rel.r)
+			d.Size = d.Size * k
+		end
+	end
+end
 function methods.FindFirstChild(self, name)
 	for _, c in self._children do if c.Name == name then return c end end
 	return nil

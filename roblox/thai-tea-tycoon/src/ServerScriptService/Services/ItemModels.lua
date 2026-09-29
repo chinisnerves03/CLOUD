@@ -64,6 +64,9 @@ function Builder:_part(class: string, size: Vector3, cf: CFrame, color: Color3, 
 	p.Color = color
 	p.Material = material or M.SmoothPlastic
 	local solid = size.X >= 1 and size.Y >= 1 and size.Z >= 1
+	if self.InShell then
+		p:SetAttribute("Structure", true) -- ItemModels.Stretch scales these with the building
+	end
 	if opts then
 		if opts.t then
 			p.Transparency = opts.t
@@ -346,6 +349,12 @@ end
 --       openings = { { side = "Front"|"Back"|"Left"|"Right", x = center along the wall, y = bottom edge, w, h, glass = true/false } }
 -- walkable doors: glass = false, y = 0, h >= 7
 function Builder:Shell(cf: CFrame, spec)
+	self.InShell = true
+	self:_Shell(cf, spec)
+	self.InShell = false
+end
+
+function Builder:_Shell(cf: CFrame, spec)
 	local w, d, h = spec.w, spec.d, spec.h
 	local t = spec.t or 0.6
 	local wallOpts = { t = spec.wallT, solid = true, flat = true }
@@ -419,7 +428,8 @@ end
 
 ---------------------------------------------------------------------------
 -- item placement in the plot { x, y, z, rotation around Y (degrees) }
--- plot is 100 wide (x -50..50) and 130 deep (z -65 front .. 65 back)
+-- plot space: 120 wide (x -60..60), z from -65 (front, facing the plaza) to 140 (back).
+-- The plot's Base part is centred at z = ItemModels.PlotCenterZ in this space.
 ---------------------------------------------------------------------------
 ItemModels.Layout = {
 	-- Tier 1: Thai tea cart (front left)
@@ -453,25 +463,30 @@ ItemModels.Layout = {
 	L27 = { 0, 0, -13, 0 },
 	L28 = { 0, 0, -3.5, 0 },
 	-- Tier 4: central kitchen + logistics (walk-in buildings)
-	L29 = { -38, 0, 16, 0 },
-	L30 = { -22, 0, 16, 0 },
-	L31 = { 12, 0, 11, 0 },
-	L32 = { 12, 0, 18, 0 },
+	L29 = { -42, 0, 21, 0 },
+	L30 = { -20, 0, 18, 0 },
+	L31 = { -2, 0, 9, 0 },
+	L32 = { 17, 0, 17, 0 },
 	L33 = { 35, 0, -59, 0 },
-	L34 = { 35, 0, 16, 0 },
-	L35 = { -6, 0, 16, 0 },
+	L34 = { 46, 0, 21, 0 },
+	L35 = { -2, 0, 24, 0 },
 	L36 = { 0, 0, -9.7, 0 },
 	L37 = { 33.5, 0, -21, 0 },
-	-- Tier 5: Thai tea empire (back row, walk-in buildings)
-	L38 = { -41.5, 0, 50, 0 },
-	L39 = { -26.5, 0, 46, 0 },
-	L40 = { -12.5, 0, 48, 0 },
-	L41 = { 13, 0, 52, 0 },
-	L42 = { 26.5, 0, 48, 0 },
-	L43 = { 42, 0, 44, 0 },
-	L44 = { 0, 0, 40, 0 },
-	L45 = { 0, 0, 54, 0 },
+	-- Tier 5: Thai tea empire (two back rows, walk-in buildings)
+	L38 = { -44, 0, 70, 0 },
+	L39 = { -16, 0, 64, 0 },
+	L40 = { 8, 0, 66, 0 },
+	L41 = { -18, 0, 108, 0 },
+	L42 = { 45, 0, 64, 0 },
+	L43 = { 44, 0, 104, 0 },
+	L44 = { 26, 0, 54, 0 },
+	L45 = { 10, 0, 112, 0 },
 }
+
+ItemModels.PlotWidth = 120
+ItemModels.PlotFront = -65
+ItemModels.PlotBack = 140
+ItemModels.PlotCenterZ = (ItemModels.PlotFront + ItemModels.PlotBack) / 2
 
 -- Fixed spots in plot space { x, z }: the three upgrade pads, hired staff carts and the VIP barista
 ItemModels.UpgradeSpots = { Staff = { -30, -56 }, Recipe = { -21, -56 }, Speed = { -12, -56 } }
@@ -480,18 +495,18 @@ ItemModels.VipSpot = { -6.5, -55 }
 
 -- Where the single buy pad sits while that item is the next purchase { x, z } in plot space.
 -- Each spot is behind where the item will appear (the side away from the plaza), on open floor clear of
--- every earlier item, the Brew Station, the upgrade pads and the staff carts. Exceptions at the back edge:
--- L38/L40 sit beside their building and L45 sits on the tower's own footprint (it is empty until bought).
+-- every earlier item, the Brew Station, the upgrade pads and the staff carts (tier 4-5 spots were computed in
+-- Studio from the real bounding boxes: the closest free 6x6 spot behind the item, 1 stud clear of everything).
 ItemModels.PadSpots = {
 	L02 = { -20, -34.4 }, L03 = { -25, -36.5 }, L04 = { -14.1, -35.8 }, L05 = { -13.8, -31.2 }, L06 = { -24.4, -36.6 },
 	L07 = { -20, -34.2 }, L08 = { -30.6, -42.1 }, L09 = { -27.6, -36.9 }, L10 = { -31.5, -32.3 }, L11 = { 20, -31.9 },
 	L12 = { 25.1, -32 }, L13 = { 31.5, -32.7 }, L14 = { 23.5, -27.4 }, L15 = { 32, -37.5 }, L16 = { 32.5, -38.3 },
 	L17 = { 22, -25.3 }, L18 = { 8.1, -32.7 }, L19 = { 17.5, -29 }, L20 = { -30.7, -13.2 }, L21 = { -18.3, -2.2 },
 	L22 = { -23.5, -14.4 }, L23 = { 16.5, -11.3 }, L24 = { 31, -2.2 }, L25 = { -36.8, -1.6 }, L26 = { -29.4, -0.2 },
-	L27 = { 0, -1.9 }, L28 = { 0, 0.5 }, L29 = { -38, 27.5 }, L30 = { -22, 25.2 }, L31 = { 11.5, 16.6 },
-	L32 = { 12.1, 23.3 }, L33 = { 35.4, -52.8 }, L34 = { 35, 26.5 }, L35 = { -6, 24.2 }, L36 = { 11.8, -5 },
-	L37 = { 33.5, -16.1 }, L38 = { -31, 49.5 }, L39 = { -26.5, 58.5 }, L40 = { -3, 46.4 }, L41 = { 13, 60.7 },
-	L42 = { 26.5, 59.5 }, L43 = { 41.1, 59 }, L44 = { 0, 48.6 }, L45 = { 0, 54 },
+	L27 = { 0, -1.9 }, L28 = { 0, 0.5 }, L29 = { -42, 37.3 }, L30 = { -20, 29.9 }, L31 = { -2.1, 15.1 },
+	L32 = { 17.1, 22.8 }, L33 = { 35.4, -52.8 }, L34 = { 46, 34.2 }, L35 = { -2, 35.1 }, L36 = { 11.8, -5 },
+	L37 = { 33.5, -16.1 }, L38 = { -44, 98 }, L39 = { -16, 82.6 }, L40 = { 8, 86 }, L41 = { -18, 121.5 },
+	L42 = { 45, 81.1 }, L43 = { 43, 123.9 }, L44 = { 26, 64.3 }, L45 = { 10, 129.3 },
 }
 
 ---------------------------------------------------------------------------
@@ -2912,20 +2927,20 @@ Decor.PlotGround = function(b)
 	for z = -21, -3, 4 do
 		b:Box(V3(84, 0.05, 0.08), CF(0, 0.03, z), rgb(215, 200, 178), nil, { flat = true, solid = false })
 	end
-	-- tier 4: asphalt yard with yellow edge lines and a dashed centre lane
-	zone(b, -48, 48, 5, 31, rgb(70, 72, 78), M.Asphalt, PAL.yellow)
-	for x = -45, 45, 6 do
-		b:Box(V3(3, 0.05, 0.3), CF(x, 0.03, 30), PAL.white, nil, { flat = true, solid = false })
+	-- tier 4: asphalt yard with yellow edge lines and a dashed lane behind the buildings
+	zone(b, -58, 58, 4, 40, rgb(70, 72, 78), M.Asphalt, PAL.yellow)
+	for x = -55, 55, 6 do
+		b:Box(V3(3, 0.05, 0.3), CF(x, 0.03, 39), PAL.white, nil, { flat = true, solid = false })
 	end
 	-- tier 5: lawn around the big buildings
-	zone(b, -48, 48, 34, 65, rgb(96, 170, 80), M.Grass, rgb(70, 130, 60))
+	zone(b, -58, 58, 42, 139, rgb(96, 170, 80), M.Grass, rgb(70, 130, 60))
 	-- brick path from the entrance to the cafe (between the cart and the shop)
 	zone(b, -5, 5, -50, -25, rgb(180, 95, 70), M.Brick, PAL.concrete)
 	for z = -47, -29, 6 do
 		b:Box(V3(3, 0.06, 1.2), CF(0, 0.04, z), PAL.concrete, nil, { flat = true, solid = false })
 	end
 	-- flower beds beside the path entrance and along the side hedges
-	for i, spot in { { -7.5, -49 }, { 7.5, -49 }, { -45, -35 }, { 45, -35 }, { -45, -15 }, { 45, -15 } } do
+	for i, spot in { { -7.5, -49 }, { 7.5, -49 }, { -55, -35 }, { 55, -35 }, { -55, -15 }, { 55, -15 } } do
 		flowerBed(b, CF(spot[1], 0, spot[2]), 40 + i)
 	end
 end
@@ -2984,6 +2999,146 @@ Decor.StaffCart = function(b, variant)
 end
 
 ---------------------------------------------------------------------------
+-- Real-world size. A character is ~5.5 studs (1.75 m), so 1 stud ≈ 0.32 m. The small props are built at that
+-- scale; the big buildings were built too small, so they are enlarged after building:
+--   Footprint: walls, floors, roofs (Shell parts) and parts spanning half the building grow in X/Z by the factor;
+--              everything else (people, counters, tables, cups, shelves...) keeps its size and is only moved,
+--              one cluster of touching parts at a time, so rooms get bigger while the furniture stays life-size.
+--              Heights stay the same (a storey is already ~3 m).
+--   Uniform:   the whole model grows (vehicles).
+---------------------------------------------------------------------------
+ItemModels.Footprint = {
+	L29 = 1.5, -- central kitchen
+	L34 = 1.3, -- cold room
+	L35 = 1.4, -- tea roastery
+	L38 = 2.0, -- tea plantation
+	L39 = 1.6, -- bottling factory
+	L40 = 1.6, -- distribution center
+	L41 = 1.8, -- headquarters
+	L42 = 1.6, -- mall branch
+	L43 = 1.6, -- airport branch
+	L44 = 1.3, -- nationwide franchise
+	L45 = 1.9, -- thai tea tower
+}
+ItemModels.Uniform = {
+	L30 = 1.4, -- delivery van
+}
+
+local CLUSTER_GAP = 0.5 -- parts closer than this belong to the same piece of furniture
+
+-- local axis-aligned bounds of a part (relative to origin)
+local function localBounds(cf: CFrame, size: Vector3): (Vector3, Vector3)
+	local half = (cf.RightVector * size.X):Abs() / 2 + (cf.UpVector * size.Y):Abs() / 2 + (cf.LookVector * size.Z):Abs() / 2
+	return cf.Position - half, cf.Position + half
+end
+
+-- target { local CFrame, size } for every part, computed once per item key (every plot builds the same model)
+local stretchCache: { [string]: { { CFrame | Vector3 } } } = {}
+
+local function planStretch(parts: { BasePart }, origin: CFrame, k: number): { { CFrame | Vector3 } }
+	local n = #parts
+	local cfs, mins, maxs = table.create(n), table.create(n), table.create(n)
+	local lo, hi = Vector3.new(math.huge, 0, math.huge), Vector3.new(-math.huge, 0, -math.huge)
+	for i, part in parts do
+		cfs[i] = origin:ToObjectSpace(part.CFrame)
+		mins[i], maxs[i] = localBounds(cfs[i], part.Size)
+		lo, hi = lo:Min(mins[i]), hi:Max(maxs[i])
+	end
+	local span = math.min(hi.X - lo.X, hi.Z - lo.Z)
+	local structure = table.create(n, false)
+	for i, part in parts do
+		local extent = math.max(maxs[i].X - mins[i].X, maxs[i].Z - mins[i].Z)
+		structure[i] = part:GetAttribute("Structure") == true or extent >= span * 0.5
+	end
+
+	-- union-find over touching non-structure parts (grid hash keeps it fast)
+	local parent = table.create(n, 0)
+	for i = 1, n do
+		parent[i] = i
+	end
+	local function find(i: number): number
+		while parent[i] ~= i do
+			parent[i] = parent[parent[i]]
+			i = parent[i]
+		end
+		return i
+	end
+	local CELL = 4
+	local grid: { [string]: { number } } = {}
+	for i = 1, n do
+		if not structure[i] then
+			for gx = math.floor((mins[i].X - CLUSTER_GAP) / CELL), math.floor((maxs[i].X + CLUSTER_GAP) / CELL) do
+				for gz = math.floor((mins[i].Z - CLUSTER_GAP) / CELL), math.floor((maxs[i].Z + CLUSTER_GAP) / CELL) do
+					local key = gx .. "," .. gz
+					local bucket = grid[key]
+					if not bucket then
+						bucket = {}
+						grid[key] = bucket
+					end
+					for _, j in bucket do
+						if mins[i].X - CLUSTER_GAP <= maxs[j].X and mins[j].X - CLUSTER_GAP <= maxs[i].X
+							and mins[i].Y - CLUSTER_GAP <= maxs[j].Y and mins[j].Y - CLUSTER_GAP <= maxs[i].Y
+							and mins[i].Z - CLUSTER_GAP <= maxs[j].Z and mins[j].Z - CLUSTER_GAP <= maxs[i].Z then
+							parent[find(i)] = find(j)
+						end
+					end
+					table.insert(bucket, i)
+				end
+			end
+		end
+	end
+	local sums: { [number]: Vector3 } = {}
+	local counts: { [number]: number } = {}
+	for i = 1, n do
+		if not structure[i] then
+			local root = find(i)
+			sums[root] = (sums[root] or Vector3.zero) + (mins[i] + maxs[i]) / 2
+			counts[root] = (counts[root] or 0) + 1
+		end
+	end
+
+	local plan = table.create(n)
+	for i, part in parts do
+		local cf = cfs[i]
+		if structure[i] then
+			-- grow along whichever local axes lie flat; keep heights
+			local size = part.Size
+			local function grow(axis: Vector3, length: number): number
+				return if math.abs(axis.Y) < 0.7 then length * k else length
+			end
+			local newSize = Vector3.new(grow(cf.RightVector, size.X), grow(cf.UpVector, size.Y), grow(cf.LookVector, size.Z))
+			local p = cf.Position
+			plan[i] = { CFrame.new(p.X * k, p.Y, p.Z * k) * cf.Rotation, newSize }
+		else
+			local root = find(i)
+			local center = sums[root] / counts[root]
+			local shift = Vector3.new(center.X * (k - 1), 0, center.Z * (k - 1))
+			plan[i] = { cf + shift, part.Size }
+		end
+	end
+	return plan
+end
+
+local function stretch(key: string, model: Model, origin: CFrame, k: number)
+	local parts = {}
+	for _, d in model:GetChildren() do
+		if d:IsA("BasePart") then
+			table.insert(parts, d)
+		end
+	end
+	local plan = stretchCache[key]
+	if not plan or #plan ~= #parts then
+		plan = planStretch(parts, origin, k)
+		stretchCache[key] = plan
+	end
+	for i, part in parts do
+		local target = plan[i]
+		part.Size = target[2] :: Vector3
+		part.CFrame = origin * (target[1] :: CFrame)
+	end
+end
+
+---------------------------------------------------------------------------
 -- API
 ---------------------------------------------------------------------------
 function ItemModels.Has(key: string): boolean
@@ -3000,6 +3155,13 @@ function ItemModels.Build(key: string, origin: CFrame): Model?
 	model.Name = key
 	local b = newBuilder(model, origin)
 	build(b)
+	if ItemModels.Footprint[key] then
+		stretch(key, model, origin, ItemModels.Footprint[key])
+	elseif ItemModels.Uniform[key] then
+		model.WorldPivot = origin
+		model:ScaleTo(ItemModels.Uniform[key])
+	end
+	model.WorldPivot = origin
 	return model
 end
 

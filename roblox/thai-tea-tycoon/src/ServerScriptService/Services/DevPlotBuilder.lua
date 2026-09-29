@@ -9,11 +9,14 @@ local ItemModels = require(script.Parent:WaitForChild("ItemModels"))
 
 local DevPlotBuilder = {}
 
-local PLOT_WIDTH = 100 -- X axis
-local PLOT_DEPTH = 130 -- Z axis (front is -Z, facing the plaza)
+-- plot space (ItemModels): x across, z from the front edge (facing the plaza, -Z) to the back
+local PLOT_WIDTH = ItemModels.PlotWidth -- X axis
+local FRONT = ItemModels.PlotFront -- front edge of the plot
+local BACK = ItemModels.PlotBack
+local PLOT_DEPTH = BACK - FRONT -- Z axis
+local CENTER_Z = ItemModels.PlotCenterZ -- where the Base part is centred
 local PLAZA_HALF = 20 -- half the plaza width
-local COLUMN_GAP = 110 -- distance between plot centers along X
-local FRONT = -PLOT_DEPTH / 2 -- front edge of the plot
+local COLUMN_GAP = PLOT_WIDTH + 10 -- distance between plot centers along X
 local FLOOR_TOP = 1 -- height of the plot floor surface
 
 local function part(props): Part
@@ -38,10 +41,12 @@ local function buildPlot(index: number, origin: CFrame): Model
 	local base = part({
 		Name = "Base",
 		Size = Vector3.new(PLOT_WIDTH, 1, PLOT_DEPTH),
-		CFrame = at(0, -0.5, 0),
+		CFrame = at(0, -0.5, CENTER_Z),
 		Color = Color3.fromRGB(222, 210, 188),
 		Material = Enum.Material.Concrete,
 	})
+	-- PlotService places items relative to the Base centre moved by this much along Z
+	base:SetAttribute("ItemOriginZ", -CENTER_Z)
 	base.Parent = plot
 	plot.PrimaryPart = base
 
@@ -57,8 +62,8 @@ local function buildPlot(index: number, origin: CFrame): Model
 	for _, x in { -PLOT_WIDTH / 2 + 0.6, PLOT_WIDTH / 2 - 0.6 } do
 		part({
 			Name = "Hedge",
-			Size = Vector3.new(1.2, 1.6, 114),
-			CFrame = at(x, 0.8, 7),
+			Size = Vector3.new(1.2, 1.6, BACK - FRONT - 16),
+			CFrame = at(x, 0.8, (FRONT + 15 + BACK - 1) / 2),
 			Color = Color3.fromRGB(70, 140, 60),
 			Material = Enum.Material.Grass,
 		}).Parent = plot
@@ -72,7 +77,7 @@ local function buildPlot(index: number, origin: CFrame): Model
 		ground.Parent = decor
 	end
 	for _, side in { -1, 1 } do
-		for _, z in { -45, -25, -5, 30 } do
+		for _, z in { -45, -25, -5, 30, 70, 110 } do
 			-- lamp heads face the middle of the plot
 			local lamp = ItemModels.BuildDecor("Lamp", at(side * (PLOT_WIDTH / 2 - 2.2), 0, z) * CFrame.Angles(0, side * math.pi / 2, 0))
 			if lamp then
@@ -195,13 +200,13 @@ function DevPlotBuilder.Build(): Folder
 	folder.Name = "Plots"
 
 	local perRow = math.ceil(Config.PLOT_COUNT / 2)
-	local rowOffset = PLAZA_HALF + PLOT_DEPTH / 2
+	local rowOffset = PLAZA_HALF - FRONT -- plot space origin, so the front edge meets the plaza
 	for i = 1, Config.PLOT_COUNT do
 		local topRow = i <= perRow
 		local column = (i - 1) % perRow
 		local x = (column - (perRow - 1) / 2) * COLUMN_GAP
 		local z = if topRow then rowOffset else -rowOffset
-		-- the plot front (local -Z) must face the plaza: rotate the bottom row 180°
+		-- plot space front (local -Z) must face the plaza: rotate the bottom row 180°
 		local origin = CFrame.new(x, 0, z) * CFrame.Angles(0, if topRow then 0 else math.pi, 0)
 		buildPlot(i, origin).Parent = folder
 	end
@@ -221,12 +226,12 @@ function DevPlotBuilder.Build(): Folder
 		place("Bench", CFrame.new(x, 0, -10) * CFrame.Angles(0, math.pi, 0))
 		place("Bench", CFrame.new(x, 0, 10))
 	end
-	for _, x in { -135, -80, -30, 30, 80, 135 } do
+	for _, x in { -COLUMN_GAP - 30, -COLUMN_GAP + 30, -35, 35, COLUMN_GAP - 30, COLUMN_GAP + 30 } do
 		for _, z in { -14, 14 } do
 			place("Tree", CFrame.new(x, 0, z))
 		end
 	end
-	for _, x in { -110, 0, 110 } do
+	for _, x in { -COLUMN_GAP, 0, COLUMN_GAP } do
 		for _, z in { -16, 16 } do
 			place("Lamp", CFrame.new(x + 12, 0, z) * CFrame.Angles(0, if z < 0 then math.pi else 0, 0))
 			place("Lamp", CFrame.new(x - 12, 0, z) * CFrame.Angles(0, if z < 0 then math.pi else 0, 0))
