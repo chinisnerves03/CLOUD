@@ -49,6 +49,8 @@ type OwnerState = {
 
 local Monetization
 local notifyRemote: RemoteEvent
+-- set by RetentionService: called with (player, kind, amount) for "Brew", "Build", "Upgrade" and "Earn" (quests)
+PlotService.OnProgress = nil :: ((Player, string, number) -> ())?
 local plots: { PlotState } = {}
 local owners: { [Player]: OwnerState } = {}
 
@@ -115,13 +117,27 @@ local function makePadGlow(pad: BasePart): BasePart
 	return glow
 end
 
-local function cashMultiplier(player: Player): number
-	return Monetization.IncomeMultiplier(player)
+-- passes (2x Income) × rebirths
+local function cashMultiplier(player: Player, data): number
+	return Monetization.IncomeMultiplier(player) * Config.RebirthMultiplier(data.Rebirths)
+end
+
+local function progress(player: Player, kind: string, amount: number)
+	if PlotService.OnProgress then
+		PlotService.OnProgress(player, kind, amount)
+	end
+end
+
+-- cash earned by playing (brewing and income) also counts toward the Top Earners leaderboard and Earn quests
+local function earn(player: Player, data, amount: number)
+	data.Cash += amount
+	data.TotalEarned += amount
+	progress(player, "Earn", amount)
 end
 
 -- cash per cup (items raise the base value, Better Recipe multiplies it)
 local function cupValue(player: Player, data): number
-	return Config.GetBrewValue(data.Level) * Config.RecipeMultiplier(data.Recipe) * cashMultiplier(player)
+	return Config.GetBrewValue(data.Level) * Config.RecipeMultiplier(data.Recipe) * cashMultiplier(player, data)
 end
 
 local function brewCooldown(data): number
@@ -136,7 +152,7 @@ local function autoIncome(player: Player, data): number
 	if Monetization.HasPass(player, "VipBarista") then
 		perSecond += cup * speed / Config.VIP_INTERVAL
 	end
-	local counter = Config.GetPassive(data.Level) * Config.RecipeMultiplier(data.Recipe) * speed * cashMultiplier(player)
+	local counter = Config.GetPassive(data.Level) * Config.RecipeMultiplier(data.Recipe) * speed * cashMultiplier(player, data)
 	return perSecond + counter
 end
 
@@ -151,7 +167,12 @@ function PlotService.GetBaseIncome(player: Player): number
 	if not state then
 		return 0
 	end
-	return Config.GetIncome(state.Data.Level) * cashMultiplier(player)
+	return Config.GetIncome(state.Data.Level) * cashMultiplier(player, state.Data)
+end
+
+function PlotService.GetData(player: Player)
+	local state = owners[player]
+	return state and state.Data
 end
 
 ---------------------------------------------------------------------------
@@ -264,7 +285,8 @@ local function brew(player: Player, plot: PlotState)
 	end
 	state.LastBrew = now
 	local value = cupValue(player, state.Data)
-	state.Data.Cash += value
+	earn(player, state.Data, value)
+	progress(player, "Brew", 1)
 	PlotService.Notify(player, "Brew", "+" .. Config.FormatMoney(value))
 end
 
@@ -285,8 +307,9 @@ local function tryBuy(player: Player, state: OwnerState)
 	refreshPads(state.Plot)
 	PlotService.Notify(player, "Buy", string.format("Built %s! Each cup now earns %s (was %s)",
 		item.Name, Config.FormatMoney(cupValue(player, data)), Config.FormatMoney(oldCup)))
+	progress(player, "Build", 1)
 	if data.Level >= Config.MAX_LEVEL then
-		PlotService.Notify(player, "Buy", "Congratulations! Your Thai tea empire is complete!")
+		PlotService.Notify(player, "Buy", "Congratulations! Your Thai tea empire is complete! Rebirth for bigger income")
 	end
 end
 
@@ -310,6 +333,7 @@ local function tryUpgrade(player: Player, state: OwnerState, key: string)
 	data.Cash -= cost
 	data[key] += 1
 	refreshPads(state.Plot)
+	progress(player, "Upgrade", 1)
 	local detail = if key == "Staff" then Config.FormatRate(autoIncome(player, data))
 		elseif key == "Recipe" then Config.FormatMoney(cupValue(player, data))
 		else string.format("%d%%", math.floor((Config.SpeedMultiplier(data.Speed) - 1) * 100 + 0.5))
@@ -318,7 +342,9 @@ end
 
 local function updateOwner(player: Player, state: OwnerState, dt: number)
 	local data = state.Data
-	data.Cash += autoIncome(player, data) * dt
+	if dt > 0 then
+		earn(player, data, autoIncome(player, data) * dt)
+	end
 	local nextItem = Config.GetItem(data.Level + 1)
 	if nextItem and data.Cash >= nextItem.Price and Monetization.HasPass(player, "AutoBuild") then
 		tryBuy(player, state)
@@ -357,6 +383,34 @@ local function updateOwner(player: Player, state: OwnerState, dt: number)
 	setAttr(player, "Staff", data.Staff)
 	setAttr(player, "Recipe", data.Recipe)
 	setAttr(player, "Speed", data.Speed)
+	setAttr(player, "Rebirths", data.Rebirths)
+end
+
+-- Rebirth: back to level 1 with no cash or upgrades, for +Config.REBIRTH.BONUS income forever. Returns success.
+function PlotService.Rebirth(player: Player): boolean
+	local state = owners[player]
+	if not state then
+		return false
+	end
+	local data = state.Data
+	if data.Level < Config.REBIRTH.MIN_LEVEL then
+		PlotService.Notify(player, "Error", string.format("Reach level %d to rebirth", Config.REBIRTH.MIN_LEVEL))
+		return false
+	end
+	data.Rebirths += 1
+	data.Cash = Config.START_CASH
+	data.Level = 1
+	for key in Config.UPGRADES do
+		data[key] = 0
+	end
+	hideAllItems(state.Plot)
+	refreshPads(state.Plot)
+	table.clear(state.OnPad)
+	table.clear(state.OnUpgrade)
+	updateOwner(player, state, 0)
+	PlotService.Notify(player, "Buy", string.format("Rebirth %d! All income is now x%s forever",
+		data.Rebirths, string.format("%.1f", Config.RebirthMultiplier(data.Rebirths)):gsub("%.0$", "")))
+	return true
 end
 
 ---------------------------------------------------------------------------

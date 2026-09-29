@@ -210,6 +210,58 @@ function Config.SpeedMultiplier(speed: number): number
 end
 
 ---------------------------------------------------------------------------
+-- Retention: rebirth, daily reward, codes, quests, leaderboards
+-- Rewards are sized in seconds of the player's base income (Config.GetIncome × passes × rebirths), so they stay useful
+-- at every level; Min is the floor for brand-new shops.
+---------------------------------------------------------------------------
+Config.REBIRTH = {
+	MIN_LEVEL = 45, -- finish the shop to rebirth
+	BONUS = 0.5, -- each rebirth adds +50% to all income, forever
+}
+
+function Config.RebirthMultiplier(rebirths: number): number
+	return 1 + Config.REBIRTH.BONUS * rebirths
+end
+
+Config.DAILY = {
+	COOLDOWN_HOURS = 20, -- claim again 20 hours after the last claim
+	STREAK_HOURS = 48, -- claim within 48 hours to keep the streak
+	MAX_STREAK = 7,
+	SECONDS = 120, -- reward = base income × 120 s × streak day
+	MIN = 300, -- at least ฿300 × streak day
+}
+
+-- Codes (case-insensitive). Expires = unix time after which the code stops working (optional).
+Config.CODES = {
+	THAITEA = { Seconds = 300, Min = 500 },
+	WELCOME = { Seconds = 120, Min = 200 },
+	BOBA = { Seconds = 600, Min = 1000 },
+} :: { [string]: { Seconds: number, Min: number, Expires: number? } }
+
+-- Short quests, one at a time, in this order and then from the top again.
+-- Kind: Brew (cups), Build (items), Upgrade (upgrades bought), Earn (cash; Target = base income × Seconds at start)
+-- Reward = base income × Reward seconds (at least QUEST_MIN_REWARD)
+Config.QUESTS = {
+	{ Kind = "Brew", Target = 10, Reward = 45 },
+	{ Kind = "Build", Target = 1, Reward = 60 },
+	{ Kind = "Upgrade", Target = 1, Reward = 60 },
+	{ Kind = "Earn", Seconds = 90, Reward = 60 },
+	{ Kind = "Brew", Target = 25, Reward = 90 },
+	{ Kind = "Build", Target = 2, Reward = 120 },
+	{ Kind = "Upgrade", Target = 2, Reward = 120 },
+	{ Kind = "Earn", Seconds = 240, Reward = 120 },
+} :: { { Kind: string, Target: number?, Seconds: number?, Reward: number } }
+Config.QUEST_MIN_REWARD = 50
+
+-- Leaderboards in the plaza (OrderedDataStore). Stat = a field of the player's saved data.
+Config.LEADERBOARDS = {
+	{ Name = "TopEarners", Stat = "TotalEarned", Title = "Top Earners", Money = true, CFrame = CFrame.lookAt(Vector3.new(-27, 0, 0), Vector3.new(0, 0, 0)) },
+	{ Name = "TopRebirths", Stat = "Rebirths", Title = "Most Rebirths", Money = false, CFrame = CFrame.lookAt(Vector3.new(27, 0, 0), Vector3.new(0, 0, 0)) },
+}
+Config.LEADERBOARD_REFRESH = 120 -- seconds between refreshes (and score uploads)
+Config.LEADERBOARD_STORE = "ThaiTeaTycoon_LB_v1"
+
+---------------------------------------------------------------------------
 -- Number formatting
 ---------------------------------------------------------------------------
 local SUFFIXES = { { 1e12, "T" }, { 1e9, "B" }, { 1e6, "M" }, { 1e3, "K" } }

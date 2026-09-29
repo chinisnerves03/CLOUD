@@ -1,5 +1,5 @@
 -- Main: server entry point that wires every service together
--- Join order: DataService.Load → Monetization.LoadPasses → PlotService.AddPlayer
+-- Join order: DataService.Load → Monetization.LoadPasses → PlotService.AddPlayer → RetentionService.AddPlayer
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -9,11 +9,18 @@ local Services = script.Parent:WaitForChild("Services")
 local DataService = require(Services:WaitForChild("DataService"))
 local PlotService = require(Services:WaitForChild("PlotService"))
 local MonetizationService = require(Services:WaitForChild("MonetizationService"))
+local RetentionService = require(Services:WaitForChild("RetentionService"))
+local LeaderboardService = require(Services:WaitForChild("LeaderboardService"))
 
 -- Channel for client notifications (kind, text)
 local notifyRemote = Instance.new("RemoteEvent")
 notifyRemote.Name = "TycoonNotify"
 notifyRemote.Parent = ReplicatedStorage
+
+-- Channel for client requests (action, arg): "Rebirth", "ClaimDaily", "Redeem" — validated by RetentionService
+local actionRemote = Instance.new("RemoteEvent")
+actionRemote.Name = "TycoonAction"
+actionRemote.Parent = ReplicatedStorage
 
 if Config.PRINT_ECONOMY_CHECK then
 	print(string.format("[Config] %d levels, first item %s, final item %s, cup value %s → %s",
@@ -82,6 +89,8 @@ end
 DataService.Init()
 PlotService.Init(MonetizationService, notifyRemote)
 MonetizationService.Init(DataService, PlotService)
+RetentionService.Init(DataService, PlotService, actionRemote)
+LeaderboardService.Init(DataService)
 
 local function onPlayerAdded(player: Player)
 	local data = DataService.Load(player)
@@ -95,11 +104,14 @@ local function onPlayerAdded(player: Player)
 		DataService.Release(player)
 		return
 	end
-	PlotService.AddPlayer(player, data)
+	if PlotService.AddPlayer(player, data) then
+		RetentionService.AddPlayer(player)
+	end
 end
 
 local function onPlayerRemoving(player: Player)
 	PlotService.RemovePlayer(player)
+	LeaderboardService.RemovePlayer(player)
 	DataService.Release(player)
 end
 

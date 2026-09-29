@@ -38,11 +38,11 @@ local function makeLabel(parent: Instance, props): TextLabel
 	return label
 end
 
--- cash panel, top right
+-- cash panel, right edge just above the middle (the top right belongs to the Roblox player list / leaderstats)
 local panel = Instance.new("Frame")
 panel.Name = "MoneyPanel"
-panel.AnchorPoint = Vector2.new(1, 0)
-panel.Position = UDim2.new(1, -12, 0, 12)
+panel.AnchorPoint = Vector2.new(1, 1)
+panel.Position = UDim2.new(1, -12, 0.5, 0)
 panel.Size = UDim2.fromOffset(250, 118)
 panel.BackgroundColor3 = Color3.fromRGB(40, 25, 15)
 panel.BackgroundTransparency = 0.25
@@ -214,10 +214,10 @@ end
 -- small "+฿x" that floats up next to the cash panel on every brew (brews are too frequent for toasts)
 local function showBrewPop(text: string)
 	local pop = makeLabel(gui, {
-		Name = "BrewPop", AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -250, 0, 70),
+		Name = "BrewPop", AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -250, 0.5, -60),
 		Size = UDim2.fromOffset(90, 24), TextColor3 = YELLOW, Text = text,
 	})
-	TweenService:Create(pop, TweenInfo.new(0.7), { Position = UDim2.new(1, -250, 0, 40), TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+	TweenService:Create(pop, TweenInfo.new(0.7), { Position = UDim2.new(1, -250, 0.5, -90), TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
 	task.delay(0.75, pop.Destroy, pop)
 end
 
@@ -528,7 +528,10 @@ RunService.RenderStepped:Connect(function(dt)
 
 	cashLabel.Text = Config.FormatMoney(cash)
 	incomeLabel.Text = "+" .. Config.FormatMoney(perCup) .. "/cup · +" .. Config.FormatRate(income) .. "/s"
-	levelLabel.Text = string.format("Level %d/%d", level, Config.MAX_LEVEL)
+	local rebirths = getNumber("Rebirths")
+	levelLabel.Text = if rebirths > 0
+		then string.format("Level %d/%d · Rebirth %d", level, Config.MAX_LEVEL, rebirths)
+		else string.format("Level %d/%d", level, Config.MAX_LEVEL)
 	local staff, recipe, speedLevel = getNumber("Staff"), getNumber("Recipe"), getNumber("Speed")
 	upgradesLabel.Text = string.format("Staff %d/%d · Recipe %d · Speed %d", staff, Config.UPGRADES.Staff.Max, recipe, speedLevel)
 
@@ -567,7 +570,7 @@ RunService.RenderStepped:Connect(function(dt)
 		hintLabel.Text = string.format("Upgrade: step on %s (%s)", Config.UPGRADES[affordable].Name, Config.FormatMoney(affordableCost))
 		setTarget(upgrades:FindFirstChild(affordable) :: BasePart?)
 	elseif not nextItem and not cheapest then
-		hintLabel.Text = "Your Thai tea empire is complete!"
+		hintLabel.Text = "Your Thai tea empire is complete! Press REBIRTH for bigger income"
 		setTarget(nil)
 	else
 		local goalName, goalCost = if nextItem then nextItem.Name else "", if nextItem then nextItem.Price else math.huge

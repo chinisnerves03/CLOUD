@@ -13,9 +13,12 @@ Never put a model name in commits, PRs or code.
 | `Services/DataService.lua` | DataStore load/save (UpdateAsync), reconcile of old saves |
 | `Services/PlotService.lua` | plot claim, money loop (counter sales + staff + VIP pass), brewing (prompt on `BrewPad`, server checks the player stands on it), buy pad, upgrade pads, Auto Build pass, offline earnings, plot `Owned` attribute |
 | `Services/MonetizationService.lua` | Game Passes (as player attributes `Pass_*`) + Developer Products (idempotent receipts) |
+| `Services/RetentionService.lua` | rebirth (via `PlotService.Rebirth`), daily reward, codes, quests (hooked through `PlotService.OnProgress`), leaderstats; RemoteEvent `TycoonAction` |
+| `Services/LeaderboardService.lua` | plaza boards from `Config.LEADERBOARDS`, OrderedDataStore upload + top 10 every `LEADERBOARD_REFRESH` s |
 | `Services/DevPlotBuilder.lua` | builds 6 plots + plaza when `Workspace.Plots` is missing |
 | `Services/ItemModels.lua` | every model built from Parts (Builder DSL), item layout, pad spots, decor (BrewStation, StaffCart, Customer, PlotGround, …) |
 | `StarterPlayerScripts/ClientMain.client.lua` | HUD, hints + guide arrow, toasts, staff "+฿" pops, client-side customer queue animation |
+| `StarterPlayerScripts/RetentionClient.client.lua` | DAILY / Codes buttons, quest panel, REBIRTH button + confirm (reads `DailyAt`, `Quest*`, `Rebirths`) |
 | `StarterPlayerScripts/ShopClient.client.lua` | SHOP button + window: pass/product cards from `Config.PASS_ORDER`/`PRODUCT_ORDER`, prices via GetProductInfo, "Owned" from `Pass_*` attributes |
 | `default.project.json` | Rojo project (syncs `src/` into Studio, leaves other instances alone) |
 | `tools/preview/` | runs the builders against a Roblox API mock (`mock.luau`) → `parts.jsonl` → three.js render (`render.html`, `shoot.mjs`) |
@@ -29,6 +32,9 @@ Never put a model name in commits, PRs or code.
 - Upgrades on 3 pads: Hire Staff (max 6), Better Recipe (+10%/level), Faster Service (+8%/level).
 - One green buy pad moves to `ItemModels.PadSpots[next item]` (behind each item). Auto Build pass buys automatically.
 - Customers (client-only clones) queue in front of each owned plot's Brew Station; served every 2.5 s or on each brew.
+- Rebirth at level 45: reset level/cash/upgrades for +50% income per rebirth (multiplies cup value, counter sales,
+  staff, offline and Cash Boost size). Rewards (daily, codes, quests) are base income × seconds, with a floor.
+- The Roblox player list shows leaderstats (Level, Rebirths), so the HUD cash panel sits mid-right, not top-right.
 - Pacing target (simulated): ~40 min to finish when brewing, ~70 min without. First item ≈ 30 s.
 - Part budget: ≈ 4,950 parts per full plot, ≈ 30,000 for the map. StreamingEnabled recommended.
 
@@ -64,5 +70,6 @@ Never put a model name in commits, PRs or code.
    and keep to creators Roblox, ProSoundEffects or APMOfficial.
 4. **Creator Dashboard**: create the passes/products, put their IDs in `Config.PASSES` / `Config.PRODUCTS`.
 5. **Icon + thumbnail** for the game page.
-6. **Retention**: rebirth (reset for a permanent multiplier), daily reward, codes, short quests, leaderboard.
+6. ~~Retention~~ — done: rebirth, daily reward, codes, quests, plaza leaderboards. Next ideas: world 2, pet/mascot.
+   Play-test scripts must back up and restore the owner's save (they share the owner's DataStore key).
 7. **Polish**: steam/particles, moving conveyor, neon flicker, pop-in when an item is bought, seasonal events.

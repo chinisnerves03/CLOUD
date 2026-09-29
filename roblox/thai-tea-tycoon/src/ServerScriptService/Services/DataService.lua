@@ -35,8 +35,20 @@ local function defaultData()
 		Speed = 0, -- Faster Service level
 		LastSeen = os.time(),
 		Receipts = {}, -- recent granted PurchaseIds (prevents double grants)
+		Rebirths = 0, -- each one adds Config.REBIRTH.BONUS to all income
+		TotalEarned = 0, -- lifetime cash from brewing and income (leaderboard)
+		LastDaily = 0, -- os.time() of the last daily reward claim
+		DailyStreak = 0,
+		Codes = {}, -- redeemed codes (upper case)
+		QuestIndex = 1, -- position in Config.QUESTS
+		QuestProgress = 0,
+		QuestTarget = 0, -- 0 = not started yet (set when the quest begins)
 	}
 end
+
+-- fields copied into every save (everything in defaultData except the legacy ones)
+local SAVED_FIELDS = { "Version", "Cash", "Level", "Staff", "Recipe", "Speed", "LastSeen", "Rebirths", "TotalEarned",
+	"LastDaily", "DailyStreak", "QuestIndex", "QuestProgress", "QuestTarget" }
 
 -- fill fields missing from older saves and reject malformed values
 local function reconcile(saved: any)
@@ -56,6 +68,17 @@ local function reconcile(saved: any)
 	data.Cash = math.max(0, data.Cash) + math.max(0, data.Stored) + math.max(0, data.Bag)
 	data.Stored = 0
 	data.Bag = 0
+	data.Rebirths = math.max(0, math.floor(data.Rebirths))
+	data.TotalEarned = math.max(0, data.TotalEarned)
+	data.DailyStreak = math.clamp(math.floor(data.DailyStreak), 0, Config.DAILY.MAX_STREAK)
+	data.QuestIndex = math.max(1, math.floor(data.QuestIndex))
+	local codes = {}
+	for _, code in data.Codes do
+		if type(code) == "string" then
+			table.insert(codes, code)
+		end
+	end
+	data.Codes = codes
 	return data
 end
 
@@ -171,18 +194,10 @@ function DataService.Save(player: Player): boolean
 	end
 	data.LastSeen = os.time()
 
-	local snapshot = {
-		Version = data.Version,
-		Cash = data.Cash,
-		Bag = 0,
-		Stored = 0,
-		Level = data.Level,
-		Staff = data.Staff,
-		Recipe = data.Recipe,
-		Speed = data.Speed,
-		LastSeen = data.LastSeen,
-		Receipts = table.clone(data.Receipts),
-	}
+	local snapshot = { Bag = 0, Stored = 0, Receipts = table.clone(data.Receipts), Codes = table.clone(data.Codes) }
+	for _, field in SAVED_FIELDS do
+		snapshot[field] = data[field]
+	end
 	local ok, err = withRetries(function()
 		return (store :: DataStore):UpdateAsync(key(player), function()
 			return snapshot
