@@ -1,7 +1,13 @@
--- DataService: simple DataStore load/save for player data
--- Note: no session locking. Switch to ProfileStore/ProfileService before launch.
+-- DataService: DataStore load/save for player data, with a session lock.
+-- The saved document carries SessionLock = { Id = this server's id, Time = last heartbeat }. A server only loads a
+-- save when no other server holds a fresh lock (it waits up to LOCK_WAIT seconds, then takes it over: the other
+-- server has crashed or is still finishing its final save), and only writes while it still owns the lock. If another
+-- server took the lock (the player joined elsewhere), this server stops saving and kicks the stale session, so a
+-- player in two servers at once can never overwrite newer progress.
 
 local DataStoreService = game:GetService("DataStoreService")
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage:WaitForChild("Config"))
@@ -10,6 +16,9 @@ local DataService = {}
 
 local MAX_RECEIPTS = 50
 local RETRIES = 3
+local SERVER_ID = HttpService:GenerateGUID(false) -- game.JobId is empty in Studio
+local LOCK_WAIT = 30 -- seconds to wait for another server to release a save before taking it over
+local LOCK_STALE = 600 -- a lock without a heartbeat for this long is ignored right away
 
 local store: DataStore? = nil
 local storeWarned = false
@@ -126,7 +135,7 @@ function DataService.Init()
 		for player in sessions do
 			pending += 1
 			task.spawn(function()
-				DataService.Save(player)
+				DataService.Save(player, true)
 				pending -= 1
 			end)
 		end
@@ -145,16 +154,54 @@ function DataService.Load(player: Player)
 
 	local data
 	if store then
-		local ok, result = withRetries(function()
-			return (store :: DataStore):GetAsync(key(player))
-		end)
-		if ok then
-			data = reconcile(result)
-		else
+		local started = os.clock()
+		local loaded, failed, gaveUp, lastError = nil, false, false, nil
+		while true do
+			local takeOver = os.clock() - started >= LOCK_WAIT
+			local blocked = false
+			local ok, result = withRetries(function()
+				return (store :: DataStore):UpdateAsync(key(player), function(saved)
+					local lock = type(saved) == "table" and saved.SessionLock or nil
+					if type(lock) == "table" and lock.Id ~= SERVER_ID and not takeOver
+						and os.time() - (tonumber(lock.Time) or 0) < LOCK_STALE then
+						blocked = true
+						return nil -- another server still has this player: cancel and try again
+					end
+					if type(saved) ~= "table" then
+						saved = {}
+					end
+					saved.SessionLock = { Id = SERVER_ID, Time = os.time() }
+					return saved
+				end)
+			end)
+			if not ok then
+				failed, lastError = true, result
+				break
+			end
+			if not blocked then
+				loaded = result
+				if takeOver then
+					warn("[DataService] Took over the save of " .. player.Name .. " from another server")
+				end
+				break
+			end
+			if not player:IsDescendantOf(Players) then
+				gaveUp = true -- left while waiting: we never got the lock, so never write
+				break
+			end
+			task.wait(3)
+		end
+		if gaveUp then
+			data = defaultData()
+			data.NoSave = true
+		elseif failed then
 			data = defaultData()
 			-- load failed: never overwrite, or the real save would be lost
 			data.NoSave = true
-			warnStore("could not load data for " .. player.Name .. ": " .. tostring(result))
+			warnStore("could not load data for " .. player.Name .. ": " .. tostring(lastError))
+		else
+			-- a brand-new player comes back as { SessionLock = ... } and reconciles to the defaults
+			data = reconcile(loaded)
 		end
 	else
 		data = defaultData()
@@ -186,8 +233,8 @@ function DataService.AddReceipt(player: Player, purchaseId: string)
 	end
 end
 
--- returns true when the save succeeded
-function DataService.Save(player: Player): boolean
+-- returns true when the save succeeded. release = true also gives up the session lock (player left)
+function DataService.Save(player: Player, release: boolean?): boolean
 	local data = sessions[player]
 	if not data or data.NoSave or not store then
 		return false
@@ -198,11 +245,26 @@ function DataService.Save(player: Player): boolean
 	for _, field in SAVED_FIELDS do
 		snapshot[field] = data[field]
 	end
+	snapshot.SessionLock = if release then nil else { Id = SERVER_ID, Time = os.time() }
+	local lostLock = false
 	local ok, err = withRetries(function()
-		return (store :: DataStore):UpdateAsync(key(player), function()
+		return (store :: DataStore):UpdateAsync(key(player), function(saved)
+			local lock = type(saved) == "table" and saved.SessionLock or nil
+			if type(lock) == "table" and lock.Id ~= SERVER_ID then
+				lostLock = true
+				return nil -- another server owns this save now: never overwrite it
+			end
 			return snapshot
 		end)
 	end)
+	if lostLock then
+		data.NoSave = true
+		warn("[DataService] " .. player.Name .. " is playing in another server; this session stops saving")
+		if player:IsDescendantOf(Players) then
+			player:Kick("You joined the game from another server. Your progress continues there.")
+		end
+		return false
+	end
 	if not ok then
 		warn("[DataService] Save failed for " .. player.Name .. ": " .. tostring(err))
 	end
@@ -214,7 +276,7 @@ function DataService.Release(player: Player)
 	if not sessions[player] then
 		return
 	end
-	DataService.Save(player)
+	DataService.Save(player, true)
 	sessions[player] = nil
 end
 

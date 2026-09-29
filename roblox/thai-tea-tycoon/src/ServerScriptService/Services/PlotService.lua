@@ -563,6 +563,23 @@ end
 ---------------------------------------------------------------------------
 -- Players joining / leaving
 ---------------------------------------------------------------------------
+-- stand the character on the plaza just in front of its own plot, facing the entrance
+local function placeAtPlot(player: Player, character: Model)
+	local state = owners[player]
+	local floor = state and state.Plot.Floor
+	if not floor then
+		return
+	end
+	local root = character:WaitForChild("HumanoidRootPart", 5) :: BasePart?
+	if not root or owners[player] ~= state then
+		return
+	end
+	local front = ItemModels.PlotFront
+	local spot = floor * CFrame.new(0, 3.5, front - 7)
+	local target = floor * CFrame.new(0, 3.5, front + 10)
+	character:PivotTo(CFrame.lookAt(spot.Position, target.Position))
+end
+
 function PlotService.AddPlayer(player: Player, data): boolean
 	local plot: PlotState? = nil
 	for _, candidate in plots do
@@ -587,6 +604,12 @@ function PlotService.AddPlayer(player: Player, data): boolean
 	setSign(plot, player.DisplayName .. "'s Thai Tea")
 	refreshPads(plot)
 	player:SetAttribute("Plot", plot.Name)
+	if player.Character then
+		task.spawn(placeAtPlot, player, player.Character)
+	end
+	player.CharacterAdded:Connect(function(character)
+		task.defer(placeAtPlot, player, character)
+	end)
 
 	-- Offline earnings (staff keep selling while you are away, at the offline rate)
 	local elapsed = os.time() - data.LastSeen

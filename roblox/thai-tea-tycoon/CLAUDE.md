@@ -10,8 +10,8 @@ Never put a model name in commits, PRs or code.
 |---|---|
 | `src/ReplicatedStorage/Config.lua` | every tunable: economy curve, upgrades, passes/products (IDs still 0), sounds + music playlist, offline rules |
 | `src/ServerScriptService/Main.server.lua` | entry point: lighting, RemoteEvent `TycoonNotify`, builds `ReplicatedStorage.CustomerTemplates`, wires services |
-| `Services/DataService.lua` | DataStore load/save (UpdateAsync), reconcile of old saves |
-| `Services/PlotService.lua` | plot claim, money loop (counter sales + staff + VIP pass), brewing (prompt on `BrewPad`, server checks the player stands on it), buy pad, upgrade pads, Auto Build pass, offline earnings, plot `Owned` attribute |
+| `Services/DataService.lua` | DataStore load/save (UpdateAsync) with a session lock (`SessionLock`: wait 30 s then take over; stop saving + kick when another server took it), reconcile of old saves |
+| `Services/PlotService.lua` | plot claim, spawn in front of your own plot, money loop (counter sales + staff + VIP pass), brewing (prompt on `BrewPad`, server checks the player stands on it), buy pad, upgrade pads, Auto Build pass, offline earnings, plot `Owned` attribute |
 | `Services/MonetizationService.lua` | Game Passes (as player attributes `Pass_*`) + Developer Products (idempotent receipts) |
 | `Services/RetentionService.lua` | rebirth (via `PlotService.Rebirth`), daily reward, codes, quests (hooked through `PlotService.OnProgress`), leaderstats; RemoteEvent `TycoonAction` |
 | `Services/LeaderboardService.lua` | plaza boards from `Config.LEADERBOARDS`, OrderedDataStore upload + top 10 every `LEADERBOARD_REFRESH` s |
