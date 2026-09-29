@@ -142,21 +142,73 @@ local function showToast(kind: string, text: string)
 	end)
 end
 
-local SOUND_FOR_KIND = { Buy = "Buy", Collect = "Collect", Error = "Error", Brew = "Brew" }
+local SOUND_FOR_KIND = { Buy = "Buy", Collect = "Collect", Offline = "Collect", Error = "Error", Brew = "Brew" }
+
+-- one Sound per effect, played with PlayLocalSound so fast brews can overlap without creating instances
+local sounds: { [string]: Sound } = {}
+for key, id in Config.SOUNDS do
+	if id ~= "" then
+		local sound = Instance.new("Sound")
+		sound.Name = "Sfx" .. key
+		sound.SoundId = id
+		sound.Volume = Config.SOUND_VOLUME[key] or 0.6
+		sound.Parent = SoundService
+		sounds[key] = sound
+	end
+end
 
 local function playSound(kind: string)
-	local soundKey = SOUND_FOR_KIND[kind]
-	local id = soundKey and Config.SOUNDS[soundKey]
-	if id and id ~= "" then
-		local sound = Instance.new("Sound")
-		sound.SoundId = id
-		sound.Volume = 0.6
-		sound.Parent = SoundService
-		sound.Ended:Once(function()
-			sound:Destroy()
-		end)
-		sound:Play()
+	local sound = sounds[SOUND_FOR_KIND[kind] or ""]
+	if sound then
+		SoundService:PlayLocalSound(sound)
 	end
+end
+
+---------------------------------------------------------------------------
+-- Background music: shuffled playlist from Config.MUSIC (the music button in ShopClient mutes SoundService.BackgroundMusic)
+---------------------------------------------------------------------------
+local music = Instance.new("Sound")
+music.Name = "BackgroundMusic"
+music.Volume = Config.MUSIC_VOLUME
+music.Parent = SoundService
+
+if #Config.MUSIC > 0 then
+	task.spawn(function()
+		local order = table.clone(Config.MUSIC)
+		local index = #order
+		while true do
+			index += 1
+			if index > #order then
+				-- reshuffle, never repeating the last track right away
+				local last = order[#order]
+				for i = #order, 2, -1 do
+					local j = math.random(i)
+					order[i], order[j] = order[j], order[i]
+				end
+				if #order > 1 and order[1] == last then
+					order[1], order[2] = order[2], order[1]
+				end
+				index = 1
+			end
+			music.SoundId = order[index]
+			music:Play()
+			-- wait for the track to end; give up after a while if it never loads
+			local ended = false
+			local connection = music.Ended:Once(function()
+				ended = true
+			end)
+			local started = os.clock()
+			while not ended do
+				task.wait(0.5)
+				local length = music.TimeLength
+				if os.clock() - started > (if length > 0 then length + 5 else 20) then
+					break
+				end
+			end
+			connection:Disconnect()
+			task.wait(1.5)
+		end
+	end)
 end
 
 -- small "+฿x" that floats up next to the cash panel on every brew (brews are too frequent for toasts)

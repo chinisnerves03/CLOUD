@@ -5,6 +5,7 @@
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 
 local Config = require(ReplicatedStorage:WaitForChild("Config"))
@@ -75,6 +76,46 @@ task.spawn(function()
 	local grow = TweenService:Create(shopButton, TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
 		{ Size = UDim2.fromOffset(84, 84) })
 	grow:Play()
+end)
+
+-- UI click sound
+local clickSound: Sound? = nil
+if Config.SOUNDS.Click ~= "" then
+	clickSound = Instance.new("Sound")
+	clickSound.SoundId = Config.SOUNDS.Click
+	clickSound.Volume = Config.SOUND_VOLUME.Click or 0.5
+	clickSound.Parent = SoundService
+end
+local function click()
+	if clickSound then
+		SoundService:PlayLocalSound(clickSound)
+	end
+end
+
+-- Music on/off (mutes SoundService.BackgroundMusic, created by ClientMain)
+local musicButton = Instance.new("TextButton")
+musicButton.Name = "MusicButton"
+musicButton.AnchorPoint = Vector2.new(0, 0)
+musicButton.Position = UDim2.new(0, 12, 0.5, 50)
+musicButton.Size = UDim2.fromOffset(78, 30)
+musicButton.BackgroundColor3 = BROWN
+musicButton.BackgroundTransparency = 0.25
+musicButton.Font = Enum.Font.GothamBold
+musicButton.TextColor3 = Color3.new(1, 1, 1)
+musicButton.TextSize = 14
+musicButton.Text = "Music: ON"
+musicButton.Parent = gui
+corner(musicButton, 8)
+
+local musicOn = true
+musicButton.Activated:Connect(function()
+	click()
+	musicOn = not musicOn
+	musicButton.Text = if musicOn then "Music: ON" else "Music: OFF"
+	local music = SoundService:FindFirstChild("BackgroundMusic") :: Sound?
+	if music then
+		music.Volume = if musicOn then Config.MUSIC_VOLUME else 0
+	end
 end)
 
 ---------------------------------------------------------------------------
@@ -211,6 +252,7 @@ local function makeCard(grid: Frame, order: number, kind: string, key: string, i
 
 	local entry: Card = { Button = button, Extra = extra, Kind = kind, Key = key, Price = nil }
 	button.Activated:Connect(function()
+		click()
 		if info.Id == 0 then
 			return
 		end
@@ -309,8 +351,10 @@ local function setOpen(open: boolean)
 end
 
 shopButton.Activated:Connect(function()
+	click()
 	setOpen(not window.Visible)
 end)
 closeButton.Activated:Connect(function()
+	click()
 	setOpen(false)
 end)

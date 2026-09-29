@@ -50,13 +50,24 @@ Config.PRODUCTS = {
 }
 Config.PRODUCT_ORDER = { "CashSmall", "CashBig" }
 
--- Sounds: "rbxassetid://..." (empty = no sound)
+-- Sounds: "rbxassetid://..." (empty = no sound). All from Roblox's own uploads or its licensed libraries
+-- (ProSoundEffects / APM), so they stay public and free to use.
 Config.SOUNDS = {
-	Brew = "",
-	Buy = "",
-	Collect = "",
-	Error = "",
+	Brew = "rbxassetid://9117210553", -- Paper Cup Pour Liquid (ProSoundEffects), plays on every brew
+	Buy = "rbxassetid://12222253", -- victory.wav (Roblox), item built / upgrade / purchase
+	Collect = "rbxassetid://127645268874265", -- CoinTransfer_01 (Roblox), offline earnings
+	Error = "rbxassetid://17208353912", -- Roblox GUI - Negative
+	Click = "rbxassetid://12221967", -- button.wav (Roblox), UI buttons
 }
+Config.SOUND_VOLUME = { Brew = 0.3, Buy = 0.5, Collect = 0.6, Error = 0.5, Click = 0.5 }
+
+-- Background music (APM library, free on Roblox): played shuffled, one after another. Players can mute it.
+Config.MUSIC = {
+	"rbxassetid://1845764031", -- Bossa Nova Party
+	"rbxassetid://1839580320", -- Happy Forever Ukulele
+	"rbxassetid://1837070127", -- Prima Bossa Nova
+}
+Config.MUSIC_VOLUME = 0.25
 
 ---------------------------------------------------------------------------
 -- Economy

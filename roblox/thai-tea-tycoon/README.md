@@ -119,7 +119,7 @@
 1. Creator Dashboard → สร้าง Game Pass 4 อัน และ Developer Product 2 อัน
 2. นำ ID ไปใส่ใน `Config.PASSES` และ `Config.PRODUCTS` (ราคาตั้งที่หน้า Dashboard ไม่ได้อยู่ในโค้ด)
 3. อยากลองผลของ Pass ใน Studio ให้ตั้ง `STUDIO_GRANT_ALL_PASSES = true` จะได้ Pass ทุกอัน (ไม่กระทบเกมที่ปล่อยจริง) ค่าเริ่มต้นเป็น `false` เพื่อให้เช็กลิสต์ข้อ 3 ตรง (ถ้าเปิด ได้เงิน x2 และมี VIP Barista)
-4. ใส่ `rbxassetid://...` ของเสียงใน `Config.SOUNDS` ถ้าต้องการเสียงซื้อของ/เก็บเงิน/ซื้อไม่ได้
+4. เสียงใส่ไว้แล้วใน `Config.SOUNDS` (ดูหัวข้อเสียงด้านล่าง) เปลี่ยนเป็น `rbxassetid://...` อื่นได้ ใส่ `""` = ปิดเสียงนั้น
 
 ### หน้าร้านค้าในเกม (ShopClient)
 ปุ่ม **SHOP** สีส้มกลางขอบซ้ายของจอ กดแล้วเปิดหน้าต่าง "Thai Tea Shop" มีการ์ด Game Pass 4 ใบ และ Cash Boost 2 ใบ (โค้ดอยู่ที่ `StarterPlayerScripts/ShopClient.client.lua`)
@@ -129,6 +129,19 @@
 - หน้าต่างย่อเองบนจอเล็ก (มือถือ) และเลื่อนขึ้นลงได้
 
 Developer Product ให้ของแค่ครั้งเดียวต่อใบเสร็จ (จำ `PurchaseId` 50 ใบล่าสุดไว้ในข้อมูลผู้เล่น) และจะตอบ Roblox ว่าให้ของแล้วก็ต่อเมื่อเซฟสำเร็จ
+
+## เสียงและเพลง
+ใช้เฉพาะเสียงที่ Roblox อัปโหลดเองหรือจากคลังที่ Roblox ซื้อลิขสิทธิ์ไว้ (ProSoundEffects / APM) ใช้ฟรีและไม่หายไปภายหลัง ทุกตัวทดสอบโหลดใน Studio แล้ว
+| Key | เสียง | ID | ใช้ตอน |
+|---|---|---|---|
+| `Brew` | Paper Cup Pour Liquid (ProSoundEffects) | 9117210553 | ชงชาทุกแก้ว (เบา 0.3) |
+| `Buy` | victory.wav (Roblox) | 12222253 | สร้างของ / อัปเกรด / ซื้อของ |
+| `Collect` | CoinTransfer_01 (Roblox) | 127645268874265 | ได้เงินออฟไลน์ |
+| `Error` | Roblox GUI - Negative | 17208353912 | เงินไม่พอ / ชงผิดที่ |
+| `Click` | button.wav (Roblox) | 12221967 | กดปุ่มในร้านค้า |
+
+เพลงพื้นหลัง (`Config.MUSIC` คลัง APM สุ่มเล่นต่อกันไปเรื่อย ๆ ความดัง `MUSIC_VOLUME = 0.25`): Bossa Nova Party (1845764031) · Happy Forever Ukulele (1839580320) · Prima Bossa Nova (1837070127)
+ผู้เล่นปิดเพลงได้ที่ปุ่ม **Music: ON/OFF** ใต้ปุ่ม SHOP ความดังแต่ละเสียงปรับได้ที่ `Config.SOUND_VOLUME`
 
 ## 6) ข้อจำกัดที่ต้องรู้ก่อนปล่อยจริง
 - **ไม่มีรีเบิร์ธ / โลก 2 / ภารกิจรายวัน** — ถึงเลเวล 45 แล้วเกมจบแค่นั้น

@@ -8,7 +8,7 @@ Never put a model name in commits, PRs or code.
 
 | Path | What |
 |---|---|
-| `src/ReplicatedStorage/Config.lua` | every tunable: economy curve, upgrades, passes/products (IDs still 0), sounds (empty), offline rules |
+| `src/ReplicatedStorage/Config.lua` | every tunable: economy curve, upgrades, passes/products (IDs still 0), sounds + music playlist, offline rules |
 | `src/ServerScriptService/Main.server.lua` | entry point: lighting, RemoteEvent `TycoonNotify`, builds `ReplicatedStorage.CustomerTemplates`, wires services |
 | `Services/DataService.lua` | DataStore load/save (UpdateAsync), reconcile of old saves |
 | `Services/PlotService.lua` | plot claim, money loop (counter sales + staff + VIP pass), brewing (prompt on `BrewPad`, server checks the player stands on it), buy pad, upgrade pads, Auto Build pass, offline earnings, plot `Owned` attribute |
@@ -59,7 +59,9 @@ Never put a model name in commits, PRs or code.
    MCP `run_script_in_play_mode` (server-side script that teleports the character onto pads and logs attributes);
    press E through the real client for brewing (the prompt only triggers on a key held ~0.15 s).
 2. ~~In-game shop UI~~ — done (`ShopClient`). Cards say "Coming soon" until the IDs are set.
-3. **Sounds**: fill `Config.SOUNDS` with Creator Store audio IDs (brew, buy, collect, error) + a background loop.
+3. ~~Sounds~~ — done: `Config.SOUNDS` (Roblox / ProSoundEffects / APM only, verified to load), shuffled `Config.MUSIC`,
+   Music ON/OFF button. Find more with the toolbox API (`apis.roblox.com/toolbox-service/v1/marketplace/3?keyword=`)
+   and keep to creators Roblox, ProSoundEffects or APMOfficial.
 4. **Creator Dashboard**: create the passes/products, put their IDs in `Config.PASSES` / `Config.PRODUCTS`.
 5. **Icon + thumbnail** for the game page.
 6. **Retention**: rebirth (reset for a permanent multiplier), daily reward, codes, short quests, leaderboard.
