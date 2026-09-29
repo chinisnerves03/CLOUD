@@ -19,6 +19,7 @@ Never put a model name in commits, PRs or code.
 | `Services/ItemModels.lua` | every model built from Parts (Builder DSL), item layout, pad spots, decor (BrewStation, StaffCart, Customer, PlotGround, …) |
 | `StarterPlayerScripts/ClientMain.client.lua` | HUD, hints + guide arrow, toasts, staff "+฿" pops, client-side customer queue animation |
 | `StarterPlayerScripts/RetentionClient.client.lua` | DAILY / Codes buttons, quest panel, REBIRTH button + confirm (reads `DailyAt`, `Quest*`, `Rebirths`) |
+| `StarterPlayerScripts/EffectsClient.client.lua` | local effects: steam on parts named `Steam` (hides `SteamPuff`), sliding `BeltCup` parts on L31, neon flicker on L28/L37, pop-in (Model:ScaleTo) + sparkles for the newest item on your plot |
 | `StarterPlayerScripts/ShopClient.client.lua` | SHOP button + window: pass/product cards from `Config.PASS_ORDER`/`PRODUCT_ORDER`, prices via GetProductInfo, "Owned" from `Pass_*` attributes |
 | `default.project.json` | Rojo project (syncs `src/` into Studio, leaves other instances alone) |
 | `tools/preview/` | runs the builders against a Roblox API mock (`mock.luau`) → `parts.jsonl` → three.js render (`render.html`, `shoot.mjs`) |
@@ -72,4 +73,5 @@ Never put a model name in commits, PRs or code.
 5. **Icon + thumbnail** for the game page.
 6. ~~Retention~~ — done: rebirth, daily reward, codes, quests, plaza leaderboards. Next ideas: world 2, pet/mascot.
    Play-test scripts must back up and restore the owner's save (they share the owner's DataStore key).
-7. **Polish**: steam/particles, moving conveyor, neon flicker, pop-in when an item is bought, seasonal events.
+7. ~~Polish~~ — done: steam, moving conveyor, neon flicker, pop-in. Item models are ModelStreamingMode Atomic
+   (pop-in scales whole models; a half-streamed model would be scaled wrong). Next: seasonal events.

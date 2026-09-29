@@ -464,6 +464,10 @@ local function setupPlot(model: Model, storageRoot: Folder): PlotState?
 	storage.Name = model.Name
 	storage.Parent = storageRoot
 	for _, child in itemsFolder:GetChildren() do
+		if child:IsA("Model") then
+			-- stream each item as one piece (clients animate whole items when they appear)
+			child.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+		end
 		child.Parent = storage
 	end
 

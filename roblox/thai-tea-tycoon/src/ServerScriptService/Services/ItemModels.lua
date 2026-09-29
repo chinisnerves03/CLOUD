@@ -592,7 +592,7 @@ Build.L04 = function(b) -- tea pot on a gas stove
 	end
 	b:Rod(V3(0.4, 3.6, 0.1), V3(0.9, 4.9, 0.4), 0.12, PAL.steelDark, M.Metal)
 	for i, d in { 0.9, 0.7, 0.5 } do
-		b:Ball(d, CF(0.15 * i - 0.2, 3.9 + i * 0.6, 0.1 * i), PAL.white, nil, { t = 0.6, solid = false })
+		b:Ball(d, CF(0.15 * i - 0.2, 3.9 + i * 0.6, 0.1 * i), PAL.white, nil, { t = 0.6, solid = false, name = if i == 1 then "Steam" else "SteamPuff" })
 	end
 	-- gas tank
 	b:Cyl(1.8, 1.1, CF(1.9, 0.9, 0.4), PAL.red)
@@ -858,7 +858,7 @@ Build.L12 = function(b) -- electric tea brewer (on the counter)
 		b:Box(V3(0.04, 0.02, 0.4), CF(i * 0.1, 0.32, -0.75), PAL.steelDark, M.Metal, { solid = false })
 	end
 	for i, d in { 0.45, 0.35 } do
-		b:Ball(d, CF(0.1 * i, 3.0 + i * 0.35, 0.3), PAL.white, nil, { t = 0.65, solid = false })
+		b:Ball(d, CF(0.1 * i, 3.0 + i * 0.35, 0.3), PAL.white, nil, { t = 0.65, solid = false, name = if i == 1 then "Steam" else "SteamPuff" })
 	end
 	b:Cyl(0.5, 0.4, CF(1.35, 1.85, 0.3), PAL.white, M.Glass, { t = 0.4, solid = false })
 	b:Cyl(0.3, 0.35, CF(1.35, 1.75, 0.3), PAL.white, nil, { solid = false })
@@ -925,7 +925,7 @@ Build.L14 = function(b) -- tapioca pearl pot
 	end
 	b:Rod(V3(-0.5, 3.4, 0), V3(-1.1, 5.2, 0.4), 0.14, PAL.woodDark)
 	for i, d in { 1.0, 0.8, 0.55 } do
-		b:Ball(d, CF(0.3 - 0.1 * i, 3.9 + i * 0.6, 0.1), PAL.white, nil, { t = 0.65, solid = false })
+		b:Ball(d, CF(0.3 - 0.1 * i, 3.9 + i * 0.6, 0.1), PAL.white, nil, { t = 0.65, solid = false, name = if i == 1 then "Steam" else "SteamPuff" })
 	end
 	local sack = b:Box(V3(1.1, 1.3, 0.9), CF(2.1, 0.65, 0.2), PAL.cream, M.Fabric)
 	b:Text(sack, FACE.Front, "PEARLS", { color = PAL.teaDark })
@@ -1468,7 +1468,7 @@ Build.L29 = function(b) -- central kitchen (walk-in: range, tea pots, hood, prep
 	end
 	b:Cyl(3, 0.8, CF(6, H + 3, 4), PAL.steelDark, M.Metal)
 	for i, d in { 1.2, 1.6, 2.0 } do
-		b:Ball(d, CF(6 + i * 0.2, H + 4.6 + i * 0.9, 4), PAL.white, nil, { t = 0.6, solid = false })
+		b:Ball(d, CF(6 + i * 0.2, H + 4.6 + i * 0.9, 4), PAL.white, nil, { t = 0.6, solid = false, name = if i == 1 then "Steam" else "SteamPuff" })
 	end
 	b:Box(V3(3, 1.4, 2), CF(-6, H + 2.2, -3.5), PAL.steel, M.Metal)
 
@@ -1483,7 +1483,7 @@ Build.L29 = function(b) -- central kitchen (walk-in: range, tea pots, hood, prep
 		b:Cyl(2, 2.2, CF(x, 4.35, 6.1), PAL.steel, M.Metal)
 		b:Cyl(0.12, 2.3, CF(x, 5.3, 6.1), PAL.steelDark, M.Metal)
 		b:Cyl(0.05, 2.0, CF(x, 5.22, 6.1), if i == 4 then PAL.pearl else PAL.teaDark)
-		b:Ball(1, CF(x + 0.2, 6.1, 6.1), PAL.white, nil, { t = 0.6, solid = false })
+		b:Ball(1, CF(x + 0.2, 6.1, 6.1), PAL.white, nil, { t = 0.6, solid = false, name = "Steam" })
 	end
 	b:Box(V3(12, 3.5, 0.1), CF(-2, 5, 7.35), PAL.white, M.Marble, { solid = false })
 	b:Box(V3(13, 1.2, 3), CF(-2, 7.8, 6.0), PAL.steel, M.Metal)
@@ -1649,10 +1649,11 @@ Build.L31 = function(b) -- cup conveyor
 	for _, x in { -7, 7 } do
 		b:HCyl(1.9, 0.6, CF(x, 2.8, 0) * ANG(0, rad(90), 0), PAL.steelDark, M.Metal)
 	end
+	-- cups riding the belt: every part is named BeltCup so clients can slide them along X (EffectsClient)
 	for i = 0, 8 do
 		local x = -6 + i * 1.5
-		b:Cyl(0.9, 0.45, CF(x, 3.45, 0), PAL.tea)
-		b:Ellipsoid(V3(0.47, 0.25, 0.47), CF(x, 3.95, 0), PAL.white, M.Glass, { t = 0.3 })
+		b:Cyl(0.9, 0.45, CF(x, 3.45, 0), PAL.tea, nil, { name = "BeltCup" })
+		b:Ellipsoid(V3(0.47, 0.25, 0.47), CF(x, 3.95, 0), PAL.white, M.Glass, { t = 0.3, name = "BeltCup" })
 	end
 	b:Box(V3(1.2, 1.2, 1.2), CF(7.4, 2.0, 1.5), PAL.steelDark, M.Metal)
 	for _, z in { -1.1, 1.1 } do
@@ -1675,8 +1676,8 @@ Build.L31 = function(b) -- cup conveyor
 	end
 	for i = 0, 8 do
 		local x = -6 + i * 1.5
-		b:Cyl(0.14, 0.47, CF(x, 3.45, 0), PAL.cream, nil, { solid = false })
-		b:Rod(V3(x, 3.9, 0), V3(x + 0.1, 4.5, 0.05), 0.07, PAL.green)
+		b:Cyl(0.14, 0.47, CF(x, 3.45, 0), PAL.cream, nil, { solid = false, name = "BeltCup" })
+		b:Rod(V3(x, 3.9, 0), V3(x + 0.1, 4.5, 0.05), 0.07, PAL.green, nil, { name = "BeltCup" })
 	end
 	b:Box(V3(1.6, 0.15, 2.2), CF(8.0, 2.75, 0), PAL.steel, M.Metal)
 	for _, z in { -0.6, 0, 0.6 } do
@@ -1884,7 +1885,7 @@ Build.L35 = function(b) -- tea roastery (drum roaster under a gabled shed + sack
 	b:Box(V3(1.6, 1.4, 1.6), CF(0.5, 5.3, 0), PAL.steel, M.Metal)
 	b:Cyl(6, 0.6, CF(2, 6.8, 1), PAL.black, M.Metal)
 	for i, d in { 0.9, 1.3, 1.7 } do
-		b:Ball(d, CF(2 + i * 0.2, 9.9 + i * 0.8, 1), PAL.white, nil, { t = 0.65, solid = false })
+		b:Ball(d, CF(2 + i * 0.2, 9.9 + i * 0.8, 1), PAL.white, nil, { t = 0.65, solid = false, name = if i == 1 then "Steam" else "SteamPuff" })
 	end
 	b:Cyl(0.5, 3.4, CF(0, 1, -3.4), PAL.steel, M.Metal)
 	b:Cyl(0.08, 3.1, CF(0, 1.27, -3.4), rgb(110, 60, 30), nil, { solid = false })
