@@ -1107,6 +1107,16 @@ Build.L20 = function(b) -- ice machine
 	b:Tube(V3(-2.3, 2.8, 0.6), V3(-1.8, 2.8, 0.6), 0.1, PAL.white)
 	b:Tube(V3(1.6, 0.3, 1.5), V3(1.6, 0.05, 2.3), 0.15, PAL.black)
 	b:Box(V3(0.8, 0.8, 0.03), CF(1.3, 2.4, -1.53), PAL.blue, nil, { solid = false })
+	-- vent grille on the side, ice scoop hanging on a hook, feet trim, drip tray grid
+	for i = 0, 6 do
+		b:Box(V3(0.04, 0.1, 2.2), CF(2.02, 1.0 + i * 0.25, 0), PAL.steelDark, nil, { solid = false })
+	end
+	b:Box(V3(0.1, 0.4, 0.1), CF(-1.9, 2.6, -1.55), PAL.black, nil, { solid = false })
+	b:Ellipsoid(V3(0.5, 0.3, 0.4), CF(-1.9, 2.2, -1.65), PAL.steel, M.Metal)
+	b:Rod(V3(-1.9, 2.25, -1.65), V3(-1.9, 2.5, -1.6), 0.08, PAL.black)
+	for i = -3, 3 do
+		b:Box(V3(0.04, 0.03, 0.5), CF(i * 0.2, 1.62, -1.55), PAL.steelDark, M.Metal, { solid = false })
+	end
 end
 
 Build.L21 = function(b) -- lit menu board
@@ -1210,6 +1220,18 @@ Build.L23 = function(b) -- cake display
 	b:Cyl(0.5, 1.0, CF(1.2, 5.4, 0), PAL.pink, nil, { solid = false })
 	b:Ellipsoid(V3(1.3, 1.6, 1.3), CF(1.2, 5.3, 0), PAL.white, M.Glass, { t = 0.6 })
 	b:Ball(0.2, CF(1.2, 6.15, 0), PAL.white, M.Glass, { solid = false })
+	-- cake slices on plates, doily under each cake, cake server, mirrored back, bakery sign on top
+	for _, x in { -1.6, 0, 1.6 } do
+		b:Cyl(0.04, 1.35, CF(x, 2.39, 0), PAL.white, nil, { solid = false })
+	end
+	for i, x in { -1.8, -0.6, 0.6, 1.8 } do
+		b:Cyl(0.05, 0.75, CF(x, 3.62, 0), PAL.white, nil, { solid = false })
+		b:Ball(0.14, CF(x, 4.18, 0.1), if i % 2 == 0 then PAL.red else PAL.leaf, nil, { solid = false })
+	end
+	b:Box(V3(4.8, 1.9, 0.05), CF(0, 3.5, 1.15), PAL.white, M.Glass, { refl = 0.35, solid = false })
+	b:Rod(V3(-2.3, 2.45, -0.4), V3(-1.9, 2.5, 0.3), 0.1, PAL.steel, M.Metal)
+	local sign = b:Box(V3(2.4, 0.6, 0.15), CF(-1.2, 5.15, 0), PAL.pink)
+	b:Text(sign, FACE.Front, "CAKES", { color = PAL.white })
 end
 
 Build.L24 = function(b) -- flower-wall photo corner
@@ -1573,6 +1595,44 @@ Build.L30 = function(b) -- delivery van (nose toward the plaza)
 	b:Box(V3(1.4, 0.3, 0.6), CF(0, 6.35, -2.8), PAL.black, nil, { solid = false })
 	b:Box(V3(1.2, 0.25, 0.4), CF(0, 6.6, -2.8), rgb(255, 150, 40), M.Neon, { solid = false })
 	b:HCyl(0.05, 0.35, CF(-2.53, 2.2, 1.0), PAL.steelDark, M.Metal, { solid = false })
+	-- rounded roof edges, wheel arches, 5-spoke hubs, grille slats, bumper corners, side mirrors
+	for _, x in { -2.3, 2.3 } do
+		b:HCyl(7.0, 0.6, CF(x * 0.96, 6.12, 1.8) * ANG(0, rad(90), 0), PAL.white)
+		for _, z in { -3.3, 3.4 } do
+			b:Ellipsoid(V3(0.4, 2.3, 2.6), CF(x * 1.04, 1.4, z), PAL.black)
+			for k = 0, 4 do
+				b:Box(V3(0.05, 0.12, 0.6), CF(x * 1.2, 0.9, z) * ANG(rad(72 * k), 0, 0) * CF(0, 0, 0.25), PAL.steelDark, M.Metal, { solid = false })
+			end
+		end
+		b:Box(V3(0.12, 0.4, 0.55), CF(x * 1.17, 4.95, -4.3), PAL.glass, M.Glass, { t = 0.1, solid = false })
+	end
+	for i = 0, 3 do
+		b:Box(V3(2.0, 0.07, 0.06), CF(0, 2.28 + i * 0.13, -5.29), PAL.steelDark, M.Metal, { solid = false })
+	end
+	b:Ellipsoid(V3(0.7, 0.3, 0.12), CF(0, 3.0, -5.24), PAL.white)
+	for _, x in { -2.5, 2.5 } do
+		b:Cyl(0.5, 0.5, CF(x, 1.5, -5.3), PAL.black, nil, { solid = false })
+	end
+	-- sliding side door seams + handle, green livery stripe on both sides
+	for _, x in { -2.53, 2.53 } do
+		b:Box(V3(0.04, 3.6, 0.06), CF(x, 4.1, -0.5), PAL.steel, nil, { solid = false })
+		b:Box(V3(0.04, 3.6, 0.06), CF(x, 4.1, 2.3), PAL.steel, nil, { solid = false })
+		b:Box(V3(0.06, 0.15, 0.6), CF(x * 1.01, 3.9, 2.0), PAL.black, nil, { solid = false })
+		b:Box(V3(0.04, 0.25, 7.0), CF(x, 3.1, 1.8), PAL.green, nil, { solid = false })
+	end
+	-- roof rack with tea crates, rear door handles
+	for _, x in { -1.8, 1.8 } do
+		b:Box(V3(0.12, 0.15, 5.4), CF(x, 6.5, 2.3), PAL.steelDark, M.Metal, { solid = false })
+	end
+	for i = 0, 2 do
+		local crate = b:Box(V3(1.5, 0.8, 1.3), CF(-0.9 + (i % 2) * 1.8, 7.0, 0.6 + i * 1.6), PAL.woodLight, M.WoodPlanks, { solid = false })
+		if i == 1 then
+			b:Text(crate, FACE.Front, "TEA", { color = PAL.teaDark })
+		end
+	end
+	for _, x in { -0.3, 0.3 } do
+		b:Box(V3(0.12, 0.5, 0.08), CF(x, 3.9, 5.34), PAL.steel, M.Metal, { solid = false })
+	end
 end
 
 Build.L31 = function(b) -- cup conveyor
@@ -1609,6 +1669,21 @@ Build.L31 = function(b) -- cup conveyor
 	end
 	local sign = b:Box(V3(1.4, 0.7, 0.05), CF(0, 1.5, -1.12), PAL.yellow, nil, { solid = false })
 	b:Text(sign, FACE.Front, "KEEP HANDS CLEAR", { color = PAL.black })
+	-- belt rollers visible under the edge, sealed lids with straws on the moving cups, output tray, control panel
+	for i = 0, 13 do
+		b:HCyl(1.9, 0.18, CF(-6.5 + i, 2.62, 0) * ANG(0, rad(90), 0), PAL.steel, M.Metal, { solid = false })
+	end
+	for i = 0, 8 do
+		local x = -6 + i * 1.5
+		b:Cyl(0.14, 0.47, CF(x, 3.45, 0), PAL.cream, nil, { solid = false })
+		b:Rod(V3(x, 3.9, 0), V3(x + 0.1, 4.5, 0.05), 0.07, PAL.green)
+	end
+	b:Box(V3(1.6, 0.15, 2.2), CF(8.0, 2.75, 0), PAL.steel, M.Metal)
+	for _, z in { -0.6, 0, 0.6 } do
+		b:Cyl(0.9, 0.45, CF(8.2, 3.3, z), PAL.tea, nil, { solid = false })
+	end
+	local panel = b:Box(V3(0.8, 0.6, 0.1), CF(-6.9, 4.1, -1.3) * ANG(rad(-20), 0, 0), PAL.black, nil, { solid = false })
+	b:Text(panel, FACE.Front, "240/min", { color = rgb(90, 230, 120), glow = true })
 end
 
 Build.L32 = function(b) -- auto brewer
@@ -1644,6 +1719,17 @@ Build.L32 = function(b) -- auto brewer
 	end
 	for i = 1, 5 do
 		b:Box(V3(0.12, 0.1, 1.2), CF(4.15, i * 0.85, 0), PAL.yellow, M.Metal, { solid = false })
+	end
+	-- rivet rings round each tank, copper pipes between the tanks
+	for _, x in { -2.5, 0, 2.5 } do
+		for k = 0, 5 do
+			b:Ball(0.12, CF(x, 4.95, 0) * ANG(0, rad(k * 60), 0) * CF(0, 0, -0.8), PAL.steelDark, M.Metal, { solid = false })
+		end
+		b:Cyl(0.3, 1.7, CF(x, 4.95, 0), PAL.steelDark, M.Metal, { solid = false })
+	end
+	for _, x in { -1.25, 1.25 } do
+		b:HCyl(1.0, 0.25, CF(x, 7.0, 0), rgb(190, 120, 70), M.Metal, { solid = false })
+		b:Tube(V3(x, 7.0, 0), V3(x, 7.6, 0), 0.22, rgb(190, 120, 70), M.Metal)
 	end
 end
 
@@ -1880,6 +1966,23 @@ Build.L37 = function(b) -- billboard
 		for _, y in { 13, 19 } do
 			b:Ball(0.25, CF(x, y, -0.32), PAL.steelDark, M.Metal, { solid = false })
 		end
+	end
+	-- gold border around the board, catwalk rail posts, smiley next to the cup, stars in the corners
+	for _, spec in { { V3(12.4, 0.2, 0.2), CF(0, 19.25, -0.35) }, { V3(12.4, 0.2, 0.2), CF(0, 12.75, -0.35) }, { V3(0.2, 6.6, 0.2), CF(-6.25, 16, -0.35) }, { V3(0.2, 6.6, 0.2), CF(6.25, 16, -0.35) } } do
+		b:Box(spec[1], spec[2], PAL.gold, M.Metal, { solid = false })
+	end
+	for i = 0, 6 do
+		b:Box(V3(0.1, 0.8, 0.1), CF(-6 + i * 2, 13.1, -1.45), PAL.steelDark, M.Metal, { solid = false })
+	end
+	local face = CF(-5.2, 14.2, -0.45)
+	b:Ellipsoid(V3(1.5, 1.5, 0.1), face, PAL.yellow)
+	for _, x in { -0.4, 0.4 } do
+		b:Ellipsoid(V3(0.2, 0.28, 0.1), face * CF(x * 0.7, 0.2, -0.03), PAL.black)
+	end
+	b:Rod((face * CF(-0.38, -0.22, -0.04)).Position, (face * CF(0, -0.45, -0.04)).Position, 0.09, PAL.red)
+	b:Rod((face * CF(0.38, -0.22, -0.04)).Position, (face * CF(0, -0.45, -0.04)).Position, 0.09, PAL.red)
+	for i, p in { V3(5.4, 18.4, -0.45), V3(-1.9, 18.4, -0.45), V3(5.5, 13.6, -0.45) } do
+		b:Box(V3(0.5, 0.5, 0.08), CF(p) * ANG(0, 0, rad(45 + i * 10)), PAL.tea, nil, { solid = false })
 	end
 end
 
@@ -2455,6 +2558,15 @@ Build.L44 = function(b) -- nationwide franchise (globe on a plinth)
 		b:Box(V3(1.3, 0.8, 0.05), CF(x, 4.4, z) * ANG(0, -a, 0) * CF(0.65, 0, 0), ({ PAL.tea, PAL.green, PAL.red, PAL.blue })[k + 1], M.Fabric, { solid = false })
 		b:Plant(CF(math.cos(a + rad(45)) * 4.3, 0, math.sin(a + rad(45)) * 4.3), 1.4)
 	end
+	-- latitude/longitude rings, polar axis, orbiting tea cups, gold star on top, steps around the plinth
+	b:HCyl(0.12, 4.9, CF(0, 5.6, 0) * ANG(0, 0, rad(90)) * ANG(rad(23), 0, 0), PAL.gold, M.Metal, { solid = false })
+	b:Tube(V3(0, 2.9, 0), V3(0, 8.3, 0), 0.15, PAL.gold, M.Metal)
+	for k = 0, 2 do
+		local a = rad(k * 120)
+		b:TeaCup(CF(0, 5.6, 0) * ANG(rad(20), 0, 0) * CF(math.cos(a) * 3.3, -0.5, math.sin(a) * 3.3), 1.1)
+	end
+	b:Ball(0.6, CF(0, 8.5, 0), PAL.yellow, M.Neon, { solid = false })
+	b:Cyl(0.35, 7.2, CF(0, 0.18, 0), PAL.white, M.Marble)
 end
 
 Build.L45 = function(b) -- bubble-tea cup landmark tower (walk-in lobby + gift shop + observation lift)
