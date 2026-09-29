@@ -11,6 +11,11 @@ local TweenService = game:GetService("TweenService")
 local Config = require(ReplicatedStorage:WaitForChild("Config"))
 
 local player = Players.LocalPlayer
+
+-- the left button column (DAILY, SHOP, Music, Codes) sits a little higher on touch screens so it clears the
+-- on-screen thumbstick in the bottom-left corner (ShopClient and RetentionClient use the same offset)
+local UserInputService = game:GetService("UserInputService")
+local COLUMN_Y = if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then -70 else 0
 local playerGui = player:WaitForChild("PlayerGui")
 
 local BROWN = Color3.fromRGB(40, 25, 15)
@@ -59,7 +64,7 @@ end
 local shopButton = Instance.new("TextButton")
 shopButton.Name = "ShopButton"
 shopButton.AnchorPoint = Vector2.new(0, 0.5)
-shopButton.Position = UDim2.new(0, 12, 0.5, 0)
+shopButton.Position = UDim2.new(0, 12, 0.5, COLUMN_Y)
 shopButton.Size = UDim2.fromOffset(78, 78)
 shopButton.BackgroundColor3 = ORANGE
 shopButton.AutoButtonColor = true
@@ -96,7 +101,7 @@ end
 local musicButton = Instance.new("TextButton")
 musicButton.Name = "MusicButton"
 musicButton.AnchorPoint = Vector2.new(0, 0)
-musicButton.Position = UDim2.new(0, 12, 0.5, 50)
+musicButton.Position = UDim2.new(0, 12, 0.5, COLUMN_Y + 50)
 musicButton.Size = UDim2.fromOffset(78, 30)
 musicButton.BackgroundColor3 = BROWN
 musicButton.BackgroundTransparency = 0.25

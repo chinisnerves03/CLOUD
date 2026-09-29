@@ -11,6 +11,11 @@ local Config = require(ReplicatedStorage:WaitForChild("Config"))
 local actionRemote = ReplicatedStorage:WaitForChild("TycoonAction") :: RemoteEvent
 
 local player = Players.LocalPlayer
+
+-- the left button column (DAILY, SHOP, Music, Codes) sits a little higher on touch screens so it clears the
+-- on-screen thumbstick in the bottom-left corner (ShopClient and RetentionClient use the same offset)
+local UserInputService = game:GetService("UserInputService")
+local COLUMN_Y = if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then -70 else 0
 local playerGui = player:WaitForChild("PlayerGui")
 
 local BROWN = Color3.fromRGB(40, 25, 15)
@@ -71,7 +76,7 @@ end
 -- DAILY button (above SHOP)
 ---------------------------------------------------------------------------
 local dailyButton = button({
-	Name = "DailyButton", AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 12, 0.5, -46),
+	Name = "DailyButton", AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 12, 0.5, COLUMN_Y - 46),
 	Size = UDim2.fromOffset(78, 46), BackgroundColor3 = GREY, TextSize = 14, Text = "DAILY",
 })
 dailyButton.Activated:Connect(function()
@@ -82,7 +87,7 @@ end)
 -- Codes button (below Music) + window
 ---------------------------------------------------------------------------
 local codesButton = button({
-	Name = "CodesButton", Position = UDim2.new(0, 12, 0.5, 86), Size = UDim2.fromOffset(78, 30),
+	Name = "CodesButton", Position = UDim2.new(0, 12, 0.5, COLUMN_Y + 86), Size = UDim2.fromOffset(78, 30),
 	BackgroundColor3 = BROWN, BackgroundTransparency = 0.25, Font = Enum.Font.GothamBold, TextSize = 14, Text = "Codes",
 	Radius = 8,
 })
