@@ -217,8 +217,10 @@ function Builder:Light(part: BasePart, color: Color3, range: number, brightness:
 	return light
 end
 
--- blocky person, ~5.5 studs tall, facing -Z
--- style: shirt, pants, apron, cap, skin, left/right = {pitch, yaw} (degrees: pitch > 0 raises the arm forward, yaw swings it inward)
+-- person, ~5.5 studs tall, facing -Z: rounded shoes, belt, collar, apron with straps and pocket,
+-- sleeves + forearms + hands, and a face with ears, nose, eyes (white, pupil, shine), brows, cheeks and a smile
+-- style: shirt, pants, apron (same color as the shirt = no apron, e.g. customers), cap, chefHat, ngob, hair,
+--        long (ponytail), skin, left/right = {pitch, yaw} (degrees: pitch > 0 raises the arm forward, yaw swings it inward)
 -- returns hand positions (model space) for placing held objects
 function Builder:Person(cf: CFrame, style)
 	style = style or {}
@@ -226,40 +228,87 @@ function Builder:Person(cf: CFrame, style)
 	local shirt = style.shirt or PAL.white
 	local pants = style.pants or PAL.black
 	local apron = style.apron or PAL.tea
+	local hair = style.hair or PAL.hair
+	local hasApron = apron ~= shirt
+	local ghost = { solid = false }
 
+	-- legs, shoes (rounded toe + sole), belt with buckle
 	for _, x in { -0.5, 0.5 } do
-		self:Box(V3(0.9, 2, 0.9), cf * CF(x, 1, 0), pants, nil, { solid = false })
-		self:Box(V3(0.95, 0.35, 1.2), cf * CF(x, 0.18, -0.12), PAL.black, nil, { solid = false })
+		self:Box(V3(0.9, 2, 0.9), cf * CF(x, 1, 0), pants, nil, ghost)
+		self:Box(V3(0.95, 0.12, 1.25), cf * CF(x, 0.06, -0.12), PAL.white, nil, ghost)
+		self:Ellipsoid(V3(0.95, 0.5, 1.3), cf * CF(x, 0.3, -0.14), PAL.black)
 	end
-	self:Box(V3(2, 2, 1), cf * CF(0, 3, 0), shirt)
-	self:Box(V3(1.7, 2.3, 0.1), cf * CF(0, 2.45, -0.56), apron, M.Fabric, { solid = false })
-	self:Box(V3(0.6, 0.4, 0.05), cf * CF(0, 3.1, -0.62), PAL.cream, nil, { solid = false })
+	self:Box(V3(2.04, 0.22, 1.04), cf * CF(0, 2.1, 0), PAL.black, nil, ghost)
+	self:Box(V3(0.3, 0.2, 0.05), cf * CF(0, 2.1, -0.53), PAL.gold, M.Metal, ghost)
 
+	-- torso with rounded shoulders, neck and collar
+	self:Box(V3(2, 2, 1), cf * CF(0, 3.1, 0), shirt)
+	for _, x in { -0.8, 0.8 } do
+		self:Ellipsoid(V3(0.7, 0.55, 1.0), cf * CF(x, 4.0, 0), shirt)
+	end
+	self:Cyl(0.35, 0.62, cf * CF(0, 4.15, 0), skin, nil, ghost)
+	for _, x in { -1, 1 } do
+		self:Box(V3(0.42, 0.28, 0.06), cf * CF(x * 0.22, 3.98, -0.52) * ANG(0, 0, rad(x * 28)), if hasApron then PAL.white else shirt, nil, ghost)
+	end
+	if hasApron then
+		-- apron: bib + skirt, neck straps, waist tie, pocket with pens, little tea-leaf logo
+		self:Box(V3(1.3, 1.1, 0.08), cf * CF(0, 3.25, -0.54), apron, M.Fabric, ghost)
+		self:Box(V3(1.8, 1.6, 0.08), cf * CF(0, 1.95, -0.56), apron, M.Fabric, ghost)
+		for _, x in { -1, 1 } do
+			self:Rod(V3(x * 0.58, 3.8, -0.55), V3(x * 0.35, 4.08, -0.2), 0.1, apron, M.Fabric)
+		end
+		self:Box(V3(2.06, 0.12, 1.06), cf * CF(0, 2.45, 0), apron, M.Fabric, ghost)
+		self:Box(V3(0.8, 0.45, 0.04), cf * CF(0, 1.75, -0.61), apron:Lerp(PAL.black, 0.2), M.Fabric, ghost)
+		self:Box(V3(0.06, 0.3, 0.04), cf * CF(-0.2, 2.02, -0.62), PAL.blue, nil, ghost)
+		self:Ellipsoid(V3(0.35, 0.22, 0.05), cf * CF(0, 3.35, -0.59) * ANG(0, 0, rad(30)), PAL.white)
+	end
+	self:Box(V3(0.4, 0.14, 0.04), cf * CF(0.55, 3.72, if hasApron then -0.6 else -0.52), PAL.gold, M.Metal, ghost)
+
+	-- arms: sleeve, cuff, forearm, hand
 	local hands = {}
 	for side, key in { [-1] = "left", [1] = "right" } do
 		local pose = style[key] or { 25, 0 }
 		-- positive yaw swings toward the body center on both sides
-		local shoulder = cf * CF(side * 1.45, 3.85, 0) * ANG(0, rad((pose[2] or 0) * side), 0) * ANG(rad(pose[1]), 0, 0)
-		self:Box(V3(0.85, 1.05, 0.85), shoulder * CF(0, -0.5, 0), shirt, nil, { solid = false })
-		self:Box(V3(0.75, 1.1, 0.75), shoulder * CF(0, -1.5, 0), skin, nil, { solid = false })
+		local shoulder = cf * CF(side * 1.4, 3.85, 0) * ANG(0, rad((pose[2] or 0) * side), 0) * ANG(rad(pose[1]), 0, 0)
+		self:Box(V3(0.82, 1.0, 0.82), shoulder * CF(0, -0.45, 0), shirt, nil, ghost)
+		self:Box(V3(0.86, 0.14, 0.86), shoulder * CF(0, -0.95, 0), if hasApron then PAL.white else shirt:Lerp(PAL.black, 0.15), nil, ghost)
+		self:Box(V3(0.64, 0.95, 0.64), shoulder * CF(0, -1.45, 0), skin, nil, ghost)
+		self:Ellipsoid(V3(0.66, 0.6, 0.62), shoulder * CF(0, -2.05, 0), skin)
 		hands[key] = (shoulder * CF(0, -2.2, 0)).Position
 	end
 
-	self:Ball(1.3, cf * CF(0, 4.7, 0), skin, nil, { solid = false })
-	self:Ellipsoid(V3(1.4, 0.8, 1.4), cf * CF(0, 5.1, 0.12), PAL.hair)
-	for _, x in { -0.25, 0.25 } do
-		self:Box(V3(0.14, 0.2, 0.05), cf * CF(x, 4.8, -0.64), PAL.black, nil, { solid = false })
+	-- head and face
+	local head = cf * CF(0, 4.8, 0)
+	self:Ball(1.35, head, skin, nil, ghost)
+	for _, x in { -1, 1 } do
+		self:Ellipsoid(V3(0.18, 0.36, 0.3), head * CF(x * 0.67, -0.02, 0.02), skin)
+		self:Ellipsoid(V3(0.26, 0.3, 0.08), head * CF(x * 0.26, 0.08, -0.6), PAL.white)
+		self:Ellipsoid(V3(0.16, 0.21, 0.06), head * CF(x * 0.25, 0.07, -0.635), PAL.black)
+		self:Ball(0.06, head * CF(x * 0.23, 0.12, -0.665), PAL.white, M.Neon, ghost)
+		self:Box(V3(0.3, 0.07, 0.05), head * CF(x * 0.27, 0.31, -0.56) * ANG(0, 0, rad(-x * 8)), hair, nil, ghost)
+		self:Ellipsoid(V3(0.22, 0.13, 0.05), head * CF(x * 0.38, -0.17, -0.53), rgb(240, 150, 150), nil, { t = 0.35 })
+		self:Rod((head * CF(x * 0.17, -0.3, -0.585)).Position, (head * CF(0, -0.37, -0.6)).Position, 0.06, rgb(150, 70, 60))
 	end
-	self:Box(V3(0.4, 0.07, 0.05), cf * CF(0, 4.45, -0.62), rgb(170, 90, 80), nil, { solid = false })
+	self:Ellipsoid(V3(0.16, 0.2, 0.14), head * CF(0, -0.07, -0.66), skin:Lerp(PAL.black, 0.04))
+	-- hair: crown, back, fringe (optional ponytail)
+	self:Ellipsoid(V3(1.45, 0.85, 1.45), head * CF(0, 0.33, 0.1), hair)
+	self:Ellipsoid(V3(1.42, 1.0, 0.8), head * CF(0, 0.05, 0.36), hair)
+	self:Ellipsoid(V3(1.15, 0.32, 0.5), head * CF(0.12, 0.45, -0.42) * ANG(0, 0, rad(-8)), hair)
+	if style.long then
+		self:Ellipsoid(V3(0.55, 1.2, 0.55), head * CF(0, -0.25, 0.85) * ANG(rad(20), 0, 0), hair)
+	end
+
 	if style.cap then
-		self:Cyl(0.4, 1.45, cf * CF(0, 5.3, 0.05), style.cap)
-		self:Box(V3(1.1, 0.1, 0.7), cf * CF(0, 5.15, -0.75), style.cap, nil, { solid = false })
+		self:Cyl(0.4, 1.45, head * CF(0, 0.5, 0.05), style.cap)
+		self:Box(V3(1.1, 0.1, 0.7), head * CF(0, 0.35, -0.75), style.cap, nil, ghost)
+		self:Ellipsoid(V3(0.4, 0.25, 0.05), head * CF(0, 0.52, -0.68), PAL.white)
+		self:Ball(0.2, head * CF(0, 0.72, 0.05), style.cap, nil, ghost)
 	elseif style.chefHat then
-		self:Cyl(0.8, 1.3, cf * CF(0, 5.55, 0.05), PAL.white)
-		self:Ellipsoid(V3(1.6, 0.7, 1.6), cf * CF(0, 6.0, 0.05), PAL.white)
+		self:Cyl(0.8, 1.3, head * CF(0, 0.75, 0.05), PAL.white)
+		self:Ellipsoid(V3(1.6, 0.7, 1.6), head * CF(0, 1.2, 0.05), PAL.white)
 	elseif style.ngob then -- farmer's straw hat
-		self:Ellipsoid(V3(2.4, 0.5, 2.4), cf * CF(0, 5.35, 0.05), rgb(215, 185, 120))
-		self:Ellipsoid(V3(1.1, 0.6, 1.1), cf * CF(0, 5.6, 0.05), rgb(200, 165, 100))
+		self:Ellipsoid(V3(2.4, 0.5, 2.4), head * CF(0, 0.55, 0.05), rgb(215, 185, 120))
+		self:Ellipsoid(V3(1.1, 0.6, 1.1), head * CF(0, 0.8, 0.05), rgb(200, 165, 100))
 	end
 	return hands
 end
@@ -270,6 +319,7 @@ function Builder:TeaCup(cf: CFrame, scale: number?, drink: Color3?)
 	self:Cyl(0.9 * s, 0.45 * s, cf * CF(0, 0.45 * s, 0), drink or PAL.tea)
 	self:Cyl(0.15 * s, 0.47 * s, cf * CF(0, 0.95 * s, 0), PAL.milk)
 	self:Ellipsoid(V3(0.47, 0.25, 0.47) * s, cf * CF(0, 1.05 * s, 0), PAL.white, M.Glass, { t = 0.4 })
+	self:Cyl(0.14 * s, 0.47 * s, cf * CF(0, 0.5 * s, 0), PAL.cream, nil, { solid = false })
 	self:Rod(V3(0, 1.0 * s, 0), V3(0.12 * s, 1.75 * s, 0.05 * s), 0.08 * s, PAL.green)
 end
 
@@ -508,6 +558,25 @@ Build.L03 = function(b) -- ice cooler on a stool
 	b:Text(bag, FACE.Front, "ICE", { color = PAL.blue })
 	b:Cyl(0.35, 0.5, CF(-0.4, 4.2, -0.2), PAL.steel, M.Metal, { solid = false })
 	b:Rod(V3(-0.4, 4.25, -0.2), V3(-0.4, 4.3, 0.6), 0.1, PAL.black)
+	-- lid hinge + latch, side handles with grips, embossed logo, condensation drips, ice cubes in the tray, cups ready
+	b:Box(V3(1.2, 0.18, 0.2), CF(0, 3.72, 1.05), PAL.steelDark, M.Metal, { solid = false })
+	b:Box(V3(0.35, 0.4, 0.12), CF(0, 3.55, -1.08), PAL.steelDark, M.Metal, { solid = false })
+	for _, x in { -1.2, 1.2 } do
+		b:HCyl(0.12, 0.35, CF(x, 3.3, 0) * ANG(0, rad(90), 0), PAL.black, nil, { solid = false })
+	end
+	local logo = b:Box(V3(1.2, 0.5, 0.05), CF(0, 2.95, -1.02), PAL.white, nil, { solid = false })
+	b:Text(logo, FACE.Front, "COLD", { color = PAL.red })
+	local rand = seeded(3)
+	for _ = 1, 6 do
+		local a = rad(200 + rand() * 140)
+		b:Ellipsoid(V3(0.08, 0.16, 0.08), CF(math.cos(a) * 1.02, 1.9 + rand() * 1.4, math.sin(a) * 1.02), PAL.glass, M.Glass, { t = 0.3 })
+	end
+	for i = 0, 3 do
+		b:Box(V3(0.22, 0.22, 0.22), CF(-0.25 + (i % 2) * 0.3, 1.63, -1.25 + math.floor(i / 2) * 0.2) * ANG(0, i, 0), PAL.glass, M.Glass, { t = 0.3, solid = false })
+	end
+	for i = 0, 2 do
+		b:Cyl(0.35, 0.5, CF(-1.4, 0.18 + i * 0.3, 0.9), PAL.white, M.Glass, { t = 0.4, solid = false })
+	end
 end
 
 Build.L04 = function(b) -- tea pot on a gas stove
@@ -569,6 +638,17 @@ Build.L05 = function(b) -- cloth tea filter sock on a stand
 	end
 	b:Cyl(0.9, 0.55, CF(-0.45, 1.45, 0.45), PAL.steel, M.Metal, { solid = false })
 	b:Box(V3(0.1, 0.5, 0.25), CF(-0.78, 1.5, 0.45), PAL.steel, M.Metal, { solid = false })
+	-- rope ties, cross brace, drip tray, brewed tea in a jug, tea leaf scoop
+	for _, x in { -1.1, 1.1 } do
+		b:Box(V3(0.25, 0.1, 0.25), CF(x, 4.2, 0), PAL.cream, M.Fabric, { solid = false })
+	end
+	b:Rod(V3(-1.1, 0.5, 0.1), V3(1.1, 2.5, 0.1), 0.12, PAL.woodDark, M.Wood)
+	b:Box(V3(1.3, 0.06, 1.3), CF(0, 2.03, 0), PAL.steel, M.Metal, { solid = false })
+	b:Cyl(0.8, 0.5, CF(0.6, 1.4, -0.5), PAL.white, M.Glass, { t = 0.4, solid = false })
+	b:Cyl(0.6, 0.45, CF(0.6, 1.3, -0.5), PAL.tea, nil, { solid = false })
+	b:Box(V3(0.12, 0.45, 0.2), CF(0.9, 1.45, -0.5), PAL.white, M.Glass, { t = 0.4, solid = false })
+	b:Ellipsoid(V3(0.45, 0.2, 0.35), CF(-0.5, 1.05, -0.55), PAL.steel, M.Metal)
+	b:Rod(V3(-0.5, 1.1, -0.55), V3(-0.5, 1.15, -1.05), 0.07, PAL.woodDark)
 end
 
 Build.L06 = function(b) -- plastic cups (on the table)
@@ -630,6 +710,21 @@ Build.L08 = function(b) -- A-frame shop sign
 	b:Ball(0.3, CF(0, 3.45, -0.3), PAL.warm, M.Neon, { solid = false })
 	b:Cyl(0.5, 0.6, CF(1.7, 0.25, -0.3), rgb(190, 100, 60))
 	b:Ellipsoid(V3(0.8, 0.6, 0.8), CF(1.7, 0.75, -0.3), PAL.pink)
+	-- hinges, frame edges, chalk drawings (cup + stars + arrow), rope stop between the legs
+	for _, x in { -1.1, 1.1 } do
+		b:HCyl(0.3, 0.15, CF(x, 3.25, 0), PAL.steelDark, M.Metal, { solid = false })
+	end
+	for _, spec in { { V3(2.4, 0.1, 0.06), CF(0, 1.5, 0) }, { V3(2.4, 0.1, 0.06), CF(0, -1.5, 0) }, { V3(0.1, 3.0, 0.06), CF(1.15, 0, 0) }, { V3(0.1, 3.0, 0.06), CF(-1.15, 0, 0) } } do
+		b:Box(spec[1], front * CF(0, 0, -0.12) * spec[2], PAL.woodLight, M.Wood, { solid = false })
+	end
+	local art = front * CF(0.7, -1.0, -0.12)
+	b:Box(V3(0.35, 0.5, 0.02), art, PAL.tea, nil, { solid = false })
+	b:Box(V3(0.4, 0.1, 0.02), art * CF(0, 0.3, 0), PAL.cream, nil, { solid = false })
+	b:Box(V3(0.04, 0.35, 0.02), art * CF(0.08, 0.5, 0) * ANG(0, 0, rad(-15)), PAL.leaf, nil, { solid = false })
+	for i, x in { -0.8, -0.4 } do
+		b:Box(V3(0.14, 0.14, 0.02), front * CF(x, -1.1 + i * 0.08, -0.12) * ANG(0, 0, rad(45)), PAL.yellow, nil, { solid = false })
+	end
+	b:Rod((CF(0, 0.9, -0.62)).Position, (CF(0, 0.9, 0.62)).Position, 0.05, PAL.cream)
 end
 
 Build.L09 = function(b) -- cup sealer (on the table)
@@ -650,6 +745,17 @@ Build.L09 = function(b) -- cup sealer (on the table)
 	b:Rod(V3(0, 0.9, 0.66), V3(0.3, 0.05, 1.3), 0.06, PAL.black)
 	for i, c in { rgb(90, 220, 120), PAL.red } do
 		b:Box(V3(0.14, 0.14, 0.04), CF(-0.2 + i * 0.25, 1.75, -0.62), c, M.Neon, { solid = false })
+	end
+	-- film roll spindle caps, warning label, cup counter display, rubber feet
+	for _, x in { -0.67, 0.67 } do
+		b:HCyl(0.08, 0.3, CF(x, 2.55, 0.25), PAL.steelDark, M.Metal, { solid = false })
+	end
+	local warn = b:Box(V3(0.5, 0.3, 0.02), CF(0, 1.4, -0.21), PAL.yellow, nil, { solid = false })
+	b:Text(warn, FACE.Front, "HOT", { color = PAL.black })
+	local counter = b:Box(V3(0.45, 0.18, 0.02), CF(0.3, 2.3, -0.61), PAL.black, nil, { solid = false })
+	b:Text(counter, FACE.Front, "0128", { color = rgb(90, 220, 120), glow = true })
+	for _, x in { -0.5, 0.5 } do
+		b:Cyl(0.06, 0.2, CF(x, 0.03, -0.5), PAL.black, nil, { solid = false })
 	end
 end
 
@@ -739,6 +845,24 @@ Build.L12 = function(b) -- electric tea brewer (on the counter)
 	b:Box(V3(0.4, 0.3, 0.3), CF(-1.0, 0.15, -0.5), PAL.white, nil, { solid = false })
 	b:Box(V3(0.25, 0.1, 0.02), CF(-1.0, 0.18, -0.66), rgb(255, 60, 60), M.Neon, { solid = false })
 	b:Box(V3(0.8, 0.9, 0.05), CF(1.35, 1.0, -0.23), PAL.red, M.Fabric, { solid = false })
+	-- lid handle + hinge, water level window, temperature gauge, feet, drip tray grille, steam puffs, sugar jar
+	b:Box(V3(0.5, 0.12, 0.12), CF(0, 2.75, -0.2), PAL.black, nil, { solid = false })
+	b:HCyl(0.08, 0.4, CF(0.55, 2.2, -0.4) * ANG(0, rad(90), 0), PAL.white, nil, { solid = false })
+	b:Box(V3(0.03, 0.16, 0.02), CF(0.55, 2.24, -0.44) * ANG(0, 0, rad(-35)), PAL.red, nil, { solid = false })
+	for _, x in { -0.55, 0.55 } do
+		for _, z in { -0.2, 0.8 } do
+			b:Cyl(0.1, 0.2, CF(x, 0.35, z), PAL.black, nil, { solid = false })
+		end
+	end
+	for i = -2, 2 do
+		b:Box(V3(0.04, 0.02, 0.4), CF(i * 0.1, 0.32, -0.75), PAL.steelDark, M.Metal, { solid = false })
+	end
+	for i, d in { 0.45, 0.35 } do
+		b:Ball(d, CF(0.1 * i, 3.0 + i * 0.35, 0.3), PAL.white, nil, { t = 0.65, solid = false })
+	end
+	b:Cyl(0.5, 0.4, CF(1.35, 1.85, 0.3), PAL.white, M.Glass, { t = 0.4, solid = false })
+	b:Cyl(0.3, 0.35, CF(1.35, 1.75, 0.3), PAL.white, nil, { solid = false })
+	b:Cyl(0.1, 0.42, CF(1.35, 2.15, 0.3), PAL.tea, nil, { solid = false })
 end
 
 Build.L13 = function(b) -- topping bar (on the counter)
@@ -765,6 +889,25 @@ Build.L13 = function(b) -- topping bar (on the counter)
 	for i, name in { "PEARL", "JELLY", "BEAN" } do
 		local tag = b:Box(V3(0.9, 0.18, 0.02), CF(-1.15 + (i - 1) * 1.15, 0.32, -0.81), PAL.white, nil, { solid = false })
 		b:Text(tag, FACE.Front, name, { color = PAL.black })
+	end
+	-- sneeze-guard frame, tub lids stacked behind, cup of spoons, price flags
+	for _, x in { -1.8, 1.8 } do
+		b:Box(V3(0.08, 1.0, 0.08), CF(x, 0.7, -0.8), PAL.steel, M.Metal, { solid = false })
+		b:Box(V3(0.08, 1.0, 0.08), CF(x, 0.7, 0.8), PAL.steel, M.Metal, { solid = false })
+	end
+	b:Box(V3(3.66, 0.06, 0.06), CF(0, 1.17, -0.8), PAL.steel, M.Metal, { solid = false })
+	b:Box(V3(3.66, 0.06, 0.06), CF(0, 1.17, 0.8), PAL.steel, M.Metal, { solid = false })
+	for i = 0, 3 do
+		b:Box(V3(1.0, 0.05, 0.65), CF(1.3, 0.3 + i * 0.06, 1.1), PAL.steel, M.Metal, { solid = false })
+	end
+	b:Cyl(0.5, 0.35, CF(-1.45, 0.5, 1.1), PAL.white, M.Glass, { t = 0.3, solid = false })
+	for i = 0, 3 do
+		b:Rod(V3(-1.5 + (i % 2) * 0.1, 0.5, 1.05 + math.floor(i / 2) * 0.1), V3(-1.6 + i * 0.07, 1.0, 1.1), 0.05, PAL.steel, M.Metal)
+	end
+	for i, name in { "+10", "+10", "+15" } do
+		local flag = b:Box(V3(0.35, 0.22, 0.02), CF(-1.15 + (i - 1) * 1.15, 1.45, -0.82), PAL.yellow, nil, { solid = false })
+		b:Text(flag, FACE.Front, name, { color = PAL.black })
+		b:Box(V3(0.03, 0.3, 0.03), CF(-1.15 + (i - 1) * 1.15, 1.25, -0.82), PAL.black, nil, { solid = false })
 	end
 end
 
@@ -807,6 +950,12 @@ Build.L15 = function(b) -- 4 bar stools
 	for _, x in { -6, -2, 2, 6 } do
 		b:Box(V3(1.3, 0.7, 0.15), CF(x, 3.35, -0.72), PAL.tea)
 		b:Box(V3(0.12, 0.6, 0.12), CF(x, 2.95, -0.7), PAL.steel, M.Metal, { solid = false })
+	end
+	-- footrest rings, cushion piping, backrest stitched stripe
+	for _, x in { -6, -2, 2, 6 } do
+		b:Cyl(0.08, 1.3, CF(x, 1.1, 0), PAL.steelDark, M.Metal, { solid = false })
+		b:Cyl(0.06, 1.66, CF(x, 2.52, 0), PAL.white, nil, { solid = false })
+		b:Box(V3(1.1, 0.08, 0.02), CF(x, 3.35, -0.8), PAL.white, nil, { solid = false })
 	end
 end
 
@@ -895,6 +1044,19 @@ Build.L18 = function(b) -- cash register + scan-to-pay stand (on the counter)
 		b:Cyl(0.03, 0.14, CF(-0.45 + i * 0.16, 0.1, -0.7), PAL.gold, M.Metal, { solid = false })
 	end
 	b:HCyl(0.4, 0.3, CF(1.1, 0.55, 0.2), PAL.white, nil, { solid = false })
+	-- keypad grid, open cash drawer with notes, receipt paper curl, customer display, card on the terminal
+	for r = 0, 2 do
+		for c = 0, 3 do
+			b:Box(V3(0.16, 0.05, 0.12), CF(-0.36 + c * 0.24, 0.52, -0.05 - r * 0.16), if r == 0 and c == 3 then PAL.red elseif c == 3 then rgb(90, 220, 120) else PAL.white, nil, { solid = false })
+		end
+	end
+	b:Box(V3(1.3, 0.2, 0.5), CF(0, 0.12, -0.55), PAL.black, nil, { solid = false })
+	for i = 0, 3 do
+		b:Box(V3(0.26, 0.04, 0.35), CF(-0.45 + i * 0.3, 0.22, -0.55), ({ PAL.leaf, PAL.blue, PAL.red, PAL.leaf })[i + 1], nil, { solid = false })
+	end
+	b:Box(V3(0.3, 0.02, 0.5), CF(1.1, 0.72, -0.05) * ANG(rad(-35), 0, 0), PAL.white, nil, { solid = false })
+	b:Box(V3(0.5, 0.3, 0.05), CF(0, 1.05, 0.05), rgb(90, 220, 120), M.Neon, { solid = false })
+	b:Box(V3(0.2, 0.02, 0.3), CF(0.85, 0.13, -0.6) * ANG(0, rad(15), 0), PAL.gold, nil, { solid = false })
 end
 
 Build.L19 = function(b) -- tea master pulling tea (on a platform to clear the counter)
@@ -970,6 +1132,21 @@ Build.L21 = function(b) -- lit menu board
 	b:Text(star, FACE.Front, "NEW!", { color = PAL.red })
 	b:Box(V3(7, 0.12, 0.35), CF(0, 2.9, -0.35), PAL.woodDark, M.Wood, { solid = false })
 	b:Plant(CF(4.6, 0, -0.4), 1.6)
+	-- light wood frame around the board, post feet, small "today's special" easel beside it
+	for _, spec in { { V3(7.7, 0.18, 0.12), CF(0, 7.45, -0.25) }, { V3(7.7, 0.18, 0.12), CF(0, 2.95, -0.25) }, { V3(0.18, 4.6, 0.12), CF(-3.8, 5.2, -0.25) }, { V3(0.18, 4.6, 0.12), CF(3.8, 5.2, -0.25) } } do
+		b:Box(spec[1], spec[2], PAL.woodLight, M.Wood, { solid = false })
+	end
+	for _, x in { -3.6, 3.6 } do
+		b:Box(V3(0.8, 0.25, 1.4), CF(x, 0.12, 0), PAL.woodDark, M.Wood)
+	end
+	local easel = CF(-5.2, 1.3, -0.6) * ANG(rad(-12), rad(10), 0)
+	b:Box(V3(1.4, 1.8, 0.08), easel, rgb(30, 35, 32), nil, { solid = false })
+	local special = b:Box(V3(1.2, 1.6, 0.02), easel * CF(0, 0, -0.05), rgb(30, 35, 32), nil, { solid = false })
+	b:Text(special, FACE.Front, "TODAY\nSPECIAL\nMango\nThai Tea", { color = PAL.yellow, font = Enum.Font.GothamBold })
+	for _, x in { -0.55, 0.55 } do
+		b:Rod((easel * CF(x, 0.9, 0.1)).Position, V3(-5.2 + x, 0, -1.1), 0.1, PAL.woodDark, M.Wood)
+	end
+	b:Rod((easel * CF(0, 0.9, 0.1)).Position, V3(-5.2, 0, 0.3), 0.1, PAL.woodDark, M.Wood)
 end
 
 Build.L22 = function(b) -- blender station
@@ -1088,6 +1265,22 @@ Build.L25 = function(b) -- floor air conditioner + outdoor unit
 	b:Text(plate, FACE.Front, "COOL", { color = PAL.blue })
 	for i = 0, 5 do
 		b:Box(V3(0.05, 1.8, 0.05), CF(1.2, 1.1, 1.72 + i * 0.12) * ANG(0, rad(90), 0), PAL.steelDark, nil, { solid = false })
+	end
+	-- front grille slats, side vents, remote on a wall clip, condensate pipe, rubber feet
+	for i = 0, 7 do
+		b:Box(V3(1.2, 0.05, 0.04), CF(0, 0.5 + i * 0.13, -0.63), PAL.steelDark, nil, { solid = false })
+	end
+	for i = 0, 4 do
+		b:Box(V3(0.04, 0.05, 0.9), CF(0.81, 3.0 + i * 0.2, 0), PAL.steelDark, nil, { solid = false })
+	end
+	b:Box(V3(0.3, 0.6, 0.12), CF(-1.1, 3.2, -0.2), PAL.white, nil, { solid = false })
+	b:Box(V3(0.2, 0.15, 0.02), CF(-1.1, 3.35, -0.27), rgb(70, 170, 255), M.Neon, { solid = false })
+	b:Tube(V3(-0.5, 0.2, 0.62), V3(-0.5, 0.2, 1.8), 0.1, PAL.white)
+	for _, x in { -0.6, 0.6 } do
+		b:Box(V3(0.3, 0.12, 0.9), CF(x, 0.06, 0), PAL.black, nil, { solid = false })
+	end
+	for _, x in { -0.6, 1.4 } do
+		b:Box(V3(0.25, 0.25, 1.3), CF(x, 0.12, 2.3), PAL.black, nil, { solid = false })
 	end
 end
 
@@ -2487,6 +2680,46 @@ Decor.BrewStation = function(b)
 	b:Text(sign, FACE.Front, "BREW STATION", { color = PAL.white })
 	local lamp = b:Ball(0.4, CF(0, 7.45, 2.1), PAL.warm, M.Neon, { solid = false })
 	b:Light(lamp, PAL.warm, 12, 0.7)
+	-- back shelf with labelled tea canisters, bunting between the posts
+	b:Box(V3(4.4, 0.15, 0.6), CF(0, 5.9, 2.3), PAL.woodDark, M.Wood, { solid = false })
+	for i, spec in { { PAL.tea, "TEA" }, { PAL.green, "GREEN" }, { PAL.red, "ROSE" }, { PAL.teaDark, "COCOA" } } do
+		local x = -1.65 + (i - 1) * 1.1
+		local can = b:Cyl(0.9, 0.6, CF(x, 6.43, 2.3), spec[1], M.Metal, { solid = false })
+		b:Cyl(0.12, 0.64, CF(x, 6.94, 2.3), PAL.steel, M.Metal, { solid = false })
+		local label = b:Box(V3(0.5, 0.3, 0.02), CF(x, 6.4, 1.99), PAL.cream, nil, { solid = false })
+		b:Text(label, FACE.Front, spec[2], { color = PAL.black })
+		can.Name = "Canister"
+	end
+	for i = 0, 6 do
+		b:Wedge(V3(0.05, 0.45, 0.4), CF(-1.95 + i * 0.65, 7.05, 2.15) * ANG(rad(180), rad(90), 0), if i % 2 == 0 then PAL.tea else PAL.white, M.Fabric, { solid = false })
+	end
+	b:Rod(V3(-2.3, 7.3, 2.15), V3(2.3, 7.3, 2.15), 0.04, PAL.black)
+	-- condensed milk cans, sugar jar, strainer ladle, tea towel over the front edge
+	for i = 0, 1 do
+		b:Cyl(0.45, 0.4, CF(0.1 + i * 0.45, 3.85, 2.05), PAL.white, M.Metal, { solid = false })
+		b:Cyl(0.2, 0.41, CF(0.1 + i * 0.45, 3.85, 2.05), PAL.blue, nil, { solid = false })
+	end
+	b:Cyl(0.55, 0.45, CF(1.3, 3.9, 2.0), PAL.white, M.Glass, { t = 0.4, solid = false })
+	b:Cyl(0.35, 0.4, CF(1.3, 3.8, 2.0), PAL.white, nil, { solid = false })
+	b:Ellipsoid(V3(0.55, 0.3, 0.55), CF(-2.3, 3.8, 0.5), rgb(215, 150, 95), M.Fabric)
+	b:Rod(V3(-2.3, 3.9, 0.5), V3(-2.2, 4.6, 1.2), 0.07, PAL.woodDark)
+	b:Box(V3(0.6, 0.6, 0.06), CF(2.15, 3.3, -0.08), PAL.white, M.Fabric, { solid = false })
+	b:Box(V3(0.6, 0.1, 0.07), CF(2.15, 3.1, -0.09), PAL.red, M.Fabric, { solid = false })
+	-- ice bucket with scoop, tea sacks, side price board on the left post
+	b:Cyl(1.0, 1.1, CF(3.0, 0.9, 1.4), PAL.steel, M.Metal)
+	for i = 0, 3 do
+		b:Box(V3(0.25, 0.25, 0.25), CF(2.8 + (i % 2) * 0.35, 1.45, 1.25 + math.floor(i / 2) * 0.3) * ANG(0, i, 0), PAL.glass, M.Glass, { t = 0.3, solid = false })
+	end
+	b:Rod(V3(3.0, 1.4, 1.4), V3(3.3, 1.9, 1.9), 0.08, PAL.steel, M.Metal)
+	for i = 0, 1 do
+		local sack = b:Box(V3(1.1, 1.2, 0.9), CF(-3.1, 1.0 + i * 0.05, 1.8 - i * 1.0) * ANG(0, rad(i * 12), 0), PAL.cream, M.Fabric)
+		if i == 1 then
+			b:Text(sack, FACE.Front, "TEA", { color = PAL.teaDark, region = { 0.1, 0.3, 0.8, 0.4 } })
+		end
+	end
+	b:Box(V3(0.7, 0.1, 0.1), CF(-2.7, 6.0, 2.3), PAL.black, M.Metal, { solid = false })
+	local price = b:Box(V3(1.1, 1.4, 0.08), CF(-3.0, 5.2, 2.3), rgb(30, 35, 32), nil, { solid = false })
+	b:Text(price, FACE.Front, "HOT\nICED\nBIG", { color = PAL.cream, font = Enum.Font.GothamBold })
 	return kettle
 end
 
@@ -2507,6 +2740,21 @@ Decor.StaffCart = function(b, variant)
 	b:Cyl(0.6, 0.5, CF(hands.right) * CF(0, -0.1, 0), PAL.steel, M.Metal)
 	b:TeaCup(CF(hands.left) * CF(0, -0.2, 0), 1.1)
 	b:Rod(hands.right - V3(0, 0.4, 0), hands.left + V3(0, 0.8, 0), 0.12, PAL.tea, M.Glass, { t = 0.15 })
+	-- wheels with hubs, push handle, mini canopy on a pole, cup stack and a service bell
+	for _, x in { -1.35, 1.35 } do
+		b:HCyl(0.25, 1.0, CF(x * 1.12, 0.5, -0.1), PAL.black, nil, { solid = false })
+		b:HCyl(0.27, 0.35, CF(x * 1.12, 0.5, -0.1), PAL.steel, M.Metal, { solid = false })
+	end
+	b:Tube(V3(-1.4, 2.9, 1.3), V3(1.4, 2.9, 1.3), 0.12, PAL.steel, M.Metal)
+	b:Cyl(7.3, 0.15, CF(-1.75, 3.65, 2.4), PAL.white, M.Metal, { solid = false })
+	for k = 0, 3 do
+		b:Wedge(V3(3.6, 0.7, 1.8), CF(-1.75, 7.3, 2.4) * ANG(0, rad(90 * k), 0) * CF(0, 0.35, -0.9), if k % 2 == 0 then apron else PAL.white, M.Fabric, { solid = false })
+	end
+	b:Ball(0.3, CF(-1.75, 8.05, 2.4), apron, nil, { solid = false })
+	for i = 0, 2 do
+		b:Cyl(0.4, 0.5, CF(-1.3, 3.3 + i * 0.3, 0.9), PAL.white, M.Glass, { t = 0.45, solid = false })
+	end
+	b:Ellipsoid(V3(0.4, 0.3, 0.4), CF(1.4, 3.25, 0.9), PAL.gold, M.Metal)
 	if vip then
 		local crown = b:Ball(0.5, CF(0, 6.2, 1.9), PAL.gold, M.Neon, { solid = false })
 		b:Light(crown, PAL.gold, 8, 0.6)

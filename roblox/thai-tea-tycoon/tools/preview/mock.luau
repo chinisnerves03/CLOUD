@@ -82,9 +82,12 @@ CFrame = {
 }
 
 -- Misc datatypes -----------------------------------------------------------
+local ColorMT = {}
+ColorMT.__index = ColorMT
+function ColorMT:Lerp(o, t) return setmetatable({ R = self.R + (o.R - self.R) * t, G = self.G + (o.G - self.G) * t, B = self.B + (o.B - self.B) * t }, ColorMT) end
 Color3 = {
-	fromRGB = function(r, g, b) return { R = r / 255, G = g / 255, B = b / 255 } end,
-	new = function(r, g, b) return { R = r, G = g, B = b } end,
+	fromRGB = function(r, g, b) return setmetatable({ R = r / 255, G = g / 255, B = b / 255 }, ColorMT) end,
+	new = function(r, g, b) return setmetatable({ R = r, G = g, B = b }, ColorMT) end,
 }
 UDim2 = {
 	new = function(a, b, c, d) return { a, b, c, d } end,
