@@ -67,6 +67,10 @@ local function buildPlot(index: number, origin: CFrame): Model
 	local decor = Instance.new("Folder")
 	decor.Name = "Decor"
 	decor.Parent = plot
+	local ground = ItemModels.BuildDecor("PlotGround", floor)
+	if ground then
+		ground.Parent = decor
+	end
 	for _, side in { -1, 1 } do
 		for _, z in { -45, -25, -5, 30 } do
 			-- lamp heads face the middle of the plot
@@ -107,7 +111,12 @@ local function buildPlot(index: number, origin: CFrame): Model
 		Recipe = Color3.fromRGB(240, 150, 40),
 		Speed = Color3.fromRGB(170, 90, 220),
 	}
-	for key, spot in ItemModels.UpgradeSpots do
+	for i, key in Config.UPGRADE_ORDER do
+		local spot = ItemModels.UpgradeSpots[key]
+		local frame = ItemModels.BuildDecor("UpgradeFrame", at(spot[1], 0, spot[2]), i)
+		if frame then
+			frame.Parent = decor
+		end
 		part({
 			Name = key,
 			Size = Vector3.new(6, 0.5, 6),

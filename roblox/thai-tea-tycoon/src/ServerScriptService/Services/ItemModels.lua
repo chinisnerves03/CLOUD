@@ -2835,6 +2835,75 @@ Decor.BrewStation = function(b)
 	return kettle
 end
 
+-- plot ground: a floor for each zone (flat, walk-through, 0.04 thick), grout/lane lines, the central brick path
+-- and flower beds. Origin = plot floor center (front = -Z). Built once per plot, before anything is bought.
+local function zone(b, x0: number, x1: number, z0: number, z1: number, color: Color3, material: Enum.Material, trim: Color3)
+	local cx, cz, w, d = (x0 + x1) / 2, (z0 + z1) / 2, x1 - x0, z1 - z0
+	b:Box(V3(w, 0.04, d), CF(cx, 0.02, cz), color, material, { flat = true, solid = false })
+	for _, side in { -1, 1 } do
+		b:Box(V3(w + 0.6, 0.06, 0.3), CF(cx, 0.03, cz + side * d / 2), trim, nil, { flat = true, solid = false })
+		b:Box(V3(0.3, 0.06, d), CF(cx + side * w / 2, 0.03, cz), trim, nil, { flat = true, solid = false })
+	end
+end
+
+local function flowerBed(b, cf: CFrame, seed: number)
+	b:Box(V3(3.2, 0.8, 3.2), cf * CF(0, 0.4, 0), PAL.woodDark, M.Wood)
+	b:Box(V3(2.8, 0.1, 2.8), cf * CF(0, 0.8, 0), rgb(80, 55, 35), nil, { flat = true, solid = false })
+	b:Ellipsoid(V3(2.2, 1.4, 2.2), cf * CF(0, 1.3, 0), PAL.leaf)
+	local rand = seeded(seed)
+	local colors = { PAL.pink, PAL.yellow, PAL.white, rgb(255, 110, 150), PAL.tea }
+	for i = 1, 7 do
+		local a, r = rand() * math.pi * 2, 0.5 + rand() * 0.6
+		b:Ball(0.35, cf * CF(math.cos(a) * r, 1.5 + rand() * 0.5, math.sin(a) * r), colors[i % #colors + 1], nil, { solid = false })
+	end
+end
+
+Decor.PlotGround = function(b)
+	-- tier 1: terracotta street tiles under the tea cart
+	zone(b, -36, -8, -50, -28, rgb(200, 128, 96), M.Brick, rgb(150, 90, 65))
+	-- tier 2: wooden deck under the street shop
+	zone(b, 8, 40, -50, -26, rgb(190, 145, 100), M.WoodPlanks, PAL.woodDark)
+	-- tier 3: cream cafe tiles with grout lines every 4 studs
+	zone(b, -42, 42, -25, 1, rgb(242, 232, 214), M.SmoothPlastic, PAL.woodDark)
+	for x = -38, 38, 4 do
+		b:Box(V3(0.08, 0.05, 26), CF(x, 0.03, -12), rgb(215, 200, 178), nil, { flat = true, solid = false })
+	end
+	for z = -21, -3, 4 do
+		b:Box(V3(84, 0.05, 0.08), CF(0, 0.03, z), rgb(215, 200, 178), nil, { flat = true, solid = false })
+	end
+	-- tier 4: asphalt yard with yellow edge lines and a dashed centre lane
+	zone(b, -48, 48, 5, 31, rgb(70, 72, 78), M.Asphalt, PAL.yellow)
+	for x = -45, 45, 6 do
+		b:Box(V3(3, 0.05, 0.3), CF(x, 0.03, 30), PAL.white, nil, { flat = true, solid = false })
+	end
+	-- tier 5: lawn around the big buildings
+	zone(b, -48, 48, 34, 65, rgb(96, 170, 80), M.Grass, rgb(70, 130, 60))
+	-- brick path from the entrance to the cafe (between the cart and the shop)
+	zone(b, -5, 5, -50, -25, rgb(180, 95, 70), M.Brick, PAL.concrete)
+	for z = -47, -29, 6 do
+		b:Box(V3(3, 0.06, 1.2), CF(0, 0.04, z), PAL.concrete, nil, { flat = true, solid = false })
+	end
+	-- flower beds beside the path entrance and along the side hedges
+	for i, spot in { { -7.5, -49 }, { 7.5, -49 }, { -45, -35 }, { 45, -35 }, { -45, -15 }, { 45, -15 } } do
+		flowerBed(b, CF(spot[1], 0, spot[2]), 40 + i)
+	end
+end
+
+-- frame + corner lights around an upgrade pad (pad is 6 x 6, frame sits on the floor around it)
+Decor.UpgradeFrame = function(b, variant)
+	local colors = { PAL.blue, PAL.tea, rgb(170, 90, 220) }
+	local glow = colors[variant or 1] or PAL.white
+	for _, side in { -1, 1 } do
+		b:Box(V3(7.2, 0.35, 0.6), CF(0, 0.18, side * 3.3), PAL.black, nil, { flat = true, solid = false })
+		b:Box(V3(0.6, 0.35, 6), CF(side * 3.3, 0.18, 0), PAL.black, nil, { flat = true, solid = false })
+	end
+	for _, x in { -3.3, 3.3 } do
+		for _, z in { -3.3, 3.3 } do
+			b:Cyl(0.5, 0.5, CF(x, 0.35, z), glow, M.Neon, { solid = false })
+		end
+	end
+end
+
 -- a hired barista with a small tea cart; variant picks the apron color (0 = gold VIP barista)
 Decor.StaffCart = function(b, variant)
 	local aprons = { PAL.tea, PAL.green, PAL.blue, PAL.red, PAL.pink, PAL.teaDark }
