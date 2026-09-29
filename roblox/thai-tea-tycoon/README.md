@@ -12,9 +12,9 @@
 - จำลองผู้เล่นที่ซื้ออันถูกสุดก่อน: ชิ้นแรกได้ใน ~30 วินาทีแม้ไม่ชงเลย, สร้างครบ ≈ **40 นาที** ถ้าชงเองด้วย หรือ ≈ 70 นาที ถ้าไม่ชงเลย
 - ปรับได้ที่ `BREW_COOLDOWN`, `BREW_SHARE`, `PASSIVE_SHARE`, `STAFF_INTERVAL`, `Config.UPGRADES`
 
-> **สถานะการทดสอบ:** ทุกไฟล์ผ่านการคอมไพล์ด้วย `luau-compile` และตรวจด้วย `luau-analyze` (เหลือแค่คำเตือนเรื่อง global ของ Roblox ที่ตัวตรวจนอก Studio ไม่รู้จัก)
-> จำลองเศรษฐกิจด้วยสคริปต์แล้ว (สร้างครบ ≈ 40 นาทีถ้าชงเอง, ≈ 70 นาทีถ้าไม่ชง)
-> แต่ **ยังไม่เคยรันใน Roblox Studio จริง** จึงอาจมีบั๊กตอนรัน ถ้าเจอ error ให้คัดลอกข้อความสีแดงจากหน้าต่าง Output มาแก้ต่อ
+> **สถานะการทดสอบ (29 ก.ย. 2026):** รันใน Roblox Studio จริงแล้ว ผ่าน Studio MCP ไม่มีข้อความสีแดงใน Output
+> ผ่านเช็กลิสต์: สร้างฐาน 6 ฐาน · เงินขึ้นเอง · ลูกค้าเดินบนพื้น หันถูกทาง ต่อคิวหน้า Brew Station · ชงได้เฉพาะบนพรมส้ม (ยืนหน้าเคาน์เตอร์ห่างพรม ~6 studs กด E แล้วไม่ได้เงิน) · จ้างพนักงาน/อัปเกรด/แผ่นเขียว · เซฟแล้วโหลดกลับมาได้
+> คำเตือนที่ยังเหลือ (ตั้งใจ): Max Players ยังไม่ใช่ 6 และ Game Pass ID ยังเป็น 0
 
 ---
 
@@ -22,8 +22,9 @@
 1. เปิด Studio → เทมเพลต **Baseplate**
 2. เปิด API สำหรับเซฟข้อมูลตอนทดสอบ: **Home → Game Settings → Security → Enable Studio Access to API Services**
    (ถ้าไม่เปิด เกมยังเล่นได้ แต่จะไม่เซฟ และมีคำเตือนใน Output)
-3. **Game Settings → Players → Max Players = 6** (ตรงกับจำนวนฐาน)
-4. **Explorer → Lighting → Properties → Technology = Future** ให้แสงสวยที่สุด (สคริปต์ตั้งค่าบรรยากาศ แสงฟุ้ง และสีให้เองอยู่แล้ว แต่ตั้ง Technology เองไม่ได้) ถ้าอยากใช้แสงของตัวเองให้ตั้ง `Config.SETUP_LIGHTING = false`
+3. **Max Players = 6** (ตรงกับจำนวนฐาน) Studio รุ่นใหม่ย้ายช่องนี้ไปไว้บนเว็บแล้ว: Creator Hub → Creations → เกม → Places → เพลส → Configure Place → Server Fill / Max Players
+4. **Explorer → Lighting → Properties → LightingStyle = Realistic** และติ๊ก **PrioritizeLightingQuality** (Studio รุ่นใหม่ใช้สองช่องนี้แทน Technology = Future) สคริปต์ตั้งบรรยากาศ แสงฟุ้ง และสีให้เองอยู่แล้ว ถ้าอยากใช้แสงของตัวเองให้ตั้ง `Config.SETUP_LIGHTING = false`
+5. `Workspace.StreamingEnabled = true` ตั้งให้อัตโนมัติผ่าน Rojo (`default.project.json`)
 
 ## 2) สร้างสคริปต์ (คัดลอกเนื้อหาไฟล์ไปวาง)
 | ไฟล์ในแพ็กเกจ | ชนิดที่ต้องสร้าง | ชื่อ | ที่อยู่ |

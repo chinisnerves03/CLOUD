@@ -2,6 +2,12 @@
   "name": "ThaiTeaTycoon",
   "tree": {
     "$className": "DataModel",
+    "Workspace": {
+      "$ignoreUnknownInstances": true,
+      "$properties": {
+        "StreamingEnabled": true
+      }
+    },
     "ReplicatedStorage": {
       "$path": "src/ReplicatedStorage",
       "$ignoreUnknownInstances": true

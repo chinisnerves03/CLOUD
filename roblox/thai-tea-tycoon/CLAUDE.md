@@ -44,17 +44,19 @@ Never put a model name in commits, PRs or code.
 1. Clone: `git clone https://github.com/chinisnerves03/cloud` and work in `roblox/thai-tea-tycoon`.
 2. Rojo: install the CLI (https://rojo.space, or `aftman`/`rokit add rojo-rbx/rojo`) and the Rojo Studio plugin;
    run `rojo serve` in this folder, then Plugins → Rojo → Connect in Studio.
-3. Studio settings (owner must click these): Game Settings → Security → Enable Studio Access to API Services;
-   Players → Max Players 6; Workspace.StreamingEnabled = true; Lighting.Technology = Future.
+3. Studio settings: Game Settings → Security → Enable Studio Access to API Services (click in Studio);
+   Max Players 6 now lives on the Creator Hub (Places → Configure Place); Workspace.StreamingEnabled is set by the
+   Rojo project; Lighting uses LightingStyle = Realistic + PrioritizeLightingQuality (Technology is deprecated and
+   cannot be read or written from the MCP run_code context).
 4. To let Claude drive Studio (run the game, read Output), install Roblox's Studio MCP server
    (https://github.com/Roblox/studio-rust-mcp-server) and add it to Claude Code. Check its README for current steps.
 5. Preview tools need a `luau` binary (https://github.com/luau-lang/luau/releases): `LUAU=path/to/luau tools/preview/build.sh`.
 
 ## To do (priority order)
 
-1. **First real run in Studio.** The code compiles but has never run in Roblox. Play-test the README checklist:
-   plots build, customers walk on the floor facing the right way, brewing only works on the mat behind the counter,
-   staff/upgrades/buy pad/Auto Build work, data saves and reloads, no red errors in Output.
+1. ~~First real run in Studio~~ — done 2026-09-29: README checklist passes, no red errors. Test by driving Studio
+   MCP `run_script_in_play_mode` (server-side script that teleports the character onto pads and logs attributes);
+   press E through the real client for brewing (the prompt only triggers on a key held ~0.15 s).
 2. **In-game shop UI**: a Shop button + window selling the 4 Game Passes and 2 Cash Boost products
    (`MarketplaceService:PromptGamePassPurchase` / `PromptProductPurchase`); MonetizationService already handles
    the purchases. Without it the game earns nothing.

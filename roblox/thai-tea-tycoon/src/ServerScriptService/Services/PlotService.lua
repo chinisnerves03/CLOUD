@@ -79,7 +79,8 @@ end
 local function makeLabel(pad: BasePart, height: number): TextLabel
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "PadLabel"
-	gui.Size = UDim2.fromOffset(220, 64)
+	-- sized in studs (not pixels) so labels of neighboring pads never overlap from far away
+	gui.Size = UDim2.fromScale(pad.Size.X + 1.5, 2.4)
 	gui.StudsOffset = Vector3.new(0, height, 0)
 	gui.MaxDistance = 120
 	gui.AlwaysOnTop = true

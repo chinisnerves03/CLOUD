@@ -25,7 +25,7 @@ if Config.PRINT_ECONOMY_CHECK then
 end
 
 -- Warm afternoon look: soft shadows, light haze, gentle bloom and a little extra color.
--- (Set Lighting.Technology to Future in Studio for the best result; scripts cannot change it.)
+-- (Set Lighting.LightingStyle = Realistic and PrioritizeLightingQuality in Studio for the best result; scripts cannot change them.)
 local function setupLighting()
 	local Lighting = game:GetService("Lighting")
 	Lighting.ClockTime = 15.2
