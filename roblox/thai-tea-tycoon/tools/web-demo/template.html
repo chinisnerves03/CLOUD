@@ -68,7 +68,7 @@ body { margin: 0; background: var(--ground); color: var(--ink); font-family: var
 </div>
 <div id="hint" class="hud panel">Setting up your shop…</div>
 <div id="toasts" class="hud"></div>
-<div id="help" class="hud panel"><b>Move</b> WASD or arrow keys · <b>Earn</b> your shop sells by itself · hold E at the Brew Station to earn faster · <b>Upgrade</b> step on the colored pads · <b>Look</b> drag · <b>Zoom</b> scroll<br>Phone: drag the left side to walk, the right side to look.</div>
+<div id="help" class="hud panel"><b>Move</b> WASD or arrow keys · <b>Earn</b> your shop sells by itself · hold E behind the Brew Station counter (orange mat) to earn faster · <b>Upgrade</b> step on the colored pads · <b>Look</b> drag · <b>Zoom</b> scroll<br>Phone: drag the left side to walk, the right side to look.</div>
 <div id="controls" class="hud">
   <button id="brew" type="button" class="brew">Brew Tea (E)</button>
   <button id="auto" type="button" title="A Game Pass in Roblox: builds the next item as soon as you can afford it">Auto Build: Off</button>
@@ -212,7 +212,7 @@ function partMatrix(p) {
 // pivots: bottom-center of each item's parts
 var bounds = {};
 DATA.parts.forEach(function (p) {
-  var name = DATA.items[p[0]]; if (!/^(L\d\d|Staff\d|VipBarista)$/.test(name)) return;
+  var name = DATA.items[p[0]]; if (!/^(L\d\d|Staff\d|VipBarista|Customer\d)$/.test(name)) return;
   var b = bounds[name] = bounds[name] || { x0: 1e9, x1: -1e9, y0: 1e9, z0: 1e9, z1: -1e9 };
   b.x0 = Math.min(b.x0, p[5]); b.x1 = Math.max(b.x1, p[5]); b.z0 = Math.min(b.z0, p[7]); b.z1 = Math.max(b.z1, p[7]); b.y0 = Math.min(b.y0, p[6] - p[3] / 2);
 });
@@ -380,9 +380,64 @@ function applyLevel(animateNew) {
   });
 }
 
+// ---------------------------------------------------------------- customers (same behaviour as ClientMain.client.lua)
+// They walk in from the plaza, queue in front of the Brew Station, get a cup and walk off. The shop serves on its
+// own every few seconds; each brew serves the front customer at once.
+var QUEUE_SIZE = 3, QUEUE_GAP = 2.6, WALK_SPEED = 7, SERVE_EVERY = 2.5, SPAWN_EVERY = 1.3;
+var queueStart = DATA.special.QueueStart ? { x: DATA.special.QueueStart[0], z: DATA.special.QueueStart[2] } : null;
+(DATA.special.CustomerCups || []).forEach(function (i) { if (partMeshes[i]) partMeshes[i].userData.cup = true; });
+var customerTemplates = Object.keys(itemGroups).filter(function (k) { return /^Customer\d$/.test(k); }).map(function (k) {
+  itemGroups[k].group.visible = false; return itemGroups[k].group;
+});
+var customers = { list: [], spawnIn: 0, serveIn: SERVE_EVERY, lastServe: -9 };
+function setCup(group, visible) { group.traverse(function (o) { if (o.userData.cup) o.visible = visible; }); }
+function serveFront() {
+  for (var i = 0; i < customers.list.length; i++) {
+    var c = customers.list[i]; if (c.leaving) continue;
+    if (c.slot !== 1 || c.path.length) return false;
+    c.leaving = true; setCup(c.group, true);
+    c.path = [{ x: c.side * 3.2, z: -1.2 }, { x: c.side * 16, z: -10 }];
+    customers.lastServe = clock; return true;
+  }
+  return false;
+}
+function updateCustomers(dt) {
+  if (!queueStart || !customerTemplates.length) return;
+  var waiting = 0;
+  customers.list.forEach(function (c) {
+    if (c.leaving) return;
+    waiting++;
+    if (c.slot !== waiting) { c.slot = waiting; c.path.push({ x: 0, z: -(waiting - 1) * QUEUE_GAP }); }
+  });
+  customers.spawnIn -= dt;
+  if (waiting < QUEUE_SIZE && customers.spawnIn <= 0) {
+    customers.spawnIn = SPAWN_EVERY + Math.random() * 1.5;
+    var side = Math.random() < 0.5 ? -1 : 1, slot = waiting + 1;
+    var group = customerTemplates[Math.floor(Math.random() * customerTemplates.length)].clone();
+    group.visible = true; setCup(group, false); scene.add(group);
+    customers.list.push({ group: group, x: side * 16, z: -10, face: 0, side: side, slot: slot, leaving: false, phase: Math.random() * 6,
+      path: [{ x: 0, z: -QUEUE_SIZE * QUEUE_GAP - 1.5 }, { x: 0, z: -(slot - 1) * QUEUE_GAP }] });
+  }
+  customers.serveIn -= dt;
+  if (customers.serveIn <= 0) customers.serveIn = serveFront() ? SERVE_EVERY / speedMult() : 0.3;
+  for (var i = customers.list.length - 1; i >= 0; i--) {
+    var c = customers.list[i], target = c.path[0], moving = false;
+    if (target) {
+      var dx = target.x - c.x, dz = target.z - c.z, d = Math.hypot(dx, dz), step = WALK_SPEED * dt;
+      if (d <= step) { c.x = target.x; c.z = target.z; c.path.shift(); } else { c.x += dx / d * step; c.z += dz / d * step; }
+      if (d > 0.05) c.face = Math.atan2(dx, dz);
+      moving = true;
+    } else if (c.leaving) { scene.remove(c.group); customers.list.splice(i, 1); continue; }
+    else c.face = 0;   // face the counter (+Z)
+    var bob = moving ? Math.abs(Math.sin(c.phase + clock * 9)) * 0.18 : 0;
+    c.group.position.set(queueStart.x + c.x, 1 + bob, queueStart.z + c.z);
+    c.group.rotation.y = c.face;
+  }
+}
+
 // ---------------------------------------------------------------- brewing
 var lastBrew = -1;
-function nearStation() { return Math.hypot(player.position.x - brewPad.x, player.position.z - brewPad.z) < 9; }
+function nearStation() { return inside(brewPad, player.position); }   // brew from behind the counter, standing on the orange mat
 function pop(text) {
   var box = el('cash').getBoundingClientRect(), p = document.createElement('div');
   p.className = 'pop'; p.textContent = text; p.style.left = (box.left - 80) + 'px'; p.style.top = box.top + 'px';
@@ -390,10 +445,11 @@ function pop(text) {
 }
 function brew() {
   if (clock - lastBrew < BREW_COOLDOWN / speedMult()) return;
-  if (!nearStation()) { if (clock - lastBrew > 1) { toast('error', 'Walk to the Brew Station to brew tea'); lastBrew = clock; } return; }
+  if (!nearStation()) { if (clock - lastBrew > 1) { toast('error', 'Go behind the counter (orange mat) to brew'); lastBrew = clock; } return; }
   lastBrew = clock;
   var value = cupValue();
   state.cash += value; pop('+' + money(value));
+  if (clock - customers.lastServe > 0.3 && serveFront()) customers.serveIn = SERVE_EVERY / speedMult();
 }
 var brewHeld = false;
 window.addEventListener('keydown', function (e) { if (e.key === 'e' || e.key === 'E' || e.key === ' ') { brewHeld = true; e.preventDefault(); } });
@@ -439,6 +495,7 @@ function frame(now) {
   state.cash += autoIncome() * dt * speed;
   if (state.autoBuild && state.level < MAX_LEVEL && state.cash >= PRICE[state.level + 1]) tryBuy(0);
   if (brewHeld) brew();
+  updateCustomers(dt);
   // movement
   var mx = 0, mz = 0;
   if (keys.w || keys.arrowup) mz += 1; if (keys.s || keys.arrowdown) mz -= 1;
@@ -502,7 +559,7 @@ function frame(now) {
     var goalName = next <= MAX_LEVEL ? NAMES[next - 2] : '', goalCost = next <= MAX_LEVEL ? price : Infinity;
     if (cheapest && cheapestCost < goalCost) { goalName = UPGRADES[cheapest].name; goalCost = cheapestCost; }
     var inc = autoIncome() * speed;
-    el('hint').textContent = 'Your shop earns ' + rate(inc) + '/s — ' + goalName + (inc > 0 ? ' in ' + time(Math.ceil((goalCost - state.cash) / inc)) : '') + ' · brew (E) to get there faster';
+    el('hint').textContent = 'Your shop earns ' + rate(inc) + '/s — ' + goalName + (inc > 0 ? ' in ' + time(Math.ceil((goalCost - state.cash) / inc)) : '') + ' · brew behind the counter (E) to get there faster';
     goal = brewPad;
   }
   arrow.visible = ring.visible = !!goal;
@@ -521,7 +578,7 @@ function resize() { var w = window.innerWidth, h = window.innerHeight; renderer.
 window.addEventListener('resize', resize); resize();
 applyLevel(false);
 var loader = document.getElementById('loading'); if (loader) loader.remove();
-toast('info', state.level > 1 ? 'Welcome back! Level ' + state.level : 'Welcome! Your shop sells tea by itself — brew at the Brew Station to earn faster, then build and upgrade.');
+toast('info', state.level > 1 ? 'Welcome back! Level ' + state.level : 'Welcome! Customers queue at your Brew Station — go behind the counter and brew to serve them faster.');
 requestAnimationFrame(frame);
 window.__game = { state: state, tp: function (x, z) { player.position.x = x; player.position.z = z; } };   // test hook
 })();

@@ -2768,71 +2768,111 @@ Decor.SignLamps = function(b)
 end
 
 -- the Brew Station: a tea cart where the player brews by hand (the "Kettle" part holds the prompt)
+-- Brew Station: customers queue at the front (-Z), the player brews from behind the counter (+Z) standing on
+-- BrewPad. QueueStart (invisible) marks where the first customer waits; the queue runs toward -Z from it.
 Decor.BrewStation = function(b)
-	b:Box(V3(7, 0.4, 7), CF(0, 0.2, 0), PAL.tea, M.SmoothPlastic, { solid = false, name = "BrewPad" })
+	local pad = b:Box(V3(6, 0.4, 3.4), CF(0, 0.2, 4.2), PAL.tea, M.SmoothPlastic, { solid = false, name = "BrewPad", flat = true })
+	b:Text(pad, FACE.Top, "BREW HERE", { color = PAL.white, region = { 0.1, 0.25, 0.8, 0.5 } })
+	b:Box(V3(0.2, 0.2, 0.2), CF(0, 0.1, -1.6), PAL.white, nil, { t = 1, solid = false, name = "QueueStart" })
+
+	-- counter: customers see the THAI TEA front, the brewer works on top from behind
 	b:Box(V3(5, 3, 2.4), CF(0, 1.9, 1.2), PAL.woodLight, M.WoodPlanks)
 	b:Box(V3(5.3, 0.25, 2.7), CF(0, 3.5, 1.2), PAL.white, M.Marble)
 	local front = b:Box(V3(5, 1.2, 0.08), CF(0, 2.3, -0.04), PAL.green, nil, { solid = false })
-	b:Text(front, FACE.Front, "BREW TEA", { color = PAL.cream })
+	b:Text(front, FACE.Front, "THAI TEA", { color = PAL.cream })
+	local order = b:Box(V3(2.2, 0.45, 0.08), CF(0, 1.3, -0.04), PAL.tea, nil, { solid = false })
+	b:Text(order, FACE.Front, "ORDER HERE", { color = PAL.white })
 	b:Cyl(0.3, 1.8, CF(-1.2, 3.75, 1.3), PAL.black)
 	b:Cyl(0.1, 1.4, CF(-1.2, 3.92, 1.3), rgb(80, 150, 255), M.Neon, { solid = false })
 	local kettle = b:Cyl(1.6, 1.6, CF(-1.2, 4.75, 1.3), PAL.steel, M.Metal, { name = "Kettle" })
 	b:Ellipsoid(V3(1.6, 0.6, 1.6), CF(-1.2, 5.55, 1.3), PAL.steel, M.Metal)
 	b:Tube(V3(-0.5, 5.0, 1.0), V3(0.2, 5.5, 0.6), 0.2, PAL.steel, M.Metal)
-	b:Box(V3(0.2, 0.9, 0.2), CF(-2.05, 4.9, 1.3), PAL.black, nil, { solid = false })
+	b:Box(V3(0.2, 0.9, 0.2), CF(-1.2, 4.9, 2.15), PAL.black, nil, { solid = false })
 	b:Ball(0.8, CF(-1.0, 6.3, 1.3), PAL.white, nil, { t = 0.6, solid = false, name = "Steam" })
 	for i = 0, 2 do
-		b:TeaCup(CF(0.8 + i * 0.6, 3.62, 0.8), 1, if i == 1 then rgb(120, 180, 90) else nil)
+		b:TeaCup(CF(0.8 + i * 0.6, 3.62, 0.6), 1, if i == 1 then rgb(120, 180, 90) else nil)
 	end
-	b:Cyl(1.3, 0.5, CF(2.1, 3.62 + 0.65, 1.8), PAL.white, M.Glass, { t = 0.45, solid = false })
-	for _, x in { -2.3, 2.3 } do
-		b:Box(V3(0.25, 4.2, 0.25), CF(x, 5.7, 2.3), PAL.woodDark, M.Wood)
+	b:Cyl(1.3, 0.5, CF(2.1, 3.62 + 0.65, 1.9), PAL.white, M.Glass, { t = 0.45, solid = false })
+	b:Ellipsoid(V3(0.4, 0.3, 0.4), CF(0.9, 3.75, 1.9), PAL.gold, M.Metal)
+	b:Box(V3(0.6, 0.6, 0.06), CF(2.15, 3.3, -0.08), PAL.white, M.Fabric, { solid = false })
+	b:Box(V3(0.6, 0.1, 0.07), CF(2.15, 3.1, -0.09), PAL.red, M.Fabric, { solid = false })
+
+	-- back bench behind the brewer: condensed milk, sugar jar, strainer
+	b:Box(V3(4.8, 3, 1.2), CF(0, 1.5, 6.5), PAL.woodDark, M.Wood)
+	b:Box(V3(5.0, 0.2, 1.4), CF(0, 3.1, 6.5), PAL.white, M.Marble, { flat = true })
+	for i = 0, 1 do
+		b:Cyl(0.45, 0.4, CF(-1.6 + i * 0.45, 3.42, 6.5), PAL.white, M.Metal, { solid = false })
+		b:Cyl(0.2, 0.41, CF(-1.6 + i * 0.45, 3.42, 6.5), PAL.blue, nil, { solid = false })
 	end
-	local sign = b:Box(V3(5.4, 1.1, 0.25), CF(0, 8.2, 2.3), PAL.tea)
-	b:Text(sign, FACE.Front, "BREW STATION", { color = PAL.white })
-	local lamp = b:Ball(0.4, CF(0, 7.45, 2.1), PAL.warm, M.Neon, { solid = false })
-	b:Light(lamp, PAL.warm, 12, 0.7)
-	-- back shelf with labelled tea canisters, bunting between the posts
-	b:Box(V3(4.4, 0.15, 0.6), CF(0, 5.9, 2.3), PAL.woodDark, M.Wood, { solid = false })
+	b:Cyl(0.55, 0.45, CF(-0.3, 3.47, 6.5), PAL.white, M.Glass, { t = 0.4, solid = false })
+	b:Cyl(0.35, 0.4, CF(-0.3, 3.37, 6.5), PAL.white, nil, { solid = false })
+	b:Ellipsoid(V3(0.55, 0.3, 0.55), CF(1.0, 3.35, 6.5), rgb(215, 150, 95), M.Fabric)
+	b:Rod(V3(1.0, 3.4, 6.5), V3(1.3, 3.9, 6.0), 0.07, PAL.woodDark)
+	for i = 0, 2 do
+		b:Cyl(0.4, 0.5, CF(1.9, 3.4 + i * 0.3, 6.5), PAL.white, M.Glass, { t = 0.45, solid = false })
+	end
+
+	-- frame over the back bench: posts, canister shelf, bunting, lamp, sign, price board
+	for _, x in { -2.7, 2.7 } do
+		b:Box(V3(0.25, 7.8, 0.25), CF(x, 3.9, 6.9), PAL.woodDark, M.Wood)
+	end
+	b:Box(V3(5.2, 0.15, 0.6), CF(0, 5.4, 6.8), PAL.woodDark, M.Wood, { solid = false })
 	for i, spec in { { PAL.tea, "TEA" }, { PAL.green, "GREEN" }, { PAL.red, "ROSE" }, { PAL.teaDark, "COCOA" } } do
 		local x = -1.65 + (i - 1) * 1.1
-		local can = b:Cyl(0.9, 0.6, CF(x, 6.43, 2.3), spec[1], M.Metal, { solid = false })
-		b:Cyl(0.12, 0.64, CF(x, 6.94, 2.3), PAL.steel, M.Metal, { solid = false })
-		local label = b:Box(V3(0.5, 0.3, 0.02), CF(x, 6.4, 1.99), PAL.cream, nil, { solid = false })
+		local can = b:Cyl(0.9, 0.6, CF(x, 5.93, 6.8), spec[1], M.Metal, { solid = false })
+		b:Cyl(0.12, 0.64, CF(x, 6.44, 6.8), PAL.steel, M.Metal, { solid = false })
+		local label = b:Box(V3(0.5, 0.3, 0.02), CF(x, 5.9, 6.49), PAL.cream, nil, { solid = false })
 		b:Text(label, FACE.Front, spec[2], { color = PAL.black })
 		can.Name = "Canister"
 	end
-	for i = 0, 6 do
-		b:Wedge(V3(0.05, 0.45, 0.4), CF(-1.95 + i * 0.65, 7.05, 2.15) * ANG(rad(180), rad(90), 0), if i % 2 == 0 then PAL.tea else PAL.white, M.Fabric, { solid = false })
+	b:Rod(V3(-2.7, 7.3, 6.75), V3(2.7, 7.3, 6.75), 0.04, PAL.black)
+	for i = 0, 7 do
+		b:Wedge(V3(0.05, 0.45, 0.4), CF(-2.3 + i * 0.65, 7.05, 6.75) * ANG(rad(180), rad(90), 0), if i % 2 == 0 then PAL.tea else PAL.white, M.Fabric, { solid = false })
 	end
-	b:Rod(V3(-2.3, 7.3, 2.15), V3(2.3, 7.3, 2.15), 0.04, PAL.black)
-	-- condensed milk cans, sugar jar, strainer ladle, tea towel over the front edge
-	for i = 0, 1 do
-		b:Cyl(0.45, 0.4, CF(0.1 + i * 0.45, 3.85, 2.05), PAL.white, M.Metal, { solid = false })
-		b:Cyl(0.2, 0.41, CF(0.1 + i * 0.45, 3.85, 2.05), PAL.blue, nil, { solid = false })
-	end
-	b:Cyl(0.55, 0.45, CF(1.3, 3.9, 2.0), PAL.white, M.Glass, { t = 0.4, solid = false })
-	b:Cyl(0.35, 0.4, CF(1.3, 3.8, 2.0), PAL.white, nil, { solid = false })
-	b:Ellipsoid(V3(0.55, 0.3, 0.55), CF(-2.3, 3.8, 0.5), rgb(215, 150, 95), M.Fabric)
-	b:Rod(V3(-2.3, 3.9, 0.5), V3(-2.2, 4.6, 1.2), 0.07, PAL.woodDark)
-	b:Box(V3(0.6, 0.6, 0.06), CF(2.15, 3.3, -0.08), PAL.white, M.Fabric, { solid = false })
-	b:Box(V3(0.6, 0.1, 0.07), CF(2.15, 3.1, -0.09), PAL.red, M.Fabric, { solid = false })
-	-- ice bucket with scoop, tea sacks, side price board on the left post
-	b:Cyl(1.0, 1.1, CF(3.0, 0.9, 1.4), PAL.steel, M.Metal)
+	local sign = b:Box(V3(5.8, 1.1, 0.25), CF(0, 8.2, 6.9), PAL.tea)
+	b:Text(sign, FACE.Front, "BREW STATION", { color = PAL.white })
+	local lamp = b:Ball(0.4, CF(0, 7.5, 6.6), PAL.warm, M.Neon, { solid = false })
+	b:Light(lamp, PAL.warm, 12, 0.7)
+	b:Box(V3(0.7, 0.1, 0.1), CF(-3.1, 6.0, 6.9), PAL.black, M.Metal, { solid = false })
+	local price = b:Box(V3(1.1, 1.4, 0.08), CF(-3.4, 5.2, 6.9), rgb(30, 35, 32), nil, { solid = false })
+	b:Text(price, FACE.Front, "HOT\nICED\nBIG", { color = PAL.cream, font = Enum.Font.GothamBold })
+
+	-- queue mat in front, ice bucket and tea sacks at the sides
+	local mat = b:Box(V3(2.6, 0.05, 7.4), CF(0, 0.03, -5.0), PAL.red, M.Fabric, { flat = true, solid = false })
+	b:Text(mat, FACE.Top, "QUEUE", { color = PAL.white, region = { 0.1, 0.35, 0.8, 0.3 } })
+	b:Cyl(1.0, 1.1, CF(3.3, 0.5, 1.4), PAL.steel, M.Metal)
 	for i = 0, 3 do
-		b:Box(V3(0.25, 0.25, 0.25), CF(2.8 + (i % 2) * 0.35, 1.45, 1.25 + math.floor(i / 2) * 0.3) * ANG(0, i, 0), PAL.glass, M.Glass, { t = 0.3, solid = false })
+		b:Box(V3(0.25, 0.25, 0.25), CF(3.1 + (i % 2) * 0.35, 1.05, 1.25 + math.floor(i / 2) * 0.3) * ANG(0, i, 0), PAL.glass, M.Glass, { t = 0.3, solid = false })
 	end
-	b:Rod(V3(3.0, 1.4, 1.4), V3(3.3, 1.9, 1.9), 0.08, PAL.steel, M.Metal)
+	b:Rod(V3(3.3, 1.0, 1.4), V3(3.6, 1.5, 1.9), 0.08, PAL.steel, M.Metal)
 	for i = 0, 1 do
-		local sack = b:Box(V3(1.1, 1.2, 0.9), CF(-3.1, 1.0 + i * 0.05, 1.8 - i * 1.0) * ANG(0, rad(i * 12), 0), PAL.cream, M.Fabric)
+		local sack = b:Box(V3(1.1, 1.2, 0.9), CF(-3.3, 0.6, 1.9 - i * 1.0) * ANG(0, rad(i * 12), 0), PAL.cream, M.Fabric)
 		if i == 1 then
 			b:Text(sack, FACE.Front, "TEA", { color = PAL.teaDark, region = { 0.1, 0.3, 0.8, 0.4 } })
 		end
 	end
-	b:Box(V3(0.7, 0.1, 0.1), CF(-2.7, 6.0, 2.3), PAL.black, M.Metal, { solid = false })
-	local price = b:Box(V3(1.1, 1.4, 0.08), CF(-3.0, 5.2, 2.3), rgb(30, 35, 32), nil, { solid = false })
-	b:Text(price, FACE.Front, "HOT\nICED\nBIG", { color = PAL.cream, font = Enum.Font.GothamBold })
 	return kettle
+end
+
+-- a customer for the Brew Station queue (animated on each player's client). variant picks the outfit.
+-- The "Cup" sub-model is hidden until the customer is served (each part keeps its own transparency in T0).
+Decor.Customer = function(b, variant)
+	local outfits = {
+		{ PAL.pink, PAL.blue, PAL.hair, false }, { PAL.blue, PAL.black, rgb(120, 70, 40), true },
+		{ PAL.yellow, PAL.blue, PAL.hair, true }, { PAL.green, PAL.cream, rgb(200, 150, 80), false },
+		{ PAL.red, PAL.black, PAL.hair, true }, { PAL.white, rgb(90, 110, 80), rgb(120, 70, 40), false },
+	}
+	local o = outfits[((variant or 1) - 1) % #outfits + 1]
+	local hands = b:Person(CF(), { shirt = o[1], apron = o[1], pants = o[2], hair = o[3], long = o[4], right = { 55, 15 }, left = { 10, 0 } })
+	local cupModel = Instance.new("Model")
+	cupModel.Name = "Cup"
+	cupModel.Parent = b.Model
+	local cb = newBuilder(cupModel, b.Origin)
+	cb.Round = false
+	cb:TeaCup(CF(hands.right) * CF(0, -0.35, 0), 0.9, if (variant or 1) % 3 == 0 then rgb(120, 180, 90) else nil)
+	for _, part in cupModel:GetChildren() do
+		part.Name = "Cup"
+	end
 end
 
 -- plot ground: a floor for each zone (flat, walk-through, 0.04 thick), grout/lane lines, the central brick path

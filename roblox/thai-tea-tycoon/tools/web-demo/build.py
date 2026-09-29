@@ -24,6 +24,8 @@ def main():
     items, mats, out, texts, special = [], [], [], [], {}
     r = lambda x: round(x, 3)
     for p in parts:
+        if p["item"] == "BrewStation" and p["name"] == "QueueStart":
+            special["QueueStart"] = [r(v) for v in p["pos"]]
         if p["t"] >= 1 and not p["texts"]:
             continue
         c = p["color"]
@@ -33,6 +35,8 @@ def main():
             special[p["name"]] = n
         if p["item"] == "BrewStation" and p["name"] in ("Kettle", "BrewPad"):
             special[p["name"]] = n
+        if p["item"].startswith("Customer") and p["name"] == "Cup":
+            special.setdefault("CustomerCups", []).append(n)
         for t in p["texts"]:
             hex_color = "#%02x%02x%02x" % tuple(round(x * 255) for x in t["color"])
             texts.append([n, t["face"], t["text"], hex_color, 1 if t["glow"] else 0, [r(v) for v in t["region"]]])

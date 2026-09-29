@@ -32,6 +32,7 @@ type PlotState = {
 	StaffModels: { Model }, -- hired barista carts (index = hire order), parked in Storage until hired
 	VipModel: Model?,
 	Kettle: BasePart?,
+	BrewPad: BasePart?, -- where the brewer stands (behind the counter); nil = brew from anywhere near the Kettle
 	SignLabel: TextLabel?,
 	ItemsFolder: Folder,
 	Storage: Folder,
@@ -254,6 +255,12 @@ local function brew(player: Player, plot: PlotState)
 	if now - state.LastBrew < brewCooldown(state.Data) then
 		return
 	end
+	-- brewing happens from behind the counter (standing on BrewPad), customers queue at the front
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if plot.BrewPad and not (root and isStandingOn(plot.BrewPad, root.Position)) then
+		PlotService.Notify(player, "Error", "Go behind the counter (orange mat) to brew")
+		return
+	end
 	state.LastBrew = now
 	local value = cupValue(player, state.Data)
 	state.Data.Cash += value
@@ -448,6 +455,7 @@ local function setupPlot(model: Model, storageRoot: Folder): PlotState?
 	if not kettle then
 		warn("[PlotService] " .. model.Name .. " has no BrewStation with a Kettle part — players cannot brew here")
 	end
+	local brewPad = station and station:FindFirstChild("BrewPad", true) :: BasePart?
 
 	local plot: PlotState = {
 		Model = model,
@@ -461,6 +469,7 @@ local function setupPlot(model: Model, storageRoot: Folder): PlotState?
 		StaffModels = staffModels,
 		VipModel = vipModel,
 		Kettle = kettle,
+		BrewPad = brewPad,
 		SignLabel = signLabel,
 		ItemsFolder = itemsFolder :: Folder,
 		Storage = storage,
@@ -474,10 +483,11 @@ local function setupPlot(model: Model, storageRoot: Folder): PlotState?
 		prompt.ObjectText = "Brew Station"
 		prompt.KeyboardKeyCode = Enum.KeyCode.E
 		prompt.HoldDuration = 0
-		prompt.MaxActivationDistance = 12
+		-- on the mat behind the counter when there is one (only reachable from the brewer's side)
+		prompt.MaxActivationDistance = if brewPad then 4.5 else 12
 		prompt.RequiresLineOfSight = false
 		prompt.ClickablePrompt = true
-		prompt.Parent = kettle
+		prompt.Parent = brewPad or kettle
 		prompt.Triggered:Connect(function(player)
 			brew(player, plot)
 		end)
@@ -505,6 +515,7 @@ function PlotService.AddPlayer(player: Player, data): boolean
 	end
 
 	plot.Owner = player
+	plot.Model:SetAttribute("Owned", true) -- clients animate queueing customers on owned plots
 	local state: OwnerState = { Plot = plot, Data = data, OnPad = {}, OnUpgrade = {}, LastBrew = 0 }
 	owners[player] = state
 
@@ -545,6 +556,7 @@ function PlotService.RemovePlayer(player: Player)
 
 	local plot = state.Plot
 	plot.Owner = nil
+	plot.Model:SetAttribute("Owned", false)
 	hideAllItems(plot)
 	setSign(plot, "Empty Plot")
 	refreshPads(plot)

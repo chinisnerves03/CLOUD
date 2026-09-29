@@ -54,6 +54,31 @@ if Config.SETUP_LIGHTING then
 	setupLighting()
 end
 
+-- Customer templates for the Brew Station queue: clients clone and animate them locally (no network traffic).
+do
+	local ItemModels = require(Services:WaitForChild("ItemModels"))
+	local templates = Instance.new("Folder")
+	templates.Name = "CustomerTemplates"
+	for variant = 1, 6 do
+		local model = ItemModels.BuildDecor("Customer", CFrame.new(), variant)
+		if model then
+			model.Name = "Customer" .. variant
+			model.WorldPivot = CFrame.new() -- pivot at the feet, facing -Z
+			for _, part in model:GetDescendants() do
+				if part:IsA("BasePart") then
+					part.Anchored = true
+					part.CanCollide = false
+					part.CanQuery = false
+					part.CanTouch = false
+					part:SetAttribute("T0", part.Transparency)
+				end
+			end
+			model.Parent = templates
+		end
+	end
+	templates.Parent = ReplicatedStorage
+end
+
 DataService.Init()
 PlotService.Init(MonetizationService, notifyRemote)
 MonetizationService.Init(DataService, PlotService)

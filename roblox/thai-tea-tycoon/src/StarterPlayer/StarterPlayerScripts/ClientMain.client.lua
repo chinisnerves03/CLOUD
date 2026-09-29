@@ -1,4 +1,4 @@
--- ClientMain: cash HUD + guidance text + guide arrow + notifications/sounds
+-- ClientMain: cash HUD + guidance text + guide arrow + notifications/sounds + queueing customers
 -- Reads the Attributes set by the server (Cash, Level, Income, BrewValue, BrewCooldown, Staff, Recipe, Speed, Plot) — display only
 
 local Players = game:GetService("Players")
@@ -169,9 +169,180 @@ local function showBrewPop(text: string)
 	task.delay(0.75, pop.Destroy, pop)
 end
 
+---------------------------------------------------------------------------
+-- Customers: they walk in from the plaza, queue at the front of each owned plot's Brew Station, get a cup
+-- and walk off. The shop serves on its own every few seconds; each brew serves the front customer at once.
+-- Purely visual and local to this client (clones of ReplicatedStorage.CustomerTemplates), no network traffic.
+---------------------------------------------------------------------------
+local customerTemplates: Instance? = nil -- found lazily so the HUD never waits for it
+local customerFolder = Instance.new("Folder")
+customerFolder.Name = "LocalCustomers"
+customerFolder.Parent = workspace
+
+local QUEUE_SIZE = 3
+local QUEUE_GAP = 2.6 -- studs between customers in the queue
+local WALK_SPEED = 7
+local SERVE_EVERY = 2.5 -- seconds between automatic sales (faster with Faster Service on your own plot)
+local SPAWN_EVERY = 1.3
+local VIEW_RANGE = 170 -- only animate queues near the camera
+
+type Customer = { Model: Model, Pos: Vector3, Facing: Vector3, Path: { Vector3 }, Slot: number, Side: number, Leaving: boolean, Phase: number }
+type Queue = { Customers: { Customer }, SpawnIn: number, ServeIn: number, LastServe: number }
+local queues: { [Model]: Queue } = {}
+
+local function setCupVisible(model: Model, visible: boolean)
+	local cup = model:FindFirstChild("Cup")
+	if cup then
+		for _, part in cup:GetChildren() do
+			if part:IsA("BasePart") then
+				part.Transparency = if visible then (part:GetAttribute("T0") or 0) else 1
+			end
+		end
+	end
+end
+
+local function queueStart(plot: Instance): BasePart?
+	local station = plot:FindFirstChild("BrewStation")
+	return station and station:FindFirstChild("QueueStart", true) :: BasePart?
+end
+
+local function clearQueue(plot: Model)
+	local q = queues[plot]
+	if q then
+		for _, c in q.Customers do
+			c.Model:Destroy()
+		end
+		queues[plot] = nil
+	end
+end
+
+-- hand the front customer a cup and send them off; returns false when nobody is waiting at the counter
+local function serveFront(q: Queue): boolean
+	for _, c in q.Customers do
+		if not c.Leaving then
+			if c.Slot ~= 1 or #c.Path > 0 then
+				return false
+			end
+			c.Leaving = true
+			setCupVisible(c.Model, true)
+			c.Path = { Vector3.new(c.Side * 3.2, 0, -1.2), Vector3.new(c.Side * 16, 0, -10) }
+			q.LastServe = os.clock()
+			return true
+		end
+	end
+	return false
+end
+
+local function serveOwnPlot()
+	local plots = workspace:FindFirstChild("Plots")
+	local name = player:GetAttribute("Plot")
+	local plot = plots and type(name) == "string" and plots:FindFirstChild(name)
+	local q = plot and queues[plot :: Model]
+	if q and os.clock() - q.LastServe > 0.3 and serveFront(q) then
+		q.ServeIn = SERVE_EVERY
+	end
+end
+
+local customerClock, customerStep = 0, 0
+RunService.Heartbeat:Connect(function(dt)
+	customerStep += dt
+	if customerStep < 1 / 30 then
+		return
+	end
+	customerTemplates = customerTemplates or ReplicatedStorage:FindFirstChild("CustomerTemplates")
+	if not customerTemplates then
+		return
+	end
+	dt, customerStep = customerStep, 0
+	customerClock += dt
+	local plots = workspace:FindFirstChild("Plots")
+	local camera = workspace.CurrentCamera
+	if not plots or not camera then
+		return
+	end
+	local ownName = player:GetAttribute("Plot")
+	local templates = (customerTemplates :: Instance):GetChildren()
+	for _, plot in plots:GetChildren() do
+		local start = queueStart(plot)
+		local active = start ~= nil and plot:GetAttribute("Owned") == true and #templates > 0
+			and (camera.CFrame.Position - start.Position).Magnitude < VIEW_RANGE
+		if not active or not start then
+			clearQueue(plot)
+			continue
+		end
+		local q = queues[plot]
+		if not q then
+			q = { Customers = {}, SpawnIn = 0, ServeIn = SERVE_EVERY, LastServe = 0 }
+			queues[plot] = q
+		end
+
+		-- keep the queue topped up and move everyone up a slot when the front leaves
+		local waiting = 0
+		for _, c in q.Customers do
+			if not c.Leaving then
+				waiting += 1
+				if c.Slot ~= waiting then
+					c.Slot = waiting
+					table.insert(c.Path, Vector3.new(0, 0, -(waiting - 1) * QUEUE_GAP))
+				end
+			end
+		end
+		q.SpawnIn -= dt
+		if waiting < QUEUE_SIZE and q.SpawnIn <= 0 then
+			q.SpawnIn = SPAWN_EVERY + math.random() * 1.5
+			local side = if math.random() < 0.5 then -1 else 1
+			local model = templates[math.random(#templates)]:Clone()
+			setCupVisible(model, false)
+			model.Parent = customerFolder
+			local slot = waiting + 1
+			table.insert(q.Customers, {
+				Model = model, Pos = Vector3.new(side * 16, 0, -10), Facing = Vector3.new(0, 0, 1), Side = side,
+				Slot = slot, Leaving = false, Phase = math.random() * 6,
+				Path = { Vector3.new(0, 0, -QUEUE_SIZE * QUEUE_GAP - 1.5), Vector3.new(0, 0, -(slot - 1) * QUEUE_GAP) },
+			})
+		end
+		q.ServeIn -= dt
+		if q.ServeIn <= 0 then
+			local speed = if plot.Name == ownName then Config.SpeedMultiplier(tonumber(player:GetAttribute("Speed")) or 0) else 1
+			q.ServeIn = if serveFront(q) then SERVE_EVERY / speed else 0.3
+		end
+
+		-- walk along each path, face the way they walk (or the counter while waiting), bob while moving
+		local floor = start.CFrame * CFrame.new(0, -start.Size.Y / 2, 0)
+		for i = #q.Customers, 1, -1 do
+			local c = q.Customers[i]
+			local moving = false
+			local target = c.Path[1]
+			if target then
+				local delta = target - c.Pos
+				local step = WALK_SPEED * dt
+				if delta.Magnitude <= step then
+					c.Pos = target
+					table.remove(c.Path, 1)
+				else
+					c.Pos += delta.Unit * step
+				end
+				if delta.Magnitude > 0.05 then
+					c.Facing = delta.Unit
+				end
+				moving = true
+			elseif c.Leaving then
+				c.Model:Destroy()
+				table.remove(q.Customers, i)
+				continue
+			else
+				c.Facing = Vector3.new(0, 0, 1)
+			end
+			local bob = if moving then math.abs(math.sin(c.Phase + customerClock * 9)) * 0.18 else 0
+			c.Model:PivotTo(floor * CFrame.new(c.Pos + Vector3.new(0, bob, 0)) * CFrame.lookAt(Vector3.zero, c.Facing).Rotation)
+		end
+	end
+end)
+
 notifyRemote.OnClientEvent:Connect(function(kind: string, text: string)
 	if kind == "Brew" then
 		showBrewPop(text)
+		serveOwnPlot()
 	else
 		showToast(kind, text)
 	end
@@ -321,6 +492,7 @@ RunService.RenderStepped:Connect(function(dt)
 	local pad = padSlots and padSlots:FindFirstChild("Pad1") :: BasePart?
 	local station = plot:FindFirstChild("BrewStation")
 	local kettle = station and station:FindFirstChild("Kettle", true) :: BasePart?
+	local brewSpot = station and station:FindFirstChild("BrewPad", true) :: BasePart? or kettle
 	local upgrades = plot:FindFirstChild("Upgrades")
 	animateStaff(plot, dt, perCup)
 
@@ -351,8 +523,8 @@ RunService.RenderStepped:Connect(function(dt)
 			goalName, goalCost = Config.UPGRADES[cheapest].Name, cheapestCost
 		end
 		local waitText = if income > 0 then " in " .. Config.FormatTime(math.ceil((goalCost - cash) / income)) else ""
-		hintLabel.Text = string.format("Your shop earns %s/s — %s%s · brew (E) to get there faster",
+		hintLabel.Text = string.format("Your shop earns %s/s — %s%s · brew behind the counter (E) to get there faster",
 			Config.FormatRate(income), goalName, waitText)
-		setTarget(kettle)
+		setTarget(brewSpot)
 	end
 end)

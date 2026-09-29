@@ -15,6 +15,12 @@ do
 	local vip = ItemModels.BuildDecor("StaffCart", floor * CFrame.new(ItemModels.VipSpot[1], 0, ItemModels.VipSpot[2]), 0)
 	vip.Name = "VipBarista"
 	vip.Parent = plot1
+	-- customers are animated on each client in the game; stand three in the Brew Station queue for previews/demo
+	for i = 1, 3 do
+		local c = ItemModels.BuildDecor("Customer", floor * CFrame.new(0, 0, -56.6 - (i - 1) * 2.6) * CFrame.Angles(0, math.pi, 0), i)
+		c.Name = "Customer" .. i
+		c.Parent = plot1
+	end
 end
 
 local function num(n) return string.format("%.4f", n) end
