@@ -142,6 +142,72 @@ local function showToast(kind: string, text: string)
 	end)
 end
 
+---------------------------------------------------------------------------
+-- Brewing feel: your character tips the kettle and tea splashes out of it
+---------------------------------------------------------------------------
+local splash: ParticleEmitter? = nil
+local function kettleSplash(): ParticleEmitter?
+	if splash and splash.Parent and splash.Parent.Parent then
+		return splash
+	end
+	local plots = workspace:FindFirstChild("Plots")
+	local plot = plots and plots:FindFirstChild(tostring(player:GetAttribute("Plot")))
+	local station = plot and plot:FindFirstChild("BrewStation")
+	local kettle = station and station:FindFirstChild("Kettle", true)
+	if not (kettle and kettle:IsA("BasePart")) then
+		return nil
+	end
+	local attachment = Instance.new("Attachment")
+	attachment.Name = "BrewSplash"
+	attachment.Position = Vector3.new(0, kettle.Size.Y / 2 + 0.2, 0)
+	local emitter = Instance.new("ParticleEmitter")
+	emitter.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	emitter.Color = ColorSequence.new(Color3.fromRGB(235, 140, 60), Color3.fromRGB(250, 220, 170))
+	emitter.LightEmission = 0.3
+	emitter.Size = NumberSequence.new(0.45, 0.1)
+	emitter.Lifetime = NumberRange.new(0.4, 0.7)
+	emitter.Speed = NumberRange.new(5, 9)
+	emitter.SpreadAngle = Vector2.new(35, 35)
+	emitter.Acceleration = Vector3.new(0, -30, 0)
+	emitter.Rate = 0
+	emitter.Parent = attachment
+	attachment.Parent = kettle
+	splash = emitter
+	return emitter
+end
+
+local pourBase: { [Motor6D]: CFrame } = {}
+local pourToken = 0
+local function brewEffect()
+	local emitter = kettleSplash()
+	if emitter then
+		emitter:Emit(10)
+	end
+	-- a quick pouring swing of the right arm (C0 offset on top of the walk/idle animation)
+	local character = player.Character
+	local arm = character and character:FindFirstChild("RightUpperArm")
+	local shoulder = arm and arm:FindFirstChild("RightShoulder")
+	if not (shoulder and shoulder:IsA("Motor6D")) then
+		return
+	end
+	local base = pourBase[shoulder] or shoulder.C0
+	pourBase[shoulder] = base
+	pourToken += 1
+	local token = pourToken
+	local start = os.clock()
+	task.spawn(function()
+		while token == pourToken and shoulder.Parent do
+			local t = (os.clock() - start) / 0.32
+			if t >= 1 then
+				shoulder.C0 = base
+				break
+			end
+			shoulder.C0 = base * CFrame.Angles(math.sin(t * math.pi) * 1.3, 0, math.sin(t * math.pi) * -0.25)
+			RunService.RenderStepped:Wait()
+		end
+	end)
+end
+
 local SOUND_FOR_KIND = { Buy = "Buy", Collect = "Collect", Offline = "Collect", Error = "Error", Brew = "Brew" }
 
 -- one Sound per effect, played with PlayLocalSound so fast brews can overlap without creating instances
@@ -238,7 +304,7 @@ local SERVE_EVERY = 2.5 -- seconds between automatic sales (faster with Faster S
 local SPAWN_EVERY = 1.3
 local VIEW_RANGE = 170 -- only animate queues near the camera
 
-type Customer = { Model: Model, Pos: Vector3, Facing: Vector3, Path: { Vector3 }, Slot: number, Side: number, Leaving: boolean, Phase: number, Idle: AnimationTrack?, Walk: AnimationTrack? }
+type Customer = { Model: Model, Pos: Vector3, Facing: Vector3, Path: { Vector3 }, Slot: number, Side: number, Leaving: boolean, Phase: number, Idle: AnimationTrack?, Walk: AnimationTrack?, Emotes: { [string]: AnimationTrack | boolean }?, PauseUntil: number?, NextEmote: number? }
 
 -- customers are R15 rigs (NpcService): walk while moving, idle while waiting
 local function customerTrack(model: Model, attr: string, speed: number): AnimationTrack?
@@ -257,6 +323,25 @@ local function customerTrack(model: Model, attr: string, speed: number): Animati
 	track.Looped = true
 	track:AdjustSpeed(speed)
 	return track
+end
+
+-- a one-off emote (cheer, laugh, point) on a customer; loaded on first use and kept on the customer
+local function emote(c, name: string): AnimationTrack?
+	c.Emotes = c.Emotes or {}
+	local track = c.Emotes[name]
+	if track == nil then
+		track = customerTrack(c.Model, "Npc" .. name .. "Animation", 1) or false
+		if track then
+			track.Looped = false
+			track.Priority = Enum.AnimationPriority.Action
+		end
+		c.Emotes[name] = track
+	end
+	if track then
+		track:Play(0.15)
+		return track
+	end
+	return nil
 end
 
 local function setWalking(c, walking: boolean)
@@ -308,6 +393,10 @@ local function serveFront(q: Queue): boolean
 			c.Leaving = true
 			setCupVisible(c.Model, true)
 			c.Path = { Vector3.new(c.Side * 3.2, 0, -1.2), Vector3.new(c.Side * 16, 0, -10) }
+			-- a happy little cheer with the new cup before walking off
+			if emote(c, "Cheer") then
+				c.PauseUntil = os.clock() + 1.1
+			end
 			q.LastServe = os.clock()
 			return true
 		end
@@ -395,7 +484,7 @@ RunService.Heartbeat:Connect(function(dt)
 		for i = #q.Customers, 1, -1 do
 			local c = q.Customers[i]
 			local moving = false
-			local target = c.Path[1]
+			local target = if (c.PauseUntil or 0) > os.clock() then nil else c.Path[1]
 			if target then
 				local delta = target - c.Pos
 				local step = WALK_SPEED * dt
@@ -409,12 +498,20 @@ RunService.Heartbeat:Connect(function(dt)
 					c.Facing = delta.Unit
 				end
 				moving = true
-			elseif c.Leaving then
+			elseif c.Leaving and #c.Path == 0 then
 				c.Model:Destroy()
 				table.remove(q.Customers, i)
 				continue
-			else
+			elseif not c.Leaving then
 				c.Facing = Vector3.new(0, 0, 1)
+				-- waiting in line: now and then laugh or point at the menu
+				c.NextEmote = c.NextEmote or os.clock() + 4 + math.random() * 6
+				if os.clock() >= c.NextEmote then
+					c.NextEmote = os.clock() + 6 + math.random() * 8
+					if math.random() < 0.45 then
+						emote(c, if math.random() < 0.5 then "Laugh" else "Point")
+					end
+				end
 			end
 			setWalking(c, moving)
 			-- part-built customers (no rig) bob instead of animating
@@ -439,6 +536,7 @@ notifyRemote.OnClientEvent:Connect(function(kind: string, text: string)
 	if kind == "Brew" then
 		showBrewPop(text)
 		serveOwnPlot()
+		brewEffect()
 	else
 		showToast(kind, text)
 	end
@@ -556,6 +654,12 @@ local function animateStaff(plot: Model, dt: number, cup: number)
 			if t >= interval then
 				t -= interval
 				floatAbove(child, "+" .. Config.FormatMoney(cup))
+				-- MotionClient swings the barista's arm forward as the cup is handed over
+				local rig = child:FindFirstChild("Npc")
+				local rigHumanoid = rig and rig:FindFirstChildOfClass("Humanoid")
+				if rigHumanoid then
+					rigHumanoid:SetAttribute("ServeAt", os.clock())
+				end
 			end
 			staffTimers[child] = t
 		end

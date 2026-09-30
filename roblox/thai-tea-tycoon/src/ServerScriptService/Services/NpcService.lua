@@ -258,11 +258,18 @@ function NpcService.Replace(root: Instance): number
 end
 
 -- ReplicatedStorage is only needed so the client can find the shared animation ids
+-- Roblox's own R15 animations (the ones the default Animate script uses): clients read them from these attributes
 NpcService.Animations = {
 	Idle = "rbxassetid://507766666",
+	Idle2 = "rbxassetid://507766951", -- idle variation: looks around
 	Walk = "rbxassetid://507777826",
+	Wave = "rbxassetid://507770239",
+	Point = "rbxassetid://507770453",
+	Cheer = "rbxassetid://507770677",
+	Laugh = "rbxassetid://507770818",
 }
-ReplicatedStorage:SetAttribute("NpcIdleAnimation", NpcService.Animations.Idle)
-ReplicatedStorage:SetAttribute("NpcWalkAnimation", NpcService.Animations.Walk)
+for name, id in NpcService.Animations do
+	ReplicatedStorage:SetAttribute("Npc" .. name .. "Animation", id)
+end
 
 return NpcService

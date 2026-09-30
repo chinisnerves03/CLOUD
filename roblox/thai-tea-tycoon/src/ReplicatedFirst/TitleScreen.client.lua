@@ -227,14 +227,14 @@ local help = Instance.new("Frame")
 help.Name = "HowToPlay"
 help.AnchorPoint = Vector2.new(0.5, 0.5)
 help.Position = UDim2.fromScale(0.5, 0.52)
-help.Size = UDim2.new(0, 560, 0, 400)
+help.Size = UDim2.new(0, 560, 0, 440)
 help.Visible = false
 help.ZIndex = 5
 help.Parent = gui
 UIStyle.panel(help)
 help.BackgroundTransparency = 0.02
 local helpSize = Instance.new("UISizeConstraint")
-helpSize.MaxSize = Vector2.new(560, 420)
+helpSize.MaxSize = Vector2.new(560, 440)
 helpSize.Parent = help
 local fit = Instance.new("UIScale")
 fit.Parent = help
@@ -252,6 +252,8 @@ for i, step in steps do
 	label(help, { Position = UDim2.fromOffset(88, y), Size = UDim2.new(1, -108, 0, 64), Font = Enum.Font.GothamBold,
 		TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left, TextColor3 = CREAM, Text = step[2], ZIndex = 6 })
 end
+label(help, { Position = UDim2.new(0, 20, 1, -44), Size = UDim2.new(1, -40, 0, 28), Font = Enum.Font.GothamBold,
+	TextColor3 = YELLOW, Text = "Tip: hold Shift (or the RUN button) to run!", ZIndex = 6 })
 local closeHelp = UIStyle.button(help, "X", UIStyle.Colors.Red, UDim2.fromOffset(44, 44), UDim2.new(1, -12, 0, 12), Vector2.new(1, 0))
 closeHelp.ZIndex = 6
 

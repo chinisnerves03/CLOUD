@@ -351,7 +351,8 @@ function Builder:Hat(head: CFrame, style)
 end
 
 -- parts built inside fn go into a sub-model named "Anim" that clients animate (EffectsClient):
--- kind = "Spin" (turn around axis through the centre), "Bob" (float up and down), "Sway" (swing from the top)
+-- kind = "Spin" (turn around axis through the centre), "Bob" (float up and down), "Sway" (swing from the top),
+-- "Lean" (rock gently around the bottom, e.g. tree canopies in the wind)
 -- axis is in this builder's local space; speed in radians (Spin) or cycles (Bob/Sway) per second
 function Builder:Group(kind: string, fn: () -> (), axis: Vector3?, speed: number?)
 	local group = Instance.new("Model")
@@ -2780,9 +2781,12 @@ end
 Decor.Tree = function(b)
 	b:Cyl(0.4, 2.4, CF(0, 0.2, 0), rgb(120, 110, 100), M.Cobblestone)
 	b:Cyl(5, 0.8, CF(0, 2.5, 0), PAL.woodDark, M.Wood)
-	b:Ellipsoid(V3(5, 3.6, 5), CF(0, 6.2, 0), PAL.leaf)
-	b:Ellipsoid(V3(3.6, 2.8, 3.6), CF(0.8, 7.6, -0.5), PAL.leafDark)
-	b:Ellipsoid(V3(3, 2.4, 3), CF(-1, 7.2, 0.8), rgb(100, 175, 80))
+	-- the canopy leans in the wind around its base (MotionClient "Lean")
+	b:Group("Lean", function()
+		b:Ellipsoid(V3(5, 3.6, 5), CF(0, 6.2, 0), PAL.leaf)
+		b:Ellipsoid(V3(3.6, 2.8, 3.6), CF(0.8, 7.6, -0.5), PAL.leafDark)
+		b:Ellipsoid(V3(3, 2.4, 3), CF(-1, 7.2, 0.8), rgb(100, 175, 80))
+	end, Vector3.new(1, 0, 0.4), 0.18)
 end
 
 Decor.Bench = function(b)

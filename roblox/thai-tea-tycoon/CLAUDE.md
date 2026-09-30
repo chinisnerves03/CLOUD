@@ -24,6 +24,7 @@ Never put a model name in commits, PRs or code.
 | `StarterPlayerScripts/RetentionClient.client.lua` | DAILY / Codes buttons, quest panel, REBIRTH button + confirm (reads `DailyAt`, `Quest*`, `Rebirths`) |
 | `StarterPlayerScripts/EffectsClient.client.lua` | local effects: steam on parts named `Steam` (hides `SteamPuff`), sliding `BeltCup` parts on L31, neon flicker on L28/L37, pop-in (Model:ScaleTo) + sparkles for the newest item on your plot |
 | `StarterPlayerScripts/MotionClient.client.lua` | animates `Anim` groups (Builder:Group Spin/Bob/Sway), `Beacon` pulse, fountain `Spout` spray, NPC head glances and Busy arm motion (Motor6D C0) |
+| `StarterPlayerScripts/SprintClient.client.lua` | Shift / RUN touch button sprint (16 → 28), FOV kick, run dust; idle while `InMenu` |
 | `StarterPlayerScripts/ShopClient.client.lua` | SHOP button + window: pass/product cards from `Config.PASS_ORDER`/`PRODUCT_ORDER`, prices via GetProductInfo, "Owned" from `Pass_*` attributes |
 | `default.project.json` | Rojo project (syncs `src/` into Studio, leaves other instances alone) |
 | `tools/preview/` | runs the builders against a Roblox API mock (`mock.luau`) → `parts.jsonl` → three.js render (`render.html`, `shoot.mjs`) |
