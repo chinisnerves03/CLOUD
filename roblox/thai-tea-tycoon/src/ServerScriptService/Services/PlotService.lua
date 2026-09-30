@@ -578,6 +578,8 @@ local function placeAtPlot(player: Player, character: Model)
 	local spot = floor * CFrame.new(0, 3.5, front - 7)
 	local target = floor * CFrame.new(0, 3.5, front + 10)
 	character:PivotTo(CFrame.lookAt(spot.Position, target.Position))
+	-- the camera keeps the spawn's direction otherwise: swing it behind the character, facing the shop
+	PlotService.Notify(player, "Camera", "")
 end
 
 function PlotService.AddPlayer(player: Player, data): boolean

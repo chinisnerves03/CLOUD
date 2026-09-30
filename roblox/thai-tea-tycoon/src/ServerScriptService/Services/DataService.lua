@@ -17,7 +17,9 @@ local DataService = {}
 local MAX_RECEIPTS = 50
 local RETRIES = 3
 local SERVER_ID = HttpService:GenerateGUID(false) -- game.JobId is empty in Studio
-local LOCK_WAIT = 30 -- seconds to wait for another server to release a save before taking it over
+-- seconds to wait for another server to release a save before taking it over. Studio is quick: pressing Stop ends
+-- the test server before it can release its lock, and the next test should not wait half a minute for itself.
+local LOCK_WAIT = if game:GetService("RunService"):IsStudio() then 3 else 30
 local LOCK_STALE = 600 -- a lock without a heartbeat for this long is ignored right away
 
 local store: DataStore? = nil

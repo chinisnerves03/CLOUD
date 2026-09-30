@@ -238,7 +238,37 @@ local SERVE_EVERY = 2.5 -- seconds between automatic sales (faster with Faster S
 local SPAWN_EVERY = 1.3
 local VIEW_RANGE = 170 -- only animate queues near the camera
 
-type Customer = { Model: Model, Pos: Vector3, Facing: Vector3, Path: { Vector3 }, Slot: number, Side: number, Leaving: boolean, Phase: number }
+type Customer = { Model: Model, Pos: Vector3, Facing: Vector3, Path: { Vector3 }, Slot: number, Side: number, Leaving: boolean, Phase: number, Idle: AnimationTrack?, Walk: AnimationTrack? }
+
+-- customers are R15 rigs (NpcService): walk while moving, idle while waiting
+local function customerTrack(model: Model, attr: string, speed: number): AnimationTrack?
+	local humanoid = model:FindFirstChildOfClass("Humanoid")
+	local animator = humanoid and humanoid:FindFirstChildOfClass("Animator")
+	local id = ReplicatedStorage:GetAttribute(attr)
+	if not animator or type(id) ~= "string" then
+		return nil
+	end
+	local animation = Instance.new("Animation")
+	animation.AnimationId = id
+	local ok, track = pcall(animator.LoadAnimation, animator, animation)
+	if not ok then
+		return nil
+	end
+	track.Looped = true
+	track:AdjustSpeed(speed)
+	return track
+end
+
+local function setWalking(c, walking: boolean)
+	local on, off = if walking then c.Walk else c.Idle, if walking then c.Idle else c.Walk
+	if off and off.IsPlaying then
+		off:Stop(0.2)
+	end
+	if on and not on.IsPlaying then
+		on:Play(0.2)
+		on:AdjustSpeed(if walking then WALK_SPEED / 11 else 1)
+	end
+end
 type Queue = { Customers: { Customer }, SpawnIn: number, ServeIn: number, LastServe: number }
 local queues: { [Model]: Queue } = {}
 
@@ -348,6 +378,7 @@ RunService.Heartbeat:Connect(function(dt)
 			model.Parent = customerFolder
 			local slot = waiting + 1
 			table.insert(q.Customers, {
+				Idle = customerTrack(model, "NpcIdleAnimation", 1), Walk = customerTrack(model, "NpcWalkAnimation", 1),
 				Model = model, Pos = Vector3.new(side * 16, 0, -10), Facing = Vector3.new(0, 0, 1), Side = side,
 				Slot = slot, Leaving = false, Phase = math.random() * 6,
 				Path = { Vector3.new(0, 0, -QUEUE_SIZE * QUEUE_GAP - 1.5), Vector3.new(0, 0, -(slot - 1) * QUEUE_GAP) },
@@ -385,13 +416,26 @@ RunService.Heartbeat:Connect(function(dt)
 			else
 				c.Facing = Vector3.new(0, 0, 1)
 			end
-			local bob = if moving then math.abs(math.sin(c.Phase + customerClock * 9)) * 0.18 else 0
+			setWalking(c, moving)
+			-- part-built customers (no rig) bob instead of animating
+			local bob = if moving and not c.Walk then math.abs(math.sin(c.Phase + customerClock * 9)) * 0.18 else 0
 			c.Model:PivotTo(floor * CFrame.new(c.Pos + Vector3.new(0, bob, 0)) * CFrame.lookAt(Vector3.zero, c.Facing).Rotation)
 		end
 	end
 end)
 
 notifyRemote.OnClientEvent:Connect(function(kind: string, text: string)
+	if kind == "Camera" then
+		-- the server just placed us in front of our shop: look at it from behind the character
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		local camera = workspace.CurrentCamera
+		if root and camera then
+			local look = root.CFrame.LookVector
+			camera.CFrame = CFrame.lookAt(root.Position - look * 14 + Vector3.new(0, 6, 0), root.Position + look * 20)
+		end
+		return
+	end
 	if kind == "Brew" then
 		showBrewPop(text)
 		serveOwnPlot()

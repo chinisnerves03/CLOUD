@@ -205,8 +205,32 @@ end
 ---------------------------------------------------------------------------
 -- Watch the plots: items move between ServerStorage and each plot's Items folder, and stream in and out
 ---------------------------------------------------------------------------
+-- R15 NPCs (NpcService) breathe with the idle animation; each starts at a random point so they don't move in sync
+local function animateNpc(humanoid: Humanoid)
+	local id = ReplicatedStorage:GetAttribute("NpcIdleAnimation")
+	local animator = humanoid:FindFirstChildOfClass("Animator") or humanoid:WaitForChild("Animator", 5)
+	if type(id) ~= "string" or not animator or humanoid:GetAttribute("Animated") then
+		return
+	end
+	humanoid:SetAttribute("Animated", true)
+	local animation = Instance.new("Animation")
+	animation.AnimationId = id
+	local ok, track = pcall((animator :: Animator).LoadAnimation, animator, animation)
+	if ok then
+		track.Looped = true
+		track:Play(0)
+		task.defer(function()
+			if track.Length > 0 then
+				track.TimePosition = math.random() * track.Length
+			end
+		end)
+	end
+end
+
 local function onDescendant(d: Instance)
-	if d:IsA("BasePart") then
+	if d:IsA("Humanoid") and d:GetAttribute("Npc") then
+		task.spawn(animateNpc, d)
+	elseif d:IsA("BasePart") then
 		if d.Name == "Steam" then
 			addSteam(d)
 		elseif d.Name == "SteamPuff" then

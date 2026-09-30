@@ -235,6 +235,34 @@ function Builder:Person(cf: CFrame, style)
 	local hasApron = apron ~= shirt
 	local ghost = { solid = false }
 
+	if ItemModels.UseRigs then
+		-- the game swaps this invisible marker for a real Roblox R15 character (NpcService); the hand positions
+		-- returned below match the arm pose NpcService gives the rig, so held props still line up
+		local marker = self:Box(V3(2, 5.5, 1), cf * CF(0, 2.75, 0), PAL.white, nil, { t = 1, solid = false, flat = true, name = "NpcSpot" })
+		marker.CanQuery = false
+		marker:SetAttribute("Skin", skin)
+		marker:SetAttribute("Shirt", shirt)
+		marker:SetAttribute("Pants", pants)
+		if hasApron then
+			marker:SetAttribute("Apron", apron)
+		end
+		marker:SetAttribute("Hair", hair)
+		marker:SetAttribute("Long", style.long == true)
+		if style.cap then
+			marker:SetAttribute("Cap", style.cap)
+		end
+		marker:SetAttribute("ChefHat", style.chefHat == true)
+		marker:SetAttribute("Ngob", style.ngob == true)
+		local hands = {}
+		for side, key in { [-1] = "left", [1] = "right" } do
+			local pose = style[key] or { 25, 0 }
+			marker:SetAttribute(if side == 1 then "RightPose" else "LeftPose", Vector2.new(pose[1], pose[2] or 0))
+			local shoulder = cf * CF(side * 1.4, 3.85, 0) * ANG(0, rad((pose[2] or 0) * side), 0) * ANG(rad(pose[1]), 0, 0)
+			hands[key] = (shoulder * CF(0, -2.2, 0)).Position
+		end
+		return hands
+	end
+
 	-- legs, shoes (rounded toe + sole), belt with buckle
 	for _, x in { -0.5, 0.5 } do
 		self:Box(V3(0.9, 2, 0.9), cf * CF(x, 1, 0), pants, nil, ghost)
@@ -301,6 +329,13 @@ function Builder:Person(cf: CFrame, style)
 		self:Ellipsoid(V3(0.55, 1.2, 0.55), head * CF(0, -0.25, 0.85) * ANG(rad(20), 0, 0), hair)
 	end
 
+	self:Hat(head, style)
+	return hands
+end
+
+-- cap, chef's hat or farmer's straw hat on a head centred at `head` (also used on the R15 NPCs)
+function Builder:Hat(head: CFrame, style)
+	local ghost = { solid = false }
 	if style.cap then
 		self:Cyl(0.4, 1.45, head * CF(0, 0.5, 0.05), style.cap)
 		self:Box(V3(1.1, 0.1, 0.7), head * CF(0, 0.35, -0.75), style.cap, nil, ghost)
@@ -313,7 +348,6 @@ function Builder:Person(cf: CFrame, style)
 		self:Ellipsoid(V3(2.4, 0.5, 2.4), head * CF(0, 0.55, 0.05), rgb(215, 185, 120))
 		self:Ellipsoid(V3(1.1, 0.6, 1.1), head * CF(0, 0.8, 0.05), rgb(200, 165, 100))
 	end
-	return hands
 end
 
 -- Thai tea cup (bottom of the cup at cf)
@@ -3185,6 +3219,20 @@ end
 ---------------------------------------------------------------------------
 function ItemModels.Has(key: string): boolean
 	return Build[key] ~= nil
+end
+
+-- true in the game: Builder:Person leaves an NpcSpot marker that NpcService turns into an R15 character.
+-- false for the offline preview tools, which build the people from parts.
+ItemModels.UseRigs = false
+
+-- hat parts for a head at headCF (style: cap = Color3, chefHat = true or ngob = true); returns an unparented Model
+function ItemModels.BuildHat(headCF: CFrame, style): Model
+	local model = Instance.new("Model")
+	model.Name = "Hat"
+	local b = newBuilder(model, CFrame.new())
+	b.Round = false
+	b:Hat(headCF, style)
+	return model
 end
 
 -- build the model for key at origin (world CFrame); returns an unparented Model

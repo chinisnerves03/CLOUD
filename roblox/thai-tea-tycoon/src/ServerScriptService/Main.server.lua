@@ -11,6 +11,12 @@ local PlotService = require(Services:WaitForChild("PlotService"))
 local MonetizationService = require(Services:WaitForChild("MonetizationService"))
 local RetentionService = require(Services:WaitForChild("RetentionService"))
 local LeaderboardService = require(Services:WaitForChild("LeaderboardService"))
+local NpcService = require(Services:WaitForChild("NpcService"))
+local ItemModels = require(Services:WaitForChild("ItemModels"))
+
+-- every person in the game is a real Roblox R15 character: models leave markers, NpcService fills them in
+ItemModels.UseRigs = true
+NpcService.Init()
 
 -- Channel for client notifications (kind, text)
 local notifyRemote = Instance.new("RemoteEvent")
@@ -63,17 +69,20 @@ end
 
 -- Customer templates for the Brew Station queue: clients clone and animate them locally (no network traffic).
 do
-	local ItemModels = require(Services:WaitForChild("ItemModels"))
 	local templates = Instance.new("Folder")
 	templates.Name = "CustomerTemplates"
 	for variant = 1, 6 do
 		local model = ItemModels.BuildDecor("Customer", CFrame.new(), variant)
 		if model then
 			model.Name = "Customer" .. variant
+			NpcService.Replace(model)
 			model.WorldPivot = CFrame.new() -- pivot at the feet, facing -Z
 			for _, part in model:GetDescendants() do
 				if part:IsA("BasePart") then
-					part.Anchored = true
+					-- rig limbs and the welded cup must stay unanchored so the walk animation can move them
+					if not part:GetAttribute("NpcPart") then
+						part.Anchored = true
+					end
 					part.CanCollide = false
 					part.CanQuery = false
 					part.CanTouch = false
@@ -88,6 +97,9 @@ end
 
 DataService.Init()
 PlotService.Init(MonetizationService, notifyRemote)
+-- people on the plots, in the stored items (shown when bought) and on the staff carts
+print(string.format("[NpcService] %d characters placed",
+	NpcService.Replace(workspace:WaitForChild("Plots")) + NpcService.Replace(game:GetService("ServerStorage"):WaitForChild("PlotItemStorage"))))
 MonetizationService.Init(DataService, PlotService)
 RetentionService.Init(DataService, PlotService, actionRemote)
 LeaderboardService.Init(DataService)

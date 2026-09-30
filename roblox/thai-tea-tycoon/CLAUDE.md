@@ -15,6 +15,7 @@ Never put a model name in commits, PRs or code.
 | `Services/MonetizationService.lua` | Game Passes (as player attributes `Pass_*`) + Developer Products (idempotent receipts) |
 | `Services/RetentionService.lua` | rebirth (via `PlotService.Rebirth`), daily reward, codes, quests (hooked through `PlotService.OnProgress`), leaderstats; RemoteEvent `TycoonAction` |
 | `Services/LeaderboardService.lua` | plaza boards from `Config.LEADERBOARDS`, OrderedDataStore upload + top 10 every `LEADERBOARD_REFRESH` s |
+| `Services/NpcService.lua` | turns `NpcSpot` markers (Builder:Person when `ItemModels.UseRigs`) into recoloured R15 rigs with Roblox-made hair, apron, hat and posed arms; anchored root, clients play idle/walk |
 | `Services/DevPlotBuilder.lua` | builds 6 plots + plaza when `Workspace.Plots` is missing |
 | `Services/ItemModels.lua` | every model built from Parts (Builder DSL), item layout, pad spots, decor (BrewStation, StaffCart, Customer, PlotGround, …) |
 | `StarterPlayerScripts/ClientMain.client.lua` | HUD, hints + guide arrow, toasts, staff "+฿" pops, client-side customer queue animation |
