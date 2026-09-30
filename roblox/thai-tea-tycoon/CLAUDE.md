@@ -40,9 +40,13 @@ Never put a model name in commits, PRs or code.
 - Real-world scale: character 5.5 studs ≈ 1.75 m. Small props are built life-size; tier 4-5 buildings are enlarged
   after building (`ItemModels.Footprint`: Shell parts and parts spanning half the building grow in X/Z, other
   parts move as clusters of touching parts and keep their size; `ItemModels.Uniform`: whole-model ScaleTo).
+  Walk-in buildings also have 13-14 stud walls (L29/L34/L39/L40/L42/L43) with a decorative `Builder:UpperWindows`
+  row; interiors, lamps and people stay at human height. `ItemModels.Uniform` also enlarges the umbrella L07, neon
+  wall L28 and billboard L37; `ItemModels.DecorUniform` enlarges arch, lamps, trees and fountains.
+  EffectsClient pop-in scales back to the model's own `GetScale()`, never to 1.
 - Plot space: 120 wide, z -65 (front) .. 140 (back); Base centred at `ItemModels.PlotCenterZ`, PlotService reads
   the offset from the Base attribute `ItemOriginZ`. Plot centers are 130 apart.
-- Part budget: ≈ 4,950 parts per full plot, ≈ 30,000 for the map. StreamingEnabled recommended.
+- Part budget: ≈ 5,100 parts per full plot, ≈ 31,000 for the map. StreamingEnabled recommended.
 
 ## Conventions
 

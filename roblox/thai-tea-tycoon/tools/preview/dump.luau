@@ -6,7 +6,7 @@ local folder = DevPlotBuilder.Build()
 do
 	local plot1 = folder:FindFirstChild("Plot1")
 	local base = plot1:FindFirstChild("Base")
-	local floor = base.CFrame * CFrame.new(0, base.Size.Y / 2, 0)
+	local floor = base.CFrame * CFrame.new(0, base.Size.Y / 2, tonumber(base:GetAttribute("ItemOriginZ")) or 0) -- same origin as PlotService
 	for i, spot in ItemModels.StaffSpots do
 		local cart = ItemModels.BuildDecor("StaffCart", floor * CFrame.new(spot[1], 0, spot[2]), i)
 		cart.Name = "Staff" .. i

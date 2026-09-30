@@ -12,6 +12,7 @@ local DevPlotBuilder = {}
 -- plot space (ItemModels): x across, z from the front edge (facing the plaza, -Z) to the back
 local PLOT_WIDTH = ItemModels.PlotWidth -- X axis
 local FRONT = ItemModels.PlotFront -- front edge of the plot
+local SIGN_X = -40.5 -- owner sign, left of the (scaled) entrance arch post
 local BACK = ItemModels.PlotBack
 local PLOT_DEPTH = BACK - FRONT -- Z axis
 local CENTER_Z = ItemModels.PlotCenterZ -- where the Base part is centred
@@ -85,7 +86,7 @@ local function buildPlot(index: number, origin: CFrame): Model
 			end
 		end
 	end
-	for _, spot in { { -44, FRONT + 4, "Bench" }, { 44, FRONT + 4, "Bench" }, { -40, FRONT + 4, "Bin" }, { 40, FRONT + 4, "Bin" } } do
+	for _, spot in { { -44, FRONT + 4, "Bench" }, { 44, FRONT + 4, "Bench" }, { -36, FRONT + 4, "Bin" }, { 40, FRONT + 4, "Bin" } } do
 		local model = ItemModels.BuildDecor(spot[3], at(spot[1], 0, spot[2]))
 		if model then
 			model.Parent = decor
@@ -139,7 +140,7 @@ local function buildPlot(index: number, origin: CFrame): Model
 		brew.Parent = plot
 	end
 
-	for _, spec in { { "SignLamps", at(-33, 9, FRONT + 4) }, { "Arch", at(0, 0, FRONT + 1) } } do
+	for _, spec in { { "SignLamps", at(SIGN_X, 9, FRONT + 4) }, { "Arch", at(0, 0, FRONT + 1) } } do
 		local model = ItemModels.BuildDecor(spec[1], spec[2])
 		if model then
 			model.Parent = decor
@@ -150,14 +151,14 @@ local function buildPlot(index: number, origin: CFrame): Model
 	part({
 		Name = "SignPost",
 		Size = Vector3.new(1, 8, 1),
-		CFrame = at(-33, 4, FRONT + 4),
+		CFrame = at(SIGN_X, 4, FRONT + 4),
 		Color = Color3.fromRGB(90, 45, 15),
 		Material = Enum.Material.Wood,
 	}).Parent = plot
 	local sign = part({
 		Name = "Sign",
 		Size = Vector3.new(13, 4, 0.8),
-		CFrame = at(-33, 9, FRONT + 4),
+		CFrame = at(SIGN_X, 9, FRONT + 4),
 		Color = Color3.fromRGB(120, 60, 20),
 		Material = Enum.Material.Wood,
 	})

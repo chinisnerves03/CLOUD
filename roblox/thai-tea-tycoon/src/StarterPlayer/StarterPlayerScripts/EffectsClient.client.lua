@@ -159,6 +159,9 @@ local function sparkleBurst(model: Model, color: Color3)
 	task.delay(2, holder.Destroy, holder)
 end
 
+-- models mid pop-in (their scale is changing, so the belt/sign scan skips them)
+local popping: { [Model]: boolean } = {}
+
 local function popIn(model: Model)
 	local item
 	for level = 2, Config.MAX_LEVEL do
@@ -170,12 +173,15 @@ local function popIn(model: Model)
 	if not item then
 		return
 	end
+	-- items can be built bigger than 1 (ItemModels.Uniform: van, billboard, ...): pop back to that size
+	local base = model:GetScale()
 	local ok = pcall(function()
-		model:ScaleTo(0.05)
+		model:ScaleTo(base * 0.05)
 	end)
 	if not ok then
 		return
 	end
+	popping[model] = true
 	local start = os.clock()
 	local connection
 	connection = RunService.RenderStepped:Connect(function()
@@ -185,12 +191,13 @@ local function popIn(model: Model)
 		local eased = 1 + c3 * (t - 1) ^ 3 + c1 * (t - 1) ^ 2
 		if t >= 1 or not model.Parent then
 			connection:Disconnect()
+			popping[model] = nil
 			if model.Parent then
-				model:ScaleTo(1)
+				model:ScaleTo(base)
 			end
 			return
 		end
-		model:ScaleTo(math.max(0.05, eased))
+		model:ScaleTo(base * math.max(0.05, eased))
 	end)
 	sparkleBurst(model, Config.TIERS[item.Tier].Color)
 end
@@ -254,7 +261,7 @@ RunService.Heartbeat:Connect(function()
 			local items = plot:FindFirstChild("Items")
 			if items then
 				for _, model in items:GetChildren() do
-					if model:IsA("Model") and (model :: Model):GetScale() == 1 then
+					if model:IsA("Model") and not popping[model :: Model] then
 						if model.Name == "L31" and not belts[model] then
 							registerBelt(model :: Model)
 						elseif FLICKER_ITEMS[model.Name] and not signs[model] then

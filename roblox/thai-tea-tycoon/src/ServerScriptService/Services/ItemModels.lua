@@ -417,6 +417,27 @@ function Builder:Shelf(cf: CFrame, length: number, depth: number, levels: { numb
 	end
 end
 
+-- a row of upper-floor windows on the outside of a Shell (frame, glass pane, sill). sides = { "Front", "Left", … },
+-- us = window centres along each wall, y = bottom edge, h = height. Purely decorative (no openings).
+function Builder:UpperWindows(cf: CFrame, w: number, d: number, sides: { string }, us: { number }, y: number, h: number, glass: Color3?)
+	local pane = glass or rgb(70, 120, 165)
+	for _, side in sides do
+		for _, u in us do
+			local at, size
+			if side == "Front" or side == "Back" then
+				local z = if side == "Front" then -d / 2 else d / 2
+				at, size = function(out: number) return cf * CF(u, 0, z + (if side == "Front" then -out else out)) end, function(a: number, b: number) return V3(a, b, 0.12) end
+			else
+				local x = if side == "Left" then -w / 2 else w / 2
+				at, size = function(out: number) return cf * CF(x + (if side == "Left" then -out else out), 0, u) end, function(a: number, b: number) return V3(0.12, b, a) end
+			end
+			self:Box(size(2.6, h + 0.4), at(0.05) * CF(0, y + h / 2, 0), PAL.white, nil, { solid = false, flat = true })
+			self:Box(size(2.2, h), at(0.12) * CF(0, y + h / 2, 0), pane, M.Glass, { solid = false, flat = true, refl = 0.25 })
+			self:Box(size(2.8, 0.2), at(0.2) * CF(0, y - 0.15, 0), PAL.concrete, nil, { solid = false, flat = true })
+		end
+	end
+end
+
 -- deterministic random (every plot looks the same)
 local function seeded(seed: number)
 	local state = seed
@@ -504,8 +525,8 @@ ItemModels.PadSpots = {
 	L17 = { 22, -25.3 }, L18 = { 8.1, -32.7 }, L19 = { 17.5, -29 }, L20 = { -30.7, -13.2 }, L21 = { -18.3, -2.2 },
 	L22 = { -23.5, -14.4 }, L23 = { 16.5, -11.3 }, L24 = { 31, -2.2 }, L25 = { -36.8, -1.6 }, L26 = { -29.4, -0.2 },
 	L27 = { 0, -1.9 }, L28 = { 0, 0.5 }, L29 = { -42, 37.3 }, L30 = { -20, 29.9 }, L31 = { -2.1, 15.1 },
-	L32 = { 17.1, 22.8 }, L33 = { 35.4, -52.8 }, L34 = { 46, 34.2 }, L35 = { -2, 35.1 }, L36 = { 11.8, -5 },
-	L37 = { 33.5, -16.1 }, L38 = { -44, 98 }, L39 = { -16, 82.6 }, L40 = { 8, 86 }, L41 = { -18, 121.5 },
+	L32 = { 17.1, 22.8 }, L33 = { 35.4, -52.8 }, L34 = { 46, 34.2 }, L35 = { -2, 35.1 }, L36 = { 13.4, -5 },
+	L37 = { 33.5, -15.4 }, L38 = { -44, 98 }, L39 = { -16, 82.6 }, L40 = { 8, 86 }, L41 = { -18, 121.5 },
 	L42 = { 45, 81.1 }, L43 = { 43, 123.9 }, L44 = { 26, 64.3 }, L45 = { 10, 129.3 },
 }
 
@@ -1454,7 +1475,7 @@ end
 -- Tier 4 ---------------------------------------------------------------
 
 Build.L29 = function(b) -- central kitchen (walk-in: range, tea pots, hood, prep tables, chefs)
-	local W, D, H = 20, 16, 9
+	local W, D, H = 20, 16, 13
 	b:Shell(CF(), {
 		w = W, d = D, h = H, wall = rgb(236, 232, 224), wallMat = M.Concrete,
 		floor = rgb(150, 72, 55), floorMat = M.Slate, roofColor = rgb(205, 205, 205),
@@ -1467,7 +1488,9 @@ Build.L29 = function(b) -- central kitchen (walk-in: range, tea pots, hood, prep
 			{ side = "Right", x = 3, y = 3.5, w = 4, h = 2.5, glass = true },
 		},
 	})
-	-- exterior
+	-- exterior (upper-floor windows on the tall walls)
+	b:UpperWindows(CF(), W, D, { "Front" }, { -7.5, -2.5, 2.5, 7.5 }, 9.2, 2.6)
+	b:UpperWindows(CF(), W, D, { "Left", "Right" }, { -5, 0, 5 }, 9.2, 2.6)
 	local band = b:Box(V3(W + 0.4, 0.9, D + 0.4), CF(0, H + 1.05, 0), PAL.tea)
 	b:Text(band, FACE.Front, "CENTRAL KITCHEN", { color = PAL.white, region = { 0.15, 0.05, 0.7, 0.9 } })
 	b:HCyl(7.4, 1, CF(-4.5, 7.5, -D / 2 - 0.5), PAL.steelDark, M.Metal)
@@ -1503,6 +1526,7 @@ Build.L29 = function(b) -- central kitchen (walk-in: range, tea pots, hood, prep
 	b:Box(V3(12, 3.5, 0.1), CF(-2, 5, 7.35), PAL.white, M.Marble, { solid = false })
 	b:Box(V3(13, 1.2, 3), CF(-2, 7.8, 6.0), PAL.steel, M.Metal)
 	b:Box(V3(2.4, 0.8, 2), CF(-2, 8.6, 6.3), PAL.steel, M.Metal)
+	b:Box(V3(1.8, H - 9, 1.6), CF(-2, (9 + H) / 2, 6.3), PAL.steel, M.Metal) -- duct up to the high ceiling
 	b:Box(V3(11, 0.1, 0.4), CF(-2, 7.15, 4.7), PAL.warm, M.Neon, { solid = false })
 	b:Box(V3(4, 0.05, 1.6), CF(-2, 0.23, 3.9), PAL.black, nil, { solid = false })
 
@@ -1793,7 +1817,7 @@ Build.L33 = function(b) -- online order kiosk + rider motorbike
 end
 
 Build.L34 = function(b) -- cold room (walk-in: strip curtain, milk crate racks, ice, evaporator)
-	local W, D, H = 14, 14, 9
+	local W, D, H = 14, 14, 13
 	local ICE = rgb(190, 230, 250)
 	b:Shell(CF(), {
 		w = W, d = D, h = H, wall = rgb(234, 240, 246), wallMat = M.SmoothPlastic,
@@ -1809,7 +1833,7 @@ Build.L34 = function(b) -- cold room (walk-in: strip curtain, milk crate racks, 
 		b:Box(V3(0.5, 7.2, 0.05), CF(-3.75 + i * 0.5, 3.8, -D / 2 + 0.5), PAL.glass, M.Glass, { t = 0.5, solid = false })
 	end
 	for _, x in { -5.5, 1.8, 3.6, 5.4 } do
-		b:Box(V3(0.08, 8.4, 0.06), CF(x, 4.2, -D / 2 - 0.03), rgb(200, 208, 216), nil, { solid = false })
+		b:Box(V3(0.08, H - 0.6, 0.06), CF(x, (H - 0.6) / 2, -D / 2 - 0.03), rgb(200, 208, 216), nil, { solid = false })
 	end
 	local temp = b:Box(V3(1.8, 0.8, 0.1), CF(3.6, 5.4, -D / 2 - 0.05), PAL.black)
 	b:Text(temp, FACE.Front, "-18°C", { color = rgb(255, 70, 70), glow = true })
@@ -2056,7 +2080,7 @@ Build.L38 = function(b) -- 5-level terraced tea plantation (bush rows, steps, pi
 end
 
 Build.L39 = function(b) -- bottling factory (walk-in: conveyor, filler, capper, mixing tanks, catwalk)
-	local W, D, H = 14, 18, 10
+	local W, D, H = 14, 18, 14
 	local COPPER = rgb(190, 120, 70)
 	b:Shell(CF(), {
 		w = W, d = D, h = H, wall = rgb(200, 196, 190), wallMat = M.Concrete,
@@ -2071,6 +2095,8 @@ Build.L39 = function(b) -- bottling factory (walk-in: conveyor, filler, capper, 
 			{ side = "Right", x = 5, y = 5, w = 3, h = 2.5, glass = true },
 		},
 	})
+	b:UpperWindows(CF(), W, D, { "Front" }, { -2.2, 2.2 }, 10, 2.4)
+	b:UpperWindows(CF(), W, D, { "Left", "Right" }, { -5, 0, 5 }, 10, 2.4)
 	-- sawtooth roof
 	for _, z in { -6.75, -2.25, 2.25, 6.75 } do
 		b:Wedge(V3(W, 2.4, 4.5), CF(0, H + 1.2, z), PAL.steelDark, M.Metal)
@@ -2080,13 +2106,15 @@ Build.L39 = function(b) -- bottling factory (walk-in: conveyor, filler, capper, 
 		b:Box(V3(W + 0.1, 0.5, 0.1), CF(0, H - 1.2, z), PAL.tea, nil, { solid = false })
 	end
 	-- silos + pipe + sign
+	local SILO = H - 1
 	for _, x in { -5.3, 5.3 } do
-		b:Cyl(9, 2.2, CF(x, 4.5, -D / 2 - 1.3), PAL.steel, M.Metal)
-		b:Ellipsoid(V3(2.2, 1.2, 2.2), CF(x, 9, -D / 2 - 1.3), PAL.steel, M.Metal)
-		b:Cyl(0.3, 2.3, CF(x, 2.5, -D / 2 - 1.3), PAL.tea)
-		b:Cyl(0.3, 2.3, CF(x, 6.5, -D / 2 - 1.3), PAL.tea)
+		b:Cyl(SILO, 2.2, CF(x, SILO / 2, -D / 2 - 1.3), PAL.steel, M.Metal)
+		b:Ellipsoid(V3(2.2, 1.2, 2.2), CF(x, SILO, -D / 2 - 1.3), PAL.steel, M.Metal)
+		for _, y in { 2.5, 6.5, 10.5 } do
+			b:Cyl(0.3, 2.3, CF(x, y, -D / 2 - 1.3), PAL.tea)
+		end
 	end
-	b:HCyl(10.6, 0.4, CF(0, 9.2, -D / 2 - 1.3), COPPER, M.Metal)
+	b:HCyl(10.6, 0.4, CF(0, SILO + 0.2, -D / 2 - 1.3), COPPER, M.Metal)
 	local sign = b:Box(V3(5.5, 1, 0.2), CF(0, 8.6, -D / 2 - 0.15), PAL.tea)
 	b:Text(sign, FACE.Front, "BOTTLING FACTORY", { color = PAL.white })
 	-- giant bottle on the roof
@@ -2199,7 +2227,7 @@ local function forklift(b, fl: CFrame)
 end
 
 Build.L40 = function(b) -- distribution center (walk-in: tall pallet racks, forklift, packing table)
-	local W, D, H = 12, 20, 8
+	local W, D, H = 12, 20, 13
 	local CARTON = rgb(200, 160, 110)
 	b:Shell(CF(), {
 		w = W, d = D, h = H, wall = rgb(125, 155, 185), wallMat = M.Metal,
@@ -2216,6 +2244,8 @@ Build.L40 = function(b) -- distribution center (walk-in: tall pallet racks, fork
 	})
 	b:Wedge(V3(D, 2.2, W / 2), CF(-W / 4, H + 1.7, 0) * ANG(0, rad(90), 0), rgb(85, 100, 120), M.Metal)
 	b:Wedge(V3(D, 2.2, W / 2), CF(W / 4, H + 1.7, 0) * ANG(0, rad(-90), 0), rgb(85, 100, 120), M.Metal)
+	b:UpperWindows(CF(), W, D, { "Front" }, { -3.5, 0, 3.5 }, 8.8, 2.4)
+	b:UpperWindows(CF(), W, D, { "Left", "Right" }, { -5, 0, 5 }, 8.8, 2.4)
 	-- exterior: roller door, sign, dock bumpers
 	b:Box(V3(4.4, 6, 0.1), CF(2.8, 3, -D / 2 - 0.08), PAL.steelDark, M.Metal)
 	for i = 1, 7 do
@@ -2271,9 +2301,9 @@ Build.L40 = function(b) -- distribution center (walk-in: tall pallet racks, fork
 	b:Person(CF(3.4, 0.2, -6.6), { shirt = rgb(240, 120, 40), apron = PAL.yellow, right = { 60, 15 }, left = { 60, 15 } })
 	-- pendant lamps + lane lines
 	for i, z in { -5, 1, 7 } do
-		b:Box(V3(0.06, 1.4, 0.06), CF(0, H - 0.7, z), PAL.black, nil, { solid = false })
-		b:Cyl(0.5, 1.6, CF(0, H - 1.6, z), PAL.black, M.Metal, { solid = false })
-		local bulb = b:Ball(0.5, CF(0, H - 1.95, z), PAL.warm, M.Neon, { solid = false })
+		b:Box(V3(0.06, H - 6.6, 0.06), CF(0, (H + 6.6) / 2, z), PAL.black, nil, { solid = false })
+		b:Cyl(0.5, 1.6, CF(0, 6.4, z), PAL.black, M.Metal, { solid = false })
+		local bulb = b:Ball(0.5, CF(0, 6.05, z), PAL.warm, M.Neon, { solid = false })
 		if i == 2 then
 			b:Light(bulb, PAL.warm, 18, 0.9)
 		end
@@ -2344,7 +2374,7 @@ Build.L41 = function(b) -- headquarters (walk-in lobby + 7 glass floors with vis
 end
 
 Build.L42 = function(b) -- mall branch (a real tea shop: counter, lit menus, fridge, seating, customers in line)
-	local W, D, H = 14, 16, 9
+	local W, D, H = 14, 16, 13
 	b:Shell(CF(), {
 		w = W, d = D, h = H, wall = rgb(242, 230, 212), wallMat = M.Concrete,
 		floor = PAL.woodLight, floorMat = M.WoodPlanks, roofColor = PAL.white,
@@ -2356,7 +2386,9 @@ Build.L42 = function(b) -- mall branch (a real tea shop: counter, lit menus, fri
 			{ side = "Left", x = 2, y = 3, w = 4, h = 3, glass = true },
 		},
 	})
-	-- exterior
+	-- exterior (upper-floor windows on the tall walls)
+	b:UpperWindows(CF(), W, D, { "Front" }, { -4.5, 0, 4.5 }, 8.8, 2.6)
+	b:UpperWindows(CF(), W, D, { "Left", "Right" }, { -4, 2 }, 8.5, 2.6)
 	local band = b:Box(V3(W + 0.4, 1.2, D + 0.4), CF(0, H + 1.2, 0), PAL.tea)
 	b:Text(band, FACE.Front, "THAI TEA · MALL", { color = PAL.white, region = { 0.2, 0.05, 0.6, 0.9 } })
 	for i = 0, 6 do
@@ -2440,9 +2472,9 @@ Build.L42 = function(b) -- mall branch (a real tea shop: counter, lit menus, fri
 	local poster = b:Box(V3(0.1, 2.4, 3), CF(-W / 2 + 0.65, 5.2, -3.5), PAL.cream, nil, { solid = false })
 	b:Text(poster, FACE.Right, "REAL THAI TEA\nbrewed fresh", { color = PAL.teaDark })
 	for i, x in { -3, 0.4, 3.8 } do
-		b:Box(V3(0.06, 1.4, 0.06), CF(x, H - 0.7, 3.8), PAL.black, nil, { solid = false })
-		b:Cyl(0.6, 1.1, CF(x, H - 1.6, 3.8), PAL.tea, M.Metal, { solid = false })
-		local bulb = b:Ball(0.45, CF(x, H - 1.95, 3.8), PAL.warm, M.Neon, { solid = false })
+		b:Box(V3(0.06, H - 7.2, 0.06), CF(x, (H + 7.2) / 2, 3.8), PAL.black, nil, { solid = false })
+		b:Cyl(0.6, 1.1, CF(x, 6.9, 3.8), PAL.tea, M.Metal, { solid = false })
+		local bulb = b:Ball(0.45, CF(x, 6.55, 3.8), PAL.warm, M.Neon, { solid = false })
 		if i == 2 then
 			b:Light(bulb, PAL.warm, 16, 0.9)
 		end
@@ -2450,7 +2482,7 @@ Build.L42 = function(b) -- mall branch (a real tea shop: counter, lit menus, fri
 end
 
 Build.L43 = function(b) -- airport branch (walk-in terminal + control tower + airplane)
-	local W, D, H = 13, 9, 7
+	local W, D, H = 13, 9, 10
 	local T = CF(0, 0, -2)
 	b:Shell(T, {
 		w = W, d = D, h = H, wall = PAL.white, wallMat = M.SmoothPlastic,
@@ -2462,23 +2494,24 @@ Build.L43 = function(b) -- airport branch (walk-in terminal + control tower + ai
 			{ side = "Back", x = 0, y = 1, w = 9, h = 4.5, glass = true },
 		},
 	})
+	b:UpperWindows(T, W, D, { "Front" }, { -4.5, -1.5, 1.5, 4.5 }, 7, 2.2, rgb(80, 160, 200))
 	b:Wedge(V3(W + 1, 0.8, 1.6), T * CF(0, H + 0.2, -D / 2 - 0.8), rgb(210, 214, 220), M.Metal)
 	local fascia = b:Box(V3(W + 0.2, 0.9, 0.2), T * CF(0, H + 1.05, -D / 2 + 0.1), PAL.tea)
 	b:Text(fascia, FACE.Front, "AIRPORT BRANCH ✈", { color = PAL.white, region = { 0.2, 0, 0.6, 1 } })
 	-- control tower
 	b:Box(V3(2, 0.4, 2), CF(-7.3, 0.2, -3), PAL.concrete, M.Concrete)
-	b:Cyl(8, 1.4, CF(-7.3, 4.2, -3), PAL.white)
-	b:Cyl(1.6, 2.6, CF(-7.3, 9, -3), rgb(80, 160, 200), M.Glass, { t = 0.2 })
-	b:Cyl(0.3, 2.9, CF(-7.3, 9.95, -3), PAL.white)
-	b:Cyl(1.5, 0.12, CF(-7.3, 10.8, -3), PAL.steelDark, M.Metal)
-	b:Ball(0.3, CF(-7.3, 11.6, -3), PAL.red, M.Neon, { solid = false })
+	b:Cyl(12, 1.4, CF(-7.3, 6.2, -3), PAL.white)
+	b:Cyl(1.6, 2.6, CF(-7.3, 13, -3), rgb(80, 160, 200), M.Glass, { t = 0.2 })
+	b:Cyl(0.3, 2.9, CF(-7.3, 13.95, -3), PAL.white)
+	b:Cyl(1.5, 0.12, CF(-7.3, 14.8, -3), PAL.steelDark, M.Metal)
+	b:Ball(0.3, CF(-7.3, 15.6, -3), PAL.red, M.Neon, { solid = false })
 
 	-- tea kiosk inside the terminal
 	b:Box(V3(4, 3.2, 1.6), T * CF(-3.6, 1.8, 0.4), PAL.tea)
 	b:Box(V3(4.2, 0.2, 1.8), T * CF(-3.6, 3.5, 0.4), PAL.white, M.Marble)
 	local kiosk = b:Box(V3(3, 0.8, 0.1), T * CF(-3.6, 5.8, 0.4), PAL.green)
 	b:Text(kiosk, FACE.Front, "THAI TEA", { color = PAL.cream })
-	b:Box(V3(0.06, 1.0, 0.06), T * CF(-3.6, 6.7, 0.4), PAL.black, nil, { solid = false })
+	b:Box(V3(0.06, H - 6.2, 0.06), T * CF(-3.6, (H + 6.2) / 2, 0.4), PAL.black, nil, { solid = false })
 	b:Person(T * CF(-3.6, 0.2, 1.65), { apron = PAL.tea, cap = PAL.tea, right = { 60, 20 }, left = { 60, 20 } })
 	for i = 0, 2 do
 		b:TeaCup(T * CF(-4.6 + i * 0.9, 3.6, 0), 0.9)
@@ -2487,7 +2520,7 @@ Build.L43 = function(b) -- airport branch (walk-in terminal + control tower + ai
 	local board = b:Box(V3(5, 1.8, 0.3), T * CF(2.8, 5.2, 1.4), PAL.black)
 	b:Text(board, FACE.Front, "FLIGHT  TO           TIME\nTG101  CHIANG MAI  10:30\nFD202  PHUKET      11:15", { color = PAL.yellow, glow = true, font = Enum.Font.Code })
 	for _, x in { 1, 4.6 } do
-		b:Box(V3(0.08, 0.9, 0.08), T * CF(x, 6.55, 1.4), PAL.black, nil, { solid = false })
+		b:Box(V3(0.08, H - 6.1, 0.08), T * CF(x, (H + 6.1) / 2, 1.4), PAL.black, nil, { solid = false })
 	end
 	-- 2 rows of gate seats
 	for _, z in { -1.8, -4.2 } do
@@ -3021,8 +3054,13 @@ ItemModels.Footprint = {
 	L45 = 1.9, -- thai tea tower
 }
 ItemModels.Uniform = {
+	L07 = 1.3, -- market umbrella
+	L28 = 1.25, -- brick wall + neon sign
 	L30 = 1.4, -- delivery van
+	L37 = 1.5, -- billboard
 }
+-- decor that should read big from the plaza, scaled the same way
+ItemModels.DecorUniform = { Arch = 1.3, Lamp = 1.3, Tree = 1.5, Fountain = 1.4 }
 
 local CLUSTER_GAP = 0.5 -- parts closer than this belong to the same piece of furniture
 
@@ -3174,6 +3212,11 @@ function ItemModels.BuildDecor(kind: string, origin: CFrame, variant: number?): 
 	local model = Instance.new("Model")
 	model.Name = kind
 	build(newBuilder(model, origin), variant)
+	local k = ItemModels.DecorUniform[kind]
+	if k then
+		model.WorldPivot = origin
+		model:ScaleTo(k)
+	end
 	return model
 end
 
