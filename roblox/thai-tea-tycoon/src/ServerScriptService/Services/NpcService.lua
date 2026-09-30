@@ -223,6 +223,12 @@ local function spawnNpc(marker: BasePart)
 	end
 	addHat(rig, marker)
 	pose(rig, marker)
+	-- arms raised to work (pouring, stirring, cooking): clients add a working motion on top of the idle
+	local right = marker:GetAttribute("RightPose")
+	local humanoid = rig:FindFirstChildOfClass("Humanoid")
+	if humanoid and typeof(right) == "Vector2" then
+		humanoid:SetAttribute("Busy", right.X >= 60)
+	end
 	local feet = marker.CFrame * CFrame.new(0, -marker.Size.Y / 2, 0)
 	rig:PivotTo(feet * CFrame.new(0, base.FeetToRoot, 0))
 	local container = marker.Parent

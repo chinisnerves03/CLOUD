@@ -350,6 +350,22 @@ function Builder:Hat(head: CFrame, style)
 	end
 end
 
+-- parts built inside fn go into a sub-model named "Anim" that clients animate (EffectsClient):
+-- kind = "Spin" (turn around axis through the centre), "Bob" (float up and down), "Sway" (swing from the top)
+-- axis is in this builder's local space; speed in radians (Spin) or cycles (Bob/Sway) per second
+function Builder:Group(kind: string, fn: () -> (), axis: Vector3?, speed: number?)
+	local group = Instance.new("Model")
+	group.Name = "Anim"
+	group:SetAttribute("Kind", kind)
+	group:SetAttribute("Axis", self.Origin:VectorToWorldSpace(axis or Vector3.yAxis))
+	group:SetAttribute("Speed", speed or 1)
+	local outer = self.Model
+	group.Parent = outer
+	self.Model = group
+	fn()
+	self.Model = outer
+end
+
 -- Thai tea cup (bottom of the cup at cf)
 function Builder:TeaCup(cf: CFrame, scale: number?, drink: Color3?)
 	local s = scale or 1
@@ -1081,9 +1097,11 @@ Build.L17 = function(b) -- string lights (4 poles + sagging wires)
 	-- paper lanterns + pennant flags on the front wire
 	for i, x in { -8, 0, 8 } do
 		local p = V3(x, 9 - 1.3 * (1 - (x / 16) ^ 2) - 0.9, -10)
-		b:Box(V3(0.05, 0.6, 0.05), CF(p + V3(0, 0.6, 0)), PAL.black, nil, { solid = false })
-		local lantern = b:Ellipsoid(V3(0.9, 1.2, 0.9), CF(p), if i == 2 then PAL.tea else PAL.red, M.Fabric)
-		b:Light(lantern, PAL.warm, 8, 0.4)
+		b:Group("Sway", function()
+			b:Box(V3(0.05, 0.6, 0.05), CF(p + V3(0, 0.6, 0)), PAL.black, nil, { solid = false })
+			local lantern = b:Ellipsoid(V3(0.9, 1.2, 0.9), CF(p), if i == 2 then PAL.tea else PAL.red, M.Fabric)
+			b:Light(lantern, PAL.warm, 8, 0.4)
+		end, Vector3.xAxis, 0.35 + i * 0.04)
 	end
 	for i = 0, 9 do
 		local x = -14 + i * 3.1
@@ -1328,7 +1346,9 @@ Build.L24 = function(b) -- flower-wall photo corner
 	b:Light(ring, PAL.white, 8, 0.6)
 	-- balloon cluster + hanging picture frame prop
 	for i, spec in { { -3.2, 6.8, PAL.pink }, { -2.6, 7.4, PAL.white }, { -3.7, 7.6, PAL.tea } } do
-		b:Ellipsoid(V3(0.9, 1.1, 0.9), CF(spec[1], spec[2], 1.6), spec[3], nil, { t = 0.05 })
+		b:Group("Bob", function()
+			b:Ellipsoid(V3(0.9, 1.1, 0.9), CF(spec[1], spec[2], 1.6), spec[3], nil, { t = 0.05 })
+		end, nil, 0.35 + i * 0.07)
 		b:Rod(V3(spec[1], spec[2] - 0.55, 1.6), V3(-3.5, 1.3, 0.8), 0.03, PAL.white)
 	end
 	local frame = CF(2.2, 4.4, 1.8)
@@ -1948,10 +1968,16 @@ Build.L35 = function(b) -- tea roastery (drum roaster under a gabled shed + sack
 			b:Box(V3(0.4, 2, 0.4), CF(x, 1, z), PAL.black, M.Metal)
 		end
 	end
-	b:HCyl(5, 3.2, CF(0, 3.2, 0), PAL.steelDark, M.Metal)
-	for _, x in { -2.6, 2.6 } do
-		b:HCyl(0.25, 3.4, CF(x, 3.2, 0), PAL.black, M.Metal)
-	end
+	b:Group("Spin", function()
+		b:HCyl(5, 3.2, CF(0, 3.2, 0), PAL.steelDark, M.Metal)
+		for _, x in { -2.6, 2.6 } do
+			b:HCyl(0.25, 3.4, CF(x, 3.2, 0), PAL.black, M.Metal)
+		end
+		-- ribs so the turning drum is visible
+		for k = 0, 5 do
+			b:Box(V3(4.6, 0.18, 0.3), CF(0, 3.2, 0) * ANG(rad(k * 60), 0, 0) * CF(0, 1.62, 0), PAL.steel, M.Metal, { solid = false, flat = true })
+		end
+	end, Vector3.xAxis, 1.2)
 	b:HCyl(0.1, 1.2, CF(2.75, 3.2, 0), PAL.steel, M.Metal, { solid = false })
 	b:Box(V3(1.4, 3.2, 3), CF(-3.4, 1.6, 0), PAL.black, M.Metal)
 	b:Ball(0.35, CF(-3.4, 2.4, -1.55), rgb(255, 120, 40), M.Neon, { solid = false })
@@ -2616,6 +2642,7 @@ Build.L44 = function(b) -- nationwide franchise (globe on a plinth)
 	b:Cyl(1, 6, CF(0, 0.5, 0), PAL.white, M.Marble)
 	b:Cyl(0.5, 5, CF(0, 1.25, 0), PAL.white, M.Marble)
 	b:Cyl(2, 1.2, CF(0, 2.5, 0), PAL.gold, M.Metal)
+	b:Group("Spin", function()
 	b:Ball(4.4, CF(0, 5.6, 0), rgb(60, 130, 210))
 	local land = {
 		{ 0, 20, 1.8 }, { 70, -10, 1.4 }, { 150, 35, 1.6 }, { 220, -25, 1.2 },
@@ -2634,6 +2661,7 @@ Build.L44 = function(b) -- nationwide franchise (globe on a plinth)
 		b:Box(V3(0.08, 0.08, 0.6), base * CF(0, 0, -2.4), PAL.black, nil, { solid = false })
 		b:Ball(0.4, base * CF(0, 0, -2.75), PAL.red, nil, { solid = false })
 	end
+	end, Vector3.yAxis, 0.35)
 	local plaque = b:Box(V3(2.6, 0.7, 0.2), CF(0, 0.55, -3.05), PAL.gold, M.Metal)
 	b:Text(plaque, FACE.Front, "NATIONWIDE FRANCHISE", { color = PAL.black })
 	-- flag poles and planters around the plinth
@@ -2647,10 +2675,12 @@ Build.L44 = function(b) -- nationwide franchise (globe on a plinth)
 	-- latitude/longitude rings, polar axis, orbiting tea cups, gold star on top, steps around the plinth
 	b:HCyl(0.12, 4.9, CF(0, 5.6, 0) * ANG(0, 0, rad(90)) * ANG(rad(23), 0, 0), PAL.gold, M.Metal, { solid = false })
 	b:Tube(V3(0, 2.9, 0), V3(0, 8.3, 0), 0.15, PAL.gold, M.Metal)
-	for k = 0, 2 do
-		local a = rad(k * 120)
-		b:TeaCup(CF(0, 5.6, 0) * ANG(rad(20), 0, 0) * CF(math.cos(a) * 3.3, -0.5, math.sin(a) * 3.3), 1.1)
-	end
+	b:Group("Spin", function()
+		for k = 0, 2 do
+			local a = rad(k * 120)
+			b:TeaCup(CF(0, 5.6, 0) * ANG(rad(20), 0, 0) * CF(math.cos(a) * 3.3, -0.5, math.sin(a) * 3.3), 1.1)
+		end
+	end, Vector3.yAxis, -0.8)
 	b:Ball(0.6, CF(0, 8.5, 0), PAL.yellow, M.Neon, { solid = false })
 	b:Cyl(0.35, 7.2, CF(0, 0.18, 0), PAL.white, M.Marble)
 end
@@ -2697,7 +2727,7 @@ Build.L45 = function(b) -- bubble-tea cup landmark tower (walk-in lobby + gift s
 	b:Ellipsoid(V3(16.2, 7, 16.2), CF(0, top + 2, 0), PAL.white, M.Glass, { t = 0.35 })
 	local strawTop = V3(4, top + 22, 2.4)
 	b:Tube(V3(1, top + 3, 0.6), strawTop, 2, PAL.green, M.SmoothPlastic)
-	local beacon = b:Ball(1, CF(strawTop), PAL.red, M.Neon, { solid = false })
+	local beacon = b:Ball(1, CF(strawTop), PAL.red, M.Neon, { solid = false, name = "Beacon" })
 	b:Light(beacon, PAL.red, 20, 1)
 
 	-- lobby: info desk, gold lift, gift shop, pearl seats
@@ -2778,7 +2808,7 @@ Decor.Fountain = function(b)
 	b:Cyl(0.2, 11.6, CF(0, 1.1, 0), WATER, M.Glass, { t = 0.25 })
 	b:Cyl(3.4, 1.8, CF(0, 2.8, 0), rgb(215, 205, 190), M.Marble)
 	b:Cyl(0.6, 5.5, CF(0, 4.6, 0), rgb(215, 205, 190), M.Marble)
-	b:Cyl(0.1, 5, CF(0, 4.9, 0), WATER, M.Glass, { t = 0.25, solid = false })
+	b:Cyl(0.1, 5, CF(0, 4.9, 0), WATER, M.Glass, { t = 0.25, solid = false, name = "Spout" })
 	b:Ellipsoid(V3(5.4, 3, 5.4), CF(0, 3.3, 0), PAL.white, M.Glass, { t = 0.75 })
 	b:Cyl(1.2, 0.8, CF(0, 5.5, 0), rgb(215, 205, 190), M.Marble)
 	-- Thai tea cup on top of the fountain
@@ -2809,11 +2839,13 @@ Decor.Arch = function(b)
 	end
 	b:Box(V3(48, 0.15, 0.2), CF(0, 12.35, -0.85), PAL.warm, M.Neon, { solid = false })
 	for i, x in { -15, -5, 5, 15 } do
-		b:Box(V3(0.05, 0.8, 0.05), CF(x, 12.0, 0), PAL.black, nil, { solid = false })
-		local lantern = b:Ellipsoid(V3(1.1, 1.4, 1.1), CF(x, 11.0, 0), if i % 2 == 0 then PAL.red else PAL.tea, M.Fabric)
-		if i == 2 then
-			b:Light(lantern, PAL.warm, 18, 0.7)
-		end
+		b:Group("Sway", function()
+			b:Box(V3(0.05, 0.8, 0.05), CF(x, 12.0, 0), PAL.black, nil, { solid = false })
+			local lantern = b:Ellipsoid(V3(1.1, 1.4, 1.1), CF(x, 11.0, 0), if i % 2 == 0 then PAL.red else PAL.tea, M.Fabric)
+			if i == 2 then
+				b:Light(lantern, PAL.warm, 18, 0.7)
+			end
+		end, Vector3.xAxis, 0.3 + i * 0.03)
 	end
 end
 
@@ -3197,7 +3229,7 @@ end
 
 local function stretch(key: string, model: Model, origin: CFrame, k: number)
 	local parts = {}
-	for _, d in model:GetChildren() do
+	for _, d in model:GetDescendants() do -- descendants: parts inside "Anim" groups move with the building too
 		if d:IsA("BasePart") then
 			table.insert(parts, d)
 		end
