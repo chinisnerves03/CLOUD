@@ -2233,7 +2233,7 @@ Build.L40 = function(b) -- distribution center (walk-in: tall pallet racks, fork
 		w = W, d = D, h = H, wall = rgb(125, 155, 185), wallMat = M.Metal,
 		floor = rgb(165, 165, 160), floorMat = M.Concrete, roofColor = rgb(85, 100, 120),
 		openings = {
-			{ side = "Front", x = -2.8, y = 0, w = 4.4, h = 6.5 },
+			{ side = "Front", x = -2.8, y = 0, w = 4.4, h = 7.5 },
 			{ side = "Left", x = -5, y = 5.2, w = 2.4, h = 1.2, glass = true },
 			{ side = "Left", x = 0, y = 5.2, w = 2.4, h = 1.2, glass = true },
 			{ side = "Left", x = 5, y = 5.2, w = 2.4, h = 1.2, glass = true },
@@ -2313,30 +2313,33 @@ Build.L40 = function(b) -- distribution center (walk-in: tall pallet racks, fork
 	end
 end
 
-Build.L41 = function(b) -- headquarters (walk-in lobby + 7 glass floors with visible desks + helipad)
-	local W, D, LOBBY, FLOORS, STOREY = 10, 10, 6, 7, 3
+Build.L41 = function(b) -- headquarters (walk-in lobby + 8 glass floors with visible desks + helipad)
+	-- real storeys: lobby 11 studs (3.5 m), offices 10 studs (3.2 m) each
+	local W, D, LOBBY, FLOORS, STOREY = 10, 10, 11, 8, 10
 	local GLASS = rgb(90, 150, 200)
 	b:Shell(CF(), {
 		w = W, d = D, h = LOBBY, wall = GLASS, wallMat = M.Glass, wallT = 0.35,
 		floor = PAL.white, floorMat = M.Marble, roof = false,
-		openings = { { side = "Front", x = 0, y = 0, w = 3.2, h = 5 } },
+		openings = { { side = "Front", x = 0, y = 0, w = 3.2, h = 8 } },
 	})
 	for _, x in { -W / 2 + 0.1, W / 2 - 0.1 } do
 		for _, z in { -D / 2 + 0.1, D / 2 - 0.1 } do
 			b:Box(V3(0.6, LOBBY, 0.6), CF(x, LOBBY / 2, z), PAL.white, M.Concrete)
 		end
 	end
-	b:Box(V3(4.4, 0.25, 2.2), CF(0, 5.4, -D / 2 - 1.1), PAL.white)
-	b:Box(V3(3.4, 0.1, 0.1), CF(0, 5.25, -D / 2 - 2.1), PAL.tea, M.Neon, { solid = false })
+	b:Box(V3(4.4, 0.25, 2.2), CF(0, 8.6, -D / 2 - 1.1), PAL.white)
+	b:Box(V3(3.4, 0.1, 0.1), CF(0, 8.45, -D / 2 - 2.1), PAL.tea, M.Neon, { solid = false })
 	-- upper floors
 	for k = 1, FLOORS do
 		local y0 = LOBBY + (k - 1) * STOREY
 		b:Box(V3(W + 0.4, 0.4, D + 0.4), CF(0, y0 + 0.2, 0), PAL.white, M.Concrete)
 		b:Box(V3(W - 0.2, STOREY - 0.4, D - 0.2), CF(0, y0 + 0.4 + (STOREY - 0.4) / 2, 0), GLASS, M.Glass, { t = 0.3 })
 		for _, x in { -2.2, 2.2 } do
-			b:Box(V3(2.4, 0.9, 1.2), CF(x, y0 + 0.85, -1), PAL.woodLight, nil, { solid = false })
-			b:Box(V3(0.8, 0.6, 0.1), CF(x, y0 + 1.6, -0.6), PAL.black, nil, { solid = false })
+			-- office desk (0.75 m) with a monitor, standing on the floor slab
+			b:Box(V3(2.4, 2.4, 1.2), CF(x, y0 + 0.4 + 1.2, -1), PAL.woodLight, nil, { solid = false })
+			b:Box(V3(1.2, 0.8, 0.1), CF(x, y0 + 0.4 + 2.8, -0.8), PAL.black, nil, { solid = false })
 		end
+		b:Box(V3(W - 1, 0.12, 0.4), CF(0, y0 + STOREY - 0.3, 0), PAL.white, M.Neon, { solid = false }) -- ceiling light
 	end
 	local top = LOBBY + FLOORS * STOREY
 	b:Box(V3(W + 0.6, 1, D + 0.6), CF(0, top + 0.5, 0), PAL.tea)
@@ -2489,7 +2492,7 @@ Build.L43 = function(b) -- airport branch (walk-in terminal + control tower + ai
 		floor = rgb(220, 220, 225), floorMat = M.Marble, roofColor = rgb(210, 214, 220),
 		openings = {
 			{ side = "Front", x = -3.8, y = 0.5, w = 4.6, h = 5, glass = true },
-			{ side = "Front", x = 1, y = 0, w = 3, h = 6.5 },
+			{ side = "Front", x = 1, y = 0, w = 3, h = 7 },
 			{ side = "Front", x = 4.6, y = 0.5, w = 3.2, h = 5, glass = true },
 			{ side = "Back", x = 0, y = 1, w = 9, h = 4.5, glass = true },
 		},
@@ -2619,7 +2622,8 @@ Build.L44 = function(b) -- nationwide franchise (globe on a plinth)
 end
 
 Build.L45 = function(b) -- bubble-tea cup landmark tower (walk-in lobby + gift shop + observation lift)
-	local LW, LH = 12, 6
+	-- real scale: 3.5 m lobby with 2.5 m doors, then a ~30 m cup rising above it
+	local LW, LH, SEGMENT = 12, 11, 9
 	b:Box(V3(14, 0.4, 14), CF(0, 0.2, 0), PAL.white, M.Marble)
 	b:Box(V3(6, 0.2, 1), CF(0, 0.1, -7.4), PAL.white, M.Marble)
 	local lobby = CF(0, 0.4, 0)
@@ -2627,11 +2631,11 @@ Build.L45 = function(b) -- bubble-tea cup landmark tower (walk-in lobby + gift s
 		w = LW, d = LW, h = LH, wall = PAL.white, wallMat = M.Concrete,
 		floor = rgb(235, 225, 210), floorMat = M.Marble, roofColor = PAL.white,
 		openings = {
-			{ side = "Front", x = 0, y = 0, w = 4, h = 5.2 },
-			{ side = "Front", x = -4, y = 0.6, w = 3, h = 4.4, glass = true },
-			{ side = "Front", x = 4, y = 0.6, w = 3, h = 4.4, glass = true },
-			{ side = "Left", x = 0, y = 0.6, w = 8, h = 4.4, glass = true },
-			{ side = "Right", x = 0, y = 0.6, w = 8, h = 4.4, glass = true },
+			{ side = "Front", x = 0, y = 0, w = 4, h = 8 },
+			{ side = "Front", x = -4, y = 0.6, w = 3, h = 8, glass = true },
+			{ side = "Front", x = 4, y = 0.6, w = 3, h = 8, glass = true },
+			{ side = "Left", x = 0, y = 0.6, w = 8, h = 8, glass = true },
+			{ side = "Right", x = 0, y = 0.6, w = 8, h = 8, glass = true },
 		},
 	})
 	local sign = b:Box(V3(6, 1, 0.2), CF(0, LH + 0.1, -LW / 2 - 0.15), PAL.tea)
@@ -2642,23 +2646,23 @@ Build.L45 = function(b) -- bubble-tea cup landmark tower (walk-in lobby + gift s
 
 	-- cup-shaped tower
 	local base = 0.4 + LH + 0.6
-	b:Cyl(0.8, 8, CF(0, base + 0.4, 0), PAL.white, M.Concrete)
+	b:Cyl(0.8, 11, CF(0, base + 0.4, 0), PAL.white, M.Concrete)
 	local top = base + 0.8
 	for i = 0, 7 do
-		local d = 5 + i * 0.28
+		local d = 10 + i * 0.8 -- the cup flares out toward the rim like a real plastic cup
 		local color = if i == 0 then PAL.pearl elseif i % 2 == 0 then PAL.tea else rgb(222, 108, 40)
-		b:Cyl(3, d, CF(0, top + 1.5, 0), color, M.SmoothPlastic, { solid = true })
-		b:Cyl(0.3, d + 0.12, CF(0, top + 3, 0), PAL.warm, M.Neon)
-		top += 3
+		b:Cyl(SEGMENT, d, CF(0, top + SEGMENT / 2, 0), color, M.SmoothPlastic, { solid = true })
+		b:Cyl(0.4, d + 0.12, CF(0, top + SEGMENT, 0), PAL.warm, M.Neon)
+		top += SEGMENT
 	end
 	for k = 0, 11 do
 		local a = rad(k * 30)
-		b:Ball(1, CF(math.cos(a) * 2.55, base + 2 + (k % 2) * 0.9, math.sin(a) * 2.55), PAL.pearl, M.Glass)
+		b:Ball(2.4, CF(math.cos(a) * 4, base + 2.8 + (k % 2) * 2.2, math.sin(a) * 4), PAL.pearl, M.Glass)
 	end
-	b:Cyl(2, 7.3, CF(0, top + 1, 0), PAL.milk)
-	b:Ellipsoid(V3(7.5, 4, 7.5), CF(0, top + 2, 0), PAL.white, M.Glass, { t = 0.35 })
-	local strawTop = V3(2.4, top + 12, 1.4)
-	b:Tube(V3(0.6, top + 2, 0.4), strawTop, 0.9, PAL.green, M.SmoothPlastic)
+	b:Cyl(2, 16, CF(0, top + 1, 0), PAL.milk)
+	b:Ellipsoid(V3(16.2, 7, 16.2), CF(0, top + 2, 0), PAL.white, M.Glass, { t = 0.35 })
+	local strawTop = V3(4, top + 22, 2.4)
+	b:Tube(V3(1, top + 3, 0.6), strawTop, 2, PAL.green, M.SmoothPlastic)
 	local beacon = b:Ball(1, CF(strawTop), PAL.red, M.Neon, { solid = false })
 	b:Light(beacon, PAL.red, 20, 1)
 
@@ -2667,9 +2671,9 @@ Build.L45 = function(b) -- bubble-tea cup landmark tower (walk-in lobby + gift s
 	b:Box(V3(3.4, 2.4, 1.2), CF(0, f + 1.2, 0.8), PAL.tea)
 	b:Box(V3(3.6, 0.15, 1.4), CF(0, f + 2.45, 0.8), PAL.white, M.Marble)
 	b:Person(CF(0, f, 2.2), { apron = PAL.tea, shirt = PAL.white, right = { 45, 15 }, left = { 30, 0 } })
-	b:Box(V3(2.8, 4.4, 0.15), CF(0, f + 2.2, LW / 2 - 0.7), PAL.gold, M.Metal, { solid = false })
-	b:Box(V3(0.06, 4.4, 0.16), CF(0, f + 2.2, LW / 2 - 0.71), PAL.woodDark, nil, { solid = false })
-	local lift = b:Box(V3(3.2, 0.7, 0.1), CF(0, f + 4.9, LW / 2 - 0.75), PAL.black, nil, { solid = false })
+	b:Box(V3(2.8, 7, 0.15), CF(0, f + 3.5, LW / 2 - 0.7), PAL.gold, M.Metal, { solid = false })
+	b:Box(V3(0.06, 7, 0.16), CF(0, f + 3.5, LW / 2 - 0.71), PAL.woodDark, nil, { solid = false })
+	local lift = b:Box(V3(3.2, 0.7, 0.1), CF(0, f + 7.6, LW / 2 - 0.75), PAL.black, nil, { solid = false })
 	b:Text(lift, FACE.Front, "OBSERVATION DECK ↑", { color = PAL.yellow, glow = true })
 	local gifts = CF(-LW / 2 + 1.3, f, 0) * ANG(0, rad(90), 0)
 	b:Shelf(gifts, 6, 1.2, { 1.0, 2.4, 3.8 }, PAL.woodLight, function(level, y)
