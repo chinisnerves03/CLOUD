@@ -210,6 +210,25 @@ function Config.SpeedMultiplier(speed: number): number
 end
 
 ---------------------------------------------------------------------------
+-- Interior upgrades: every walk-in building has a purple pad just inside its door. Three levels each; every level
+-- bought in any building adds BONUS to all income. Cost = the building's price × COST[level].
+---------------------------------------------------------------------------
+Config.INTERIOR = {
+	NAMES = { "Decor", "More staff", "Premium" },
+	COST = { 0.5, 1, 2 },
+	BONUS = 0.05,
+}
+
+function Config.InteriorCost(itemPrice: number, level: number): number?
+	local factor = Config.INTERIOR.COST[level]
+	return if factor then math.floor(itemPrice * factor) else nil
+end
+
+function Config.InteriorMultiplier(totalLevels: number): number
+	return 1 + Config.INTERIOR.BONUS * totalLevels
+end
+
+---------------------------------------------------------------------------
 -- Retention: rebirth, daily reward, codes, quests, leaderboards
 -- Rewards are sized in seconds of the player's base income (Config.GetIncome × passes × rebirths), so they stay useful
 -- at every level; Min is the floor for brand-new shops.

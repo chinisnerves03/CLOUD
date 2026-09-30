@@ -400,6 +400,8 @@ end
 --       openings = { { side = "Front"|"Back"|"Left"|"Right", x = center along the wall, y = bottom edge, w, h, glass = true/false } }
 -- walkable doors: glass = false, y = 0, h >= 7
 function Builder:Shell(cf: CFrame, spec)
+	-- the first shell is the building's main room: interior upgrades are laid out inside it
+	self.MainShell = self.MainShell or { cf = cf, spec = spec }
 	self.InShell = true
 	self:_Shell(cf, spec)
 	self.InShell = false
@@ -3106,6 +3108,169 @@ Decor.StaffCart = function(b, variant)
 end
 
 ---------------------------------------------------------------------------
+-- Interior upgrades (walk-in buildings): three levels bought on the purple "InteriorPad" just inside the door.
+-- Each level is a sub-model Interior1..3 that PlotService shows once bought:
+--   1 Decor      potted plants and Thai tea posters along the walls
+--   2 More staff two more workers (R15 NPCs) with a little work table each
+--   3 Premium    ceiling light strips, a gold skirting line and a big "THAI TEA TV" screen
+-- Everything is placed on free floor found automatically (a 2-stud grid around the existing furniture), so the
+-- same code furnishes every building. Built before the footprint stretch, so it grows with the room.
+---------------------------------------------------------------------------
+ItemModels.INTERIOR_LEVELS = 3
+
+local function section(b, name: string, fn: () -> ())
+	local group = Instance.new("Model")
+	group.Name = name
+	local outer = b.Model
+	group.Parent = outer
+	b.Model = group
+	fn()
+	b.Model = outer
+end
+
+local function furnishInterior(b, model: Model, k: number)
+	local shell = b.MainShell
+	if not shell then
+		return
+	end
+	-- runs after the footprint stretch: the room is k times wider and deeper, the furniture kept its size
+	local spec = shell.spec
+	local p0 = shell.cf.Position
+	local cf: CFrame = CFrame.new(p0.X * k, p0.Y, p0.Z * k) * shell.cf.Rotation
+	local w, d, h, t = spec.w * k, spec.d * k, spec.h, (spec.t or 0.6) * k
+	local CELL = 2
+	local x0, x1 = -w / 2 + t + 0.6, w / 2 - t - 0.6
+	local z0, z1 = -d / 2 + t + 0.6, d / 2 - t - 0.6
+	local nx, nz = math.floor((x1 - x0) / CELL), math.floor((z1 - z0) / CELL)
+	if nx < 2 or nz < 2 then
+		return
+	end
+	-- mark cells under existing furniture (anything below head height that is not wall/floor/roof)
+	local busy = {}
+	local function mark(lo: Vector3, hi: Vector3)
+		for ix = math.max(0, math.floor((lo.X - x0) / CELL)), math.min(nx - 1, math.floor((hi.X - x0) / CELL)) do
+			for iz = math.max(0, math.floor((lo.Z - z0) / CELL)), math.min(nz - 1, math.floor((hi.Z - z0) / CELL)) do
+				busy[ix .. "," .. iz] = true
+			end
+		end
+	end
+	local inverse = b.Origin * cf
+	for _, part in model:GetDescendants() do
+		if part:IsA("BasePart") and not part:GetAttribute("Structure") then
+			local rel = inverse:ToObjectSpace(part.CFrame)
+			local half = (rel.RightVector * part.Size.X):Abs() / 2 + (rel.UpVector * part.Size.Y):Abs() / 2 + (rel.LookVector * part.Size.Z):Abs() / 2
+			local lo, hi = rel.Position - half, rel.Position + half
+			if lo.Y < 7 and hi.Y > 0.3 then
+				mark(lo - Vector3.new(0.4, 0, 0.4), hi + Vector3.new(0.4, 0, 0.4))
+			end
+		end
+	end
+	-- keep a walkway behind every front door clear (the pad goes in the first one)
+	local door
+	for _, o in spec.openings or {} do
+		if o.side == "Front" and o.y <= 0.1 then
+			local ox, ow = o.x * k, o.w * k
+			door = door or { x = ox, w = ow }
+			mark(Vector3.new(ox - ow / 2 - 0.5, 0, z0), Vector3.new(ox + ow / 2 + 0.5, 0, z0 + 5))
+		end
+	end
+	if not door then
+		return
+	end
+	local function cellPos(ix: number, iz: number): Vector3
+		return Vector3.new(x0 + (ix + 0.5) * CELL, 0, z0 + (iz + 0.5) * CELL)
+	end
+	-- free cells next to the side and back walls, and free cells in the open room
+	local wallCells, openCells = {}, {}
+	for ix = 0, nx - 1 do
+		for iz = 0, nz - 1 do
+			if not busy[ix .. "," .. iz] then
+				local p = cellPos(ix, iz)
+				local nearWall = ix == 0 or ix == nx - 1 or iz == nz - 1
+				table.insert(if nearWall then wallCells else openCells, { ix = ix, iz = iz, p = p })
+			end
+		end
+	end
+	local function take(list, count: number, spread: number)
+		local picked = {}
+		for _, c in list do
+			local ok = true
+			for _, q in picked do
+				if (c.p - q.p).Magnitude < spread then
+					ok = false
+					break
+				end
+			end
+			if ok then
+				table.insert(picked, c)
+				busy[c.ix .. "," .. c.iz] = true
+				if #picked >= count then
+					break
+				end
+			end
+		end
+		return picked
+	end
+	local floorY = 0.2
+	local function at(p: Vector3): CFrame
+		return cf * CF(p.X, floorY, p.Z)
+	end
+	-- facing: toward the room centre
+	local function facingIn(p: Vector3): CFrame
+		local target = Vector3.new(0, 0, 0)
+		return at(p) * CFrame.lookAt(Vector3.zero, Vector3.new(target.X - p.X, 0, target.Z - p.Z)).Rotation
+	end
+
+	-- the purple pad just inside the door
+	local padPos = Vector3.new(door.x, floorY + 0.15, z0 + 2.6)
+	b:Box(V3(4, 0.3, 4), cf * CF(padPos), rgb(170, 90, 230), M.Neon, { solid = false, flat = true, name = "InteriorPad" })
+
+	section(b, "Interior1", function()
+		for i, c in take(wallCells, 5, 3.5) do
+			if i % 2 == 1 then
+				b:Plant(at(c.p), 2.2)
+			else
+				-- poster on the nearest wall
+				local p = c.p
+				local nearest, out
+				local dx0, dx1, dz1 = p.X - x0, x1 - p.X, z1 - p.Z
+				if dz1 <= math.min(dx0, dx1) then
+					nearest, out = CF(p.X, 4.2, z1 + 0.55), 0
+				elseif dx0 < dx1 then
+					nearest, out = CF(x0 - 0.55, 4.2, p.Z) * ANG(0, rad(-90), 0), 1
+				else
+					nearest, out = CF(x1 + 0.55, 4.2, p.Z) * ANG(0, rad(90), 0), 1
+				end
+				local poster = b:Box(V3(2.6, 3.2, 0.1), cf * nearest, PAL.tea, nil, { solid = false, flat = true })
+				b:Text(poster, FACE.Front, "THAI TEA", { color = PAL.cream })
+				b:Plant(at(p), 1.2)
+			end
+		end
+	end)
+	section(b, "Interior2", function()
+		for i, c in take(openCells, 2, 5) do
+			local stand = facingIn(c.p)
+			b:Box(V3(2.6, 0.2, 1.3), stand * CF(0, 2.6, -1.3), PAL.woodLight, nil, { solid = false, flat = true })
+			b:Legs(2.4, 1.1, 2.5, 0.15, stand * CF(0, 0, -1.3), PAL.steelDark)
+			b:TeaCup(stand * CF(-0.6, 2.7, -1.3), 0.9)
+			b:Person(stand, { apron = if i == 1 then PAL.tea else PAL.green, cap = if i == 1 then PAL.tea else PAL.green,
+				right = { 70, 15 }, left = { 60, 15 } })
+		end
+	end)
+	section(b, "Interior3", function()
+		for _, z in { z0 + (z1 - z0) * 0.3, z0 + (z1 - z0) * 0.7 } do
+			local strip = b:Box(V3((x1 - x0) * 0.8, 0.12, 0.5), cf * CF(0, h - 0.4, z), PAL.warm, M.Neon, { solid = false, flat = true })
+			b:Light(strip, PAL.warm, 18, 0.6)
+		end
+		for _, x in { x0 - 0.25, x1 + 0.25 } do
+			b:Box(V3(0.12, 0.35, z1 - z0), cf * CF(x, 0.45, (z0 + z1) / 2), PAL.gold, M.Metal, { solid = false, flat = true })
+		end
+		local tv = b:Box(V3(5, 2.8, 0.2), cf * CF(0, 5.2, z1 + 0.5), PAL.black, nil, { solid = false, flat = true })
+		b:Text(tv, FACE.Front, "THAI TEA TV", { color = PAL.tea, glow = true })
+	end)
+end
+
+---------------------------------------------------------------------------
 -- Real-world size. A character is ~5.5 studs (1.75 m), so 1 stud ≈ 0.32 m. The small props are built at that
 -- scale; the big buildings were built too small, so they are enlarged after building:
 --   Footprint: walls, floors, roofs (Shell parts) and parts spanning half the building grow in X/Z by the factor;
@@ -3287,6 +3452,7 @@ function ItemModels.Build(key: string, origin: CFrame): Model?
 		model.WorldPivot = origin
 		model:ScaleTo(ItemModels.Uniform[key])
 	end
+	furnishInterior(b, model, ItemModels.Footprint[key] or 1)
 	model.WorldPivot = origin
 	return model
 end

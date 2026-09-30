@@ -304,7 +304,7 @@ local SERVE_EVERY = 2.5 -- seconds between automatic sales (faster with Faster S
 local SPAWN_EVERY = 1.3
 local VIEW_RANGE = 170 -- only animate queues near the camera
 
-type Customer = { Model: Model, Pos: Vector3, Facing: Vector3, Path: { Vector3 }, Slot: number, Side: number, Leaving: boolean, Phase: number, Idle: AnimationTrack?, Walk: AnimationTrack?, Emotes: { [string]: AnimationTrack | boolean }?, PauseUntil: number?, NextEmote: number? }
+type Customer = { Model: Model, Pos: Vector3, Facing: Vector3, Path: { Vector3 }, Slot: number, Side: number, Leaving: boolean, Phase: number, Idle: AnimationTrack?, Walk: AnimationTrack?, Emotes: { [string]: AnimationTrack | boolean }?, PauseUntil: number?, NextEmote: number?, Pace: number?, Speed: number? }
 
 -- customers are R15 rigs (NpcService): walk while moving, idle while waiting
 local function customerTrack(model: Model, attr: string, speed: number): AnimationTrack?
@@ -351,7 +351,7 @@ local function setWalking(c, walking: boolean)
 	end
 	if on and not on.IsPlaying then
 		on:Play(0.2)
-		on:AdjustSpeed(if walking then WALK_SPEED / 11 else 1)
+		on:AdjustSpeed(1)
 	end
 end
 type Queue = { Customers: { Customer }, SpawnIn: number, ServeIn: number, LastServe: number }
@@ -485,9 +485,20 @@ RunService.Heartbeat:Connect(function(dt)
 			local c = q.Customers[i]
 			local moving = false
 			local target = if (c.PauseUntil or 0) > os.clock() then nil else c.Path[1]
+			-- human-like walking: each customer has their own pace, speeds up and slows down smoothly, eases
+			-- into the last waypoint and turns the body gradually instead of snapping
+			c.Pace = c.Pace or (WALK_SPEED * (0.8 + math.random() * 0.45))
+			c.Speed = c.Speed or 0
+			local wanted = 0
 			if target then
 				local delta = target - c.Pos
-				local step = WALK_SPEED * dt
+				local remaining = delta.Magnitude
+				for k = 2, #c.Path do
+					remaining += (c.Path[k] - c.Path[k - 1]).Magnitude
+				end
+				wanted = math.min(c.Pace, 1 + remaining * 1.6) -- slow down over the last couple of studs
+				c.Speed += math.clamp(wanted - c.Speed, -9 * dt, 6 * dt)
+				local step = math.max(c.Speed, 0.6) * dt
 				if delta.Magnitude <= step then
 					c.Pos = target
 					table.remove(c.Path, 1)
@@ -495,7 +506,8 @@ RunService.Heartbeat:Connect(function(dt)
 					c.Pos += delta.Unit * step
 				end
 				if delta.Magnitude > 0.05 then
-					c.Facing = delta.Unit
+					local desired = Vector3.new(delta.X, 0, delta.Z).Unit
+					c.Facing = c.Facing:Lerp(desired, math.min(1, dt * 7)).Unit
 				end
 				moving = true
 			elseif c.Leaving and #c.Path == 0 then
@@ -503,7 +515,8 @@ RunService.Heartbeat:Connect(function(dt)
 				table.remove(q.Customers, i)
 				continue
 			elseif not c.Leaving then
-				c.Facing = Vector3.new(0, 0, 1)
+				c.Speed = 0
+				c.Facing = c.Facing:Lerp(Vector3.new(0, 0, 1), math.min(1, dt * 5)).Unit
 				-- waiting in line: now and then laugh or point at the menu
 				c.NextEmote = c.NextEmote or os.clock() + 4 + math.random() * 6
 				if os.clock() >= c.NextEmote then
@@ -513,7 +526,11 @@ RunService.Heartbeat:Connect(function(dt)
 					end
 				end
 			end
-			setWalking(c, moving)
+			setWalking(c, moving and c.Speed > 0.4)
+			if c.Walk and c.Walk.IsPlaying then
+				-- Roblox's R15 walk cycle matches about 8 studs/s at speed 1: keep the feet from sliding
+				c.Walk:AdjustSpeed(math.max(c.Speed, 1) / 8)
+			end
 			-- part-built customers (no rig) bob instead of animating
 			local bob = if moving and not c.Walk then math.abs(math.sin(c.Phase + customerClock * 9)) * 0.18 else 0
 			c.Model:PivotTo(floor * CFrame.new(c.Pos + Vector3.new(0, bob, 0)) * CFrame.lookAt(Vector3.zero, c.Facing).Rotation)
@@ -684,7 +701,9 @@ RunService.RenderStepped:Connect(function(dt)
 		then string.format("Level %d/%d · Rebirth %d", level, Config.MAX_LEVEL, rebirths)
 		else string.format("Level %d/%d", level, Config.MAX_LEVEL)
 	local staff, recipe, speedLevel = getNumber("Staff"), getNumber("Recipe"), getNumber("Speed")
+	local interiorBonus = getNumber("InteriorBonus")
 	upgradesLabel.Text = string.format("Staff %d/%d · Recipe %d · Speed %d", staff, Config.UPGRADES.Staff.Max, recipe, speedLevel)
+		.. (if interiorBonus > 0 then string.format(" · Interior +%d%%", interiorBonus) else "")
 
 	local plot = getPlot()
 	if not plot then

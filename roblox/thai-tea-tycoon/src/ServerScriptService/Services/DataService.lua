@@ -54,6 +54,7 @@ local function defaultData()
 		QuestIndex = 1, -- position in Config.QUESTS
 		QuestProgress = 0,
 		QuestTarget = 0, -- 0 = not started yet (set when the quest begins)
+		Interiors = {}, -- item key -> interior level bought (walk-in buildings)
 	}
 end
 
@@ -90,6 +91,13 @@ local function reconcile(saved: any)
 		end
 	end
 	data.Codes = codes
+	local interiors = {}
+	for key, level in data.Interiors do
+		if type(key) == "string" and type(level) == "number" then
+			interiors[key] = math.clamp(math.floor(level), 0, Config.INTERIOR.COST and #Config.INTERIOR.COST or 3)
+		end
+	end
+	data.Interiors = interiors
 	return data
 end
 
@@ -243,7 +251,8 @@ function DataService.Save(player: Player, release: boolean?): boolean
 	end
 	data.LastSeen = os.time()
 
-	local snapshot = { Bag = 0, Stored = 0, Receipts = table.clone(data.Receipts), Codes = table.clone(data.Codes) }
+	local snapshot = { Bag = 0, Stored = 0, Receipts = table.clone(data.Receipts), Codes = table.clone(data.Codes),
+		Interiors = table.clone(data.Interiors) }
 	for _, field in SAVED_FIELDS do
 		snapshot[field] = data[field]
 	end

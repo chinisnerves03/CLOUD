@@ -36,6 +36,8 @@ type PlotState = {
 	SignLabel: TextLabel?,
 	ItemsFolder: Folder,
 	Storage: Folder,
+	-- walk-in buildings: item key -> interior upgrade pad, its label and the hidden Interior1..3 sections
+	Interiors: { [string]: { Model: Model, Pad: BasePart, Label: TextLabel, Store: Folder, Price: number, Name: string } },
 	Owner: Player?,
 }
 
@@ -44,6 +46,7 @@ type OwnerState = {
 	Data: any,
 	OnPad: { boolean },
 	OnUpgrade: { [string]: boolean },
+	OnInterior: { [string]: boolean },
 	LastBrew: number,
 }
 
@@ -117,9 +120,18 @@ local function makePadGlow(pad: BasePart): BasePart
 	return glow
 end
 
--- passes (2x Income) × rebirths
+local function interiorLevels(data): number
+	local total = 0
+	for _, level in data.Interiors do
+		total += level
+	end
+	return total
+end
+
+-- passes (2x Income) × rebirths × interior upgrades
 local function cashMultiplier(player: Player, data): number
 	return Monetization.IncomeMultiplier(player) * Config.RebirthMultiplier(data.Rebirths)
+		* Config.InteriorMultiplier(interiorLevels(data))
 end
 
 local function progress(player: Player, kind: string, amount: number)
@@ -225,6 +237,31 @@ local function refreshPads(plot: PlotState)
 		local vip = state and Monetization.HasPass(plot.Owner :: Player, "VipBarista")
 		plot.VipModel.Parent = if vip then plot.Model else plot.Storage
 	end
+
+	for key, entry in plot.Interiors do
+		local level = state and state.Data.Interiors[key] or 0
+		local cost = Config.InteriorCost(entry.Price, level + 1)
+		entry.Pad.Transparency = if cost then 0 else 0.7
+		entry.Label.Text = if not state then ""
+			elseif cost then string.format("%s interior %d/%d: %s\n%s", entry.Name, level, ItemModels.INTERIOR_LEVELS,
+				Config.INTERIOR.NAMES[level + 1], Config.FormatMoney(cost))
+			else entry.Name .. " interior MAX"
+	end
+end
+
+-- show the bought interior sections of a walk-in building, park the rest in storage
+local function applyInterior(plot: PlotState, key: string, level: number)
+	local entry = plot.Interiors[key]
+	if not entry then
+		return
+	end
+	for n = 1, ItemModels.INTERIOR_LEVELS do
+		local name = "Interior" .. n
+		local sectionModel = entry.Model:FindFirstChild(name) or entry.Store:FindFirstChild(name)
+		if sectionModel then
+			sectionModel.Parent = if n <= level then entry.Model else entry.Store
+		end
+	end
 end
 
 local function showItem(plot: PlotState, level: number)
@@ -234,6 +271,8 @@ local function showItem(plot: PlotState, level: number)
 	end
 	local model = plot.Storage:FindFirstChild(item.Key)
 	if model then
+		local state = plot.Owner and owners[plot.Owner]
+		applyInterior(plot, item.Key, state and state.Data.Interiors[item.Key] or 0)
 		model.Parent = plot.ItemsFolder
 	end
 end
@@ -308,6 +347,11 @@ local function tryBuy(player: Player, state: OwnerState)
 	PlotService.Notify(player, "Buy", string.format("Built %s! Each cup now earns %s (was %s)",
 		item.Name, Config.FormatMoney(cupValue(player, data)), Config.FormatMoney(oldCup)))
 	progress(player, "Build", 1)
+	if state.Plot.Interiors[item.Key] then
+		task.delay(2, PlotService.Notify, player, "Offline",
+			"Walk inside " .. item.Name .. " and step on the purple pad to upgrade its interior (+" ..
+			math.floor(Config.INTERIOR.BONUS * 100) .. "% income per level)")
+	end
 	if data.Level >= Config.MAX_LEVEL then
 		PlotService.Notify(player, "Buy", "Congratulations! Your Thai tea empire is complete! Rebirth for bigger income")
 	end
@@ -340,6 +384,28 @@ local function tryUpgrade(player: Player, state: OwnerState, key: string)
 	PlotService.Notify(player, "Buy", string.format(UPGRADE_MESSAGES[key], detail))
 end
 
+local function tryInterior(player: Player, state: OwnerState, key: string)
+	local entry = state.Plot.Interiors[key]
+	local data = state.Data
+	local level = data.Interiors[key] or 0
+	local cost = entry and Config.InteriorCost(entry.Price, level + 1)
+	if not entry or not cost then
+		PlotService.Notify(player, "Error", "This interior is fully upgraded")
+		return
+	end
+	if data.Cash < cost then
+		PlotService.Notify(player, "Error", "Not enough cash — you need " .. Config.FormatMoney(math.ceil(cost - data.Cash)) .. " more")
+		return
+	end
+	data.Cash -= cost
+	data.Interiors[key] = level + 1
+	applyInterior(state.Plot, key, level + 1)
+	refreshPads(state.Plot)
+	progress(player, "Upgrade", 1)
+	PlotService.Notify(player, "Buy", string.format("%s interior: %s! All income is now +%d%%", entry.Name,
+		Config.INTERIOR.NAMES[level + 1], math.floor((Config.InteriorMultiplier(interiorLevels(data)) - 1) * 100 + 0.5)))
+end
+
 local function updateOwner(player: Player, state: OwnerState, dt: number)
 	local data = state.Data
 	if dt > 0 then
@@ -363,6 +429,13 @@ local function updateOwner(player: Player, state: OwnerState, dt: number)
 			end
 			state.OnPad[i] = onPad
 		end
+		for key, entry in state.Plot.Interiors do
+			local on = entry.Model.Parent == state.Plot.ItemsFolder and isStandingOn(entry.Pad, position)
+			if on and not state.OnInterior[key] then
+				tryInterior(player, state, key)
+			end
+			state.OnInterior[key] = on
+		end
 		for key, pad in state.Plot.UpgradePads do
 			local on = isStandingOn(pad, position)
 			if on and not state.OnUpgrade[key] then
@@ -384,6 +457,7 @@ local function updateOwner(player: Player, state: OwnerState, dt: number)
 	setAttr(player, "Recipe", data.Recipe)
 	setAttr(player, "Speed", data.Speed)
 	setAttr(player, "Rebirths", data.Rebirths)
+	setAttr(player, "InteriorBonus", math.floor((Config.InteriorMultiplier(interiorLevels(data)) - 1) * 100 + 0.5))
 end
 
 -- Rebirth: back to level 1 with no cash or upgrades, for +Config.REBIRTH.BONUS income forever. Returns success.
@@ -403,6 +477,7 @@ function PlotService.Rebirth(player: Player): boolean
 	for key in Config.UPGRADES do
 		data[key] = 0
 	end
+	data.Interiors = {}
 	hideAllItems(state.Plot)
 	refreshPads(state.Plot)
 	table.clear(state.OnPad)
@@ -471,6 +546,29 @@ local function setupPlot(model: Model, storageRoot: Folder): PlotState?
 		child.Parent = storage
 	end
 
+	-- walk-in buildings with an interior upgrade pad (ItemModels furnishInterior); sections start hidden
+	local interiors = {}
+	for level = 2, Config.MAX_LEVEL do
+		local item = Config.Items[level]
+		local itemModel = storage:FindFirstChild(item.Key)
+		local pad = itemModel and itemModel:FindFirstChild("InteriorPad", true)
+		if itemModel and pad and pad:IsA("BasePart") then
+			pad.Anchored = true
+			pad.CanCollide = false
+			local store = Instance.new("Folder")
+			store.Name = item.Key .. "_Interior"
+			store.Parent = storage
+			interiors[item.Key] = { Model = itemModel :: Model, Pad = pad, Label = makeLabel(pad, 3.5), Store = store,
+				Price = item.Price, Name = item.Name }
+			for n = 1, ItemModels.INTERIOR_LEVELS do
+				local sectionModel = itemModel:FindFirstChild("Interior" .. n)
+				if sectionModel then
+					sectionModel.Parent = store
+				end
+			end
+		end
+	end
+
 	local missing = {}
 	for level = 2, Config.MAX_LEVEL do
 		local key = Config.Items[level].Key
@@ -535,6 +633,7 @@ local function setupPlot(model: Model, storageRoot: Folder): PlotState?
 		SignLabel = signLabel,
 		ItemsFolder = itemsFolder :: Folder,
 		Storage = storage,
+		Interiors = interiors,
 		Owner = nil,
 	}
 
@@ -597,7 +696,7 @@ function PlotService.AddPlayer(player: Player, data): boolean
 
 	plot.Owner = player
 	plot.Model:SetAttribute("Owned", true) -- clients animate queueing customers on owned plots
-	local state: OwnerState = { Plot = plot, Data = data, OnPad = {}, OnUpgrade = {}, LastBrew = 0 }
+	local state: OwnerState = { Plot = plot, Data = data, OnPad = {}, OnUpgrade = {}, OnInterior = {}, LastBrew = 0 }
 	owners[player] = state
 
 	for level = 2, data.Level do
