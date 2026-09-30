@@ -8,6 +8,10 @@
         "StreamingEnabled": true
       }
     },
+    "ReplicatedFirst": {
+      "$path": "src/ReplicatedFirst",
+      "$ignoreUnknownInstances": true
+    },
     "ReplicatedStorage": {
       "$path": "src/ReplicatedStorage",
       "$ignoreUnknownInstances": true

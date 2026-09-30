@@ -61,65 +61,99 @@ end
 ---------------------------------------------------------------------------
 -- Shop button (left edge, middle)
 ---------------------------------------------------------------------------
-local shopButton = Instance.new("TextButton")
+local UIStyle = require(ReplicatedStorage:WaitForChild("UIStyle"))
+
+local shopButton = UIStyle.button(gui, "🛒 SHOP", UIStyle.Colors.Tea, UDim2.fromOffset(78, 78), UDim2.new(0, 12, 0.5, COLUMN_Y), Vector2.new(0, 0.5))
 shopButton.Name = "ShopButton"
-shopButton.AnchorPoint = Vector2.new(0, 0.5)
-shopButton.Position = UDim2.new(0, 12, 0.5, COLUMN_Y)
-shopButton.Size = UDim2.fromOffset(78, 78)
-shopButton.BackgroundColor3 = ORANGE
-shopButton.AutoButtonColor = true
-shopButton.Font = Enum.Font.GothamBlack
-shopButton.Text = "SHOP"
-shopButton.TextColor3 = Color3.new(1, 1, 1)
-shopButton.TextSize = 20
-shopButton.Parent = gui
-corner(shopButton, 16)
-stroke(shopButton, Color3.fromRGB(255, 240, 200), 3)
 
--- gentle pulse so new players notice it
-task.spawn(function()
-	local grow = TweenService:Create(shopButton, TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
-		{ Size = UDim2.fromOffset(84, 84) })
-	grow:Play()
-end)
-
--- UI click sound
-local clickSound: Sound? = nil
-if Config.SOUNDS.Click ~= "" then
-	clickSound = Instance.new("Sound")
-	clickSound.SoundId = Config.SOUNDS.Click
-	clickSound.Volume = Config.SOUND_VOLUME.Click or 0.5
-	clickSound.Parent = SoundService
-end
+-- styled buttons click on their own (UIStyle); the shop cards below use this
 local function click()
-	if clickSound then
-		SoundService:PlayLocalSound(clickSound)
-	end
+	UIStyle.click()
 end
 
--- Music on/off (mutes SoundService.BackgroundMusic, created by ClientMain)
-local musicButton = Instance.new("TextButton")
-musicButton.Name = "MusicButton"
-musicButton.AnchorPoint = Vector2.new(0, 0)
-musicButton.Position = UDim2.new(0, 12, 0.5, COLUMN_Y + 50)
-musicButton.Size = UDim2.fromOffset(78, 30)
-musicButton.BackgroundColor3 = BROWN
-musicButton.BackgroundTransparency = 0.25
-musicButton.Font = Enum.Font.GothamBold
-musicButton.TextColor3 = Color3.new(1, 1, 1)
-musicButton.TextSize = 14
-musicButton.Text = "Music: ON"
-musicButton.Parent = gui
-corner(musicButton, 8)
+---------------------------------------------------------------------------
+-- Settings (music / sound effects) and Home
+---------------------------------------------------------------------------
+local settingsButton = UIStyle.button(gui, "⚙️ Settings", UIStyle.Colors.Grey, UDim2.fromOffset(78, 30), UDim2.new(0, 12, 0.5, COLUMN_Y + 50))
+settingsButton.Name = "SettingsButton"
+local homeButton = UIStyle.button(gui, "🏠 Home", UIStyle.Colors.Blue, UDim2.fromOffset(78, 30), UDim2.new(0, 12, 0.5, COLUMN_Y + 122))
+homeButton.Name = "HomeButton"
 
-local musicOn = true
-musicButton.Activated:Connect(function()
-	click()
-	musicOn = not musicOn
-	musicButton.Text = if musicOn then "Music: ON" else "Music: OFF"
+local settings = Instance.new("Frame")
+settings.Name = "SettingsWindow"
+settings.AnchorPoint = Vector2.new(0.5, 0.5)
+settings.Position = UDim2.fromScale(0.5, 0.45)
+settings.Size = UDim2.fromOffset(320, 210)
+settings.Visible = false
+settings.Parent = gui
+UIStyle.panel(settings)
+local settingsTitle = Instance.new("TextLabel")
+settingsTitle.BackgroundTransparency = 1
+settingsTitle.Position = UDim2.fromOffset(18, 10)
+settingsTitle.Size = UDim2.new(1, -80, 0, 36)
+settingsTitle.Font = UIStyle.Font
+settingsTitle.TextScaled = true
+settingsTitle.TextXAlignment = Enum.TextXAlignment.Left
+settingsTitle.TextColor3 = UIStyle.Colors.Yellow
+settingsTitle.Text = "Settings"
+settingsTitle.Parent = settings
+local closeSettings = UIStyle.button(settings, "X", UIStyle.Colors.Red, UDim2.fromOffset(38, 38), UDim2.new(1, -12, 0, 10), Vector2.new(1, 0))
+
+-- a toggle row: label on the left, ON/OFF button on the right; state lives in a SoundService attribute
+local function toggleRow(y: number, text: string, attribute: string, apply: (boolean) -> ())
+	local rowLabel = settingsTitle:Clone()
+	rowLabel.Position = UDim2.fromOffset(18, y)
+	rowLabel.Size = UDim2.new(1, -150, 0, 30)
+	rowLabel.Font = UIStyle.BodyFont
+	rowLabel.TextScaled = false
+	rowLabel.TextSize = 22
+	rowLabel.TextColor3 = UIStyle.Colors.Cream
+	rowLabel.Text = text
+	rowLabel.Parent = settings
+	local toggle = UIStyle.button(settings, "ON", UIStyle.Colors.Green, UDim2.fromOffset(100, 40), UDim2.new(1, -18, 0, y - 5), Vector2.new(1, 0))
+	local function refresh()
+		local muted = SoundService:GetAttribute(attribute) == true
+		toggle.Text = if muted then "OFF" else "ON"
+		toggle.BackgroundColor3 = if muted then UIStyle.Colors.Grey else UIStyle.Colors.Green
+		apply(not muted)
+	end
+	toggle.Activated:Connect(function()
+		SoundService:SetAttribute(attribute, SoundService:GetAttribute(attribute) ~= true)
+		refresh()
+	end)
+	refresh()
+end
+
+toggleRow(70, "🎵 Music", "MusicMuted", function(on: boolean)
 	local music = SoundService:FindFirstChild("BackgroundMusic") :: Sound?
 	if music then
-		music.Volume = if musicOn then Config.MUSIC_VOLUME else 0
+		music.Volume = if on then Config.MUSIC_VOLUME else 0
+	end
+end)
+toggleRow(130, "🔊 Sound effects", "SfxMuted", function() end)
+
+settingsButton.Activated:Connect(function()
+	settings.Visible = not settings.Visible
+end)
+closeSettings.Activated:Connect(function()
+	settings.Visible = false
+end)
+
+-- Home: back to the entrance of your own shop, facing in (the character is client-owned, so this replicates)
+homeButton.Activated:Connect(function()
+	local plots = workspace:FindFirstChild("Plots")
+	local plot = plots and plots:FindFirstChild(tostring(player:GetAttribute("Plot")))
+	local base = plot and plot:FindFirstChild("Base")
+	local character = player.Character
+	if not (base and base:IsA("BasePart") and character) then
+		return
+	end
+	local spot = base.CFrame * CFrame.new(0, base.Size.Y / 2 + 3.5, -base.Size.Z / 2 - 7)
+	local inward = -base.CFrame.LookVector
+	character:PivotTo(CFrame.lookAt(spot.Position, spot.Position + inward))
+	local camera = workspace.CurrentCamera
+	if camera then
+		camera.CFrame = CFrame.lookAt(spot.Position - inward * 14 + Vector3.new(0, 6, 0), spot.Position + inward * 20)
 	end
 end)
 
@@ -145,7 +179,7 @@ windowScale.Parent = window
 
 text(window, {
 	Name = "Title", Position = UDim2.fromOffset(20, 10), Size = UDim2.new(1, -90, 0, 40),
-	Font = Enum.Font.GothamBlack, TextColor3 = YELLOW, TextXAlignment = Enum.TextXAlignment.Left, Text = "Thai Tea Shop",
+	Font = UIStyle.Font, TextColor3 = YELLOW, TextXAlignment = Enum.TextXAlignment.Left, Text = "🛒 Thai Tea Shop",
 })
 
 local closeButton = Instance.new("TextButton")
@@ -356,7 +390,6 @@ local function setOpen(open: boolean)
 end
 
 shopButton.Activated:Connect(function()
-	click()
 	setOpen(not window.Visible)
 end)
 closeButton.Activated:Connect(function()

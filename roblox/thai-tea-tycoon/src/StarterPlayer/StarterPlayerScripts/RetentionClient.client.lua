@@ -9,6 +9,7 @@ local TweenService = game:GetService("TweenService")
 
 local Config = require(ReplicatedStorage:WaitForChild("Config"))
 local actionRemote = ReplicatedStorage:WaitForChild("TycoonAction") :: RemoteEvent
+local UIStyle = require(ReplicatedStorage:WaitForChild("UIStyle"))
 
 local player = Players.LocalPlayer
 
@@ -47,7 +48,7 @@ local function button(props): TextButton
 		end
 	end
 	b.Parent = props.Parent or gui
-	corner(b, props.Radius or 10)
+	UIStyle.styleButton(b, b.BackgroundColor3)
 	return b
 end
 
@@ -88,7 +89,7 @@ end)
 ---------------------------------------------------------------------------
 local codesButton = button({
 	Name = "CodesButton", Position = UDim2.new(0, 12, 0.5, COLUMN_Y + 86), Size = UDim2.fromOffset(78, 30),
-	BackgroundColor3 = BROWN, BackgroundTransparency = 0.25, Font = Enum.Font.GothamBold, TextSize = 14, Text = "Codes",
+	BackgroundColor3 = UIStyle.Colors.Purple, TextSize = 14, Text = "🔑 Codes",
 	Radius = 8,
 })
 
@@ -247,10 +248,10 @@ RunService.Heartbeat:Connect(function(dt)
 	if type(ready) == "number" then
 		local left = ready - serverNow()
 		if left <= 0 then
-			dailyButton.Text = "DAILY!\nDay " .. tostring(player:GetAttribute("DailyStreak") or 1)
+			dailyButton.Text = "🎁 DAILY!\nDay " .. tostring(player:GetAttribute("DailyStreak") or 1)
 			dailyButton.BackgroundColor3 = GREEN
 		else
-			dailyButton.Text = "Daily\n" .. Config.FormatTime(left)
+			dailyButton.Text = "🎁 Daily\n" .. Config.FormatTime(left)
 			dailyButton.BackgroundColor3 = GREY
 		end
 	end

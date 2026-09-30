@@ -18,6 +18,8 @@ Never put a model name in commits, PRs or code.
 | `Services/NpcService.lua` | turns `NpcSpot` markers (Builder:Person when `ItemModels.UseRigs`) into recoloured R15 rigs with Roblox-made hair, apron, hat and posed arms; anchored root, clients play idle/walk |
 | `Services/DevPlotBuilder.lua` | builds 6 plots + plaza when `Workspace.Plots` is missing |
 | `Services/ItemModels.lua` | every model built from Parts (Builder DSL), item layout, pad spots, decor (BrewStation, StaffCart, Customer, PlotGround, …) |
+| `ReplicatedFirst/TitleScreen.client.lua` | custom loading screen + title menu (PLAY, HOW TO PLAY) over a camera flight; hides other LayerCollectors/CoreGui and sets the local `InMenu` attribute until PLAY |
+| `ReplicatedStorage/UIStyle.lua` | shared look: Fredoka One, `styleButton` (neutral gradient multiplies BackgroundColor3, outline, hover UIScale, click honoring `SfxMuted`), `panel`, `button` |
 | `StarterPlayerScripts/ClientMain.client.lua` | HUD, hints + guide arrow, toasts, staff "+฿" pops, client-side customer queue animation |
 | `StarterPlayerScripts/RetentionClient.client.lua` | DAILY / Codes buttons, quest panel, REBIRTH button + confirm (reads `DailyAt`, `Quest*`, `Rebirths`) |
 | `StarterPlayerScripts/EffectsClient.client.lua` | local effects: steam on parts named `Steam` (hides `SteamPuff`), sliding `BeltCup` parts on L31, neon flicker on L28/L37, pop-in (Model:ScaleTo) + sparkles for the newest item on your plot |
@@ -54,6 +56,9 @@ Never put a model name in commits, PRs or code.
 
 - After moving/enlarging items, recompute tier 4-5 `PadSpots` in Studio (closest free 6x6 spot behind each item,
   1 stud clear of earlier items) and check overlaps with bounding boxes.
+- Rojo can leave stale duplicate scripts in the saved place (it keeps unknown instances): after reconnecting, check
+  for duplicate LuaSourceContainers by name and delete the ones whose Source differs from the files, then save.
+- Emoji in UI: 🧋 and ✕ do not render in Roblox fonts; 🥤 🛒 🎁 ⚙️ 🔑 🏠 ❓ do.
 - Builder DSL in `ItemModels.lua`: `Box/Cyl/HCyl/Ball/Ellipsoid/Wedge/Rod/Tube/Text/Light` plus `Person`, `TeaCup`,
   `Plant`, `Legs`, `Shell`, `Shelf`. Models face -Z (toward the plaza), y = 0 is the floor. Wedges: tall edge +Z.
   Boxes ≥ 1.2 wide get rounded corners automatically; pass `{ flat = true }` for a sharp box.

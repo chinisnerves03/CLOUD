@@ -159,7 +159,7 @@ end
 
 local function playSound(kind: string)
 	local sound = sounds[SOUND_FOR_KIND[kind] or ""]
-	if sound then
+	if sound and SoundService:GetAttribute("SfxMuted") ~= true then -- Settings → Sound effects
 		SoundService:PlayLocalSound(sound)
 	end
 end
@@ -474,6 +474,9 @@ beam.Attachment1 = targetAttachment
 beam.Enabled = false
 
 local function setTarget(part: BasePart?)
+	if player:GetAttribute("InMenu") then
+		part = nil -- no guide arrow over the title screen
+	end
 	if not part then
 		arrowGui.Enabled = false
 		beam.Enabled = false
