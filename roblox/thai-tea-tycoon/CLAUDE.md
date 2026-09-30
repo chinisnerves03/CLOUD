@@ -79,18 +79,56 @@ Never put a model name in commits, PRs or code.
    (https://github.com/Roblox/studio-rust-mcp-server) and add it to Claude Code. Check its README for current steps.
 5. Preview tools need a `luau` binary (https://github.com/luau-lang/luau/releases): `LUAU=path/to/luau tools/preview/build.sh`.
 
+## Handoff — state on 2026-09-30 (read this first in a new chat)
+
+Everything is pushed to `main`. The game runs in Studio with no red errors on server or client. The owner's own
+save is around Level 33: play-test scripts must back up and restore `PlotService.GetData(player)` (they share the
+owner's DataStore key) and never leave test values saved.
+
+Done so far (newest first):
+- Interior upgrades: purple `InteriorPad` in the 8 walk-in buildings, 3 levels (Decor / More staff / Premium),
+  +5% income each (`Config.INTERIOR`, `Interiors` save field, PlotService applyInterior/tryInterior, ItemModels
+  `furnishInterior`, which runs after the footprint stretch and fills free 2-stud grid cells).
+- Customers walk like people: own pace, smooth accel/decel and turning, walk cycle speed = speed / 8.
+- Sprint (SprintClient: Shift / RUN touch button, 28 studs/s, FOV 80, dust); customer cheer/laugh/point; barista
+  serve reach; NPC head-look + wave; player brew arm swing + kettle splash; tree canopies lean.
+- Title screen (ReplicatedFirst/TitleScreen), UIStyle, Settings (music / sfx), Home button.
+- Every person is an R15 rig (NpcService, Roblox catalog hair); MotionClient animates Anim groups and NPCs.
+- Life-size buildings (Footprint stretch); HQ ~31 m and Thai Tea Tower ~34 m with real storeys.
+- Session-locked saves (DataService); spawn in front of your plot facing in (the camera follows).
+- Shop UI, sounds/music, rebirth, daily, codes, quests, leaderboards, effects (earlier).
+
 ## To do (priority order)
 
-1. ~~First real run in Studio~~ — done 2026-09-29: README checklist passes, no red errors. Test by driving Studio
-   MCP `run_script_in_play_mode` (server-side script that teleports the character onto pads and logs attributes);
-   press E through the real client for brewing (the prompt only triggers on a key held ~0.15 s).
-2. ~~In-game shop UI~~ — done (`ShopClient`). Cards say "Coming soon" until the IDs are set.
-3. ~~Sounds~~ — done: `Config.SOUNDS` (Roblox / ProSoundEffects / APM only, verified to load), shuffled `Config.MUSIC`,
-   Music ON/OFF button. Find more with the toolbox API (`apis.roblox.com/toolbox-service/v1/marketplace/3?keyword=`)
-   and keep to creators Roblox, ProSoundEffects or APMOfficial.
-4. **Creator Dashboard**: create the passes/products, put their IDs in `Config.PASSES` / `Config.PRODUCTS`.
-5. **Icon + thumbnail** for the game page.
-6. ~~Retention~~ — done: rebirth, daily reward, codes, quests, plaza leaderboards. Next ideas: world 2, pet/mascot.
-   Play-test scripts must back up and restore the owner's save (they share the owner's DataStore key).
-7. ~~Polish~~ — done: steam, moving conveyor, neon flicker, pop-in. Item models are ModelStreamingMode Atomic
-   (pop-in scales whole models; a half-streamed model would be scaled wrong). Next: seasonal events.
+1. **Owner's newest request (not started): make all models more three-dimensional, and make the small shops
+   (tier 1-3: cart, street shop, cafe) more realistic in size.** Measure first (character 5.5 studs = 1.75 m,
+   1 stud ≈ 0.32 m). Build each key at `CFrame.new()` and take min/max of part bounds; do not trust
+   `GetBoundingBox`, which follows the primary part's rotation. Ideas: give flat boxes depth (bevels, trims,
+   recessed panels, overhangs, window frames, thicker awnings), vary heights, and check tier 1-3 sizes against real
+   furniture (counter ~1 m, table 0.75 m, cart ~1.8 m long). Keep the part budget (~30k map) in mind, recompute
+   tier 1-3 `PadSpots` if footprints change, and keep pads on free floor.
+2. **Creator Dashboard (the owner does it on the web)**: Max Players = 6 (Places → Configure Place); create the 4
+   passes + 2 products and send the IDs → put them in `Config.PASSES` / `Config.PRODUCTS`, then test a purchase.
+3. **Icon + thumbnail** for the game page (a title-screen capture works as a thumbnail).
+4. Multiplayer test in Studio (Test → Clients and Servers, 2 players): separate plots, leaving frees the plot.
+5. Mobile check with the Device Emulator (the left column is raised 70 px on touch; RUN button position).
+6. Ideas: world 2, pets/mascot, seasonal events, pedestrians wandering the plaza.
+
+## Working on the owner's PC (Windows, Studio + Rojo + Studio MCP)
+
+- Repo: `C:/Users/User/Documents/cloud` (branch main; origin's default branch is a claude/* branch). Always
+  `git pull --ff-only` first: another (cloud) session also pushes to main.
+- Tools in `C:/Users/User/tools/bin` (rojo 7.7.0, luau, luau-compile, rbx-studio-mcp.exe). Compile-check every
+  edited file with `luau-compile.exe --text <file>`.
+- `rojo serve` (port 34872) runs as a detached minimized process. Restart it after editing `default.project.json`
+  and reconnect in Studio (Rojo toast → Connect). Read Rojo's confirm dialog before Accept.
+- Rojo keeps unknown instances, so stale duplicate scripts can appear in the saved place after reconnecting:
+  list LuaSourceContainers by name, delete the ones whose Source differs from the files, then Ctrl+S.
+- Studio MCP tools (`run_code`, `run_script_in_play_mode`, `start_stop_play`) work; run_code runs in the edit
+  DataModel. Client-side checks: during play, type Lua into Studio's command bar that writes results into a
+  ScreenGui label, then capture the Studio window with `C:/Users/User/tools/studio-mcp/shot.ps1` (PrintWindow;
+  works even when other windows cover Studio; the screen is 4K at 300%, click frame = physical px × 0.3792).
+  In edit mode, select a model (Selection:Set) and press F in the viewport to move the camera.
+- The owner also has an unrelated car project in Studio's experience list: never open, connect or edit it.
+- Emoji that render in Roblox fonts: 🥤 🛒 🎁 ⚙️ 🔑 🏠 ❓. 🧋 and ✕ do not.
+- Python heredocs turned Lua `\n` escapes into real newlines several times: re-check with luau-compile.
