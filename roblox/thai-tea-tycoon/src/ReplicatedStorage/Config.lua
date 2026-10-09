@@ -106,7 +106,7 @@ Config.TIERS = {
 
 local ITEM_LIST: { { string | number } } = {
 	-- Tier 1
-	{ "Folding Table", 1 }, { "Ice Cooler", 1 }, { "Tea Pot", 1 },
+	{ "Tea Cart", 1 }, { "Ice Cooler", 1 }, { "Tea Pot", 1 },
 	{ "Tea Filter Sock", 1 }, { "Plastic Cups", 1 }, { "Market Umbrella", 1 },
 	{ "Shop Sign", 1 }, { "Cup Sealer", 1 }, { "Mini Fridge", 1 },
 	-- Tier 2

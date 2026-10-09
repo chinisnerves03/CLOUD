@@ -26,7 +26,7 @@ V3mt.__index = function(v, k)
 	if k == "Max" then return function(a, b) return V3(math.max(a.X, b.X), math.max(a.Y, b.Y), math.max(a.Z, b.Z)) end end
 	error("Vector3 has no member " .. tostring(k))
 end
-Vector3 = { new = V3, zero = V3(0, 0, 0) }
+Vector3 = { new = V3, zero = V3(0, 0, 0), one = V3(1, 1, 1), xAxis = V3(1, 0, 0), yAxis = V3(0, 1, 0), zAxis = V3(0, 0, 1) }
 
 -- CFrame (R stored row-major: r[1..9]) --------------------------------------
 local CFmt = {}
@@ -74,6 +74,17 @@ CFmt.__index = function(cf, k)
 			return V3(r[1] * d.X + r[4] * d.Y + r[7] * d.Z, r[2] * d.X + r[5] * d.Y + r[8] * d.Z, r[3] * d.X + r[6] * d.Y + r[9] * d.Z)
 		end
 	end
+	if k == "VectorToWorldSpace" then return function(self, v) return rotV(self.r, v) end end
+	if k == "VectorToObjectSpace" then return function(self, v) return rotV(transpose(self.r), v) end end
+	if k == "PointToWorldSpace" then return function(self, v) return rotV(self.r, v) + self.p end end
+	if k == "Inverse" then
+		return function(self)
+			local inv = transpose(self.r)
+			return mkCF(-rotV(inv, self.p), inv)
+		end
+	end
+	if k == "ToWorldSpace" then return function(self, other) return self * other end end
+	if k == "LookAlong" then return nil end
 	error("CFrame has no member " .. tostring(k))
 end
 local function rx(a) local c, s = math.cos(a), math.sin(a); return { 1, 0, 0, 0, c, -s, 0, s, c } end

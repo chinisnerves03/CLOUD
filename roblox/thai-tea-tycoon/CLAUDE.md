@@ -27,7 +27,7 @@ Never put a model name in commits, PRs or code.
 | `StarterPlayerScripts/SprintClient.client.lua` | Shift / RUN touch button sprint (16 → 28), FOV kick, run dust; idle while `InMenu` |
 | `StarterPlayerScripts/ShopClient.client.lua` | SHOP button + window: pass/product cards from `Config.PASS_ORDER`/`PRODUCT_ORDER`, prices via GetProductInfo, "Owned" from `Pass_*` attributes |
 | `default.project.json` | Rojo project (syncs `src/` into Studio, leaves other instances alone) |
-| `tools/preview/` | runs the builders against a Roblox API mock (`mock.luau`) → `parts.jsonl` → three.js render (`render.html`, `shoot.mjs`) |
+| `tools/preview/` | runs the builders against a Roblox API mock (`mock.luau`) → `parts.jsonl` → three.js render (`render.html`, `shoot.mjs`, `shot.sh`); `items.sh` measures every item (studs + metres) and renders a solo row; `check_pads.py` checks every PadSpot is on free floor |
 | `tools/web-demo/` | `build.py` turns `parts.jsonl` into a playable browser demo (`template.html` mirrors the game rules) |
 | `preview/*.png` | renders referenced by the README |
 
@@ -42,7 +42,9 @@ Never put a model name in commits, PRs or code.
   staff, offline and Cash Boost size). Rewards (daily, codes, quests) are base income × seconds, with a floor.
 - The Roblox player list shows leaderstats (Level, Rebirths), so the HUD cash panel sits mid-right, not top-right.
 - Pacing target (simulated): ~40 min to finish when brewing, ~70 min without. First item ≈ 30 s.
-- Real-world scale: character 5.5 studs ≈ 1.75 m. Small props are built life-size; tier 4-5 buildings are enlarged
+- Real-world scale: character 5.5 studs ≈ 1.75 m. Small props are built life-size (tier 1 push cart 1.8 m long with a
+  0.95 m worktop, counters + Brew Station 1.0 m (y = 3.15), bar stools 0.66 m, patio table 0.75 m / chairs 0.45 m,
+  staff carts 1.7 m with handle); tier 4-5 buildings are enlarged
   after building (`ItemModels.Footprint`: Shell parts and parts spanning half the building grow in X/Z, other
   parts move as clusters of touching parts and keep their size; `ItemModels.Uniform`: whole-model ScaleTo).
   Walk-in buildings also have 13-14 stud walls (L29/L34/L39/L40/L42/L43) with a decorative `Builder:UpperWindows`
@@ -51,12 +53,17 @@ Never put a model name in commits, PRs or code.
   EffectsClient pop-in scales back to the model's own `GetScale()`, never to 1.
 - Plot space: 120 wide, z -65 (front) .. 140 (back); Base centred at `ItemModels.PlotCenterZ`, PlotService reads
   the offset from the Base attribute `ItemOriginZ`. Plot centers are 130 apart.
-- Part budget: ≈ 5,100 parts per full plot, ≈ 31,000 for the map. StreamingEnabled recommended.
+- Depth: every `Builder:Shell` gets `_ShellTrim` (plinth broken at doors, proud frames round openings, deep sills,
+  thick front-door canopy, cornice + parapet with coping; per-building `parapet` height, `trim/cornice/canopy = false`
+  or `canopy = false` on one opening to skip). `UpperWindows` have a projecting head + deep sill.
+- Part budget: ≈ 5,450 parts per full plot, ≈ 33,000 for the map (preview mock total 39.8k counts Part people that
+  are R15 rigs in game). StreamingEnabled recommended.
 
 ## Conventions
 
-- After moving/enlarging items, recompute tier 4-5 `PadSpots` in Studio (closest free 6x6 spot behind each item,
-  1 stud clear of earlier items) and check overlaps with bounding boxes.
+- After moving/enlarging items, recompute `PadSpots` (closest free 6x6 spot behind each item, clear of earlier items)
+  and run `python3 tools/preview/check_pads.py` after `build.sh` (must print 0 pad problems; the L02/L07 overlap is
+  the umbrella base behind the cart, on purpose).
 - Rojo can leave stale duplicate scripts in the saved place (it keeps unknown instances): after reconnecting, check
   for duplicate LuaSourceContainers by name and delete the ones whose Source differs from the files, then save.
 - Emoji in UI: 🧋 and ✕ do not render in Roblox fonts; 🥤 🛒 🎁 ⚙️ 🔑 🏠 ❓ do.
@@ -78,14 +85,21 @@ Never put a model name in commits, PRs or code.
 4. To let Claude drive Studio (run the game, read Output), install Roblox's Studio MCP server
    (https://github.com/Roblox/studio-rust-mcp-server) and add it to Claude Code. Check its README for current steps.
 5. Preview tools need a `luau` binary (https://github.com/luau-lang/luau/releases): `LUAU=path/to/luau tools/preview/build.sh`.
+   In a cloud session: download `luau-ubuntu.zip` from the latest release, `npm install && npm run setup` in
+   `tools/preview`, Chromium is at `/opt/pw-browsers/chromium`.
 
-## Handoff — state on 2026-09-30 (read this first in a new chat)
+## Handoff — state on 2026-10-09 (read this first in a new chat)
 
 Everything is pushed to `main`. The game runs in Studio with no red errors on server or client. The owner's own
 save is around Level 33: play-test scripts must back up and restore `PlotService.GetData(player)` (they share the
 owner's DataStore key) and never leave test values saved.
 
 Done so far (newest first):
+- 3D depth + real sizes (2026-10-09, cloud session, checked with renders only — not yet seen in Studio): L02 is now a
+  push cart ("Tea Cart"), L11 counter / Brew Station lowered to 1 m with thick front edges, L11 got a thick striped
+  awning, stools/table/chairs at real heights, staff carts 1.7 m (StaffSpots re-spaced 5.6 apart, VipSpot -6.9,
+  upgrade pads moved to x -31/-23/-15, L33 kiosk moved to x 46), `_ShellTrim` + deeper `UpperWindows` on every
+  building, L40 sign moved beside the door. Several tier 1-3 PadSpots nudged so all pads are 0.5 stud clear.
 - Interior upgrades: purple `InteriorPad` in the 8 walk-in buildings, 3 levels (Decor / More staff / Premium),
   +5% income each (`Config.INTERIOR`, `Interiors` save field, PlotService applyInterior/tryInterior, ItemModels
   `furnishInterior`, which runs after the footprint stretch and fills free 2-stud grid cells).
@@ -100,13 +114,10 @@ Done so far (newest first):
 
 ## To do (priority order)
 
-1. **Owner's newest request (not started): make all models more three-dimensional, and make the small shops
-   (tier 1-3: cart, street shop, cafe) more realistic in size.** Measure first (character 5.5 studs = 1.75 m,
-   1 stud ≈ 0.32 m). Build each key at `CFrame.new()` and take min/max of part bounds; do not trust
-   `GetBoundingBox`, which follows the primary part's rotation. Ideas: give flat boxes depth (bevels, trims,
-   recessed panels, overhangs, window frames, thicker awnings), vary heights, and check tier 1-3 sizes against real
-   furniture (counter ~1 m, table 0.75 m, cart ~1.8 m long). Keep the part budget (~30k map) in mind, recompute
-   tier 1-3 `PadSpots` if footprints change, and keep pads on free floor.
+1. **Check the 3D-depth / real-size pass in Studio** (done from renders only): play, look at the Brew Station
+   (player brews at the lowered 1 m counter, prompt still works), staff carts + VIP cart don't touch the upgrade
+   pads or the L33 kiosk, door canopies don't block walking in, NPC rigs still stand on the L19/L36 platforms,
+   no red errors. Then the multiplayer test below.
 2. **Creator Dashboard (the owner does it on the web)**: Max Players = 6 (Places → Configure Place); create the 4
    passes + 2 products and send the IDs → put them in `Config.PASSES` / `Config.PRODUCTS`, then test a purchase.
 3. **Icon + thumbnail** for the game page (a title-screen capture works as a thumbnail).

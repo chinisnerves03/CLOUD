@@ -396,8 +396,10 @@ function Builder:Legs(width: number, depth: number, height: number, thick: numbe
 end
 
 -- walk-in hollow building: floor + 4 walls (with door/window openings) + flat roof
--- spec: w, d, h, t (wall thickness), wall, wallMat, wallT, floor, floorMat, roof (false = none), roofColor
---       openings = { { side = "Front"|"Back"|"Left"|"Right", x = center along the wall, y = bottom edge, w, h, glass = true/false } }
+-- spec: w, d, h, t (wall thickness), wall, wallMat, wallT, floor, floorMat, roof (false = none), roofColor,
+--       trim / cornice / canopy (false = leave out, see _ShellTrim), parapet (height), trimColor, plinth, canopyColor
+--       openings = { { side = "Front"|"Back"|"Left"|"Right", x = center along the wall, y = bottom edge, w, h, glass = true/false,
+--                     canopy = false (no door canopy) } }
 -- walkable doors: glass = false, y = 0, h >= 7
 function Builder:Shell(cf: CFrame, spec)
 	-- the first shell is the building's main room: interior upgrades are laid out inside it
@@ -454,6 +456,90 @@ function Builder:_Shell(cf: CFrame, spec)
 	if spec.roof ~= false then
 		self:Box(V3(w, 0.6, d), cf * CF(0, h + 0.3, 0), spec.roofColor or spec.wall, spec.wallMat, { flat = true })
 	end
+	if spec.trim ~= false then
+		self:_ShellTrim(cf, spec, t)
+	end
+end
+
+-- depth for a Shell's outside: a plinth along the foot of the walls (broken at doors), a frame round every opening
+-- (jambs + head standing proud of the wall, a deep sill under windows), a thick canopy over each front door, and,
+-- with a roof, a cornice band under the roof line plus a parapet with a coping cap (spec.parapet = its height).
+-- spec.trim = false skips all of it, spec.cornice = false skips the cornice + parapet, spec.trimColor sets the frames.
+function Builder:_ShellTrim(cf: CFrame, spec, t: number)
+	local w, d, h = spec.w, spec.d, spec.h
+	local glassWall = spec.wallMat == M.Glass
+	local trim = spec.trimColor or PAL.white
+	local base = spec.plinth or (if glassWall then PAL.steelDark else spec.wall:Lerp(PAL.black, 0.35))
+	local ghost = { solid = false, flat = true }
+	-- box along one wall: u = centre along the wall, y = centre height, len along the wall, out = how far it stands
+	-- proud of the outer face, depth = its thickness (measured inward from that outer edge)
+	local function along(side: string, u: number, y: number, len: number, hgt: number, out: number, depth: number, color: Color3, mat: Enum.Material?)
+		local off = t / 2 + out - depth / 2
+		local size, at
+		if side == "Front" then
+			size, at = V3(len, hgt, depth), CF(u, y, -d / 2 + t / 2 - off)
+		elseif side == "Back" then
+			size, at = V3(len, hgt, depth), CF(u, y, d / 2 - t / 2 + off)
+		elseif side == "Left" then
+			size, at = V3(depth, hgt, len), CF(-w / 2 + t / 2 - off, y, u)
+		else
+			size, at = V3(depth, hgt, len), CF(w / 2 - t / 2 + off, y, u)
+		end
+		return self:Box(size, cf * at, color, mat, ghost)
+	end
+	local lengths = { Front = w + 0.6, Back = w + 0.6, Left = d, Right = d }
+	for side, length in lengths do
+		local openings = {}
+		for _, o in spec.openings or {} do
+			if o.side == side then
+				table.insert(openings, o)
+			end
+		end
+		table.sort(openings, function(a, b)
+			return a.x < b.x
+		end)
+		-- plinth: 0.9 high, 0.3 proud, broken where a door reaches the floor
+		if not glassWall then
+			local cursor = -length / 2
+			for _, o in openings do
+				if o.y < 0.9 then
+					local a = o.x - o.w / 2 - 0.3
+					if a - cursor > 0.05 then
+						along(side, (cursor + a) / 2, 0.45, a - cursor, 0.9, 0.3, t + 0.3, base, M.Concrete)
+					end
+					cursor = o.x + o.w / 2 + 0.3
+				end
+			end
+			if length / 2 - cursor > 0.05 then
+				along(side, (cursor + length / 2) / 2, 0.45, length / 2 - cursor, 0.9, 0.3, t + 0.3, base, M.Concrete)
+			end
+		end
+		-- opening frames
+		for _, o in openings do
+			local top = o.y + o.h
+			local jambBottom = if o.glass then o.y else 0
+			for _, s in { -1, 1 } do
+				along(side, o.x + s * (o.w / 2 + 0.15), (jambBottom + top + 0.3) / 2, 0.3, top + 0.3 - jambBottom, 0.25, t + 0.25, trim)
+			end
+			along(side, o.x, top + 0.2, o.w + 0.9, 0.4, 0.35, t + 0.35, trim)
+			if o.glass and o.y > 0.3 then
+				along(side, o.x, o.y - 0.1, o.w + 0.9, 0.2, 0.5, t + 0.5, trim)
+			end
+			if not o.glass and o.y < 0.9 and side == "Front" and spec.canopy ~= false and o.canopy ~= false then
+				-- thick flat canopy over the door with a coloured fascia
+				along(side, o.x, top + 0.65, o.w + 2.4, 0.45, 2.4, 2.4, spec.canopyColor or PAL.tea)
+				along(side, o.x, top + 0.45, o.w + 2.4, 0.8, 2.5, 0.15, spec.canopyColor or PAL.tea)
+			end
+		end
+		-- cornice band under the roof line, parapet + coping on top of the roof
+		if spec.roof ~= false and spec.cornice ~= false and not glassWall then
+			local band = if side == "Front" or side == "Back" then w + 0.9 else d + 0.9
+			along(side, 0, h - 0.25, band, 0.5, 0.45, t + 0.45, trim)
+			local ph = spec.parapet or 1.1
+			along(side, 0, h + 0.6 + ph / 2, if side == "Front" or side == "Back" then w else d, ph, 0, 0.4, spec.wall, spec.wallMat)
+			along(side, 0, h + 0.6 + ph + 0.1, band - 0.2, 0.2, 0.2, 0.75, trim)
+		end
+	end
 end
 
 -- wall shelf along the X axis of cf; fill(level, shelfTopY) places the goods
@@ -484,9 +570,12 @@ function Builder:UpperWindows(cf: CFrame, w: number, d: number, sides: { string 
 				local x = if side == "Left" then -w / 2 else w / 2
 				at, size = function(out: number) return cf * CF(x + (if side == "Left" then -out else out), 0, u) end, function(a: number, b: number) return V3(0.12, b, a) end
 			end
+			-- frame, glass, then a deep sill and a projecting head so each window throws a shadow line
 			self:Box(size(2.6, h + 0.4), at(0.05) * CF(0, y + h / 2, 0), PAL.white, nil, { solid = false, flat = true })
 			self:Box(size(2.2, h), at(0.12) * CF(0, y + h / 2, 0), pane, M.Glass, { solid = false, flat = true, refl = 0.25 })
-			self:Box(size(2.8, 0.2), at(0.2) * CF(0, y - 0.15, 0), PAL.concrete, nil, { solid = false, flat = true })
+			local deep = if side == "Front" or side == "Back" then V3(3.0, 0.25, 0.5) else V3(0.5, 0.25, 3.0)
+			self:Box(deep, at(0.25) * CF(0, y - 0.2, 0), PAL.concrete, nil, { solid = false, flat = true })
+			self:Box(deep + V3(0, 0.1, 0), at(0.25) * CF(0, y + h + 0.35, 0), PAL.white, nil, { solid = false, flat = true })
 		end
 	end
 end
@@ -518,13 +607,13 @@ ItemModels.Layout = {
 	L10 = { -31.5, 0, -37, 0 },
 	-- Tier 2: street shop (front right)
 	L11 = { 20, 0, -37, 0 },
-	L12 = { 24.8, 3.5, -36.6, 0 },
-	L13 = { 19.5, 3.5, -37, 0 },
+	L12 = { 24.8, 3.15, -36.6, 0 },
+	L13 = { 19.5, 3.15, -37, 0 },
 	L14 = { 23.5, 0, -32.2, 0 },
 	L15 = { 20, 0, -41.8, 0 },
 	L16 = { 32.5, 0, -45, 0 },
 	L17 = { 22, 0, -39, 0 },
-	L18 = { 14.2, 3.5, -37, 0 },
+	L18 = { 14.2, 3.15, -37, 0 },
 	L19 = { 17.5, 0, -33.6, 0 },
 	-- Tier 3: cafe (middle)
 	L20 = { -31, 0, -19, 0 },
@@ -541,7 +630,7 @@ ItemModels.Layout = {
 	L30 = { -20, 0, 18, 0 },
 	L31 = { -2, 0, 9, 0 },
 	L32 = { 17, 0, 17, 0 },
-	L33 = { 35, 0, -59, 0 },
+	L33 = { 46, 0, -59, 0 },
 	L34 = { 46, 0, 21, 0 },
 	L35 = { -2, 0, 24, 0 },
 	L36 = { 0, 0, -9.7, 0 },
@@ -563,22 +652,22 @@ ItemModels.PlotBack = 140
 ItemModels.PlotCenterZ = (ItemModels.PlotFront + ItemModels.PlotBack) / 2
 
 -- Fixed spots in plot space { x, z }: the three upgrade pads, hired staff carts and the VIP barista
-ItemModels.UpgradeSpots = { Staff = { -30, -56 }, Recipe = { -21, -56 }, Speed = { -12, -56 } }
-ItemModels.StaffSpots = { { 8, -55 }, { 12.5, -55 }, { 17, -55 }, { 21.5, -55 }, { 26, -55 }, { 30.5, -55 } }
-ItemModels.VipSpot = { -6.5, -55 }
+ItemModels.UpgradeSpots = { Staff = { -31, -56 }, Recipe = { -23, -56 }, Speed = { -15, -56 } }
+ItemModels.StaffSpots = { { 7.2, -55 }, { 12.8, -55 }, { 18.4, -55 }, { 24, -55 }, { 29.6, -55 }, { 35.2, -55 } }
+ItemModels.VipSpot = { -6.9, -55 }
 
 -- Where the single buy pad sits while that item is the next purchase { x, z } in plot space.
 -- Each spot is behind where the item will appear (the side away from the plaza), on open floor clear of
 -- every earlier item, the Brew Station, the upgrade pads and the staff carts (tier 4-5 spots were computed in
 -- Studio from the real bounding boxes: the closest free 6x6 spot behind the item, 1 stud clear of everything).
 ItemModels.PadSpots = {
-	L02 = { -20, -34.4 }, L03 = { -25, -36.5 }, L04 = { -14.1, -35.8 }, L05 = { -13.8, -31.2 }, L06 = { -24.4, -36.6 },
-	L07 = { -20, -34.2 }, L08 = { -30.6, -42.1 }, L09 = { -27.6, -36.9 }, L10 = { -31.5, -32.3 }, L11 = { 20, -31.9 },
-	L12 = { 25.1, -32 }, L13 = { 31.5, -32.7 }, L14 = { 23.5, -27.4 }, L15 = { 32, -37.5 }, L16 = { 32.5, -38.3 },
-	L17 = { 22, -25.3 }, L18 = { 8.1, -32.7 }, L19 = { 17.5, -29 }, L20 = { -30.7, -13.2 }, L21 = { -18.3, -2.2 },
+	L02 = { -20, -34.4 }, L03 = { -25, -36 }, L04 = { -14.1, -35.8 }, L05 = { -13.8, -31.2 }, L06 = { -24.4, -36 },
+	L07 = { -20, -34.2 }, L08 = { -30.6, -42.1 }, L09 = { -27.6, -36 }, L10 = { -31.5, -32.3 }, L11 = { 20, -31.9 },
+	L12 = { 25.1, -31.4 }, L13 = { 32, -32.1 }, L14 = { 23.5, -27.4 }, L15 = { 32, -37.5 }, L16 = { 32.5, -38.3 },
+	L17 = { 22, -25.3 }, L18 = { 8.1, -32.7 }, L19 = { 17, -29 }, L20 = { -30.7, -13.2 }, L21 = { -18.3, -2.2 },
 	L22 = { -23.5, -14.4 }, L23 = { 16.5, -11.3 }, L24 = { 31, -2.2 }, L25 = { -36.8, -1.6 }, L26 = { -29.4, -0.2 },
 	L27 = { 0, -1.9 }, L28 = { 0, 0.5 }, L29 = { -42, 37.3 }, L30 = { -20, 29.9 }, L31 = { -2.1, 15.1 },
-	L32 = { 17.1, 22.8 }, L33 = { 35.4, -52.8 }, L34 = { 46, 34.2 }, L35 = { -2, 35.1 }, L36 = { 13.4, -5 },
+	L32 = { 17.1, 22.8 }, L33 = { 46.4, -52.8 }, L34 = { 46, 34.2 }, L35 = { -2, 35.1 }, L36 = { 14.2, -5 },
 	L37 = { 33.5, -15.4 }, L38 = { -44, 98 }, L39 = { -16, 82.6 }, L40 = { 8, 86 }, L41 = { -18, 121.5 },
 	L42 = { 45, 81.1 }, L43 = { 43, 123.9 }, L44 = { 26, 64.3 }, L45 = { 10, 129.3 },
 }
@@ -590,23 +679,38 @@ local Build = {}
 
 -- Tier 1 ---------------------------------------------------------------
 
-Build.L02 = function(b) -- folding table + front skirt
-	b:Legs(5.4, 2.1, 2.75, 0.18, CF(), PAL.steel)
-	b:Box(V3(5.4, 0.12, 0.12), CF(0, 0.8, 1.05), PAL.steel, M.Metal)
-	b:Box(V3(6, 0.2, 2.6), CF(0, 2.8, 0), PAL.white)
-	b:Box(V3(6.1, 0.1, 2.7), CF(0, 2.95, 0), PAL.cream, M.Fabric)
-	local skirt = b:Box(V3(6.1, 1.5, 0.08), CF(0, 2.2, -1.36), PAL.tea, M.Fabric)
-	b:Text(skirt, FACE.Front, "THAI ICED TEA", { color = PAL.white, region = { 0.05, 0.4, 0.9, 0.55 } })
-	for _, x in { -3.05, 3.05 } do
-		b:Box(V3(0.08, 1.5, 2.7), CF(x, 2.2, 0), PAL.tea, M.Fabric)
+Build.L02 = function(b) -- street push cart (1.8 m long, 0.95 m worktop): cabinet, two bicycle wheels, push handle
+	-- cabinet body with a framed front: raised rails/stiles around recessed orange panels
+	b:Box(V3(5, 2.05, 2.3), CF(0, 1.8, 0.05), PAL.cream, M.WoodPlanks)
+	local skirt = b:Box(V3(2.9, 1.45, 0.08), CF(-0.55, 1.85, -1.13), PAL.tea)
+	b:Text(skirt, FACE.Front, "THAI ICED TEA", { color = PAL.white, region = { 0.05, 0.2, 0.9, 0.6 } })
+	b:Box(V3(1.1, 1.45, 0.08), CF(1.75, 1.85, -1.13), PAL.tea)
+	for _, spec in { { V3(5.1, 0.28, 0.22), CF(0, 2.69, -1.12) }, { V3(5.1, 0.28, 0.22), CF(0, 0.92, -1.12) },
+		{ V3(0.24, 1.9, 0.22), CF(-2.45, 1.8, -1.12) }, { V3(0.24, 1.9, 0.22), CF(1.05, 1.8, -1.12) }, { V3(0.24, 1.9, 0.22), CF(2.45, 1.8, -1.12) } } do
+		b:Box(spec[1], spec[2], PAL.woodDark, M.Wood, { solid = false, flat = true })
 	end
-	b:Box(V3(6.12, 0.18, 0.1), CF(0, 1.45, -1.37), PAL.white, M.Fabric)
+	-- stainless worktop with a raised lip (top at y = 3) and a thick front edge
+	b:Box(V3(5.5, 0.22, 2.8), CF(0, 2.89, 0.05), PAL.steel, M.Metal, { flat = true })
+	b:Box(V3(5.5, 0.12, 0.12), CF(0, 3.06, 1.4), PAL.steel, M.Metal, { solid = false, flat = true })
+	b:Box(V3(5.6, 0.32, 0.14), CF(0, 2.86, -1.4), PAL.steelDark, M.Metal, { solid = false, flat = true })
+	-- chassis: two bicycle wheels at the right end, a pair of legs at the left end, push handle on the left
+	b:Box(V3(5.2, 0.15, 0.15), CF(0, 0.7, -0.9), PAL.steelDark, M.Metal, { solid = false })
+	b:Box(V3(5.2, 0.15, 0.15), CF(0, 0.7, 1.0), PAL.steelDark, M.Metal, { solid = false })
+	for _, z in { -1.42, 1.52 } do
+		b:HCyl(0.18, 1.9, CF(1.55, 0.95, z) * ANG(0, rad(90), 0), PAL.black, nil, { solid = false })
+		b:HCyl(0.22, 1.5, CF(1.55, 0.95, z) * ANG(0, rad(90), 0), PAL.steel, M.Metal, { solid = false, t = 0.6 })
+		b:HCyl(0.3, 0.35, CF(1.55, 0.95, z) * ANG(0, rad(90), 0), PAL.steelDark, M.Metal, { solid = false })
+		b:Box(V3(0.1, 0.15, 0.1), CF(-2.2, 0.38, z * 0.85), PAL.steelDark, M.Metal, { solid = false })
+		b:Box(V3(0.12, 0.75, 0.12), CF(-2.2, 0.38, z * 0.75), PAL.steelDark, M.Metal, { solid = false })
+		b:Tube(V3(-2.5, 2.3, z * 0.7), V3(-3.05, 2.85, z * 0.7), 0.12, PAL.steel, M.Metal)
+	end
+	b:Tube(V3(-3.05, 2.85, -1.1), V3(-3.05, 2.85, 1.15), 0.16, PAL.black)
 	-- vendor's plastic stool
 	b:Box(V3(1.3, 0.2, 1.3), CF(0.8, 1.4, 2.5), PAL.red)
 	b:Legs(1.0, 1.0, 1.3, 0.2, CF(0.8, 0, 2.5), PAL.red)
 	-- bunting along the skirt, straw holder, syrups, tip jar, napkins, lower shelf with stock
 	for i = 0, 7 do
-		b:Box(V3(0.35, 0.35, 0.04), CF(-2.62 + i * 0.75, 2.62, -1.42) * ANG(0, 0, rad(45)), if i % 2 == 0 then PAL.white else PAL.green, M.Fabric, { solid = false })
+		b:Box(V3(0.35, 0.35, 0.04), CF(-2.62 + i * 0.75, 2.5, -1.5) * ANG(0, 0, rad(45)), if i % 2 == 0 then PAL.white else PAL.green, M.Fabric, { solid = false })
 	end
 	b:Cyl(0.8, 0.45, CF(-2.65, 3.4, 0.8), PAL.white, M.Glass, { t = 0.5, solid = false })
 	for i = 0, 5 do
@@ -620,11 +724,16 @@ Build.L02 = function(b) -- folding table + front skirt
 	b:Cyl(0.6, 0.5, CF(-0.4, 3.3, -0.75), PAL.white, M.Glass, { t = 0.5, solid = false })
 	b:Cyl(0.15, 0.4, CF(-0.4, 3.1, -0.75), PAL.gold, M.Metal, { solid = false })
 	b:Box(V3(0.5, 0.35, 0.4), CF(-0.4, 3.18, 0.95), PAL.white, nil, { solid = false })
-	b:Box(V3(5.4, 0.1, 2), CF(0, 0.8, 0.1), PAL.steel, M.Metal, { solid = false })
-	b:Box(V3(1.2, 0.9, 0.8), CF(-1.6, 1.3, 0.3), PAL.cream, M.Fabric, { solid = false })
-	for i = 0, 5 do
-		b:Cyl(0.5, 0.4, CF(0.6 + (i % 3) * 0.45, 1.1, -0.1 + math.floor(i / 3) * 0.45), if i % 2 == 0 then PAL.red else PAL.white, nil, { solid = false })
+	-- tea bags for take-away hung on a rail along the back, sack of ice under the cart
+	b:Box(V3(5, 0.08, 0.08), CF(0, 3.9, 1.35), PAL.steelDark, M.Metal, { solid = false })
+	for _, x in { 1.2, 1.7, 2.2 } do
+		b:Box(V3(0.04, 0.3, 0.04), CF(x, 3.95, 1.35), PAL.steelDark, M.Metal, { solid = false })
+		b:Ellipsoid(V3(0.35, 0.6, 0.3), CF(x, 3.55, 1.35), PAL.tea, M.Glass, { t = 0.2 })
 	end
+	for _, x in { -2.45, 2.45 } do
+		b:Box(V3(0.1, 0.9, 0.1), CF(x, 3.45, 1.35), PAL.steelDark, M.Metal, { solid = false })
+	end
+	b:Box(V3(1.2, 0.5, 0.8), CF(-0.6, 0.25, 0.2), PAL.white, M.Fabric, { solid = false, t = 0.2 })
 end
 
 Build.L03 = function(b) -- ice cooler on a stool
@@ -888,31 +997,44 @@ end
 
 Build.L11 = function(b) -- wooden counter
 	b:Box(V3(15.8, 0.4, 2.6), CF(0, 0.2, 0.1), PAL.black)
-	b:Box(V3(16, 2.9, 2.8), CF(0, 1.85, 0.1), PAL.woodLight, M.WoodPlanks)
-	b:Box(V3(16.4, 0.2, 3.2), CF(0, 3.4, 0), PAL.white, M.Marble)
-	b:Box(V3(16.02, 0.35, 0.05), CF(0, 3.0, -1.32), PAL.tea)
+	b:Box(V3(16, 2.55, 2.8), CF(0, 1.675, 0.1), PAL.woodLight, M.WoodPlanks)
+	b:Box(V3(16.4, 0.2, 3.2), CF(0, 3.05, 0), PAL.white, M.Marble)
+	b:Box(V3(16.5, 0.3, 0.3), CF(0, 2.9, -1.6), PAL.woodDark, M.Wood, { flat = true }) -- thick front edge under the top
+	b:Box(V3(16.02, 0.3, 0.05), CF(0, 2.65, -1.32), PAL.tea)
 	for i = 0, 14 do
 		local x = -7 + i
 		if math.abs(x) > 2.8 then
-			b:Box(V3(0.3, 2.3, 0.08), CF(x, 1.65, -1.34), PAL.woodDark, M.Wood, { solid = false })
+			b:Box(V3(0.3, 2.0, 0.08), CF(x, 1.5, -1.34), PAL.woodDark, M.Wood, { solid = false })
 		end
 	end
-	local logo = b:Box(V3(5, 1.6, 0.12), CF(0, 1.8, -1.38), PAL.green)
+	local logo = b:Box(V3(5, 1.4, 0.12), CF(0, 1.6, -1.38), PAL.green)
 	b:Text(logo, FACE.Front, "THAI TEA", { color = PAL.cream })
 	-- brass foot rail, under-lip glow, end caps, plant, tip jar
 	b:Tube(V3(-7.6, 0.6, -1.85), V3(7.6, 0.6, -1.85), 0.18, PAL.gold, M.Metal)
 	for _, x in { -7, 0, 7 } do
 		b:Box(V3(0.12, 0.3, 0.45), CF(x, 0.6, -1.65), PAL.gold, M.Metal, { solid = false })
 	end
-	b:Box(V3(15.6, 0.08, 0.08), CF(0, 3.22, -1.56), PAL.warm, M.Neon, { solid = false })
+	b:Box(V3(15.6, 0.08, 0.08), CF(0, 2.72, -1.6), PAL.warm, M.Neon, { solid = false })
 	for _, x in { -8.05, 8.05 } do
-		b:Box(V3(0.3, 3.3, 3.0), CF(x, 1.65, 0.1), PAL.woodDark, M.Wood)
+		b:Box(V3(0.3, 2.95, 3.0), CF(x, 1.475, 0.1), PAL.woodDark, M.Wood)
 	end
-	b:Cyl(0.6, 0.6, CF(7.4, 3.8, 0.9), PAL.white)
-	b:Ellipsoid(V3(0.9, 1.0, 0.9), CF(7.4, 4.5, 0.9), PAL.leaf)
-	b:Cyl(0.6, 0.5, CF(2.4, 3.8, -1.0), PAL.white, M.Glass, { t = 0.5, solid = false })
-	local tip = b:Box(V3(0.5, 0.2, 0.02), CF(2.4, 3.8, -1.26), PAL.white, nil, { t = 1, solid = false })
+	b:Cyl(0.6, 0.6, CF(7.4, 3.45, 0.9), PAL.white)
+	b:Ellipsoid(V3(0.9, 1.0, 0.9), CF(7.4, 4.15, 0.9), PAL.leaf)
+	b:Cyl(0.6, 0.5, CF(2.4, 3.45, -1.0), PAL.white, M.Glass, { t = 0.5, solid = false })
+	local tip = b:Box(V3(0.5, 0.2, 0.02), CF(2.4, 3.45, -1.26), PAL.white, nil, { t = 1, solid = false })
 	b:Text(tip, FACE.Front, "TIPS", { color = PAL.teaDark })
+	-- shop awning: two posts behind the counter, a thick sloped roof with orange stripes and a lettered valance
+	for _, x in { -7.9, 7.9 } do
+		b:Box(V3(0.4, 6.0, 0.4), CF(x, 6.1, 1.4), PAL.woodDark, M.Wood)
+		b:Box(V3(0.4, 0.4, 3.0), CF(x, 8.6, 0.1), PAL.woodDark, M.Wood, { flat = true })
+	end
+	local roof = CF(0, 9.2, 0) * ANG(rad(-14), 0, 0)
+	b:Box(V3(17.4, 0.45, 4.4), roof, PAL.white, M.Fabric, { flat = true })
+	for i = 0, 5 do
+		b:Box(V3(1.45, 0.06, 4.42), roof * CF(-7.25 + i * 2.9, 0.24, 0), PAL.tea, M.Fabric, { solid = false, flat = true })
+	end
+	local valance = b:Box(V3(17.4, 0.75, 0.15), roof * CF(0, -0.45, -2.2), PAL.tea, M.Fabric, { solid = false, flat = true })
+	b:Text(valance, FACE.Front, "THAI TEA - CHA YEN - SINCE 1990", { color = PAL.white, region = { 0.15, 0.1, 0.7, 0.8 } })
 end
 
 Build.L12 = function(b) -- electric tea brewer (on the counter)
@@ -1030,45 +1152,46 @@ end
 Build.L15 = function(b) -- 4 bar stools
 	for _, x in { -6, -2, 2, 6 } do
 		b:Cyl(0.15, 1.4, CF(x, 0.08, 0), PAL.steelDark, M.Metal)
-		b:Cyl(2.4, 0.25, CF(x, 1.3, 0), PAL.steel, M.Metal)
-		b:Cyl(0.08, 1.1, CF(x, 1.0, 0), PAL.steel, M.Metal)
-		b:Cyl(0.12, 1.65, CF(x, 2.45, 0), PAL.black)
-		b:Cyl(0.35, 1.6, CF(x, 2.65, 0), PAL.tea)
+		b:Cyl(1.7, 0.25, CF(x, 0.95, 0), PAL.steel, M.Metal)
+		b:Cyl(0.08, 1.1, CF(x, 0.7, 0), PAL.steel, M.Metal)
+		b:Cyl(0.12, 1.65, CF(x, 1.75, 0), PAL.black)
+		b:Cyl(0.35, 1.6, CF(x, 1.95, 0), PAL.tea)
 	end
 	-- low backrests
 	for _, x in { -6, -2, 2, 6 } do
-		b:Box(V3(1.3, 0.7, 0.15), CF(x, 3.35, -0.72), PAL.tea)
-		b:Box(V3(0.12, 0.6, 0.12), CF(x, 2.95, -0.7), PAL.steel, M.Metal, { solid = false })
+		b:Box(V3(1.3, 0.7, 0.15), CF(x, 2.65, -0.72), PAL.tea)
+		b:Box(V3(0.12, 0.6, 0.12), CF(x, 2.25, -0.7), PAL.steel, M.Metal, { solid = false })
 	end
 	-- footrest rings, cushion piping, backrest stitched stripe
 	for _, x in { -6, -2, 2, 6 } do
-		b:Cyl(0.08, 1.3, CF(x, 1.1, 0), PAL.steelDark, M.Metal, { solid = false })
-		b:Cyl(0.06, 1.66, CF(x, 2.52, 0), PAL.white, nil, { solid = false })
-		b:Box(V3(1.1, 0.08, 0.02), CF(x, 3.35, -0.8), PAL.white, nil, { solid = false })
+		b:Cyl(0.08, 1.3, CF(x, 0.75, 0), PAL.steelDark, M.Metal, { solid = false })
+		b:Cyl(0.06, 1.66, CF(x, 1.82, 0), PAL.white, nil, { solid = false })
+		b:Box(V3(1.1, 0.08, 0.02), CF(x, 2.65, -0.8), PAL.white, nil, { solid = false })
 	end
 end
 
 Build.L16 = function(b) -- round patio table + 4 chairs
 	b:Cyl(0.15, 1.8, CF(0, 0.08, 0), PAL.black)
-	b:Cyl(2.8, 0.3, CF(0, 1.4, 0), PAL.black)
-	b:Cyl(0.25, 4, CF(0, 2.9, 0), PAL.white)
-	b:TeaCup(CF(-0.6, 3.02, -0.3))
-	b:TeaCup(CF(0.7, 3.02, 0.4), 1, rgb(120, 180, 90))
-	b:Cyl(0.6, 0.35, CF(0, 3.3, 0.9), PAL.white, M.Glass, { t = 0.3 })
-	b:Ball(0.45, CF(0, 3.8, 0.9), PAL.pink)
+	b:Cyl(2.1, 0.3, CF(0, 1.1, 0), PAL.black)
+	b:Cyl(0.25, 4, CF(0, 2.25, 0), PAL.white)
+	b:Cyl(0.12, 4.15, CF(0, 2.14, 0), PAL.steelDark, M.Metal, { solid = false }) -- thick rim
+	b:TeaCup(CF(-0.6, 2.38, -0.3))
+	b:TeaCup(CF(0.7, 2.38, 0.4), 1, rgb(120, 180, 90))
+	b:Cyl(0.6, 0.35, CF(0, 2.68, 0.9), PAL.white, M.Glass, { t = 0.3 })
+	b:Ball(0.45, CF(0, 3.18, 0.9), PAL.pink)
 	for k = 0, 3 do
 		local seat = ANG(0, rad(45 + 90 * k), 0) * CF(0, 0, -2.9)
-		b:Legs(1.3, 1.3, 1.7, 0.18, seat, PAL.steelDark)
-		b:Box(V3(1.6, 0.25, 1.6), seat * CF(0, 1.8, 0), PAL.green)
-		b:Box(V3(1.6, 1.8, 0.2), seat * CF(0, 2.8, -0.75), PAL.green)
+		b:Legs(1.3, 1.3, 1.2, 0.18, seat, PAL.steelDark)
+		b:Box(V3(1.6, 0.25, 1.6), seat * CF(0, 1.3, 0), PAL.green)
+		b:Box(V3(1.6, 1.8, 0.2), seat * CF(0, 2.3, -0.75), PAL.green)
 	end
 	-- parasol over the table + napkin holder
-	b:Cyl(4.4, 0.15, CF(0, 5.2, 0), PAL.white, M.Metal)
+	b:Cyl(4.4, 0.15, CF(0, 4.6, 0), PAL.white, M.Metal)
 	for k = 0, 7 do
 		b:Wedge(V3(2.3, 0.9, 2.8), CF(0, 6.4, 0) * ANG(0, rad(45 * k), 0) * CF(0, 0.45, -1.4), if k % 2 == 0 then PAL.green else PAL.white, M.Fabric, { solid = false })
 	end
 	b:Ball(0.3, CF(0, 7.4, 0), PAL.green)
-	b:Box(V3(0.5, 0.35, 0.3), CF(0.5, 3.2, -0.6), PAL.steel, M.Metal, { solid = false })
+	b:Box(V3(0.5, 0.35, 0.3), CF(0.5, 2.56, -0.6), PAL.steel, M.Metal, { solid = false })
 end
 
 Build.L17 = function(b) -- string lights (4 poles + sagging wires)
@@ -1476,8 +1599,9 @@ Build.L27 = function(b) -- show bar + pendant lamps + back counter
 	for i = 0, 4 do
 		local x = -7 + i * 3.5
 		b:Cyl(0.15, 1.2, CF(x, 0.08, -3.0), PAL.black, M.Metal)
-		b:Cyl(2.5, 0.2, CF(x, 1.35, -3.0), PAL.black, M.Metal)
-		b:Cyl(0.3, 1.3, CF(x, 2.75, -3.0), PAL.woodDark, M.Wood)
+		b:Cyl(2.1, 0.2, CF(x, 1.15, -3.0), PAL.black, M.Metal)
+		b:Cyl(0.3, 1.3, CF(x, 2.35, -3.0), PAL.woodDark, M.Wood)
+		b:Cyl(0.06, 0.9, CF(x, 0.8, -3.0), PAL.black, M.Metal, { solid = false })
 	end
 	for i = 0, 2 do
 		b:TeaCup(CF(-7.5 + i * 0.9, 3.55, -0.9), 1.1, if i == 1 then rgb(120, 180, 90) else nil)
@@ -1534,7 +1658,7 @@ end
 Build.L29 = function(b) -- central kitchen (walk-in: range, tea pots, hood, prep tables, chefs)
 	local W, D, H = 20, 16, 13
 	b:Shell(CF(), {
-		w = W, d = D, h = H, wall = rgb(236, 232, 224), wallMat = M.Concrete,
+		w = W, d = D, h = H, wall = rgb(236, 232, 224), wallMat = M.Concrete, parapet = 1.4, canopy = false,
 		floor = rgb(150, 72, 55), floorMat = M.Slate, roofColor = rgb(205, 205, 205),
 		openings = {
 			{ side = "Front", x = -4.5, y = 0, w = 7, h = 7 },
@@ -2293,7 +2417,7 @@ Build.L40 = function(b) -- distribution center (walk-in: tall pallet racks, fork
 	local W, D, H = 12, 20, 13
 	local CARTON = rgb(200, 160, 110)
 	b:Shell(CF(), {
-		w = W, d = D, h = H, wall = rgb(125, 155, 185), wallMat = M.Metal,
+		w = W, d = D, h = H, wall = rgb(125, 155, 185), wallMat = M.Metal, parapet = 0.6,
 		floor = rgb(165, 165, 160), floorMat = M.Concrete, roofColor = rgb(85, 100, 120),
 		openings = {
 			{ side = "Front", x = -2.8, y = 0, w = 4.4, h = 7.5 },
@@ -2317,7 +2441,7 @@ Build.L40 = function(b) -- distribution center (walk-in: tall pallet racks, fork
 	for _, x in { -5.2, -0.4, 0.4, 5.2 } do
 		b:Box(V3(0.4, 0.8, 0.3), CF(x, 0.8, -D / 2 - 0.2), PAL.black, nil, { solid = false })
 	end
-	local sign = b:Box(V3(8, 1, 0.12), CF(0, 7.1, -D / 2 - 0.1), PAL.tea)
+	local sign = b:Box(V3(6, 1, 0.12), CF(3.8, 7.1, -D / 2 - 0.1), PAL.tea)
 	b:Text(sign, FACE.Front, "DISTRIBUTION CENTER", { color = PAL.white })
 	for _, x in { -2.8, 2.8 } do
 		b:Ball(0.35, CF(x, 6.7, -D / 2 - 0.3), PAL.warm, M.Neon, { solid = false })
@@ -2381,7 +2505,7 @@ Build.L41 = function(b) -- headquarters (walk-in lobby + 8 glass floors with vis
 	local W, D, LOBBY, FLOORS, STOREY = 10, 10, 11, 8, 10
 	local GLASS = rgb(90, 150, 200)
 	b:Shell(CF(), {
-		w = W, d = D, h = LOBBY, wall = GLASS, wallMat = M.Glass, wallT = 0.35,
+		w = W, d = D, h = LOBBY, wall = GLASS, wallMat = M.Glass, wallT = 0.35, canopy = false,
 		floor = PAL.white, floorMat = M.Marble, roof = false,
 		openings = { { side = "Front", x = 0, y = 0, w = 3.2, h = 8 } },
 	})
@@ -2442,7 +2566,7 @@ end
 Build.L42 = function(b) -- mall branch (a real tea shop: counter, lit menus, fridge, seating, customers in line)
 	local W, D, H = 14, 16, 13
 	b:Shell(CF(), {
-		w = W, d = D, h = H, wall = rgb(242, 230, 212), wallMat = M.Concrete,
+		w = W, d = D, h = H, wall = rgb(242, 230, 212), wallMat = M.Concrete, canopy = false, parapet = 1.8,
 		floor = PAL.woodLight, floorMat = M.WoodPlanks, roofColor = PAL.white,
 		openings = {
 			{ side = "Front", x = -3.25, y = 0.4, w = 5.5, h = 5.6, glass = true },
@@ -2551,7 +2675,7 @@ Build.L43 = function(b) -- airport branch (walk-in terminal + control tower + ai
 	local W, D, H = 13, 9, 10
 	local T = CF(0, 0, -2)
 	b:Shell(T, {
-		w = W, d = D, h = H, wall = PAL.white, wallMat = M.SmoothPlastic,
+		w = W, d = D, h = H, wall = PAL.white, wallMat = M.SmoothPlastic, parapet = 0.7,
 		floor = rgb(220, 220, 225), floorMat = M.Marble, roofColor = rgb(210, 214, 220),
 		openings = {
 			{ side = "Front", x = -3.8, y = 0.5, w = 4.6, h = 5, glass = true },
@@ -2901,26 +3025,27 @@ Decor.BrewStation = function(b)
 	b:Box(V3(0.2, 0.2, 0.2), CF(0, 0.1, -1.6), PAL.white, nil, { t = 1, solid = false, name = "QueueStart" })
 
 	-- counter: customers see the THAI TEA front, the brewer works on top from behind
-	b:Box(V3(5, 3, 2.4), CF(0, 1.9, 1.2), PAL.woodLight, M.WoodPlanks)
-	b:Box(V3(5.3, 0.25, 2.7), CF(0, 3.5, 1.2), PAL.white, M.Marble)
-	local front = b:Box(V3(5, 1.2, 0.08), CF(0, 2.3, -0.04), PAL.green, nil, { solid = false })
+	b:Box(V3(5, 2.55, 2.4), CF(0, 1.675, 1.2), PAL.woodLight, M.WoodPlanks)
+	b:Box(V3(5.3, 0.25, 2.7), CF(0, 3.05, 1.2), PAL.white, M.Marble)
+	b:Box(V3(5.4, 0.3, 0.3), CF(0, 2.88, -0.12), PAL.woodDark, M.Wood, { flat = true }) -- thick front edge
+	local front = b:Box(V3(5, 1.2, 0.08), CF(0, 2.05, -0.04), PAL.green, nil, { solid = false })
 	b:Text(front, FACE.Front, "THAI TEA", { color = PAL.cream })
-	local order = b:Box(V3(2.2, 0.45, 0.08), CF(0, 1.3, -0.04), PAL.tea, nil, { solid = false })
+	local order = b:Box(V3(2.2, 0.45, 0.08), CF(0, 1.05, -0.04), PAL.tea, nil, { solid = false })
 	b:Text(order, FACE.Front, "ORDER HERE", { color = PAL.white })
-	b:Cyl(0.3, 1.8, CF(-1.2, 3.75, 1.3), PAL.black)
-	b:Cyl(0.1, 1.4, CF(-1.2, 3.92, 1.3), rgb(80, 150, 255), M.Neon, { solid = false })
-	local kettle = b:Cyl(1.6, 1.6, CF(-1.2, 4.75, 1.3), PAL.steel, M.Metal, { name = "Kettle" })
-	b:Ellipsoid(V3(1.6, 0.6, 1.6), CF(-1.2, 5.55, 1.3), PAL.steel, M.Metal)
-	b:Tube(V3(-0.5, 5.0, 1.0), V3(0.2, 5.5, 0.6), 0.2, PAL.steel, M.Metal)
-	b:Box(V3(0.2, 0.9, 0.2), CF(-1.2, 4.9, 2.15), PAL.black, nil, { solid = false })
-	b:Ball(0.8, CF(-1.0, 6.3, 1.3), PAL.white, nil, { t = 0.6, solid = false, name = "Steam" })
+	b:Cyl(0.3, 1.8, CF(-1.2, 3.3, 1.3), PAL.black)
+	b:Cyl(0.1, 1.4, CF(-1.2, 3.47, 1.3), rgb(80, 150, 255), M.Neon, { solid = false })
+	local kettle = b:Cyl(1.6, 1.6, CF(-1.2, 4.3, 1.3), PAL.steel, M.Metal, { name = "Kettle" })
+	b:Ellipsoid(V3(1.6, 0.6, 1.6), CF(-1.2, 5.1, 1.3), PAL.steel, M.Metal)
+	b:Tube(V3(-0.5, 4.55, 1.0), V3(0.2, 5.05, 0.6), 0.2, PAL.steel, M.Metal)
+	b:Box(V3(0.2, 0.9, 0.2), CF(-1.2, 4.45, 2.15), PAL.black, nil, { solid = false })
+	b:Ball(0.8, CF(-1.0, 5.85, 1.3), PAL.white, nil, { t = 0.6, solid = false, name = "Steam" })
 	for i = 0, 2 do
-		b:TeaCup(CF(0.8 + i * 0.6, 3.62, 0.6), 1, if i == 1 then rgb(120, 180, 90) else nil)
+		b:TeaCup(CF(0.8 + i * 0.6, 3.17, 0.6), 1, if i == 1 then rgb(120, 180, 90) else nil)
 	end
-	b:Cyl(1.3, 0.5, CF(2.1, 3.62 + 0.65, 1.9), PAL.white, M.Glass, { t = 0.45, solid = false })
-	b:Ellipsoid(V3(0.4, 0.3, 0.4), CF(0.9, 3.75, 1.9), PAL.gold, M.Metal)
-	b:Box(V3(0.6, 0.6, 0.06), CF(2.15, 3.3, -0.08), PAL.white, M.Fabric, { solid = false })
-	b:Box(V3(0.6, 0.1, 0.07), CF(2.15, 3.1, -0.09), PAL.red, M.Fabric, { solid = false })
+	b:Cyl(1.3, 0.5, CF(2.1, 3.17 + 0.65, 1.9), PAL.white, M.Glass, { t = 0.45, solid = false })
+	b:Ellipsoid(V3(0.4, 0.3, 0.4), CF(0.9, 3.3, 1.9), PAL.gold, M.Metal)
+	b:Box(V3(0.6, 0.6, 0.06), CF(2.15, 2.42, -0.3), PAL.white, M.Fabric, { solid = false })
+	b:Box(V3(0.6, 0.1, 0.07), CF(2.15, 2.22, -0.31), PAL.red, M.Fabric, { solid = false })
 
 	-- back bench behind the brewer: condensed milk, sugar jar, strainer
 	b:Box(V3(4.8, 3, 1.2), CF(0, 1.5, 6.5), PAL.woodDark, M.Wood)
@@ -3074,9 +3199,15 @@ Decor.StaffCart = function(b, variant)
 	local aprons = { PAL.tea, PAL.green, PAL.blue, PAL.red, PAL.pink, PAL.teaDark }
 	local vip = variant == 0
 	local apron = if vip then PAL.gold else aprons[((variant or 1) - 1) % #aprons + 1]
-	b:Box(V3(3.2, 2.9, 1.6), CF(0, 1.45, 0.4), if vip then PAL.gold else PAL.woodLight, if vip then M.Metal else M.WoodPlanks)
-	b:Box(V3(3.4, 0.2, 1.8), CF(0, 3.0, 0.4), PAL.white, M.Marble, { flat = true })
-	local front = b:Box(V3(3.0, 0.8, 0.06), CF(0, 2.1, -0.42), apron, nil, { solid = false })
+	-- cart body 1.4 m + push handle = 1.7 m long, worktop at 0.95 m, framed front panel
+	local body = if vip then PAL.gold else PAL.woodLight
+	b:Box(V3(4.4, 2.1, 1.9), CF(0, 1.95, 0.4), body, if vip then M.Metal else M.WoodPlanks)
+	b:Box(V3(4.7, 0.22, 2.2), CF(0, 3.0, 0.4), PAL.white, M.Marble, { flat = true })
+	b:Box(V3(4.75, 0.3, 0.14), CF(0, 2.82, -0.72), PAL.woodDark, M.Wood, { solid = false, flat = true })
+	for _, spec in { { V3(4.5, 0.22, 0.16), CF(0, 1.0, -0.6) }, { V3(0.22, 1.9, 0.16), CF(-2.15, 1.95, -0.6) }, { V3(0.22, 1.9, 0.16), CF(2.15, 1.95, -0.6) } } do
+		b:Box(spec[1], spec[2], body:Lerp(PAL.black, 0.3), M.Wood, { solid = false, flat = true })
+	end
+	local front = b:Box(V3(2.8, 0.9, 0.06), CF(-0.6, 2.1, -0.58), apron, nil, { solid = false })
 	b:Text(front, FACE.Front, if vip then "VIP" else "THAI TEA", { color = PAL.white })
 	b:Cyl(1.0, 0.9, CF(-0.9, 3.6, 0.6), PAL.steel, M.Metal)
 	b:Ellipsoid(V3(0.9, 0.4, 0.9), CF(-0.9, 4.15, 0.6), PAL.steel, M.Metal)
@@ -3087,11 +3218,14 @@ Decor.StaffCart = function(b, variant)
 	b:TeaCup(CF(hands.left) * CF(0, -0.2, 0), 1.1)
 	b:Rod(hands.right - V3(0, 0.4, 0), hands.left + V3(0, 0.8, 0), 0.12, PAL.tea, M.Glass, { t = 0.15 })
 	-- wheels with hubs, push handle, mini canopy on a pole, cup stack and a service bell
-	for _, x in { -1.35, 1.35 } do
-		b:HCyl(0.25, 1.0, CF(x * 1.12, 0.5, -0.1), PAL.black, nil, { solid = false })
-		b:HCyl(0.27, 0.35, CF(x * 1.12, 0.5, -0.1), PAL.steel, M.Metal, { solid = false })
+	for _, z in { -0.72, 1.52 } do
+		b:HCyl(0.16, 1.8, CF(1.45, 0.9, z) * ANG(0, rad(90), 0), PAL.black, nil, { solid = false })
+		b:HCyl(0.2, 1.4, CF(1.45, 0.9, z) * ANG(0, rad(90), 0), PAL.steel, M.Metal, { solid = false, t = 0.6 })
+		b:HCyl(0.26, 0.35, CF(1.45, 0.9, z) * ANG(0, rad(90), 0), PAL.steelDark, M.Metal, { solid = false })
+		b:Box(V3(0.12, 0.9, 0.12), CF(-1.8, 0.45, z * 0.7 + 0.15), PAL.steelDark, M.Metal, { solid = false })
+		b:Tube(V3(-2.2, 2.4, z * 0.6 + 0.2), V3(-2.75, 2.85, z * 0.6 + 0.2), 0.12, PAL.steel, M.Metal)
 	end
-	b:Tube(V3(-1.4, 2.9, 1.3), V3(1.4, 2.9, 1.3), 0.12, PAL.steel, M.Metal)
+	b:Tube(V3(-2.75, 2.85, -0.4), V3(-2.75, 2.85, 1.3), 0.16, PAL.black)
 	b:Cyl(7.3, 0.15, CF(-1.75, 3.65, 2.4), PAL.white, M.Metal, { solid = false })
 	for k = 0, 3 do
 		b:Wedge(V3(3.6, 0.7, 1.8), CF(-1.75, 7.3, 2.4) * ANG(0, rad(90 * k), 0) * CF(0, 0.35, -0.9), if k % 2 == 0 then apron else PAL.white, M.Fabric, { solid = false })
