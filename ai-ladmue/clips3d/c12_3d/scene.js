@@ -74,24 +74,46 @@ const lipL=add(new THREE.CapsuleGeometry(0.007,0.034,3,6),S(0xc9626e),0,0,0.012,
 // legs
 box(0.17,0.17,0.5,jeans,-0.7,0.56,-0.15);box(0.17,0.17,0.5,jeans,-0.45,0.56,-0.15);box(0.14,0.5,0.14,jeans,-0.7,0.28,0.1);box(0.14,0.5,0.14,jeans,-0.45,0.28,0.1);
 [-0.7,-0.45].forEach(x=>box(0.15,0.07,0.24,S(0xf3f3f3),x,0.035,0.17));
-// arms: two-bone IK
-const L1=0.27,L2=0.26;
-const upG=new THREE.CapsuleGeometry(0.05,1,4,10),loG=new THREE.CapsuleGeometry(0.043,1,4,10);
-const arms=[-1,1].map(s=>({s,up:add(upG,hoodM,0,0,0,sc),lo:add(loG,hoodM,0,0,0,sc),elbow:add(new THREE.SphereGeometry(0.05,10,8),hoodM,0,0,0,sc),
- hand:(()=>{const g=new THREE.Group();sc.add(g);const palm=add(new THREE.SphereGeometry(0.04,12,10),skin,0,0,0.045,g);palm.scale.set(1,0.5,1.1);
-  const fingers=[];[-0.026,-0.009,0.009,0.026].forEach((x,i)=>{const f=new THREE.Group();f.position.set(x,0,0.082);g.add(f);const seg=add(new THREE.CapsuleGeometry(0.0095,0.03+(i===1||i===2?0.006:0),3,6),skin,0,0,0.02,f);seg.rotation.x=Math.PI/2;fingers.push(f)});
-  const th=new THREE.Group();th.position.set(s*-0.036,0,0.05);th.rotation.y=s*0.7;g.add(th);add(new THREE.CapsuleGeometry(0.011,0.026,3,6),skin,0,0,0.018,th).rotation.x=Math.PI/2;g.userData.fingers=fingers;g.userData.thumb=th;return g})(),
- cuff:add(new THREE.TorusGeometry(0.044,0.012,6,12),S(0xb85a3c),0,0,0,sc)}));
-const Y=new THREE.Vector3(0,1,0);
-function segment(mesh,a,b){const d=new THREE.Vector3().subVectors(b,a),len=d.length();mesh.position.copy(a).addScaledVector(d,0.5);mesh.scale.set(1,len,1);mesh.quaternion.setFromUnitVectors(Y,d.clone().normalize())}
-function solve(arm,Sw,T){ // Sw,T world
+// arms: one smooth tapered tube through shoulder-elbow-wrist
+const L1=0.27,L2=0.26,TN=18,TM=12;
+function makeTube(){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(new Float32Array((TN+1)*TM*3),3));const idx=[];for(let i=0;i<TN;i++)for(let j=0;j<TM;j++){const a=i*TM+j,b=i*TM+(j+1)%TM,c=(i+1)*TM+j,d=(i+1)*TM+(j+1)%TM;idx.push(a,c,b,b,c,d)}g.setIndex(idx);return g}
+const vp=new THREE.Vector3(),vt=new THREE.Vector3(),vn=new THREE.Vector3(),vb=new THREE.Vector3(),vref=new THREE.Vector3(1,0,0);
+function updateTube(g,curve,rs){const pos=g.attributes.position.array;curve.needsUpdate=true;
+ for(let i=0;i<=TN;i++){const u=i/TN;curve.getPointAt(u,vp);curve.getTangentAt(u,vt);vn.crossVectors(vref,vt);if(vn.lengthSq()<1e-4)vn.set(0,0,1);vn.normalize();vb.crossVectors(vt,vn).normalize();
+  const rad=u<0.5?lerp(rs[0],rs[1],sm(u*2)):lerp(rs[1],rs[2],sm((u-0.5)*2));
+  for(let j=0;j<TM;j++){const an=j/TM*Math.PI*2,cx=Math.cos(an)*rad,sy=Math.sin(an)*rad,k=(i*TM+j)*3;pos[k]=vp.x+vn.x*cx+vb.x*sy;pos[k+1]=vp.y+vn.y*cx+vb.y*sy;pos[k+2]=vp.z+vn.z*cx+vb.z*sy}}
+ g.attributes.position.needsUpdate=true;g.computeVertexNormals();g.computeBoundingSphere()}
+const sleeveM=S(0xd96c4a,{side:THREE.DoubleSide}),cuffM=S(0xb85a3c);
+function makeHand(s){
+ const g=new THREE.Group();sc.add(g);
+ const sh=new THREE.Shape();sh.moveTo(-0.024,0);sh.lineTo(0.024,0);sh.quadraticCurveTo(0.036,0.03,0.038,0.068);sh.lineTo(-0.038,0.068);sh.quadraticCurveTo(-0.036,0.03,-0.024,0);
+ const pg=new THREE.ExtrudeGeometry(sh,{depth:0.016,bevelEnabled:true,bevelSize:0.005,bevelThickness:0.005,bevelSegments:3});pg.rotateX(Math.PI/2);pg.translate(0,0.012,0);
+ const palm=add(pg,skin,0,0,0,g);
+ const mk=(r0,r1,len)=>{const geo=new THREE.CylinderGeometry(r1,r0,len,8);geo.rotateX(Math.PI/2);geo.translate(0,0,len/2);return geo};
+ const fingers=[];const L=[[0.03,0.024],[0.034,0.027],[0.031,0.025],[0.025,0.02]],X=[-0.0285,-0.0095,0.0095,0.0285],R=[0.0082,0.0085,0.008,0.0072];
+ X.forEach((x,i)=>{const prox=new THREE.Group();prox.position.set(x,0,0.072);prox.rotation.y=(i-1.5)*0.045;g.add(prox);
+  add(mk(R[i],R[i]*0.88,L[i][0]),skin,0,0,0,prox);add(new THREE.SphereGeometry(R[i]*0.88,8,6),skin,0,0,L[i][0],prox);
+  const dist=new THREE.Group();dist.position.set(0,0,L[i][0]);prox.add(dist);add(mk(R[i]*0.88,R[i]*0.74,L[i][1]),skin,0,0,0,dist);add(new THREE.SphereGeometry(R[i]*0.74,8,6),skin,0,0,L[i][1],dist);
+  prox.userData.dist=dist;fingers.push(prox)});
+ const th=new THREE.Group();th.position.set(-s*0.036,-0.002,0.02);th.rotation.y=-s*0.75;g.add(th);
+ add(mk(0.011,0.0095,0.026),skin,0,0,0,th);add(new THREE.SphereGeometry(0.0095,8,6),skin,0,0,0.026,th);
+ const td=new THREE.Group();td.position.set(0,0,0.026);th.add(td);add(mk(0.0095,0.0082,0.022),skin,0,0,0,td);add(new THREE.SphereGeometry(0.0082,8,6),skin,0,0,0.022,td);th.userData.dist=td;
+ g.userData={fingers,thumb:th};return g}
+const arms=[-1,1].map(s=>{const geo=makeTube();const mesh=add(geo,sleeveM,0,0,0,sc);mesh.frustumCulled=false;
+ return{s,geo,mesh,curve:new THREE.CatmullRomCurve3([new THREE.Vector3(),new THREE.Vector3(0,0,0.1),new THREE.Vector3(0,0,0.2)],false,'centripetal'),hand:makeHand(s),cuff:add(new THREE.TorusGeometry(0.043,0.011,8,16),cuffM,0,0,0,sc)}});
+function solve(arm,Sw,T){
  const d=new THREE.Vector3().subVectors(T,Sw);let dist=Math.min(d.length(),L1+L2-0.002);const dir=d.clone().normalize();
  const a=(L1*L1-L2*L2+dist*dist)/(2*dist),h=Math.sqrt(Math.max(L1*L1-a*a,0));
  const pole=new THREE.Vector3(arm.s*0.55,-1,-0.35);pole.sub(dir.clone().multiplyScalar(pole.dot(dir))).normalize();
  const E=Sw.clone().addScaledVector(dir,a).addScaledVector(pole,h);const W=Sw.clone().addScaledVector(dir,dist);
- segment(arm.up,Sw,E);segment(arm.lo,E,W);arm.elbow.position.copy(E);arm.hand.position.copy(W);
- const fd=new THREE.Vector3().subVectors(W,E).normalize();arm.hand.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),new THREE.Vector3(fd.x,Math.min(fd.y,0.2),fd.z).normalize());
- arm.cuff.position.copy(W).addScaledVector(fd,-0.045);arm.cuff.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),fd)}
+ const P=arm.curve.points;P[0].copy(Sw).addScaledVector(dir,-0.03);P[1].copy(E);P[2].copy(W);
+ updateTube(arm.geo,arm.curve,[0.06,0.047,0.04]);
+ const fd=new THREE.Vector3().subVectors(W,E).normalize();
+ const raise=sm(cl((fd.y-0.15)/0.5));
+ arm.hand.position.copy(W).addScaledVector(fd,0.004);arm.hand.up.set(lerp(-arm.s*0.35,0,raise),lerp(1,0,raise),lerp(0,-1,raise)).normalize();
+ const hd=new THREE.Vector3(fd.x,THREE.MathUtils.clamp(fd.y,-0.35,1),fd.z).lerp(new THREE.Vector3(0,1,0.25),raise*0.8).normalize();
+ arm.hand.lookAt(W.clone().add(hd));
+ arm.cuff.position.copy(W).addScaledVector(fd,-0.04);arm.cuff.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),fd)}
 // ---------- robot
 const RBG=new THREE.Group();RBG.position.set(0.7,1.38,-0.5);sc.add(RBG);
 add(new THREE.IcosahedronGeometry(0.3,3),new THREE.MeshStandardMaterial({color:0xff8a3d,roughness:0.3,metalness:0.12,flatShading:true}),0,0,0,RBG);
@@ -142,7 +164,7 @@ window.seek=function(t){
  const worried=t<3.7,happy=t>25.66;
  const target=spk==='R'?0.62:(act&&act.s==='H'?0.1:0.32);
  head.rotation.y=yawAt(t);
- head.rotation.x=-0.02+aH*0.05+Math.sin(t*1.1)*0.015+(worried?-0.05:0);head.rotation.z=Math.sin(t*0.8)*0.02+(worried?0.04:0);
+ head.rotation.x=-0.02+envAt(E.hg,t)*0.05+Math.sin(t*1.1)*0.015+(worried?-0.05:0);head.rotation.z=Math.sin(t*0.8)*0.02+(worried?0.04:0);
  head.position.y=1.31+Math.sin(t*1.6)*0.004;torso.scale.y=1+Math.sin(t*1.7)*0.012;
  const open=Math.min(1,aH*1.25);
  mIn.scale.set(1+open*0.08,0.12+open*1.1,0.45);lipU.position.y=0.006+open*0.014;lipL.position.y=-0.006-open*0.026;mouthG.position.y=-0.073-open*0.008;
@@ -154,14 +176,14 @@ window.seek=function(t){
  // arms
  H.updateMatrixWorld(true);
  const sw=s=>new THREE.Vector3(s*0.235,1.03,0.0).applyMatrix4(H.matrixWorld);
- const g1=cl(aH*1.6)*(spk==='H'?1:0),wave=Math.sin(t*3.1)*0.03;
+ const hg=envAt(E.hg,t),g1=sm(cl(hg*2.2))*(spk==='H'?1:0),wave=Math.sin(t*2.4)*0.025;
  const restL=new THREE.Vector3(-0.72,0.86,0.2),restR=new THREE.Vector3(-0.48,0.86,0.2);
  let tL=restL.clone(),tR=restR.clone();
- if(worried){const w=0.5+0.5*Math.sin(t*5);tL.set(-0.8,1.3+w*0.02,0.14);tR.set(-0.4,1.3+w*0.02,0.14)}
+ if(worried){const w=0.5+0.5*Math.sin(t*5);tL.set(-0.76,1.36+w*0.015,0.2);tR.set(-0.44,1.36+w*0.015,0.2)}
  else{tR.set(lerp(restR.x,-0.3,g1),lerp(restR.y,1.08,g1)+wave*g1,lerp(restR.z,0.3,g1));tL.set(lerp(restL.x,-0.86,g1*0.5),lerp(restL.y,0.98,g1*0.5),lerp(restL.z,0.25,g1*0.5))}
  if(spk==='R'){tL.y+=Math.sin(t*2)*0.004;}
  solve(arms[0],sw(-1),tL);solve(arms[1],sw(1),tR);
- arms.forEach((a,i)=>{const rest=0.55,open=0.12,curl=worried?0.25:(i===1?lerp(rest,open,g1):rest);a.hand.userData.fingers.forEach((f,j)=>{f.rotation.x=curl+(j%2?0.08:0)+Math.sin(t*1.7+j)*0.02});a.hand.userData.thumb.rotation.x=0.2+curl*0.3});
+ arms.forEach((a,i)=>{const curl=worried?0.18:(i===1?lerp(0.5,0.12,g1):0.5);a.hand.userData.fingers.forEach((f,j)=>{const c=curl+(j%2?0.07:0)+Math.sin(t*1.3+j*0.8)*0.02;f.rotation.x=c;f.userData.dist.rotation.x=c*1.15});const th=a.hand.userData.thumb;th.rotation.x=0.15+curl*0.25;th.userData.dist.rotation.x=curl*0.4});
  R.render(sc,cam);
  if(act){const col=act.s==='H'?'#4D8BFF':'#FF8A3D';let h='<span class="chip" style="background:'+col+'">'+(act.s==='H'?'นัท':'หุ่น AI')+'</span><span class="l">';
   act.w.forEach(x=>{const on=t>=x.s&&t<x.e;h+=x.sp?' ':'<span class="w'+(on?' on':'')+'">'+x.w+'</span>'});h+='</span>';if(sub._h!==h){sub.innerHTML=h;sub._h=h}sub.style.opacity=1}else sub.style.opacity=0;
