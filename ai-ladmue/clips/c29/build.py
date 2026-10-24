@@ -17,7 +17,7 @@ a = '''<div class="bg" style="background:#ffe66b"></div><div class="dots"></div>
 msgs = [('ทำให้ดูดีๆ หน่อย', 5.38), ('ไม่ใช่แบบนี้', 6.88), ('เอาแบบเมื่อกี้', 8.18), ('ยาวไป', 9.32), ('สั้นไป', 10.36), ('ทำให้ดีสิ!', 11.28)]
 bub = ''.join(f'<div class="msg m{i%2}" id="m{i}" style="top:{300+i*160}px">{t}</div>' for i, (t, _) in enumerate(msgs))
 faces = [('proud', 3.7), ('worried', 6.88), ('dazed', 9.32), ('sleepy', 11.28)]
-fz = ''.join(rb(f, f'rb{i}', 1.7, 390, 1300, cls='fc', id_=f'fb{i}') for i, (f, _) in enumerate(faces))
+fz = ''.join(rb(f, f'rb{i}', 1.3, 400, 1250, cls='fc', id_=f'fb{i}') for i, (f, _) in enumerate(faces))
 b = f'''<div class="bg" style="background:#1b1f3b"></div><div class="dots"></div>
 <div class="tag" id="bt">Prompt ระดับโปร<br><span>(ของจริง)</span></div>{bub}{fz}
 <div class="note">* มุกสมมติ ไม่ใช่แชทจริงของใคร</div>'''
@@ -30,13 +30,13 @@ def chip(n, t, col, tid, top):
     return f'<div class="chip" id="{tid}" style="top:{top}px;background:{col}"><b>{n}</b>{t}</div>'
 d = '''<div class="bg" style="background:#ff8a3d"></div><div class="dots"></div>
 <div class="hd" id="d1" style="top:150px">บอกแค่ <span>3 อย่าง</span></div>''' + \
-    chip(1, 'ใครอ่าน', '#7c5cff', 'd2', 560) + chip(2, 'ให้ทำอะไร', '#ff3d81', 'd3', 800) + chip(3, 'ยาวเท่าไหร่', '#18b6d9', 'd4', 1040) + rb('happy', 'rd', 1.5, 390, 1330, id_='rd')
+    chip(1, 'ใครอ่าน', '#7c5cff', 'd2', 560) + chip(2, 'ให้ทำอะไร', '#ff3d81', 'd3', 800) + chip(3, 'ยาวเท่าไหร่', '#18b6d9', 'd4', 1040) + rb('happy', 'rd', 1.3, 400, 1250, id_='rd')
 # ---- E: example
 def row(tid, lid, txt, col, lab, labcol):
     return f'<div class="row" id="{tid}"><span class="rt" style="color:{col}">{txt}</span><span class="rl" id="{lid}" style="background:{labcol}">{lab}</span></div>'
 e = '''<div class="bg" style="background:#bfe9ff"></div><div class="dots"></div>
 <div class="hd" id="e1" style="top:110px;font-size:92px">ลองแบบนี้ <span>👇</span></div>
-<div class="code" id="e2">''' + row('e3', 'l3', 'เขียนอีเมลขอเลื่อนส่งงาน', '#ff9cba', 'ให้ทำอะไร', '#ff3d81') + row('e4', 'l4', 'ถึงหัวหน้า', '#7ee6ff', 'ใครอ่าน', '#7c5cff') + row('e5', 'l5', 'สุภาพ สามบรรทัด', '#ffe66b', 'ยาวเท่าไหร่', '#18b6d9') + '''</div>''' + rb('happy', 'rh', 1.5, 390, 1330, id_='re') + '<div class="note" style="color:#111">* ตรวจเนื้อหาที่ AI เขียนก่อนส่งจริงทุกครั้ง</div>'
+<div class="code" id="e2">''' + row('e3', 'l3', 'เขียนอีเมลขอเลื่อนส่งงาน', '#ff9cba', 'ให้ทำอะไร', '#ff3d81') + row('e4', 'l4', 'ถึงหัวหน้า', '#7ee6ff', 'ใครอ่าน', '#7c5cff') + row('e5', 'l5', 'สุภาพ สามบรรทัด', '#ffe66b', 'ยาวเท่าไหร่', '#18b6d9') + '''</div>''' + rb('happy', 'rh', 1.2, 410, 1290, id_='re') + '<div class="note" style="color:#111">* ตรวจเนื้อหาที่ AI เขียนก่อนส่งจริงทุกครั้ง</div>'
 # ---- F: CTA
 f = '''<div class="bg" style="background:#ff3d81"></div><div class="burst"></div>
 <div class="hd" id="f1" style="top:200px;color:#fff">เซฟไว้ก่อน!</div>
@@ -59,7 +59,7 @@ css = AE_CSS + '''
 .chip b{width:120px;height:120px;border-radius:60px;background:#fff;color:#111;border:8px solid #111;display:flex;align-items:center;justify-content:center;margin-right:36px;text-shadow:none;font-size:80px}
 .code{position:absolute;left:50px;right:50px;top:330px;background:#111;border-radius:36px;padding:30px 40px;box-shadow:12px 12px 0 #0a3b6b}
 .row{padding:22px 0;border-bottom:4px dashed #ffffff33}.row:last-child{border-bottom:0}
-.rt{display:block;font-weight:800;font-size:84px;line-height:1.25}
+.rt{display:block;font-weight:800;font-size:70px;line-height:1.25;white-space:nowrap}
 .rl{display:inline-block;margin-top:8px;font-weight:800;font-size:46px;color:#fff;padding:2px 26px;border-radius:30px;border:6px solid #fff}
 .note{position:absolute;left:40px;right:40px;bottom:50px;text-align:center;font-weight:700;font-size:38px;color:#ffffffaa}
 .burst{position:absolute;inset:-300px;background:repeating-conic-gradient(#ff3d81 0 10deg,#ff7aa8 10deg 20deg);opacity:.6}
