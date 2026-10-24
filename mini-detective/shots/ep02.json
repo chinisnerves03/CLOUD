@@ -1,0 +1,498 @@
+{
+ "entry": 2,
+ "gap": 0.2,
+ "beds": [
+  {
+   "name": "room",
+   "gain": -34
+  },
+  {
+   "name": "crowd",
+   "gain": -40,
+   "to": 14
+  }
+ ],
+ "shots": [
+  {
+   "id": "s1",
+   "lines": [
+    "n1"
+   ],
+   "bg": "plaza_wall",
+   "cam": [
+    {
+     "at": 0,
+     "x": 540,
+     "y": 990,
+     "z": 1
+    },
+    {
+     "at": "n1.end",
+     "x": 540,
+     "y": 930,
+     "z": 1.03
+    }
+   ],
+   "actors": [
+    {
+     "who": "pip",
+     "keys": [
+      {
+       "at": 0,
+       "x": 330,
+       "y": 1340,
+       "ly": -1,
+       "mood": "curious"
+      }
+     ]
+    },
+    {
+     "who": "juno",
+     "keys": [
+      {
+       "at": 0,
+       "x": 760,
+       "y": 1340,
+       "ly": -1,
+       "mood": "neutral",
+       "flip": 1
+      }
+     ]
+    }
+   ],
+   "sfx": [
+    {
+     "at": "n1.end-1.2",
+     "name": "dust_puff",
+     "gain": -14
+    }
+   ]
+  },
+  {
+   "id": "s2",
+   "lines": [
+    "juno1",
+    "pip1"
+   ],
+   "bg": "plaza_wall",
+   "cam": [
+    {
+     "at": 0,
+     "x": 540,
+     "y": 900,
+     "z": 1
+    }
+   ],
+   "actors": [
+    {
+     "who": "pip",
+     "keys": [
+      {
+       "at": 0,
+       "x": 330,
+       "y": 1340,
+       "ly": -1,
+       "mood": "neutral"
+      },
+      {
+       "at": "pip1.start",
+       "mood": "curious"
+      }
+     ]
+    },
+    {
+     "who": "juno",
+     "keys": [
+      {
+       "at": 0,
+       "x": -200,
+       "y": 630,
+       "rot": -6,
+       "armL": 70,
+       "armR": 70,
+       "mood": "smirk",
+       "ly": 0
+      },
+      {
+       "at": "juno1.end",
+       "x": 760,
+       "y": 490,
+       "rot": -2,
+       "armL": 70,
+       "armR": 70,
+       "mood": "smirk"
+      },
+      {
+       "at": "pip1.end",
+       "x": 1000,
+       "y": 460,
+       "rot": -4,
+       "armL": 70,
+       "armR": 70
+      }
+     ]
+    }
+   ],
+   "props": [
+    {
+     "kind": "glider",
+     "layer": "stuff",
+     "keys": [
+      {
+       "at": 0,
+       "x": -200,
+       "y": 645,
+       "rot": -6
+      },
+      {
+       "at": "juno1.end",
+       "x": 760,
+       "y": 505,
+       "rot": -2
+      },
+      {
+       "at": "pip1.end",
+       "x": 1000,
+       "y": 475,
+       "rot": -4
+      }
+     ]
+    }
+   ],
+   "sfx": [
+    {
+     "at": 0,
+     "name": "glider_whoosh",
+     "gain": -9
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "lines": [
+    "brass1",
+    "pip2"
+   ],
+   "bg": "plaza_wall",
+   "pre": 0.3,
+   "cam": [
+    {
+     "at": 0,
+     "x": 540,
+     "y": 990,
+     "z": 1
+    }
+   ],
+   "actors": [
+    {
+     "who": "pip",
+     "keys": [
+      {
+       "at": 0,
+       "x": 400,
+       "y": 1340,
+       "mood": "neutral",
+       "lx": 1
+      },
+      {
+       "at": "pip2.start",
+       "mood": "determined"
+      }
+     ]
+    },
+    {
+     "who": "juno",
+     "keys": [
+      {
+       "at": 0,
+       "x": 140,
+       "y": 1340,
+       "mood": "smirk",
+       "lx": 1
+      }
+     ]
+    },
+    {
+     "who": "brass",
+     "keys": [
+      {
+       "at": 0,
+       "x": 1350,
+       "y": 1340,
+       "flip": 1,
+       "mood": "shout"
+      },
+      {
+       "at": "brass1.start+0.9",
+       "x": 800,
+       "y": 1340,
+       "flip": 1,
+       "mood": "shout"
+      },
+      {
+       "at": "brass1.end",
+       "mood": "shout"
+      },
+      {
+       "at": "pip2.start",
+       "mood": "neutral"
+      }
+     ]
+    }
+   ],
+   "sfx": [
+    {
+     "at": "brass1.start+0.25",
+     "name": "pat",
+     "gain": -6
+    },
+    {
+     "at": "brass1.start+0.55",
+     "name": "pat",
+     "gain": -6
+    },
+    {
+     "at": "brass1.start+0.85",
+     "name": "pat",
+     "gain": -6
+    }
+   ]
+  },
+  {
+   "id": "s4",
+   "lines": [
+    "n2",
+    "pip3"
+   ],
+   "bg": "plaza_wall",
+   "cam": [
+    {
+     "at": 0,
+     "x": 520,
+     "y": 1050,
+     "z": 1.1
+    },
+    {
+     "at": "pip3.start",
+     "x": 400,
+     "y": 1100,
+     "z": 1.45
+    }
+   ],
+   "actors": [
+    {
+     "who": "pip",
+     "keys": [
+      {
+       "at": 0,
+       "x": 420,
+       "y": 1340,
+       "mood": "curious",
+       "prop": "tweezers",
+       "armL": 20,
+       "lx": -1
+      },
+      {
+       "at": "n2.start+1.0",
+       "armL": 72,
+       "mood": "curious"
+      },
+      {
+       "at": "pip3.start",
+       "mood": "whisper"
+      }
+     ]
+    }
+   ],
+   "props": [
+    {
+     "kind": "strand",
+     "layer": "stuff",
+     "keys": [
+      {
+       "at": 0,
+       "x": 250,
+       "y": 1300,
+       "s": 0.0001,
+       "rot": -12
+      },
+      {
+       "at": "n2.start+1.0",
+       "x": 238,
+       "y": 1118,
+       "s": 0.8,
+       "rot": -12
+      }
+     ]
+    }
+   ],
+   "cues": [
+    {
+     "at": "pip3.start",
+     "until": "pip3.end+0.5",
+     "do": "clue",
+     "card": "gold_thread",
+     "label": "CLUE",
+     "y": 640
+    }
+   ],
+   "sfx": [
+    {
+     "at": "n2.start+1.1",
+     "name": "thread_shimmer",
+     "gain": -12
+    }
+   ]
+  },
+  {
+   "id": "s5",
+   "lines": [
+    "brass2"
+   ],
+   "bg": "plaza_wall",
+   "pre": 0.35,
+   "cam": [
+    {
+     "at": 0,
+     "x": 540,
+     "y": 1040,
+     "z": 1.2
+    },
+    {
+     "at": "brass2.end",
+     "x": 540,
+     "y": 1060,
+     "z": 1.4
+    }
+   ],
+   "actors": [
+    {
+     "who": "pip",
+     "keys": [
+      {
+       "at": 0,
+       "x": 180,
+       "y": 1340,
+       "s": 0.85,
+       "mood": "curious",
+       "lx": 1
+      }
+     ]
+    },
+    {
+     "who": "brass",
+     "keys": [
+      {
+       "at": 0,
+       "x": 640,
+       "y": 1340,
+       "s": 1.1,
+       "mood": "neutral",
+       "armL": 10,
+       "armR": 10,
+       "badge": 1
+      },
+      {
+       "at": "brass2.start",
+       "armL": 42,
+       "armR": 42,
+       "pat": 1,
+       "badge": 0,
+       "mood": "worried"
+      }
+     ]
+    }
+   ],
+   "sfx": [
+    {
+     "at": "brass2.start-0.4",
+     "name": "pat",
+     "gain": -6
+    },
+    {
+     "at": "brass2.start-0.15",
+     "name": "pat",
+     "gain": -6
+    },
+    {
+     "at": "brass2.start+0.9",
+     "name": "pat",
+     "gain": -6
+    }
+   ]
+  },
+  {
+   "id": "s6",
+   "lines": [
+    "n3"
+   ],
+   "bg": "desk",
+   "pre": 0.3,
+   "cam": [
+    {
+     "at": 0,
+     "x": 640,
+     "y": 1000,
+     "z": 1.0
+    },
+    {
+     "at": "n3.end",
+     "x": 760,
+     "y": 1060,
+     "z": 1.5
+    }
+   ],
+   "props": [
+    {
+     "kind": "eyemark",
+     "layer": "main",
+     "still": true,
+     "keys": [
+      {
+       "at": 0,
+       "x": 860,
+       "y": 1060,
+       "w": 120,
+       "open": 0.05
+      },
+      {
+       "at": "n3.resume1",
+       "x": 860,
+       "y": 1060,
+       "w": 120,
+       "open": 0.05
+      },
+      {
+       "at": "n3.resume1+0.7",
+       "x": 860,
+       "y": 1060,
+       "w": 120,
+       "open": 1
+      }
+     ]
+    }
+   ],
+   "overlay": [
+    {
+     "at": 0,
+     "a": 0
+    },
+    {
+     "at": "n3.resume1",
+     "a": 0
+    },
+    {
+     "at": "n3.end+0.4",
+     "a": 0.35
+    }
+   ],
+   "sfx": [
+    {
+     "at": "n3.resume1+0.1",
+     "name": "tick3",
+     "gain": -12
+    }
+   ]
+  }
+ ]
+}
