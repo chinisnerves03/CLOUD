@@ -139,9 +139,9 @@ const lampL=new THREE.PointLight(0xffb347,5,5);lampL.position.set(-2.4,1.5,-0.5)
 const faceFill=new THREE.PointLight(0xfff0dd,3.6,3.2);faceFill.position.set(-0.3,1.6,1.4);sc.add(faceFill);
 const fillR=new THREE.PointLight(0x6ff0ff,0,3);fillR.position.set(0.7,1.4,0.2);sc.add(fillR);
 // ---------- camera plan (slow eased moves + gentle push-in)
-const SHOTS={wide:{pos:[0,1.5,4.3],tg:[0,1.2,-0.5],f:44},H:{pos:[-0.5,1.3,1.55],tg:[-0.6,1.14,-0.4],f:40},R:{pos:[0.72,1.42,1.7],tg:[0.7,1.38,-0.5],f:38}};
+const SHOTS={wide:{pos:[0,1.5,4.3],tg:[0,1.2,-0.5],f:44},H:{pos:[-0.5,1.3,1.65],tg:[-0.6,1.14,-0.4],f:41},Hw:{pos:[-0.5,1.4,2.3],tg:[-0.6,1.12,-0.4],f:42},R:{pos:[0.72,1.42,1.7],tg:[0.7,1.38,-0.5],f:38}};
 const keys=[{time:0,...SHOTS.H}];
-LINES.forEach(l=>keys.push({time:Math.max(0,l.a-0.15),...SHOTS[l.s]}));
+LINES.forEach(l=>keys.push({time:Math.max(0,l.a-0.15),...SHOTS[(l.s==='H'&&l.a>10)?'Hw':l.s]}));
 keys.push({time:DUR-4.5,...SHOTS.wide});keys.sort((a,b)=>a.time-b.time);
 const ease3=x=>x<0.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
 function camAt(t){let i=0;while(i+1<keys.length&&keys[i+1].time<=t)i++;const k=keys[i],p=i>0?keys[i-1]:keys[0];const b=ease3(cl((t-k.time)/0.8));
@@ -167,10 +167,10 @@ const TYPEL={p:[-0.12,0.755,0.24],d:[0,-0.1,1],u:[0.35,1,0],c:0.5},TYPER={p:[0.1
 const PS={
  type:   mk(TYPEL.p,TYPEL.d,TYPEL.u,0.5, TYPER.p,TYPER.d,TYPER.u,0.5),
  cheeks: mk([-0.27,1.08,0.14],[0.05,1,0.3],[-1,0,0],0.2, [0.27,1.08,0.14],[-0.05,1,0.3],[1,0,0],0.2, -0.05,0.06,-0.06),
- facepalm:mk([-0.2,0.8,0.3],[0,0,1],[0.35,1,0],0.4, [0.03,1.2,0.215],[0,1,-0.2],[0,0,1],0.25, 0.06,-0.1,0.16),
+ facepalm:mk([-0.2,0.8,0.3],[0,0,1],[0.35,1,0],0.4, [0.215,1.19,0.1],[-0.1,1,0.1],[1,0,0],0.25, 0.05,0.1,0.1),
  chin:   mk([-0.14,0.77,0.25],[0,-0.1,1],[0.35,1,0],0.5, [0.05,0.99,0.2],[-0.3,1,0.15],[-0.5,0,1],0.75, 0.04,0.14,0.02),
  cheer:  mk([-0.25,1.22,0.07],[-0.1,1,0.1],[0,0,-1],0.1, [0.25,1.22,0.07],[0.1,1,0.1],[0,0,-1],0.1, -0.05,0.0,-0.06),
- shrug:  mk([-0.31,0.93,0.26],[-0.25,0.1,1],[0,-1,0],0.25, [0.31,0.93,0.26],[0.25,0.1,1],[0,-1,0],0.25, 0.04,0.14,0.0),
+ shrug:  mk([-0.25,0.93,0.25],[-0.25,0.1,1],[0,-1,0],0.25, [0.25,0.93,0.25],[0.25,0.1,1],[0,-1,0],0.25, 0.04,0.14,0.0),
  wave:   mk(TYPEL.p,TYPEL.d,TYPEL.u,0.5, [0.3,1.17,0.1],[0.1,1,0.1],[0,0,-1],0.1, 0.0,-0.06,-0.02)
 };
 const SEGS=[[0,'cheeks'],[1.7,'facepalm'],[3.3,'type'],[9.4,'chin'],[12.6,'type'],[15.6,'chin'],[19.3,'type'],[22.35,'cheer'],[24.2,'shrug'],[25.6,'type'],[27.9,'wave']];
