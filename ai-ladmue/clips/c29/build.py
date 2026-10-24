@@ -15,9 +15,9 @@ a = '''<div class="bg" style="background:#ffe66b"></div><div class="dots"></div>
 ''' + rb('proud', 'ra', 1.5, 300, 1050, id_='ra') + '<div class="star" id="s1">✨</div><div class="star" id="s2" style="right:120px;top:1000px">✨</div>'
 # ---- B: real prompts
 msgs = [('ทำให้ดูดีๆ หน่อย', 5.38), ('ไม่ใช่แบบนี้', 6.88), ('เอาแบบเมื่อกี้', 8.18), ('ยาวไป', 9.32), ('สั้นไป', 10.36), ('ทำให้ดีสิ!', 11.28)]
-bub = ''.join(f'<div class="msg m{i%2}" id="m{i}" style="top:{330+i*150}px">{t}</div>' for i, (t, _) in enumerate(msgs))
+bub = ''.join(f'<div class="msg m{i%2}" id="m{i}" style="top:{300+i*160}px">{t}</div>' for i, (t, _) in enumerate(msgs))
 faces = [('proud', 3.7), ('worried', 6.88), ('dazed', 9.32), ('sleepy', 11.28)]
-fz = ''.join(rb(f, f'rb{i}', 1.2, 380, 1330, cls='fc', id_=f'fb{i}') for i, (f, _) in enumerate(faces))
+fz = ''.join(rb(f, f'rb{i}', 1.7, 390, 1300, cls='fc', id_=f'fb{i}') for i, (f, _) in enumerate(faces))
 b = f'''<div class="bg" style="background:#1b1f3b"></div><div class="dots"></div>
 <div class="tag" id="bt">Prompt ระดับโปร<br><span>(ของจริง)</span></div>{bub}{fz}
 <div class="note">* มุกสมมติ ไม่ใช่แชทจริงของใคร</div>'''
@@ -30,17 +30,13 @@ def chip(n, t, col, tid, top):
     return f'<div class="chip" id="{tid}" style="top:{top}px;background:{col}"><b>{n}</b>{t}</div>'
 d = '''<div class="bg" style="background:#ff8a3d"></div><div class="dots"></div>
 <div class="hd" id="d1" style="top:150px">บอกแค่ <span>3 อย่าง</span></div>''' + \
-    chip(1, 'ใครอ่าน', '#7c5cff', 'd2', 560) + chip(2, 'ให้ทำอะไร', '#ff3d81', 'd3', 800) + chip(3, 'ยาวเท่าไหร่', '#18b6d9', 'd4', 1040)
+    chip(1, 'ใครอ่าน', '#7c5cff', 'd2', 560) + chip(2, 'ให้ทำอะไร', '#ff3d81', 'd3', 800) + chip(3, 'ยาวเท่าไหร่', '#18b6d9', 'd4', 1040) + rb('happy', 'rd', 1.5, 390, 1330, id_='rd')
 # ---- E: example
+def row(tid, lid, txt, col, lab, labcol):
+    return f'<div class="row" id="{tid}"><span class="rt" style="color:{col}">{txt}</span><span class="rl" id="{lid}" style="background:{labcol}">{lab}</span></div>'
 e = '''<div class="bg" style="background:#bfe9ff"></div><div class="dots"></div>
-<div class="hd" id="e1" style="top:120px;font-size:84px">ลองแบบนี้<span>👇</span></div>
-<div class="code" id="e2">
-<span class="p" id="e3" style="color:#ff7aa2">เขียนอีเมลขอเลื่อนส่งงาน</span>
-<span class="p" id="e4" style="color:#7ee6ff">ถึงหัวหน้า</span>
-<span class="p" id="e5" style="color:#ffe66b">สุภาพ สามบรรทัด</span></div>
-<div class="lb" id="l3" style="top:1010px;color:#c0124f">② ทำอะไร</div>
-<div class="lb" id="l4" style="top:1090px;color:#1a6fb5">① ใครอ่าน</div>
-<div class="lb" id="l5" style="top:1170px;color:#a07400">③ ยาวเท่าไหร่</div>''' + rb('happy', 'rh', 1.0, 700, 1350, id_='re') + '<div class="note" style="color:#111">* ตรวจเนื้อหาที่ AI เขียนก่อนส่งจริงทุกครั้ง</div>'
+<div class="hd" id="e1" style="top:110px;font-size:92px">ลองแบบนี้ <span>👇</span></div>
+<div class="code" id="e2">''' + row('e3', 'l3', 'เขียนอีเมลขอเลื่อนส่งงาน', '#ff9cba', 'ให้ทำอะไร', '#ff3d81') + row('e4', 'l4', 'ถึงหัวหน้า', '#7ee6ff', 'ใครอ่าน', '#7c5cff') + row('e5', 'l5', 'สุภาพ สามบรรทัด', '#ffe66b', 'ยาวเท่าไหร่', '#18b6d9') + '''</div>''' + rb('happy', 'rh', 1.5, 390, 1330, id_='re') + '<div class="note" style="color:#111">* ตรวจเนื้อหาที่ AI เขียนก่อนส่งจริงทุกครั้ง</div>'
 # ---- F: CTA
 f = '''<div class="bg" style="background:#ff3d81"></div><div class="burst"></div>
 <div class="hd" id="f1" style="top:200px;color:#fff">เซฟไว้ก่อน!</div>
@@ -53,18 +49,19 @@ css = AE_CSS + '''
 .hd,.hd2{position:absolute;left:30px;right:30px;top:200px;text-align:center;font-weight:800;font-size:100px;line-height:1.2;color:#111}
 .hd span,.hd2 span{background:#111;color:#ffe66b;padding:0 24px;border-radius:16px;display:inline-block}
 .hd2{top:420px;font-size:200px}.hd2 span{background:none;color:#d62839;padding:0}
-.tag{position:absolute;left:40px;right:40px;top:90px;text-align:center;font-weight:800;font-size:68px;line-height:1.15;color:#fff}.tag span{font-size:46px;color:#9dff7a}
-.msg{position:absolute;max-width:640px;font-weight:800;font-size:60px;padding:16px 36px;border:8px solid #111;border-radius:40px;box-shadow:8px 8px 0 #111;color:#111;z-index:3}
+.tag{position:absolute;left:40px;right:40px;top:70px;text-align:center;font-weight:800;font-size:92px;line-height:1.15;color:#fff}.tag span{font-size:60px;color:#9dff7a}
+.msg{position:absolute;max-width:760px;font-weight:800;font-size:78px;padding:14px 40px;border:8px solid #111;border-radius:40px;box-shadow:8px 8px 0 #111;color:#111;z-index:3}
 .m0{left:60px;background:#ffe66b}.m1{right:60px;background:#fff}
 .fc{opacity:0}
 .q{position:absolute;font-weight:800;font-size:150px;color:#111;transform:rotate(-10deg)}
 .star{position:absolute;left:140px;top:1000px;font-size:120px}
-.chip{position:absolute;left:90px;right:90px;height:190px;border:10px solid #111;border-radius:36px;box-shadow:10px 10px 0 #111;font-weight:800;font-size:92px;color:#fff;display:flex;align-items:center;padding-left:40px;text-shadow:5px 5px 0 #111}
+.chip{position:absolute;left:90px;right:90px;height:190px;border:10px solid #111;border-radius:36px;box-shadow:10px 10px 0 #111;font-weight:800;font-size:100px;color:#fff;display:flex;align-items:center;padding-left:40px;text-shadow:5px 5px 0 #111}
 .chip b{width:120px;height:120px;border-radius:60px;background:#fff;color:#111;border:8px solid #111;display:flex;align-items:center;justify-content:center;margin-right:36px;text-shadow:none;font-size:80px}
-.code{position:absolute;left:50px;right:50px;top:380px;background:#111;border-radius:36px;padding:44px 40px;font-weight:800;font-size:74px;line-height:1.35;box-shadow:12px 12px 0 #0a3b6b}
-.p{display:inline;margin-right:14px}
-.lb{position:absolute;left:70px;font-weight:800;font-size:60px}
-.note{position:absolute;left:40px;right:40px;bottom:50px;text-align:center;font-weight:700;font-size:34px;color:#ffffffaa}
+.code{position:absolute;left:50px;right:50px;top:330px;background:#111;border-radius:36px;padding:30px 40px;box-shadow:12px 12px 0 #0a3b6b}
+.row{padding:22px 0;border-bottom:4px dashed #ffffff33}.row:last-child{border-bottom:0}
+.rt{display:block;font-weight:800;font-size:84px;line-height:1.25}
+.rl{display:inline-block;margin-top:8px;font-weight:800;font-size:46px;color:#fff;padding:2px 26px;border-radius:30px;border:6px solid #fff}
+.note{position:absolute;left:40px;right:40px;bottom:50px;text-align:center;font-weight:700;font-size:38px;color:#ffffffaa}
 .burst{position:absolute;inset:-300px;background:repeating-conic-gradient(#ff3d81 0 10deg,#ff7aa8 10deg 20deg);opacity:.6}
 .cta{position:absolute;left:60px;right:60px;top:480px;text-align:center;font-weight:800;font-size:96px;line-height:1.25;background:#fff;color:#111;border:12px solid #111;box-shadow:12px 12px 0 #111;border-radius:36px;padding:34px 20px}.cta b{background:#111;color:#ffe66b;padding:0 20px;border-radius:14px}
 '''
@@ -92,9 +89,9 @@ for tid, at in (('d2', 15.8), ('d3', 16.68), ('d4', 17.72)):
 js.append('tl.from("#e1",{scale:0.5,opacity:0,duration:0.3,ease:"back.out(2)"},18.7);tl.from("#e2",{y:60,opacity:0,duration:0.3},18.7);')
 for tid, at in (('e3', 18.74), ('e4', 20.5), ('e5', 21.38)):
     js.append(f'tl.from("#{tid}",{{opacity:0,y:20,duration:0.25}},{at:.2f});')
-for tid, at in (('l3', 19.6), ('l4', 20.9), ('l5', 22.0)):
-    js.append(f'tl.from("#{tid}",{{x:-120,opacity:0,duration:0.3,ease:"back.out(2)"}},{at:.2f});')
-js.append('tl.to("#re",{y:-14,duration:0.3,yoyo:true,repeat:9,ease:"sine.inOut"},18.8);')
+for tid, at in (('l3', 19.9), ('l4', 20.9), ('l5', 22.0)):
+    js.append(f'tl.from("#{tid}",{{scale:0,duration:0.3,ease:"back.out(3)"}},{at:.2f});')
+js.append('tl.to("#rd",{y:-14,duration:0.3,yoyo:true,repeat:9,ease:"sine.inOut"},14.7);tl.to("#re",{y:-14,duration:0.3,yoyo:true,repeat:9,ease:"sine.inOut"},18.8);')
 # F
 js.append('tl.from("#f1",{scale:0.3,opacity:0,rotation:-8,duration:0.4,ease:"back.out(2.4)"},23.0);tl.from("#f2",{y:200,opacity:0,duration:0.4,ease:"back.out(1.6)"},23.9);tl.to("#rf",{y:-18,duration:0.3,yoyo:true,repeat:7,ease:"sine.inOut"},23.1);tl.fromTo(".burst",{rotation:0},{rotation:50,duration:3.3,ease:"none"},22.95);')
 for k, s, t in SC:
