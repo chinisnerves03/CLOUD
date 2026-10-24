@@ -112,7 +112,7 @@ const arms=[-1,1].map(s=>{const geo=makeTube();const mesh=add(geo,sleeveM,0,0,0,
 function solve(arm,Sw,T){
  const d=new THREE.Vector3().subVectors(T,Sw);let dist=Math.min(d.length(),L1+L2-0.002);const dir=d.clone().normalize();
  const a=(L1*L1-L2*L2+dist*dist)/(2*dist),h=Math.sqrt(Math.max(L1*L1-a*a,0));
- const pole=new THREE.Vector3(arm.s*0.55,-1,-0.35);pole.sub(dir.clone().multiplyScalar(pole.dot(dir))).normalize();
+ const pole=arm.pole?arm.pole.clone():new THREE.Vector3(arm.s*0.55,-1,-0.35);pole.sub(dir.clone().multiplyScalar(pole.dot(dir))).normalize();
  const E=Sw.clone().addScaledVector(dir,a).addScaledVector(pole,h);const W=Sw.clone().addScaledVector(dir,dist);
  const P=arm.curve.points;P[0].copy(Sw).addScaledVector(dir,-0.03);P[1].copy(E);P[2].copy(W);
  updateTube(arm.geo,arm.curve,[0.054,0.046,0.04]);
@@ -121,6 +121,7 @@ function solve(arm,Sw,T){
  arm.hand.position.copy(W).addScaledVector(fd,0.004);arm.hand.up.set(lerp(-arm.s*0.35,0,raise),lerp(1,0,raise),lerp(0,-1,raise)).normalize();
  const hd=new THREE.Vector3(fd.x,THREE.MathUtils.clamp(fd.y,-0.35,1),fd.z).lerp(new THREE.Vector3(0,1,0.25),raise*0.8).normalize();
  arm.hand.lookAt(W.clone().add(hd));
+ if(arm.poseDir){arm.hand.up.copy(arm.poseUp).normalize();arm.hand.lookAt(W.clone().add(arm.poseDir))}
  arm.cuff.position.copy(W).addScaledVector(fd,-0.04);arm.cuff.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),fd)}
 // ---------- robot
 const RBG=new THREE.Group();RBG.position.set(0.7,1.38,-0.5);sc.add(RBG);
@@ -160,6 +161,23 @@ function drawFace(t,amp){fg.fillStyle='#1E1B2E';fg.fillRect(0,0,512,300);
  for(let i=0;i<11;i++){const h=8+amp*(10+70*(0.45+0.55*Math.abs(Math.sin(t*5+i*0.8))));fg.fillRect(120+i*26,225-h/2,14,h)}
  faceTex.needsUpdate=true}
 const tmp=new THREE.Vector3();
+// ---------- pose library (coordinates local to the character, hand pos / finger dir / palm-up vector / curl)
+const mk=(Lp,Ld,Lu,Lc,Rp,Rd,Ru,Rc,lean=0,roll=0,nod=0)=>({L:{p:Lp,d:Ld,u:Lu,c:Lc},R:{p:Rp,d:Rd,u:Ru,c:Rc},lean,roll,nod});
+const TYPEL={p:[-0.12,0.755,0.24],d:[0,-0.1,1],u:[0.35,1,0],c:0.5},TYPER={p:[0.12,0.755,0.24],d:[0,-0.1,1],u:[-0.35,1,0],c:0.5};
+const PS={
+ type:   mk(TYPEL.p,TYPEL.d,TYPEL.u,0.5, TYPER.p,TYPER.d,TYPER.u,0.5),
+ cheeks: mk([-0.21,1.07,0.15],[0.05,1,0.3],[-1,0,0],0.2, [0.21,1.07,0.15],[-0.05,1,0.3],[1,0,0],0.2, -0.05,0.06,-0.06),
+ facepalm:mk([-0.2,0.8,0.3],[0,0,1],[0.35,1,0],0.4, [0.02,1.18,0.17],[0,1,-0.25],[0,0,1],0.25, 0.06,-0.1,0.16),
+ chin:   mk([-0.14,0.77,0.25],[0,-0.1,1],[0.35,1,0],0.5, [0.045,0.97,0.17],[-0.3,1,0.15],[-0.5,0,1],0.75, 0.04,0.14,0.02),
+ cheer:  mk([-0.25,1.22,0.07],[-0.1,1,0.1],[0,0,-1],0.1, [0.25,1.22,0.07],[0.1,1,0.1],[0,0,-1],0.1, -0.05,0.0,-0.06),
+ shrug:  mk([-0.31,0.93,0.26],[-0.25,0.1,1],[0,-1,0],0.25, [0.31,0.93,0.26],[0.25,0.1,1],[0,-1,0],0.25, 0.04,0.14,0.0),
+ wave:   mk(TYPEL.p,TYPEL.d,TYPEL.u,0.5, [0.3,1.17,0.1],[0.1,1,0.1],[0,0,-1],0.1, 0.0,-0.06,-0.02)
+};
+const SEGS=[[0,'cheeks'],[1.7,'facepalm'],[3.3,'type'],[9.4,'chin'],[12.6,'type'],[15.6,'chin'],[19.3,'type'],[22.35,'cheer'],[24.2,'shrug'],[25.6,'type'],[27.9,'wave']];
+const mixArr=(a,b,k)=>a.map((v,i)=>lerp(v,b[i],k));
+function mixPose(a,b,k){const o={L:{},R:{}};['L','R'].forEach(h=>{['p','d','u'].forEach(f=>o[h][f]=mixArr(a[h][f],b[h][f],k));o[h].c=lerp(a[h].c,b[h].c,k)});o.lean=lerp(a.lean,b.lean,k);o.roll=lerp(a.roll,b.roll,k);o.nod=lerp(a.nod,b.nod,k);return o}
+function poseAt(t){let i=0;while(i+1<SEGS.length&&SEGS[i+1][0]<=t)i++;const cur=PS[SEGS[i][1]],prev=i>0?PS[SEGS[i-1][1]]:cur;return mixPose(prev,cur,sm(cl((t-SEGS[i][0])/0.5)))}
+const NODS=LINES.filter(l=>l.s==='R').map(l=>l.a+0.12);
 window.seek=function(t){
  base(t);
  const act=LINES.find(l=>t>=l.a&&t<=l.b),spk=act?act.s:null;
@@ -177,20 +195,27 @@ window.seek=function(t){
  head.rotation.z=Math.sin(t*0.8)*0.02+(worried?0.05:0)+(speakH?Math.sin(t*3.1)*0.025:0);
  const br=Math.sin(t*1.6)*0.01;torso.scale.set(1.1*(1+br*0.4),1+br,0.9*(1+br*0.6));head.position.y=1.12+br*0.8+Math.sin(t*2.2)*0.004;
  const eyeYaw=-hy*0.65+THREE.MathUtils.clamp((yawAt(t+0.12)-hy)*2.5,-0.3,0.3);
- drawBot2(t,{blink,open:Math.min(1,aH*1.3),worried,happy,listening,gx:THREE.MathUtils.clamp(eyeYaw*2.5,-1,1)});
+ drawBot2(t,{blink,open:Math.min(1,aH*1.3),worried,happy:(happy||(t>22.35&&t<24.2)),listening,gx:THREE.MathUtils.clamp(eyeYaw*2.5,-1,1)});
  antBall.material.color.set(speakH?0xffe27a:0xff6f91);antBall.position.y=0.236+Math.sin(t*5)*0.003*(speakH?3:1);
- // arms
+ // pose-driven arms, body and head
+ const P=poseAt(t);
+ const shake=1-sm(cl((t-1.3)/0.5)),waveAmt=sm(cl((t-27.9)/0.4)),happyNow=(t>22.35&&t<24.2)||t>25.66;
+ let nodP=0;NODS.forEach(n=>{nodP+=0.11*Math.exp(-(((t-n)/0.17)**2))});
+ head.rotation.x+=P.nod+nodP;head.rotation.z+=P.roll;head.rotation.y+=Math.sin(t*11)*0.07*shake;
+ head.position.z=0.02+P.lean*0.12;torso.rotation.x=P.lean;
+ const lp=P.L.p.slice(),rp=P.R.p.slice(),ld=P.L.d.slice(),rd=P.R.d.slice();
+ lp[0]+=Math.sin(t*16)*0.011*shake;rp[0]+=Math.sin(t*16+1)*0.011*shake;lp[1]+=Math.sin(t*13)*0.008*shake;rp[1]+=Math.sin(t*13+2)*0.008*shake;
+ rp[0]+=Math.sin(t*7)*0.04*waveAmt;rd[0]+=Math.sin(t*7)*0.45*waveAmt;rp[1]+=Math.abs(Math.sin(t*3.5))*0.012*waveAmt;
+ const tw=THREE.MathUtils.clamp(1-Math.hypot(P.L.p[0]-TYPEL.p[0],P.L.p[1]-TYPEL.p[1],P.L.p[2]-TYPEL.p[2])*7,0,1)*(speakH?0.4:1);
+ const tap=Math.sin(t*9)*0.004*tw;lp[1]+=tap;rp[1]-=tap;
  H.updateMatrixWorld(true);
- const sw=s=>new THREE.Vector3(s*0.175,0.92,0.0).applyMatrix4(H.matrixWorld);
- const g1=sm(cl(hg*2.2))*(speakH?1:0),wave=Math.sin(t*2.4)*0.025;
- const idleTap=(!speakH&&!worried)?1:0,tap=Math.sin(t*9)*0.004*idleTap;
- const restL=new THREE.Vector3(-0.72,0.855,-0.16),restR=new THREE.Vector3(-0.48,0.855,-0.16);
- let tL=restL.clone(),tR=restR.clone();
- if(worried){const w=0.5+0.5*Math.sin(t*5);tL.set(-0.84,1.27+w*0.015,-0.22);tR.set(-0.36,1.27+w*0.015,-0.22)}
- else{tR.set(lerp(restR.x,-0.33,g1),lerp(restR.y,1.14,g1)+wave*g1+tap,lerp(restR.z,-0.13,g1));tL.set(lerp(restL.x,-0.82,g1*0.5),lerp(restL.y,1.06,g1*0.5)-tap,lerp(restL.z,-0.15,g1*0.5))}
- if(listening){tL.y+=Math.sin(t*2)*0.004}
- solve(arms[0],sw(-1),tL);solve(arms[1],sw(1),tR);
- arms.forEach((a,i)=>{const curl=worried?0.18:(i===1?lerp(0.5,0.12,g1):0.5);a.hand.userData.fingers.forEach((f,j)=>{const c=curl+(j%2?0.07:0)+Math.sin(t*1.3+j*0.8)*0.02+(idleTap?Math.max(0,Math.sin(t*9+j*1.9+i*2))*0.16:0);f.rotation.x=c;f.userData.dist.rotation.x=c*1.15});const th=a.hand.userData.thumb;th.rotation.x=0.15+curl*0.25;th.userData.dist.rotation.x=curl*0.4});
+ const sw=s=>new THREE.Vector3(s*0.175,0.92+P.lean*-0.05,0.0).applyMatrix4(H.matrixWorld);
+ const wp=v=>H.localToWorld(new THREE.Vector3(v[0],v[1],v[2])),wv=v=>new THREE.Vector3(v[0],v[1],v[2]).applyQuaternion(H.quaternion);
+ arms[0].poseDir=wv(ld);arms[0].poseUp=wv(P.L.u);arms[1].poseDir=wv(rd);arms[1].poseUp=wv(P.R.u);
+ solve(arms[0],sw(-1),wp(lp));solve(arms[1],sw(1),wp(rp));
+ arms.forEach((a,i)=>{const hp=i?P.R:P.L;a.hand.userData.fingers.forEach((f,j)=>{const c=hp.c+(j%2?0.07:0)+Math.sin(t*1.3+j*0.8)*0.02+(tw>0.2?Math.max(0,Math.sin(t*9+j*1.9+i*2))*0.16*tw:0);f.rotation.x=c;f.userData.dist.rotation.x=c*1.15});const th=a.hand.userData.thumb;th.rotation.x=0.15+hp.c*0.25;th.userData.dist.rotation.x=hp.c*0.4});
+ // orange robot: squash/stretch with its voice, leans toward its friend
+ RBG.scale.set(1+aR*0.025,1-aR*0.03,1+aR*0.025);RBG.rotation.x=aR*-0.04;
  R.render(sc,cam);
  if(act){const col=act.s==='H'?'#4D8BFF':'#FF8A3D';let h='<span class="chip" style="background:'+col+'">'+(act.s==='H'?'น้องฟ้า':'หุ่น AI')+'</span><span class="l">';
   act.w.forEach(x=>{const on=t>=x.s&&t<x.e;h+=x.sp?' ':'<span class="w'+(on?' on':'')+'">'+x.w+'</span>'});h+='</span>';if(sub._h!==h){sub.innerHTML=h;sub._h=h}sub.style.opacity=1}else sub.style.opacity=0;
