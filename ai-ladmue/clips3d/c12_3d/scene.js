@@ -39,8 +39,12 @@ box(0.5,0.06,0.5,M(0x2d2d3a),-0.6,0.46,-0.45);box(0.5,0.55,0.06,M(0x2d2d3a),-0.6
 // ---------- human (rebuilt)
 const H=new THREE.Group();H.position.set(-0.6,0,-0.45);H.rotation.y=0.12;sc.add(H);
 const skin=S(0xf0c39a),hoodM=S(0xd96c4a),jeans=S(0x2f3f6a),hairM=S(0x2b1b14,{roughness:0.9}),tealM=S(0x2e8b7a,{roughness:0.9}),tealD=S(0x226b5f,{roughness:0.9});
-const torso=add(new THREE.CapsuleGeometry(0.2,0.32,6,14),hoodM,0,0.84,0,H);torso.scale.set(1.12,1,0.72);
-add(new THREE.SphereGeometry(0.095,12,10),hoodM,-0.235,1.03,0,H);add(new THREE.SphereGeometry(0.095,12,10),hoodM,0.235,1.03,0,H);
+const torso=(()=>{const Lp=[[-0.165,0.56],[-0.18,0.66],[-0.188,0.78],[-0.2,0.9],[-0.222,0.975],[-0.2,1.04],[-0.12,1.072],[-0.06,1.09]];
+ const pts=Lp.map(p=>new THREE.Vector3(p[0],p[1],0)).concat(Lp.slice().reverse().map(p=>new THREE.Vector3(-p[0],p[1],0)));
+ const curve=new THREE.CatmullRomCurve3(pts,true,'centripetal');const sh=new THREE.Shape(curve.getPoints(90).map(v=>new THREE.Vector2(v.x,v.y)));
+ const g=new THREE.ExtrudeGeometry(sh,{depth:0.1,bevelEnabled:true,bevelSize:0.05,bevelThickness:0.06,bevelSegments:6,curveSegments:1});
+ g.translate(0,-0.84,-0.05);g.computeVertexNormals();const m=new THREE.Mesh(g,hoodM);m.position.set(0,0.84,0);m.castShadow=true;m.receiveShadow=true;H.add(m);return m})();
+
 const hoodBack=add(new THREE.TorusGeometry(0.12,0.055,8,16,Math.PI*1.2),hoodM,0,1.07,-0.07,H);hoodBack.rotation.set(Math.PI/2-0.5,0,Math.PI*0.9);
 add(new THREE.CylinderGeometry(0.052,0.06,0.12,10),skin,0,1.13,0.01,H);
 const chest=box(0.05,0.2,0.01,S(0xf0e6d8),0,0.9,0.145,H);chest.scale.set(0.6,1,1); // hoodie pocket line
@@ -175,7 +179,7 @@ window.seek=function(t){
  brows[0].rotation.z=worried?0.38:happy?-0.12:0.0;brows[1].rotation.z=worried?-0.38:happy?0.12:0.0;brows.forEach(b=>b.position.y=0.068+(worried?0.012:0)+(happy?0.006:0));
  // arms
  H.updateMatrixWorld(true);
- const sw=s=>new THREE.Vector3(s*0.235,1.03,0.0).applyMatrix4(H.matrixWorld);
+ const sw=s=>new THREE.Vector3(s*0.2,0.99,0.0).applyMatrix4(H.matrixWorld);
  const hg=envAt(E.hg,t),g1=sm(cl(hg*2.2))*(spk==='H'?1:0),wave=Math.sin(t*2.4)*0.025;
  const restL=new THREE.Vector3(-0.72,0.86,0.2),restR=new THREE.Vector3(-0.48,0.86,0.2);
  let tL=restL.clone(),tR=restR.clone();
