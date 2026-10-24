@@ -20,9 +20,9 @@ const html=`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>AI
 .hook{position:absolute;left:90px;right:90px;top:230px;z-index:15;background:#FFF6E8;color:#2B1B10;border-radius:36px;box-shadow:0 18px 50px #000a;overflow:hidden;opacity:0}
 .hook .tx{font-size:56px;text-align:left;padding-bottom:120px}.stamp{position:absolute;right:36px;bottom:26px;transform:rotate(-6deg);border:8px solid #E53935;color:#E53935;font-weight:800;font-size:64px;padding:2px 26px;border-radius:16px;background:#FFF6E8}
 .warn{position:absolute;left:90px;right:90px;top:260px;z-index:15;background:#FFF1B8;color:#2B1B10;border-radius:36px;box-shadow:0 18px 50px #000a;padding:44px;font-weight:800;font-size:64px;line-height:1.35;text-align:center;opacity:0}
-.cta{position:absolute;left:0;right:0;top:300px;z-index:15;text-align:center;opacity:0}
-.cta .p{display:inline-block;font-weight:800;font-size:170px;background:linear-gradient(90deg,#FF8A3D,#FF4D6D);padding:20px 70px;border-radius:60px;box-shadow:0 18px 50px #000a}
-.cta .s{font-weight:800;font-size:72px;margin-bottom:34px;text-shadow:0 3px 12px #000a}
+.cta{position:absolute;left:0;right:0;top:230px;z-index:15;text-align:center;opacity:0}
+.cta .p{display:inline-block;font-weight:800;font-size:130px;background:linear-gradient(90deg,#FF8A3D,#FF4D6D);padding:20px 70px;border-radius:60px;box-shadow:0 18px 50px #000a}
+.cta .s{font-weight:800;font-size:60px;margin-bottom:20px;text-shadow:0 3px 12px #000a}
 #sub{position:absolute;left:50px;right:50px;top:1500px;z-index:18;text-align:center}
 #sub .chip{display:inline-block;font-weight:800;font-size:38px;padding:4px 22px;border-radius:999px;margin-bottom:14px}
 #sub .l{display:block;background:#000b;border-radius:28px;padding:20px 30px;font-weight:800;font-size:64px;line-height:1.35;white-space:pre-wrap}
@@ -33,12 +33,12 @@ const html=`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>AI
 <div class="hook" data-a="0.2" data-b="3.6" data-k="pop"><div class="hd"><i></i><i></i><i></i><span>แชต AI</span></div><div class="tx">หนังสือ “เคล็ดลับพันล้านใน 7 วัน” โดย ดร.สมมติ นามสกุลสมมติ</div><div class="stamp">ไม่มีอยู่จริง!</div></div>
 ${cards}
 <div class="warn" data-a="${RB(0.1)}" data-b="${RB(2.2)}" data-k="pop">⚠️ ลดโอกาสผิด<br>ไม่ได้ทำให้ถูก 100%<br><span style="color:#C0392B">ต้องตรวจเองด้วย</span></div>
-<div class="cta" data-a="${RB(2.5)}" data-k="pop"><div class="s">คอมเมนต์คำว่า</div><div class="p">prompt</div><div class="s" style="margin-top:34px">รับชุดคำสั่งฟรี 🎁</div></div>
+<div class="cta" data-a="${RB(2.5)}" data-k="pop"><div class="s">คอมเมนต์คำว่า</div><div class="p">prompt</div></div>
 <div id="sub"></div><div class="bar" id="bar"></div>
 
 <script src="../three.iife.js"></script>
 <script>const DUR=${D};</script>
-<script src="../../clips/lib.js"></script>
+<script src="env.js"></script><script src="../../clips/lib.js"></script>
 <script>const LINES=${JSON.stringify(lines)};</script>
 <script src="scene.js"></script>
 </body></html>`;

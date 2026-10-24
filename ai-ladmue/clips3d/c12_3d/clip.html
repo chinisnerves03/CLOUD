@@ -15,9 +15,9 @@
 .hook{position:absolute;left:90px;right:90px;top:230px;z-index:15;background:#FFF6E8;color:#2B1B10;border-radius:36px;box-shadow:0 18px 50px #000a;overflow:hidden;opacity:0}
 .hook .tx{font-size:56px;text-align:left;padding-bottom:120px}.stamp{position:absolute;right:36px;bottom:26px;transform:rotate(-6deg);border:8px solid #E53935;color:#E53935;font-weight:800;font-size:64px;padding:2px 26px;border-radius:16px;background:#FFF6E8}
 .warn{position:absolute;left:90px;right:90px;top:260px;z-index:15;background:#FFF1B8;color:#2B1B10;border-radius:36px;box-shadow:0 18px 50px #000a;padding:44px;font-weight:800;font-size:64px;line-height:1.35;text-align:center;opacity:0}
-.cta{position:absolute;left:0;right:0;top:300px;z-index:15;text-align:center;opacity:0}
-.cta .p{display:inline-block;font-weight:800;font-size:170px;background:linear-gradient(90deg,#FF8A3D,#FF4D6D);padding:20px 70px;border-radius:60px;box-shadow:0 18px 50px #000a}
-.cta .s{font-weight:800;font-size:72px;margin-bottom:34px;text-shadow:0 3px 12px #000a}
+.cta{position:absolute;left:0;right:0;top:230px;z-index:15;text-align:center;opacity:0}
+.cta .p{display:inline-block;font-weight:800;font-size:130px;background:linear-gradient(90deg,#FF8A3D,#FF4D6D);padding:20px 70px;border-radius:60px;box-shadow:0 18px 50px #000a}
+.cta .s{font-weight:800;font-size:60px;margin-bottom:20px;text-shadow:0 3px 12px #000a}
 #sub{position:absolute;left:50px;right:50px;top:1500px;z-index:18;text-align:center}
 #sub .chip{display:inline-block;font-weight:800;font-size:38px;padding:4px 22px;border-radius:999px;margin-bottom:14px}
 #sub .l{display:block;background:#000b;border-radius:28px;padding:20px 30px;font-weight:800;font-size:64px;line-height:1.35;white-space:pre-wrap}
@@ -28,12 +28,12 @@
 <div class="hook" data-a="0.2" data-b="3.6" data-k="pop"><div class="hd"><i></i><i></i><i></i><span>แชต AI</span></div><div class="tx">หนังสือ “เคล็ดลับพันล้านใน 7 วัน” โดย ดร.สมมติ นามสกุลสมมติ</div><div class="stamp">ไม่มีอยู่จริง!</div></div>
 <div class="card" data-a="6.44" data-b="9.73" data-k="pop"><div class="hd"><i></i><i></i><i></i><span>prompt • ข้อ 1/5</span></div><div class="pbar"><div style="width:20%"></div></div><div class="tx">ถ้าไม่แน่ใจ ให้บอกว่า “ไม่แน่ใจ”</div></div><div class="card" data-a="9.73" data-b="12.72" data-k="pop"><div class="hd"><i></i><i></i><i></i><span>prompt • ข้อ 2/5</span></div><div class="pbar"><div style="width:40%"></div></div><div class="tx">ใช้เฉพาะข้อมูลที่ฉันให้เท่านั้น</div></div><div class="card" data-a="12.72" data-b="15.81" data-k="pop"><div class="hd"><i></i><i></i><i></i><span>prompt • ข้อ 3/5</span></div><div class="pbar"><div style="width:60%"></div></div><div class="tx">แยก “ข้อเท็จจริง” ออกจาก “การคาดเดา”</div></div><div class="card" data-a="15.81" data-b="19.56" data-k="pop"><div class="hd"><i></i><i></i><i></i><span>prompt • ข้อ 4/5</span></div><div class="pbar"><div style="width:80%"></div></div><div class="tx">บอกสิ่งที่ควรตรวจซ้ำ และห้ามแต่งแหล่งอ้างอิง</div></div><div class="card" data-a="19.56" data-b="22.38" data-k="pop"><div class="hd"><i></i><i></i><i></i><span>prompt • ข้อ 5/5</span></div><div class="pbar"><div style="width:100%"></div></div><div class="tx">ตรวจคำตอบตัวเองอีกรอบก่อนส่ง</div></div>
 <div class="warn" data-a="25.84" data-b="27.81" data-k="pop">⚠️ ลดโอกาสผิด<br>ไม่ได้ทำให้ถูก 100%<br><span style="color:#C0392B">ต้องตรวจเองด้วย</span></div>
-<div class="cta" data-a="28.09" data-k="pop"><div class="s">คอมเมนต์คำว่า</div><div class="p">prompt</div><div class="s" style="margin-top:34px">รับชุดคำสั่งฟรี 🎁</div></div>
+<div class="cta" data-a="28.09" data-k="pop"><div class="s">คอมเมนต์คำว่า</div><div class="p">prompt</div></div>
 <div id="sub"></div><div class="bar" id="bar"></div>
 
 <script src="../three.iife.js"></script>
 <script>const DUR=31.5;</script>
-<script src="../../clips/lib.js"></script>
+<script src="env.js"></script><script src="../../clips/lib.js"></script>
 <script>const LINES=[{"s":"H","a":0.08,"b":3.55,"t":"โอ๊ย! AI แต่งชื่อหนังสือที่ไม่มีอยู่จริงอีกแล้ว!"},{"s":"R","a":3.83,"b":5.85,"t":"ใจเย็นๆ ลองสั่งห้าข้อนี้"},{"s":"R","a":6.44,"b":9.31,"t":"ข้อหนึ่ง ถ้าไม่แน่ใจ ให้บอกว่าไม่แน่ใจ"},{"s":"R","a":9.73,"b":12.26,"t":"ข้อสอง ใช้เฉพาะข้อมูลที่ฉันให้เท่านั้น"},{"s":"R","a":12.72,"b":15.41,"t":"ข้อสาม แยกข้อเท็จจริง ออกจากการคาดเดา"},{"s":"R","a":15.81,"b":19.21,"t":"ข้อสี่ บอกสิ่งที่ควรตรวจซ้ำ และห้ามแต่งแหล่งอ้างอิง"},{"s":"R","a":19.56,"b":21.94,"t":"ข้อห้า ตรวจคำตอบตัวเองอีกรอบก่อนส่ง"},{"s":"H","a":22.41,"b":25.51,"t":"ครบแล้ว! งั้นต่อไปก็จะไม่ผิดแล้วใช่ไหม?"},{"s":"R","a":25.8,"b":27.74,"t":"ผิดน้อยลง แต่ยังต้องตรวจเองนะ!"},{"s":"R","a":28.06,"b":31.4,"t":"อยากได้ชุดคำสั่งฟรี คอมเมนต์คำว่า prompt"}];</script>
 <script src="scene.js"></script>
 </body></html>
