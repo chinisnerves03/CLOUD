@@ -97,3 +97,89 @@ def audio_el(i, name, start, dur, vol=1, track=None):
 def bed_audio(dur, bgm_vol=0.45):
     return (f'<audio id="bgm" src="assets/bgm.wav" data-start="0" data-duration="{dur}" data-track-index="30" data-volume="{bgm_vol}"></audio>\n'
             f'<audio id="sfx" src="assets/sfx.wav" data-start="0" data-duration="{dur}" data-track-index="31" data-volume="1"></audio>\n')
+
+
+# ---------------- After-Effects-style helpers ----------------
+import random as _random
+import os as _os
+
+_COMB = set(chr(c) for c in list(range(0x0E31, 0x0E32)) + list(range(0x0E34, 0x0E3B)) + list(range(0x0E47, 0x0E4F)) + [0x0E33])
+_LEAD = set('เแโใไ')
+
+
+def clusters(s):
+    out = []; pend = ''
+    for c in s:
+        if c in _COMB and out:
+            out[-1] += c
+        elif c in _LEAD:
+            pend += c
+        else:
+            out.append(pend + c); pend = ''
+    if pend: out.append(pend)
+    return out
+
+
+def chars(s, cls=''):
+    """text -> inline-block grapheme spans (for per-letter stagger)."""
+    return ''.join(f'<span class="ch {cls}">{c if c != " " else "&nbsp;"}</span>' for c in clusters(s))
+
+
+def make_grain(path, seed=2):
+    from PIL import Image
+    import numpy as np
+    rs = np.random.RandomState(seed)
+    a = rs.randint(0, 255, (512, 512), dtype='uint8')
+    img = Image.fromarray(a, 'L').convert('RGBA')
+    img.putalpha(Image.fromarray(rs.randint(40, 120, (512, 512), dtype='uint8'), 'L'))
+    img.save(path)
+
+
+AE_CSS = '''
+.ch{display:inline-block;white-space:pre;will-change:transform}
+.cam{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:50% 50%}
+#ovl{position:absolute;left:0;top:0;width:1080px;height:1920px;pointer-events:none}
+#grain{position:absolute;left:-200px;top:-300px;width:1500px;height:2500px;background-image:url(assets/grain.png);background-size:512px 512px;opacity:.16;mix-blend-mode:overlay}
+#vig{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,transparent 52%,rgba(0,0,0,.55) 100%)}
+#leak{position:absolute;left:-700px;top:-300px;width:900px;height:2600px;background:linear-gradient(90deg,transparent,rgba(255,120,60,.55),rgba(255,60,120,.35),transparent);mix-blend-mode:screen;opacity:0;transform:rotate(14deg)}
+#flash{position:absolute;inset:0;background:#fff;opacity:0}
+.wipe{position:absolute;top:-200px;height:2400px;width:1500px;transform:skewX(-14deg);left:-1700px}
+'''
+
+
+def ae_overlay_html(colors=('#ff3b30', '#ffd60a', '#111')):
+    wipes = ''.join(f'<div class="wipe w{i}" style="background:{c}"></div>' for i, c in enumerate(colors))
+    return f'<section id="sc-ovl" class="clip sc" data-start="0" data-duration="__DUR__" data-track-index="5" style="pointer-events:none"><div id="ovl"><div id="leak"></div><div id="vig"></div><div id="grain"></div>{wipes}<div id="flash"></div></div></section>\n'
+
+
+def ae_overlay_js(dur, cuts, seed=5):
+    """grain jitter at 12 fps, light-leak sweeps, white flash + colour-bar wipe on every cut."""
+    r = _random.Random(seed); js = []
+    for k in range(int(dur * 12)):
+        js.append(f'tl.set("#grain",{{x:{r.randint(-150,0)},y:{r.randint(-250,0)}}},{k/12:.3f});')
+    for i, c in enumerate(cuts):
+        js.append(f'tl.set("#flash",{{opacity:0.7}},{c:.2f});tl.to("#flash",{{opacity:0,duration:0.22,ease:"power2.out"}},{c+0.001:.2f});')
+        t0 = max(0.0, c - 0.2)
+        js.append(f'tl.set("#leak",{{x:0,opacity:0.9}},{t0:.2f});tl.to("#leak",{{x:1900,duration:0.9,ease:"power2.inOut"}},{t0+0.001:.2f});tl.set("#leak",{{opacity:0}},{t0+0.95:.2f});')
+    return js
+
+
+def cam_js(sid, a, b, rot=0.8, push=0.07):
+    return [f'tl.fromTo("#cam-{sid}",{{scale:1.0,rotation:{-rot}}},{{scale:{1+push},rotation:{rot},duration:{b-a:.2f},ease:"none"}},{a:.2f});']
+
+
+def punch_js(sel, t, amt=0.05):
+    return [f'tl.to("{sel}",{{scale:{1+amt},duration:0.07,ease:"power2.out"}},{t:.2f});tl.to("{sel}",{{scale:1,duration:0.35,ease:"elastic.out(1,0.4)"}},{t+0.07:.2f});']
+
+
+def particles_html(n, seed, sid, colors=('#fff', '#ffd60a', '#29e5ff'), area=(0, 0, 1080, 1920)):
+    r = _random.Random(seed); out = ''
+    for i in range(n):
+        x = r.randint(area[0], area[2]); y = r.randint(area[1], area[3]); s = r.randint(5, 16); c = r.choice(colors)
+        out += f'<i class="pt pt-{sid}" style="left:{x}px;top:{y}px;width:{s}px;height:{s}px;background:{c};opacity:{r.uniform(.25,.8):.2f}"></i>'
+    return out
+
+
+def particles_js(sid, a, b, seed):
+    r = _random.Random(seed + 9)
+    return [f'tl.fromTo(".pt-{sid}",{{y:0}},{{y:-420,duration:{b-a:.2f},ease:"none",stagger:{{each:0.015}}}},{a:.2f});']
