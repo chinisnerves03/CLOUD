@@ -81,13 +81,14 @@
   },
   "renders": {
     "latest": {
-      "id": "e47e04d5-983c-43f6-81f1-531b3ae459dd",
-      "completedAt": 1792854227718,
-      "output": "/tmp/claude-0/-home-user-CLOUD/7161780d-6e94-52ef-b952-078012688c5d/scratchpad/c29/draft2.mp4",
+      "id": "9f677dc5-ba17-4b38-aa1c-8be34c0bcef7",
+      "completedAt": 1792854430686,
+      "output": "/tmp/claude-0/-home-user-CLOUD/7161780d-6e94-52ef-b952-078012688c5d/scratchpad/c29/final_silent.mp4",
       "status": "completed",
-      "revision": "c41a4836-41c4-4505-8387-f00e666c7897"
+      "revision": "b38aaffa-1c66-4c89-92e3-bc25c7adbe84"
     },
     "retainedRevisions": [
+      "b38aaffa-1c66-4c89-92e3-bc25c7adbe84",
       "c41a4836-41c4-4505-8387-f00e666c7897"
     ]
   },
