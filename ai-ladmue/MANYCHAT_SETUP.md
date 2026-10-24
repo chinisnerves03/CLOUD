@@ -7,7 +7,7 @@
 - [ ] IG @ailadmue เป็นบัญชี Professional (Business หรือ Creator)
 - [ ] เชื่อมกับ Facebook Page (ManyChat ต้องใช้)
 - [ ] ใน IG: Settings → Messages and story replies → Message controls → Connected tools → เปิด "Allow access to messages"
-- [ ] ไฟล์ `prompt-pack-20.pdf` (5 หน้า) อัปโหลดขึ้น Google Drive แล้วตั้งแชร์ "ทุกคนที่มีลิงก์ ดูได้" เฉพาะไฟล์นี้ แล้วจดลิงก์ไว้
+- [x] ไฟล์ PDF อัปโหลดขึ้น Drive แล้ว (`prompt-pack-21.pdf`) ตั้ง "ทุกคนที่มีลิงก์ ดูได้" แล้ว: https://drive.google.com/file/d/1vg-r7gkogy-i7gEA88Xmfg2X9QLe0SmJ/view?usp=sharing
 
 ## 1) เชื่อมบัญชี
 1. เข้า app.manychat.com → สมัคร/ล็อกอินด้วย Facebook
