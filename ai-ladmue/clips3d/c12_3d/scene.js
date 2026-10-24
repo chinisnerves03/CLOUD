@@ -78,7 +78,9 @@ box(0.17,0.17,0.5,jeans,-0.7,0.56,-0.15);box(0.17,0.17,0.5,jeans,-0.45,0.56,-0.1
 const L1=0.27,L2=0.26;
 const upG=new THREE.CapsuleGeometry(0.05,1,4,10),loG=new THREE.CapsuleGeometry(0.043,1,4,10);
 const arms=[-1,1].map(s=>({s,up:add(upG,hoodM,0,0,0,sc),lo:add(loG,hoodM,0,0,0,sc),elbow:add(new THREE.SphereGeometry(0.05,10,8),hoodM,0,0,0,sc),
- hand:(()=>{const g=new THREE.Group();sc.add(g);const p=add(new THREE.SphereGeometry(0.04,12,10),skin,0,0,0,g);p.scale.set(1,0.55,1.25);const th=add(new THREE.SphereGeometry(0.016,8,6),skin,s*-0.03,0.0,0.03,g);return g})(),
+ hand:(()=>{const g=new THREE.Group();sc.add(g);const palm=add(new THREE.SphereGeometry(0.04,12,10),skin,0,0,0.045,g);palm.scale.set(1,0.5,1.1);
+  const fingers=[];[-0.026,-0.009,0.009,0.026].forEach((x,i)=>{const f=new THREE.Group();f.position.set(x,0,0.082);g.add(f);const seg=add(new THREE.CapsuleGeometry(0.0095,0.03+(i===1||i===2?0.006:0),3,6),skin,0,0,0.02,f);seg.rotation.x=Math.PI/2;fingers.push(f)});
+  const th=new THREE.Group();th.position.set(s*-0.036,0,0.05);th.rotation.y=s*0.7;g.add(th);add(new THREE.CapsuleGeometry(0.011,0.026,3,6),skin,0,0,0.018,th).rotation.x=Math.PI/2;g.userData.fingers=fingers;g.userData.thumb=th;return g})(),
  cuff:add(new THREE.TorusGeometry(0.044,0.012,6,12),S(0xb85a3c),0,0,0,sc)}));
 const Y=new THREE.Vector3(0,1,0);
 function segment(mesh,a,b){const d=new THREE.Vector3().subVectors(b,a),len=d.length();mesh.position.copy(a).addScaledVector(d,0.5);mesh.scale.set(1,len,1);mesh.quaternion.setFromUnitVectors(Y,d.clone().normalize())}
@@ -118,6 +120,8 @@ function camAt(t){let i=0;while(i+1<keys.length&&keys[i+1].time<=t)i++;const k=k
 const wseg=new Intl.Segmenter('th',{granularity:'word'}),gseg=new Intl.Segmenter('th',{granularity:'grapheme'});
 LINES.forEach(l=>{const ws=[...wseg.segment(l.t)].map(s=>s.segment);const lens=ws.map(w=>w.trim().length?[...gseg.segment(w)].length+0.5:0);const tot=lens.reduce((a,b)=>a+b,0);let acc=0;l.w=ws.map((w,i)=>{const s=l.a+(l.b-l.a)*acc/tot;acc+=lens[i];return{w,s,e:l.a+(l.b-l.a)*acc/tot,sp:!w.trim().length}})});
 const sub=document.getElementById('sub');
+const YEV=[{t:0,v:0.1}];LINES.forEach(l=>{YEV.push({t:l.a-0.1,v:l.s==='R'?0.62:0.1});YEV.push({t:l.b+0.15,v:0.32})});YEV.sort((a,b)=>a.t-b.t);
+function yawAt(t){let i=0;while(i+1<YEV.length&&YEV[i+1].t<=t)i++;const k=YEV[i],p=i>0?YEV[i-1]:YEV[0];return lerp(p.v,k.v,ease3(cl((t-k.t)/0.4)))}
 const E=window.ENV;const envAt=(arr,t)=>{const x=t*E.fps,i=Math.floor(x),f=x-i;return lerp(arr[Math.min(arr.length-1,i)]||0,arr[Math.min(arr.length-1,i+1)]||0,f)};
 const base=seek;
 function drawFace(t,amp){fg.fillStyle='#1E1B2E';fg.fillRect(0,0,512,300);
@@ -137,7 +141,7 @@ window.seek=function(t){
  // human
  const worried=t<3.7,happy=t>25.66;
  const target=spk==='R'?0.62:(act&&act.s==='H'?0.1:0.32);
- head.rotation.y=lerp(head.rotation.y||0,target,0.12);
+ head.rotation.y=yawAt(t);
  head.rotation.x=-0.02+aH*0.05+Math.sin(t*1.1)*0.015+(worried?-0.05:0);head.rotation.z=Math.sin(t*0.8)*0.02+(worried?0.04:0);
  head.position.y=1.31+Math.sin(t*1.6)*0.004;torso.scale.y=1+Math.sin(t*1.7)*0.012;
  const open=Math.min(1,aH*1.25);
@@ -153,10 +157,11 @@ window.seek=function(t){
  const g1=cl(aH*1.6)*(spk==='H'?1:0),wave=Math.sin(t*3.1)*0.03;
  const restL=new THREE.Vector3(-0.72,0.86,0.2),restR=new THREE.Vector3(-0.48,0.86,0.2);
  let tL=restL.clone(),tR=restR.clone();
- if(worried){tL.set(-0.82,1.34,0.12);tR.set(-0.38,1.34,0.12)}
+ if(worried){const w=0.5+0.5*Math.sin(t*5);tL.set(-0.8,1.3+w*0.02,0.14);tR.set(-0.4,1.3+w*0.02,0.14)}
  else{tR.set(lerp(restR.x,-0.3,g1),lerp(restR.y,1.08,g1)+wave*g1,lerp(restR.z,0.3,g1));tL.set(lerp(restL.x,-0.86,g1*0.5),lerp(restL.y,0.98,g1*0.5),lerp(restL.z,0.25,g1*0.5))}
  if(spk==='R'){tL.y+=Math.sin(t*2)*0.004;}
  solve(arms[0],sw(-1),tL);solve(arms[1],sw(1),tR);
+ arms.forEach((a,i)=>{const rest=0.55,open=0.12,curl=worried?0.25:(i===1?lerp(rest,open,g1):rest);a.hand.userData.fingers.forEach((f,j)=>{f.rotation.x=curl+(j%2?0.08:0)+Math.sin(t*1.7+j)*0.02});a.hand.userData.thumb.rotation.x=0.2+curl*0.3});
  R.render(sc,cam);
  if(act){const col=act.s==='H'?'#4D8BFF':'#FF8A3D';let h='<span class="chip" style="background:'+col+'">'+(act.s==='H'?'นัท':'หุ่น AI')+'</span><span class="l">';
   act.w.forEach(x=>{const on=t>=x.s&&t<x.e;h+=x.sp?' ':'<span class="w'+(on?' on':'')+'">'+x.w+'</span>'});h+='</span>';if(sub._h!==h){sub.innerHTML=h;sub._h=h}sub.style.opacity=1}else sub.style.opacity=0;
