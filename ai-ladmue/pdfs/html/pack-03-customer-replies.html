@@ -1,0 +1,23 @@
+<!doctype html><html lang="th"><head><meta charset="utf-8"><title>ให้ AI ร่างคำตอบลูกค้า</title><style>
+@font-face{font-family:P;font-weight:500;src:url(../../video/prompt-thai-500-normal.woff2)}
+@font-face{font-family:P;font-weight:700;src:url(../../video/prompt-thai-700-normal.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(../../video/prompt-thai-800-normal.woff2)}
+@page{size:A4;margin:16mm}*{box-sizing:border-box}
+body{font-family:P,sans-serif;font-weight:500;color:#1B1B2F;font-size:11.5pt;line-height:1.55;margin:0}
+.cover{height:262mm;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:linear-gradient(135deg,#FF8A3D,#FF4D6D);color:#fff;border-radius:18px;page-break-after:always;padding:0 24mm}
+.cover .em{font-size:64pt;line-height:1}.cover img{width:92px;border-radius:24px;margin-bottom:22px}
+.cover h1{font-size:34pt;font-weight:800;margin:14px 0 0;line-height:1.25}.cover p{font-size:15pt;margin:14px 0 0}
+.cover .b{font-weight:700;margin-top:34px;font-size:13pt;opacity:.95}
+h2{font-weight:800;font-size:16pt;color:#FF8A3D;margin:22px 0 6px}
+.intro{background:#F4F4FB;border-radius:14px;padding:14px 18px;margin-bottom:6px}
+.key{display:inline-block;margin-top:8px;font-weight:800;color:#FF8A3D}
+.p{border:2px solid #FF8A3D33;border-radius:14px;padding:10px 16px;margin:9px 0;page-break-inside:avoid}
+.t{font-weight:800;font-size:12pt;color:#FF8A3D}
+code{display:block;margin-top:5px;font-family:P,sans-serif;background:#F6F6FB;border-radius:10px;padding:9px 12px;white-space:pre-wrap}
+.tips{background:#FFF8E1;border-radius:14px;padding:12px 18px;margin-top:18px;page-break-inside:avoid}.tips li{margin:3px 0}
+.foot{text-align:center;margin-top:18px;font-weight:700;font-size:10.5pt}.note{font-size:9.5pt;opacity:.75;text-align:center;margin-top:6px}</style></head><body>
+<div class="cover"><img src="../../avatar.svg"><div class="em">💬</div><h1>ให้ AI ร่างคำตอบลูกค้า</h1><p>คำสั่งตอบแชทลูกค้า 10 สถานการณ์</p><div class="b">AI ลัดมือ · @ailadmue · คลิปที่ 3</div></div>
+<div class="intro">ให้ AI ร่าง แล้วคุณเป็นคนอ่านและกดส่ง ใส่ข้อมูลร้านและนโยบายที่ถูกต้องเสมอ เพราะ AI ไม่รู้นโยบายร้านคุณ<br><span class="key">วางข้อความลูกค้า + บอกนโยบายร้าน + สั่งโทนคำตอบ</span></div><h2>แม่แบบหลัก</h2><div class="p"><div class="t">แม่แบบ</div><code>คุณคือแอดมินร้าน [ประเภทร้าน] ลูกค้าส่งข้อความนี้: “[ข้อความลูกค้า]” นโยบายร้าน: [นโยบาย] เขียนคำตอบสุภาพ ไม่เกิน 3 บรรทัด ไม่สัญญาเกินจริง</code></div><h2>10 สถานการณ์</h2><div class="p"><div class="t">ลูกค้าถามราคา</div><code>ลูกค้าถามราคา [สินค้า] ราคาจริงคือ [ราคา] ตอบสั้นๆ แนะนำสินค้าที่เกี่ยวข้อง 1 อย่างอย่างสุภาพ ไม่ตื๊อ</code></div><div class="p"><div class="t">ลูกค้าต่อราคา</div><code>ลูกค้าขอลดราคา [สินค้า] ร้านลดได้สูงสุด [เปอร์เซ็นต์หรือเงื่อนไข] เขียนตอบแบบเป็นมิตร ไม่เสียความรู้สึก</code></div><div class="p"><div class="t">สินค้าหมด</div><code>สินค้า [ชื่อ] หมดชั่วคราว จะเข้าของวันที่ [วัน] เขียนตอบและเสนอทางเลือก 1 ข้อ</code></div><div class="p"><div class="t">ของมาช้า</div><code>พัสดุลูกค้าล่าช้า สาเหตุ: [สาเหตุ] เขียนข้อความขอโทษที่จริงใจ บอกสถานะล่าสุด และสิ่งที่ร้านจะทำต่อ</code></div><div class="p"><div class="t">ของเสียหาย</div><code>ลูกค้าได้รับสินค้าเสียหาย นโยบายร้านคือ [นโยบาย] ขอรูปหลักฐาน และบอกขั้นตอนที่ชัดเจน</code></div><div class="p"><div class="t">ขอคืนเงิน</div><code>ลูกค้าขอคืนเงิน นโยบายคือ [นโยบาย] ตอบอย่างสุภาพ อธิบายเงื่อนไขตรงๆ ไม่อ้อมค้อม</code></div><div class="p"><div class="t">ถามโปรโมชัน</div><code>ลูกค้าถามโปรโมชัน ตอนนี้ร้านมี: [โปรโมชัน] สรุปเป็นข้อสั้นๆ พร้อมวันสิ้นสุด</code></div><div class="p"><div class="t">หลังซื้อ ขอรีวิว</div><code>ลูกค้าเพิ่งได้รับสินค้า เขียนข้อความขอบคุณและขอรีวิวแบบไม่กดดัน ไม่เกิน 3 บรรทัด</code></div><div class="p"><div class="t">ลูกค้าหงุดหงิดมาก</div><code>ลูกค้าส่งข้อความโกรธ: “[ข้อความ]” ตอบด้วยการรับฟัง ขอโทษในสิ่งที่ร้านพลาดจริง และเสนอทางแก้ 2 ทาง ห้ามโทษลูกค้า</code></div><div class="p"><div class="t">ตามลูกค้าที่หายไป</div><code>ลูกค้าถามราคาไว้เมื่อ [กี่วัน] แล้วเงียบไป เขียนข้อความตามแบบสุภาพ ไม่รบกวน ถามว่ามีอะไรให้ช่วยเพิ่มไหม</code></div>
+<div class="tips"><b>ข้อควรจำ</b><ul><li>อย่าใส่ชื่อ เบอร์โทร หรือที่อยู่จริงของลูกค้าลงใน AI ให้ตัดออกหรือใช้ [ชื่อลูกค้า] แทน</li><li>ตรวจนโยบายและราคาทุกครั้งก่อนกดส่ง</li><li>เก็บคำตอบที่ชอบไว้เป็นข้อความสำเร็จรูปของร้าน</li></ul></div>
+<p class="foot">ติดตาม @ailadmue เพื่อเทคนิค AI สั้นๆ ใช้ได้จริงทุกวัน ✨</p>
+<p class="note">ผลลัพธ์จาก AI เป็นร่างแรก ตรวจสอบก่อนนำไปใช้เสมอ</p></body></html>

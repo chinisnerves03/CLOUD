@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="th"><head><meta charset="UTF-8"/><meta name="viewport" content="width=1080, height=1920"/><title>Kinetic</title>
+<script src="assets/gsap.min.js"></script><style>
+@font-face{font-family:P;font-weight:700;src:url(assets/prompt-thai-700-normal.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(assets/prompt-thai-800-normal.woff2)}
+*{box-sizing:border-box;margin:0}
+body{margin:0;background:#000;font-family:P,sans-serif}
+#root{position:relative;width:1080px;height:1920px;overflow:hidden;background:#000}
+.sc{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden}
+.bg{position:absolute;inset:0}
+.ab{position:absolute}
+
+.ink{position:absolute;inset:0}
+.big{position:absolute;left:0;right:0;text-align:center;font-weight:800;line-height:1.05}
+.big.y{color:#ffd23f}.big.w{background:#111;color:#ffd23f;display:block;margin:0 60px;left:0;right:0;border-radius:30px}
+.num{position:absolute;left:0;right:0;top:150px;text-align:center;font-weight:800;font-size:650px;line-height:1}
+.kw{position:absolute;left:100px;right:100px;top:760px;text-align:center;font-weight:800;font-size:200px;background:#ffd23f;color:#111;border-radius:40px;padding:10px 0}
+.hdl{position:absolute;left:0;right:0;top:1780px;text-align:center;font-weight:700;font-size:44px;opacity:.7}
+</style></head>
+<body><div id="root" data-composition-id="main" data-width="1080" data-height="1920" data-duration="14.3">
+<section id="sc-k0" class="clip sc" data-start="0" data-duration="1.25" data-track-index="1"><div class="bg" style="background:#ff2d55"></div><div class="ink" style="color:#fff"><div class="big c" id="k0-a" style="top:520px;font-size:300px">AI</div><div class="big c" id="k0-b" style="top:860px;font-size:250px">ตอบมั่ว?</div></div><div class="hdl" style="color:#fff">@ailadmue</div></section>
+<section id="sc-k1" class="clip sc" data-start="1.25" data-duration="1.6" data-track-index="1"><div class="bg" style="background:#111"></div><div class="ink" style="color:#fff"><div class="big c" id="k1-a" style="top:600px;font-size:200px">ลองสั่ง</div><div class="big c y" id="k1-b" style="top:880px;font-size:230px">3 ประโยค</div></div><div class="hdl" style="color:#fff">@ailadmue</div></section>
+<section id="sc-k2" class="clip sc" data-start="2.85" data-duration="2.9" data-track-index="1"><div class="bg" style="background:#ffd23f"></div><div class="ink" style="color:#111"><div class="num" id="k2-n">1</div><div class="big c" id="k2-a" style="top:900px;font-size:150px">ถ้าไม่แน่ใจ</div><div class="big c" id="k2-b" style="top:1090px;font-size:130px">ให้บอกว่า</div><div class="big c w" id="k2-c" style="top:1260px;font-size:170px">“ไม่แน่ใจ”</div></div><div class="hdl" style="color:#111">@ailadmue</div></section>
+<section id="sc-k3" class="clip sc" data-start="5.75" data-duration="2.55" data-track-index="1"><div class="bg" style="background:#4ad2ff"></div><div class="ink" style="color:#111"><div class="num" id="k3-n">2</div><div class="big c" id="k3-a" style="top:900px;font-size:170px">ใช้เฉพาะ</div><div class="big c" id="k3-b" style="top:1090px;font-size:170px">ข้อมูลที่</div><div class="big c w" id="k3-c" style="top:1280px;font-size:200px">ฉันให้</div></div><div class="hdl" style="color:#111">@ailadmue</div></section>
+<section id="sc-k4" class="clip sc" data-start="8.3" data-duration="2.45" data-track-index="1"><div class="bg" style="background:#9dff7a"></div><div class="ink" style="color:#111"><div class="num" id="k4-n">3</div><div class="big c" id="k4-a" style="top:900px;font-size:170px">ก่อนตอบ</div><div class="big c" id="k4-b" style="top:1090px;font-size:170px">ตรวจซ้ำ</div><div class="big c w" id="k4-c" style="top:1280px;font-size:200px">อีกรอบ</div></div><div class="hdl" style="color:#111">@ailadmue</div></section>
+<section id="sc-k5" class="clip sc" data-start="10.75" data-duration="0.9" data-track-index="1"><div class="bg" style="background:#ff2d55"></div><div class="ink" style="color:#fff"><div class="big c" id="k5-a" style="top:780px;font-size:300px">เซฟไว้!</div></div><div class="hdl" style="color:#fff">@ailadmue</div></section>
+<section id="sc-k6" class="clip sc" data-start="11.65" data-duration="2.65" data-track-index="1"><div class="bg" style="background:#111"></div><div class="ink" style="color:#fff"><div class="big c" id="k6-a" style="top:560px;font-size:140px">คอมเมนต์คำว่า</div><div class="kw" id="k6-b">prompt</div><div class="big c y" id="k6-c" style="top:1180px;font-size:110px">รับชุดคำสั่งฟรี</div></div><div class="hdl" style="color:#fff">@ailadmue</div></section>
+<audio id="v" src="assets/v.mp3" data-start="0.05" data-duration="13.93" data-track-index="10" data-volume="1"></audio>
+<audio id="bgm" src="assets/bgm.wav" data-start="0" data-duration="14.3" data-track-index="30" data-volume="0.4"></audio>
+<audio id="sfx" src="assets/sfx.wav" data-start="0" data-duration="14.3" data-track-index="31" data-volume="1"></audio>
+</div>
+<script>
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+tl.to("#k0-a,#k0-b",{x:12,duration:0.05,yoyo:true,repeat:21,ease:"none"},0.0);
+tl.from("#k1-a",{scale:2.4,opacity:0,duration:0.28,ease:"power4.out",transformOrigin:"50% 50%"},1.27);
+tl.from("#k1-b",{scale:2.4,opacity:0,duration:0.28,ease:"power4.out",transformOrigin:"50% 50%"},1.75);
+tl.from("#k2-n",{scale:0.2,opacity:0,rotation:-10,duration:0.35,ease:"back.out(2)",transformOrigin:"50% 50%"},2.87);
+tl.from("#k3-n",{scale:0.2,opacity:0,rotation:-10,duration:0.35,ease:"back.out(2)",transformOrigin:"50% 50%"},5.77);
+tl.from("#k4-n",{scale:0.2,opacity:0,rotation:-10,duration:0.35,ease:"back.out(2)",transformOrigin:"50% 50%"},8.32);
+tl.from("#k2-a",{scale:2.4,opacity:0,duration:0.28,ease:"power4.out",transformOrigin:"50% 50%"},3.45);
+tl.from("#k2-b",{scale:2.4,opacity:0,duration:0.28,ease:"power4.out",transformOrigin:"50% 50%"},4.10);
+tl.from("#k2-c",{scale:2.4,opacity:0,duration:0.28,ease:"power4.out",transformOrigin:"50% 50%"},4.60);
+tl.from("#k3-a",{scale:2.4,opacity:0,duration:0.28,ease:"power4.out",transformOrigin:"50% 50%"},6.45);
+tl.from("#k3-b",{scale:2.4,opacity:0,duration:0.28,ease:"power4.out",transformOrigin:"50% 50%"},6.95);
+tl.from("#k3-c",{scale:2.4,opacity:0,duration:0.28,ease:"power4.out",transformOrigin:"50% 50%"},7.35);
+tl.from("#k4-a",{scale:2.4,opacity:0,duration:0.28,ease:"power4.out",transformOrigin:"50% 50%"},8.95);
+tl.from("#k4-b",{scale:2.4,opacity:0,duration:0.28,ease:"power4.out",transformOrigin:"50% 50%"},9.55);
+tl.from("#k4-c",{scale:2.4,opacity:0,duration:0.28,ease:"power4.out",transformOrigin:"50% 50%"},10.05);
+tl.from("#k5-a",{scale:2.4,opacity:0,duration:0.3,ease:"power4.out",transformOrigin:"50% 50%"},10.77);
+tl.from("#k6-a",{scale:2.4,opacity:0,duration:0.28,ease:"power4.out",transformOrigin:"50% 50%"},11.67);
+tl.from("#k6-b",{scale:2.4,opacity:0,duration:0.28,ease:"power4.out",transformOrigin:"50% 50%"},12.60);
+tl.from("#k6-c",{scale:2.4,opacity:0,duration:0.28,ease:"power4.out",transformOrigin:"50% 50%"},13.20);
+tl.to("#k5-a",{scale:1.08,duration:0.2,yoyo:true,repeat:3,ease:"sine.inOut"},11.05);
+window.__timelines["main"] = tl;
+</script></body></html>
