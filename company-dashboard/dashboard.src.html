@@ -89,7 +89,7 @@ const AGENTS = /*__AGENTS__*/;
 const REPO_URL = 'https://github.com/chinisnerves03/CLOUD';
 const COLLS = ['tasks', 'clips', 'ideas', 'research', 'log'];
 const S = { tasks: [], clips: [], ideas: [], research: [], log: [], owner: false, dbOk: false, tab: 'overview', sending: false, scout: { busy: false, msg: '' } };
-let DB = null, MCP = null, SAMPLE = null, USER = null;
+let DB = null, MCP = null, USER = null;
 
 function el(tag, attrs, ...kids) {
   const n = document.createElement(tag);
@@ -287,8 +287,8 @@ document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('cl
 async function boot() {
   render();
   if (!window.claude || !window.claude.use) { document.getElementById('who').textContent = 'เปิดนอกแอป'; return; }
-  const [db, user, mcp, sample] = await Promise.all([claude.use('db'), claude.use('user'), claude.use('mcp'), claude.use('sample')]);
-  DB = db; USER = user; MCP = mcp; SAMPLE = sample;
+  const [db, user, mcp] = await Promise.all([claude.use('db'), claude.use('user'), claude.use('mcp')]);
+  DB = db; USER = user; MCP = mcp;
   S.owner = user ? await user.isOwner() : false;
   document.getElementById('who').textContent = !DB ? 'ออฟไลน์' : S.owner ? 'เจ้าของ' : 'ดูอย่างเดียว';
   if (!DB) return render();
