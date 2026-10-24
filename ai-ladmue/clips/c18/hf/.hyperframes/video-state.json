@@ -1,0 +1,204 @@
+{
+  "version": 1,
+  "historyId": "caeb4638-6070-48ae-b47c-56f3b81ffa9b",
+  "currentRevision": "c95a2a36-e844-46c2-b12c-75c6d490beca",
+  "pendingChanges": false,
+  "files": {
+    "assets/a.mp3": {
+      "hash": "76ee32c03c115c32e05d5a189f9bf729f9f1427fd963f7b732b52971cb5620df",
+      "content": "/root/.cache/hyperframes/history/caeb4638-6070-48ae-b47c-56f3b81ffa9b/blobs/76/76ee32c03c115c32e05d5a189f9bf729f9f1427fd963f7b732b52971cb5620df"
+    },
+    "assets/b.mp3": {
+      "hash": "284e10c75310de26190ef3752581f648acd4dbaf2c701d493431b5f654637f5e",
+      "content": "/root/.cache/hyperframes/history/caeb4638-6070-48ae-b47c-56f3b81ffa9b/blobs/28/284e10c75310de26190ef3752581f648acd4dbaf2c701d493431b5f654637f5e"
+    },
+    "assets/c.mp3": {
+      "hash": "5c23892ce501cfebf86909881446b1469f87001a99aedb9a58232b1231daa291",
+      "content": "/root/.cache/hyperframes/history/caeb4638-6070-48ae-b47c-56f3b81ffa9b/blobs/5c/5c23892ce501cfebf86909881446b1469f87001a99aedb9a58232b1231daa291"
+    },
+    "assets/d.mp3": {
+      "hash": "3cc7b413cee4ab2dc30bc22eb8a1c2d7affbc40d3e9163d66935be50b3596628",
+      "content": "/root/.cache/hyperframes/history/caeb4638-6070-48ae-b47c-56f3b81ffa9b/blobs/3c/3cc7b413cee4ab2dc30bc22eb8a1c2d7affbc40d3e9163d66935be50b3596628"
+    },
+    "assets/e.mp3": {
+      "hash": "e784da4407ae94964faa6e5511a242b02a75eec4963b9bdf75ce6ad45e0c2547",
+      "content": "/root/.cache/hyperframes/history/caeb4638-6070-48ae-b47c-56f3b81ffa9b/blobs/e7/e784da4407ae94964faa6e5511a242b02a75eec4963b9bdf75ce6ad45e0c2547"
+    },
+    "assets/ehook.mp3": {
+      "hash": "73affa5f6e9a0830a9948eacc833554b62a6af0e6abf078501275bb89eca536b",
+      "content": "/root/.cache/hyperframes/history/caeb4638-6070-48ae-b47c-56f3b81ffa9b/blobs/73/73affa5f6e9a0830a9948eacc833554b62a6af0e6abf078501275bb89eca536b"
+    },
+    "assets/f.mp3": {
+      "hash": "989fb815f747822cc83a0f22e181730becebe85ac18293d3b77754ec40f4df87",
+      "content": "/root/.cache/hyperframes/history/caeb4638-6070-48ae-b47c-56f3b81ffa9b/blobs/98/989fb815f747822cc83a0f22e181730becebe85ac18293d3b77754ec40f4df87"
+    },
+    "assets/gsap.min.js": {
+      "hash": "28033e449a31ebcc396e5be8b13b63152bf03094288fb5867034321927bce087",
+      "content": "/root/.cache/hyperframes/history/caeb4638-6070-48ae-b47c-56f3b81ffa9b/blobs/28/28033e449a31ebcc396e5be8b13b63152bf03094288fb5867034321927bce087"
+    },
+    "assets/prompt-thai-700-normal.woff2": {
+      "hash": "6709b0361745936ff7ec5b75bb63c4d67deb04669fbf40285e39e3421a0ab510",
+      "content": "/root/.cache/hyperframes/history/caeb4638-6070-48ae-b47c-56f3b81ffa9b/blobs/67/6709b0361745936ff7ec5b75bb63c4d67deb04669fbf40285e39e3421a0ab510"
+    },
+    "assets/prompt-thai-800-normal.woff2": {
+      "hash": "627142bc821b23bf63181cedf546d3d127516d73545f110734cfd87f6a584f74",
+      "content": "/root/.cache/hyperframes/history/caeb4638-6070-48ae-b47c-56f3b81ffa9b/blobs/62/627142bc821b23bf63181cedf546d3d127516d73545f110734cfd87f6a584f74"
+    },
+    "index.html": {
+      "hash": "1e70713a264c37c2e1395b466fed752ed511133a96eedce46da21613da554608",
+      "content": "/root/.cache/hyperframes/history/caeb4638-6070-48ae-b47c-56f3b81ffa9b/blobs/1e/1e70713a264c37c2e1395b466fed752ed511133a96eedce46da21613da554608"
+    },
+    "assets/bgm.wav": {
+      "hash": "ea287ad37147c37f3c65a743483646192fe630eb48bfd7a50fb3aacac8cb1299",
+      "content": "/root/.cache/hyperframes/history/caeb4638-6070-48ae-b47c-56f3b81ffa9b/blobs/ea/ea287ad37147c37f3c65a743483646192fe630eb48bfd7a50fb3aacac8cb1299"
+    },
+    "assets/sfx.wav": {
+      "hash": "5322dd453c467eb7501604010380738d25574c96ac34da1dc9a9662fb2035954",
+      "content": "/root/.cache/hyperframes/history/caeb4638-6070-48ae-b47c-56f3b81ffa9b/blobs/53/5322dd453c467eb7501604010380738d25574c96ac34da1dc9a9662fb2035954"
+    }
+  },
+  "revisions": {
+    "c95a2a36-e844-46c2-b12c-75c6d490beca": {
+      "actor": {
+        "kind": "outside",
+        "name": "Outside"
+      },
+      "label": "Changed outside the app",
+      "startedAt": 1792841284864,
+      "endedAt": 1792841284878,
+      "files": {
+        "index.html": {
+          "before": "/root/.cache/hyperframes/history/caeb4638-6070-48ae-b47c-56f3b81ffa9b/blobs/a8/a8e01a040d69103cbb682a03b66ff9facb9378459a8a15b6ad7d256bc82cbd11",
+          "after": "/root/.cache/hyperframes/history/caeb4638-6070-48ae-b47c-56f3b81ffa9b/blobs/1e/1e70713a264c37c2e1395b466fed752ed511133a96eedce46da21613da554608"
+        }
+      }
+    }
+  },
+  "checks": {
+    "latest": null,
+    "revisions": {},
+    "unversioned": []
+  },
+  "snapshots": {
+    "latest": {
+      "revision": null,
+      "id": "0eae1140-b5d6-460e-8bc1-7d630f80011a-4"
+    },
+    "revisions": {},
+    "unversioned": [
+      {
+        "scope": "full",
+        "id": "0eae1140-b5d6-460e-8bc1-7d630f80011a-0",
+        "image": "/tmp/snap18/frame-00-at-0.4s.png",
+        "time": 0.4,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792841273771,
+        "contentHash": "1bedbe2bfea05d1ca0e3f5b99f346aa4e4561da245beb71b368ef1775bf5a8e0",
+        "revision": null,
+        "inputFingerprint": "98a155f2be6bb456381ed92d1e3aa03ce99e1b09c29d88bbd14ce92e6ec98829",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      },
+      {
+        "scope": "full",
+        "id": "0eae1140-b5d6-460e-8bc1-7d630f80011a-1",
+        "image": "/tmp/snap18/frame-01-at-2.7s.png",
+        "time": 2.7,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792841273771,
+        "contentHash": "326f22c32294f800419c2e126eadfeab522b8031ee4d3c2e26b137469355f028",
+        "revision": null,
+        "inputFingerprint": "98a155f2be6bb456381ed92d1e3aa03ce99e1b09c29d88bbd14ce92e6ec98829",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      },
+      {
+        "scope": "full",
+        "id": "0eae1140-b5d6-460e-8bc1-7d630f80011a-2",
+        "image": "/tmp/snap18/frame-02-at-5s.png",
+        "time": 5,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792841273771,
+        "contentHash": "990e23a97b2cd3f4f8f9460bf47a3b991b7049e81c523410610dcc972b73d48f",
+        "revision": null,
+        "inputFingerprint": "98a155f2be6bb456381ed92d1e3aa03ce99e1b09c29d88bbd14ce92e6ec98829",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      },
+      {
+        "scope": "full",
+        "id": "0eae1140-b5d6-460e-8bc1-7d630f80011a-3",
+        "image": "/tmp/snap18/frame-03-at-9s.png",
+        "time": 9,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792841273771,
+        "contentHash": "e8f4baa273dbacd88e5cc703f0e1619c0e192a37305f9ef150c8614e618a5c1d",
+        "revision": null,
+        "inputFingerprint": "98a155f2be6bb456381ed92d1e3aa03ce99e1b09c29d88bbd14ce92e6ec98829",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      },
+      {
+        "scope": "full",
+        "id": "0eae1140-b5d6-460e-8bc1-7d630f80011a-4",
+        "image": "/tmp/snap18/frame-04-at-18s.png",
+        "time": 18,
+        "metadata": {
+          "width": 1080,
+          "height": 1920,
+          "zoomScale": 1,
+          "browserGpuMode": "auto",
+          "warnings": [],
+          "partial": false
+        },
+        "createdAt": 1792841273771,
+        "contentHash": "16f121484f25502d5d9ca909dd24934a6aa524e436229dc827ac13cd9f414520",
+        "revision": null,
+        "inputFingerprint": "98a155f2be6bb456381ed92d1e3aa03ce99e1b09c29d88bbd14ce92e6ec98829",
+        "inputScope": "local-project-files",
+        "attribution": "unversioned"
+      }
+    ]
+  },
+  "renders": {
+    "latest": {
+      "id": "1a535964-a5ba-4705-87c0-d8a66d721fe8",
+      "completedAt": 1792841396560,
+      "output": "/home/user/CLOUD/ai-ladmue/clip17_v2_coldopen.mp4",
+      "status": "completed",
+      "revision": "c95a2a36-e844-46c2-b12c-75c6d490beca"
+    },
+    "retainedRevisions": [
+      "c95a2a36-e844-46c2-b12c-75c6d490beca"
+    ]
+  },
+  "pendingArtifactCleanup": []
+}
