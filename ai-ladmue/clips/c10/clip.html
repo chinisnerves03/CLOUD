@@ -1,0 +1,41 @@
+<!doctype html><html lang="th"><head><meta charset="utf-8"><title>AI ลัดมือ</title><style>
+@font-face{font-family:P;font-weight:500;src:url(../../video/prompt-thai-500-normal.woff2)}
+@font-face{font-family:P;font-weight:700;src:url(../../video/prompt-thai-700-normal.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(../../video/prompt-thai-800-normal.woff2)}
+*{box-sizing:border-box;margin:0}html,body{width:1080px;height:1920px;overflow:hidden;font-family:P,sans-serif}
+.s{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;opacity:0}
+.brand{position:absolute;top:70px;left:80px;display:flex;align-items:center;gap:20px;font-weight:700;font-size:40px;z-index:9}
+.brand img{width:76px;height:76px;border-radius:20px}
+.bar{position:absolute;left:0;bottom:0;height:14px;z-index:9;width:0}
+body{background:#10111F;color:#fff}
+.brand{color:#fff}.bar{background:linear-gradient(90deg,#FF8A3D,#FF4D6D)}
+.half{position:absolute;left:0;right:0;height:960px;padding:150px 80px 120px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.top{top:0;background:#2A2B3A}.bot{top:960px;background:linear-gradient(160deg,#3A1F6B,#FF4D6D)}
+.lab{font-weight:800;font-size:54px;padding:8px 36px;border-radius:999px;margin-bottom:30px}
+.card{width:100%;background:#fff;color:#1B1B2F;border-radius:40px;padding:50px;font-size:62px;font-weight:700;line-height:1.5}
+.dull{opacity:.8}
+.pill{position:absolute;left:60px;right:60px;top:830px;z-index:6;background:#FFD23F;color:#1B1B2F;border-radius:999px;padding:28px 44px;font-size:48px;font-weight:700;text-align:center;box-shadow:0 12px 40px #0008}
+.mid{font-weight:700;font-size:74px;line-height:1.4}
+.cta{font-weight:800;font-size:150px;background:linear-gradient(90deg,#FF8A3D,#FF4D6D);padding:20px 70px;border-radius:60px;color:#fff;display:inline-block}
+.hl{color:#FFD23F}
+</style></head><body>
+<div class="brand"><img src="../../avatar.svg">AI ลัดมือ</div>
+<div class="s" data-a="0" data-b="19.7" data-k="cut" style="display:block">
+ <div class="half top"><div class="lab" style="background:#FF4D6D55;color:#FF9AB0" data-a="0.2">❌ ก่อน</div>
+  <div class="card dull" data-a="3.0" data-k="pop">สินค้าดี ราคาถูก ซื้อเลย</div>
+  <div class="mid" style="margin-top:36px;opacity:.9" data-a="1.0">ไม่มีใครอยากอ่าน 🥱</div></div>
+ <div class="half bot"><div class="lab" style="background:#4ADE8033;color:#7CFFB0" data-a="11.3">✅ หลัง</div>
+  <div class="card" data-a="11.4" data-k="wipe" data-d="0.8" style="text-align:left">
+   <span data-a="13.0" style="display:block" class="hl" data-k="slide" ><b style="color:#FF4D6D">กาแฟเย็นสูตรเข้ม</b></span>
+   <span data-a="14.6" style="display:block" data-k="slide">หอมคั่วใหม่</span>
+   <span data-a="15.8" style="display:block" data-k="slide">ชื่นใจตั้งแต่จิบแรก</span>
+   <span data-a="17.2" style="display:block" data-k="slide"><b style="color:#7C5CFF">ใครเช้านี้ยังง่วงอยู่ ยกมือขึ้น 🙋</b></span></div></div>
+ <div class="pill" data-a="5.9" data-k="pop">AI ➜ <span data-type="7.4,10.8">ปรับเป็นโพสต์ขายกาแฟเย็น ให้เห็นภาพ มีคำถามชวนคุย</span></div>
+</div>
+<div class="s" data-a="19.7" data-b="99" data-k="cut" style="background:#10111F">
+ <div class="mid">อยากได้คำสั่งฟรี</div>
+ <div class="mid" style="margin:40px 0 30px" data-a="20.3">คอมเมนต์คำว่า</div>
+ <div class="cta" data-a="20.7" data-k="pop">prompt</div>
+</div>
+<div class="bar" id="bar"></div>
+<script>const DUR=22.28;</script><script src="../lib.js"></script><script>seek(0)</script></body></html>

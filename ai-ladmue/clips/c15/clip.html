@@ -1,0 +1,162 @@
+<!doctype html><html lang="th"><head><meta charset="utf-8"><title>AI ลัดมือ</title><style>
+@font-face{font-family:P;font-weight:700;src:url(../../video/prompt-thai-700-normal.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(../../video/prompt-thai-800-normal.woff2)}
+*{box-sizing:border-box;margin:0}html,body{width:1080px;height:1920px;overflow:hidden;font-family:P,sans-serif;background:#120a2e}
+#cvw{position:absolute;inset:0}
+canvas{position:absolute;left:0;top:0;width:1080px;height:1920px;image-rendering:pixelated}
+#scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 2px,transparent 2px 4px);z-index:50}
+#vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55));z-index:51}
+.px{position:absolute;font-weight:800;color:#fff;border:8px solid #000;box-shadow:8px 8px 0 #000;z-index:20;line-height:1.2;text-align:center}
+.name{top:92px;font-size:46px;padding:2px 22px;background:#c1121f}
+.name.g{background:#1d9a8f}
+.sub{position:absolute;left:60px;right:60px;top:1560px;text-align:center;z-index:30}
+.sub .l{display:inline-block;background:#000c;border:6px solid #fff;padding:12px 26px;font-weight:800;font-size:58px;line-height:1.3;color:#fff;box-shadow:8px 8px 0 #000}
+.sub .l b{color:#ffd23f}
+.chip{top:1425px;width:236px;font-size:42px;padding:12px 4px;color:#000}
+.bubble{left:60px;top:560px;width:600px;font-size:54px;padding:22px 26px;background:#fff;color:#000}
+.bubble:after{content:"";position:absolute;left:90px;bottom:-60px;border:30px solid transparent;border-top:40px solid #000}
+.weak{right:50px;top:560px;width:560px;font-size:54px;padding:20px 24px;background:#ffd23f;color:#000}
+.big{left:50px;right:50px;top:430px;font-size:92px;padding:24px 20px;background:#ffd23f;color:#000}
+.cta{left:50px;right:50px;top:420px;font-size:84px;padding:30px 20px;background:#ff3d81}
+.cta small{display:block;font-size:50px;font-weight:700;margin-top:10px;color:#fff}
+.cta .kw{display:inline-block;background:#fff;color:#000;border:8px solid #000;padding:0 28px;margin:10px 0;font-size:110px}
+.foot{position:absolute;left:0;right:0;top:1830px;text-align:center;font-size:30px;font-weight:700;color:#ffffffb0;z-index:30}
+.hook{left:50px;right:50px;top:200px;font-size:60px;padding:16px 20px;background:#6a2cff}
+</style></head><body>
+<div id="cvw"><canvas id="cv" width="270" height="480"></canvas></div>
+<div class="px name" style="left:40px" data-a="1.4" data-k="pop" data-d="0.25">คำสั่งห่วย</div>
+<div class="px name g" style="right:40px" data-a="3.3" data-k="pop" data-d="0.25">คำสั่งดี</div>
+<div class="px hook" data-a="0.3" data-b="2.5" data-k="cut">ถ้าสั่ง AI สั้นๆ vs สั่งครบ คำตอบต่างกันแค่ไหน?</div>
+
+<div class="px bubble" data-a="7.3" data-b="9.1" data-k="pop" data-d="0.25">"ช่วยเขียนโพสต์ขายของหน่อย"</div>
+<div class="px weak" data-a="9.3" data-b="12.0" data-k="pop" data-d="0.25">ได้คำตอบกลางๆ<br>ดาเมจน้อยนิด</div>
+
+<div class="px chip" style="left:44px;background:#ff9e4a" data-a="13.83" data-k="pop" data-d="0.2">1 บทบาท</div>
+<div class="px chip" style="left:292px;background:#4ad2ff" data-a="15.47" data-k="pop" data-d="0.2">2 บริบท</div>
+<div class="px chip" style="left:540px;background:#ffd23f" data-a="17.18" data-k="pop" data-d="0.2">3 รูปแบบ</div>
+<div class="px chip" style="left:788px;background:#7dff7a" data-a="18.91" data-k="pop" data-d="0.2">4 ตรวจงาน</div>
+
+<div class="px big" data-a="21.84" data-b="24.0" data-k="pop" data-d="0.25">คำสั่งที่บอกครบ<br>ชนะ!</div>
+<div class="px big" style="background:#7dff7a" data-a="24.0" data-b="26.0" data-k="pop" data-d="0.25">เซฟไว้ก่อน<br>สั่งงานครั้งหน้า</div>
+<div class="px cta" data-a="26.06" data-k="pop" data-d="0.3">คอมเมนต์คำว่า<br><span class="kw">prompt</span><small>รับชุดคำสั่งฟรี</small></div>
+
+<div class="sub" id="sub"></div>
+<div class="foot">@ailadmue · แถบพลังและตัวเลขในเกมเป็นภาพประกอบ</div>
+<div id="scan"></div><div id="vig"></div>
+<script>const DUR=29.4;</script>
+<script src="../lib.js"></script>
+<script>
+const SUBS=[[0.3,1.0,'ยกที่หนึ่ง!'],[1.47,2.34,'คำสั่งห่วย'],[2.6,2.96,'ปะทะ'],[3.42,5.05,'คำสั่งดี! สู้!'],
+[5.4,6.91,'คำสั่งห่วยโจมตี!'],[7.34,8.84,'"ช่วยเขียนโพสต์ขายของหน่อย"!'],[9.23,11.58,'ได้คำตอบกลางๆ ดาเมจน้อยนิด!'],[12.12,13.46,'คำสั่งดีสวนกลับ!'],
+[13.83,15.12,'บล็อกหนึ่ง <b>บทบาท</b>!'],[15.47,16.83,'บล็อกสอง <b>บริบท</b>!'],[17.18,18.54,'บล็อกสาม <b>รูปแบบ</b>!'],[18.91,20.55,'บล็อกสี่ <b>ตรวจงาน</b>!'],
+[20.9,21.45,'เคโอ!'],[21.84,23.55,'คำสั่งที่บอกครบ ชนะ!'],[24.0,25.67,'เซฟไว้ก่อนสั่งงานครั้งหน้า'],[26.06,28.79,'คอมเมนต์คำว่า <b>prompt</b> รับชุดคำสั่งฟรี']];
+const subEl=document.getElementById('sub');
+const cv=document.getElementById('cv'),g=cv.getContext('2d');
+const cl=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const E=x=>ease(cl(x));
+const R=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))};
+const GL={V:['X...X','X...X','X...X','.X.X.','..X..'],S:['.XXXX','X....','.XXX.','....X','XXXX.'],F:['XXXXX','X....','XXXX.','X....','X....'],I:['XXXXX','..X..','..X..','..X..','XXXXX'],G:['.XXXX','X....','X..XX','X...X','.XXX.'],H:['X...X','X...X','XXXXX','X...X','X...X'],T:['XXXXX','..X..','..X..','..X..','..X..'],'!':['..X..','..X..','..X..','.....','..X..'],K:['X...X','X..X.','XXX..','X..X.','X...X'],O:['.XXX.','X...X','X...X','X...X','.XXX.'],'.':['.....','.....','.....','.....','..X..'],R:['XXXX.','X...X','XXXX.','X..X.','X...X'],U:['X...X','X...X','X...X','X...X','.XXX.'],N:['X...X','XX..X','X.X.X','X..XX','X...X'],D:['XXXX.','X...X','X...X','X...X','XXXX.'],P:['XXXX.','X...X','XXXX.','X....','X....'],A:['.XXX.','X...X','XXXXX','X...X','X...X'],'?':['.XXX.','X...X','..XX.','.....','..X..'],'-':['.....','.....','XXXXX','.....','.....'],'0':['.XXX.','X..XX','X.X.X','XX..X','.XXX.'],'1':['..X..','.XX..','..X..','..X..','.XXX.'],'2':['.XXX.','X...X','..XX.','.X...','XXXXX'],'3':['XXXX.','....X','.XXX.','....X','XXXX.'],'5':['XXXXX','X....','XXXX.','....X','XXXX.'],'9':['.XXX.','X...X','.XXXX','....X','.XXX.'],' ':['.....','.....','.....','.....','.....']};
+function pxW(s,k){return (s.length*6-1)*k}
+function pxText(s,cx,y,k,col,sh){const w=pxW(s,k);let x=Math.round(cx-w/2);
+  for(const ch of s){const gl=GL[ch];if(gl){for(let r=0;r<5;r++)for(let c=0;c<5;c++)if(gl[r][c]==='X'){if(sh)R(x+c*k+Math.max(1,k/3),y+r*k+Math.max(1,k/3),k,k,sh);}
+    for(let r=0;r<5;r++)for(let c=0;c<5;c++)if(gl[r][c]==='X')R(x+c*k,y+r*k,k,k,col)}x+=6*k}}
+const hash=n=>{const s=Math.sin(n*127.1)*43758.5453;return s-Math.floor(s)};
+const SKY=['#120a2e','#1c0f45','#2b1466','#4a1a7a','#7a2a8c','#b0389a','#e04a8a','#ff7a7a','#ffb36b'];
+function bg(t){
+  for(let i=0;i<SKY.length;i++){R(0,i*28,270,28,SKY[i]);if(i>0){for(let x=0;x<270;x+=4){R(x,i*28,2,2,SKY[i-1]);R(x+2,i*28+2,2,2,SKY[i-1])}}}
+  for(let i=0;i<34;i++){const x=hash(i)*270,y=hash(i+50)*130;if(((Math.floor(t*3)+i)%6)!==0)R(x,y,2,2,'#fff')}
+  const cx=135,hy=250;for(let dy=-46;dy<=0;dy++){const w=Math.sqrt(46*46-dy*dy);const yy=hy+dy;if(dy>-26&&((-dy)%6<2))continue;R(cx-w,yy,w*2,1,dy<-24?'#ffd23f':'#ff9e4a')}
+  for(let i=0;i<14;i++){const x=i*20-4,h=30+hash(i+9)*60;R(x,hy-h,18,h,'#1a1033');for(let r=0;r<6;r++)for(let c=0;c<3;c++)if(hash(i*20+r*3+c+Math.floor(t*0.6))>0.55)R(x+2+c*5,hy-h+4+r*9,3,4,'#ffd23f')}
+  R(0,hy,270,230,'#2a1650');
+  for(let j=0;j<12;j++){const p=((j+((t*0.6)%1))/12);const y=hy+p*p*230;R(0,y,270,1,'#ff4fa3')}
+  for(let i=-14;i<=14;i++){for(let y=hy;y<480;y+=1){const u=(y-hy)/230;R(135+i*(4+u*34),y,1,1,'#7b3fe4')}}
+}
+const OUT='#0a0a14';
+function part(x,y,w,h,c,fl){R(x-1,y-1,w+2,h+2,OUT);R(x,y,w,h,fl?'#fff':c)}
+function robot(o){
+  const {x,y,pal,dir,face,arm,fl}=o;const bob=o.bob||0;const Y=y+bob;
+  // scarf for the hero
+  if(pal.scarf){const f=Math.sin(o.t*9)*2;part(x-dir*16-(dir>0?10:0),Y-38+f,10,6,pal.scarf,fl);part(x-dir*24-(dir>0?10:0),Y-36-f,10,5,pal.scarf,fl)}
+  part(x-12,Y-10,9,10,pal.dark,fl);part(x+3,Y-10,9,10,pal.dark,fl);
+  part(x-14,Y-30,28,20,pal.body,fl);
+  R(x-6,Y-26,12,8,fl?'#fff':pal.acc);
+  // back arm
+  part(x-dir*14-(dir>0?4:0),Y-27,5,10,pal.dark,fl);
+  // front arm (punch extends toward opponent)
+  const ext=4+22*(arm||0);part(dir>0?x+10:x-10-ext,Y-28,ext+4,8,pal.body,fl);part(dir>0?x+10+ext:x-14-ext,Y-29,7,10,pal.dark,fl);
+  part(x-16,Y-54,32,24,pal.head,fl);
+  R(x-1,Y-62,3,8,OUT);
+  if(o.ant==='?'){pxText('?',x,Y-76,2,'#ffd23f',OUT)}else{part(x-3,Y-66,6,6,pal.eye,fl)}
+  if(!fl){
+    const e=pal.eye,ey=Y-46;
+    if(face==='ko'){[-9,3].forEach(ox=>{for(let i=0;i<5;i++){R(x+ox+i,ey+i,1,1,e);R(x+ox+4-i,ey+i,1,1,e)}})}
+    else if(face==='hit'){[-9,3].forEach(ox=>{R(x+ox,ey,5,1,e);R(x+ox,ey+2,5,1,e);R(x+ox+(ox<0?3:0),ey+1,2,1,e)})}
+    else{R(x-9,ey,5,face==='happy'?3:6,e);R(x+3,ey,5,face==='happy'?3:6,e);if(face==='sad'){R(x-10,ey-3,7,1,OUT);R(x+3,ey-3,7,1,OUT)}if(face==='angry'){R(x-10,ey-3,7,1,OUT);R(x+3,ey-3,7,1,OUT)}}
+    if(face==='sad'||face==='hit'){R(x-5,Y-37,10,1,e);R(x-6,Y-36,2,1,e);R(x+4,Y-36,2,1,e)}
+    else if(face==='ko'){R(x-4,Y-37,8,2,e)}
+    else{R(x-6,Y-38,2,1,e);R(x+4,Y-38,2,1,e);R(x-5,Y-37,10,1,e)}
+  }
+}
+function robotKO(o){const {x,y,pal}=o; // lying down
+  part(x-30,y-12,16,10,pal.dark);part(x-16,y-22,30,20,pal.body);R(x-8,y-18,12,8,pal.acc);part(x+14,y-26,26,24,pal.head);
+  const e=pal.eye,ex=x+22,ey=y-20;[0,10].forEach(ox=>{for(let i=0;i<5;i++){R(ex+ox+i-8,ey+i,1,1,e);R(ex+ox+4-i-8,ey+i,1,1,e)}});R(x+22,y-8,8,2,e);
+  for(let i=0;i<3;i++){const a=o.t*5+i*2.1;R(x+27+Math.cos(a)*22,y-40+Math.sin(a)*5,3,3,'#ffd23f')}}
+const BADP={body:'#8a8fa0',head:'#a9aebd',dark:'#4a4e63',acc:'#c9ccd8',eye:'#14141f'};
+const GOODP={body:'#ff8a3d',head:'#ffb066',dark:'#c4561a',acc:'#ffe3c2',eye:'#7dff7a',scarf:'#2fc4b8'};
+function icon(k,x,y){x=Math.round(x);y=Math.round(y);
+  if(k===0){part(x,y,14,14,'#ff9e4a');R(x+3,y+4,3,3,OUT);R(x+8,y+4,3,3,OUT);R(x+3,y+9,8,2,OUT)}
+  if(k===1){part(x+1,y-1,12,16,'#fff');for(let i=0;i<4;i++)R(x+3,y+2+i*3,8,1,'#4ad2ff')}
+  if(k===2){part(x,y,14,14,'#ffd23f');R(x+4,y,1,14,OUT);R(x+9,y,1,14,OUT);R(x,y+4,14,1,OUT);R(x,y+9,14,1,OUT)}
+  if(k===3){part(x,y,14,14,'#7dff7a');[[3,7],[4,8],[5,9],[6,8],[7,7],[8,6],[9,5],[10,4]].forEach(p=>R(x+p[0],y+p[1],2,2,OUT))}}
+const BT=[13.83,15.47,17.18,18.91],HIT=BT.map(x=>x+0.5),HITS=[6.4,...HIT];
+function spark(x,y,u){if(u<0||u>1)return;const r=4+u*16,c=u<0.5?'#fff':'#ffd23f';for(let i=0;i<8;i++){const a=i*Math.PI/4;R(x+Math.cos(a)*r,y+Math.sin(a)*r,3,3,c)}R(x-2,y-2,5,5,u<0.4?'#fff':'#ff9e4a')}
+function bar(x,w,frac,right){R(x-2,42,w+4,16,'#fff');R(x-1,43,w+2,14,OUT);R(x,44,w,12,'#c1121f');const f=Math.round(w*cl(frac));if(right)R(x+w-f,44,f,12,'#ffd23f');else R(x,44,f,12,'#ffd23f');R(x,44,w,3,'#ffffff55')}
+function draw(t){
+  g.clearRect(0,0,270,480);
+  // camera shake
+  let sh=0;HITS.concat([20.9]).forEach(h=>{const d=t-h;if(d>=0&&d<0.22)sh=Math.max(sh,(1-d/0.22)*5)});
+  cv.style.transform=`translate(${Math.round(Math.sin(t*90)*sh)*4}px,${Math.round(Math.cos(t*77)*sh)*4}px)`;
+  bg(t);
+  const floorY=345;
+  const nHit=HIT.filter(h=>t>=h).length;
+  // bad fighter
+  g.save();g.setTransform(2,0,0,2,-120,-345);
+  let bx=100-nHit*3;const intro=E((t-1.4)/0.4);bx+= (1-intro)*-45;
+  if(t>=5.7&&t<6.9){const u=t<6.3?E((t-5.7)/0.6):1-E((t-6.4)/0.5);bx+=24*cl(u)}
+  HIT.forEach(h=>{const d=t-h;if(d>=0&&d<0.35)bx-=5*Math.exp(-d*9)});
+  const badFlash=HITS.slice(1).some(h=>t-h>=0&&t-h<0.12);
+  const koT=20.9;
+  let badFace='sad';if(HIT.some(h=>t-h>=0&&t-h<0.4))badFace='hit';if(t>=19.5)badFace='hit';
+  if(t<1.4){} else if(t>=koT){robotKO({x:bx-4,y:floorY,pal:BADP,t})}
+  else robot({x:bx,y:floorY+(t>=19.5?Math.sin(t*14)*1.5:0),pal:BADP,dir:1,face:badFace,arm:(t>=5.9&&t<6.5)?1:0,fl:badFlash,ant:'?',t,bob:Math.sin(t*3)*1});
+  // good fighter
+  let gx=168-nHit*2;const gin=E((t-3.3)/0.4);gx+=(1-gin)*50;
+  if(t>=12.0&&t<12.6)gx-=20*E((t-12.0)/0.6);else if(t>=12.6)gx-=20;
+  const d6=t-6.4;if(d6>=0&&d6<0.3)gx+=3*Math.exp(-d6*10);
+  const gFlash=d6>=0&&d6<0.1;
+  let arm=0;BT.forEach(b=>{const u=(t-b-0.25)/0.25;if(u>=0&&u<=1)arm=Math.max(arm,1-Math.abs(u*2-1))});
+  const win=t>=20.9;const jump=win?Math.abs(Math.sin((t-20.9)*5))*14:0;
+  if(t>=3.3)robot({x:gx,y:floorY-jump,pal:GOODP,dir:-1,face:(win||t>=12)?'happy':(d6>=0&&d6<0.5?'hit':'angry'),arm,fl:gFlash,t,bob:Math.sin(t*4)*1});
+  // projectiles
+  BT.forEach((b,i)=>{const u=(t-b-0.1)/0.4;if(u>=0&&u<=1){const x=(gx-10)+(bx+14-(gx-10))*u,y=floorY-52-Math.sin(u*Math.PI)*22;icon(i,x-7,y)}
+    if(t>=b&&t<b+0.45){const w=1-(t-b)/0.45;icon(i,gx-12,floorY-82-(1-w)*6)}});
+  HIT.forEach((h,i)=>{spark(bx+12,floorY-40,(t-h)/0.28);const d=t-h;if(d>=0&&d<0.9)pxText('-25',bx+4,floorY-90-d*26,3,'#ffd23f',OUT)});
+  spark(gx-14,floorY-40,(t-6.4)/0.28);if(d6>=0&&d6<0.9)pxText('-3',gx,floorY-90-d6*16,2,'#fff',OUT);
+  g.restore();
+  // HUD
+  let bHP=1;HIT.forEach(h=>{bHP-=0.25*E((t-h)/0.25)});
+  let gHP=1-0.06*E((t-6.4)/0.2);
+  if(t>=1.4)bar(12,106,bHP,false);if(t>=3.3)bar(152,106,gHP,true);
+  if(t>=1.4)pxText('99',135,45,2,'#fff',OUT);
+  // big texts
+  if(t>=0.3&&t<1.5){const u=E((t-0.3)/0.25);pxText('ROUND 1',135,100-(1-u)*40,5,'#ffd23f',OUT)}
+  if(t>=2.6&&t<3.7){const k=t<2.8?12:10;pxText('VS',135,110+Math.sin(t*50)*(t<3?2:0),k,'#ff3d81',OUT)}
+  if(t>=4.0&&t<5.2){const on=Math.floor(t*10)%2===0||t>4.5;pxText('FIGHT!',135,100,6,on?'#fff':'#ffd23f',OUT)}
+  if(t>=koT&&t<22.6){const u=E((t-koT)/0.2),k=Math.round(7+u*3);pxText('K.O.',135,70,k,'#ff3d81','#fff');if(t<koT+0.14)R(0,0,270,480,'#ffffffcc')}
+  // subtitle
+  let h='';for(const s of SUBS){if(t>=s[0]&&t<s[1]){h='<span class="l">'+s[2]+'</span>';break}}
+  if(subEl._h!==h){subEl.innerHTML=h;subEl._h=h}
+}
+const _s=seek;seek=function(t){_s(t);draw(t)};
+seek(0);
+</script></body></html>

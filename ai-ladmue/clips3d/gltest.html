@@ -1,0 +1,11 @@
+<!doctype html><html><body style="margin:0"><canvas id="c" width="540" height="960"></canvas>
+<script>var module={exports:{}};var exports=module.exports;</script><script src="three.cjs.js"></script><script>
+const THREE=module.exports;window.THREE=THREE;
+const r=new THREE.WebGLRenderer({canvas:document.getElementById('c'),antialias:true});
+const sc=new THREE.Scene();sc.background=new THREE.Color(0x3a2418);
+const cam=new THREE.PerspectiveCamera(45,540/960,0.1,100);cam.position.set(0,1.5,5);
+sc.add(new THREE.HemisphereLight(0xffddbb,0x442211,1.2));
+const m=new THREE.Mesh(new THREE.IcosahedronGeometry(1,1),new THREE.MeshStandardMaterial({color:0xff8a3d,flatShading:true}));sc.add(m);
+const l=new THREE.PointLight(0xffaa66,40,20);l.position.set(2,3,3);sc.add(l);
+r.render(sc,cam);window.info=r.getContext().getParameter(r.getContext().VERSION);
+</script></body></html>

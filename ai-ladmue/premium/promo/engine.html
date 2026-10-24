@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><title>promo engine</title>
+<style>
+@font-face{font-family:P;font-weight:500;src:url(../../video/prompt-thai-500-normal.woff2)}
+@font-face{font-family:P;font-weight:700;src:url(../../video/prompt-thai-700-normal.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(../../video/prompt-thai-800-normal.woff2)}
+*{box-sizing:border-box;margin:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#12132B;font-family:P,sans-serif;color:#FFF8EE}
+#stage{position:relative;width:1080px;height:1920px;background:radial-gradient(900px 700px at 80% 10%,#2B2E6B55,transparent),radial-gradient(800px 800px at 10% 95%,#FF4D6D33,transparent),#12132B}
+.s{position:absolute;inset:0;padding:170px 70px 150px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;opacity:0}
+.brand{position:absolute;top:70px;left:70px;display:flex;align-items:center;gap:20px;font-weight:700;font-size:40px;z-index:5}
+.brand img{width:76px;height:76px;border-radius:20px}
+.bar{position:absolute;left:0;bottom:0;height:14px;background:linear-gradient(90deg,#FF8A3D,#FF4D6D);width:0}
+.big{font-weight:800;font-size:112px;line-height:1.22}
+.mid{font-weight:700;font-size:70px;line-height:1.35}
+.hl{color:#FFD23F}.pk{color:#FF6B8B}.gn{color:#4ADE80}.bl{color:#7FA8FF}
+.it{opacity:0}
+.chat{width:940px;background:#1D1F45;border-radius:48px;padding:44px 40px;display:flex;flex-direction:column;gap:30px;text-align:left}
+.chat .hd{font-weight:800;font-size:44px;color:#FFD23F;opacity:1}
+.b{max-width:760px;padding:30px 40px;border-radius:44px;font-size:52px;line-height:1.4;font-weight:500}
+.b.bc{align-self:flex-start;background:#2F3270;border-bottom-left-radius:12px}
+.b.bs{align-self:flex-end;background:linear-gradient(135deg,#FF8A3D,#FF4D6D);border-bottom-right-radius:12px;color:#fff}
+.card{width:940px;border-radius:48px;padding:48px 52px;text-align:left;font-size:56px;line-height:1.5;margin:20px 0}
+.card .lb{display:inline-block;font-weight:800;font-size:44px;padding:6px 30px;border-radius:999px;margin-bottom:22px}
+.card.bad{background:#1D1F45;border:5px solid #FF6B8B}.card.bad .lb{background:#FF4D6D55;color:#FF6B8B}
+.card.good{background:#1D1F45;border:5px solid #4ADE80;font-size:46px}.card.good .lb{background:#4ADE8033;color:#4ADE80}
+.tile{width:940px;border-radius:44px;padding:40px 52px;margin:18px 0;font-weight:800;font-size:74px;text-align:left;display:flex;align-items:center;gap:36px}
+.tile small{display:block;font-size:42px;font-weight:500;opacity:.9;line-height:1.35}
+.tile .n{width:110px;height:110px;border-radius:32px;background:#12132B44;display:flex;align-items:center;justify-content:center;font-size:66px;flex:none}
+.tile.sm{font-size:60px;padding:26px 44px}.tile.sm .n{width:84px;height:84px;font-size:50px}
+.cta{font-weight:800;font-size:170px;background:linear-gradient(90deg,#FF8A3D,#FF4D6D);padding:20px 80px;border-radius:64px;color:#fff;display:inline-block}
+.demo{position:absolute;bottom:60px;left:0;right:0;text-align:center;font-size:36px;font-weight:700;opacity:.7;z-index:5}
+</style></head><body>
+<div id="stage">
+ <div class="brand"><img src="../../avatar.svg">AI ลัดมือ</div>
+ <div class="bar" id="bar"></div>
+</div>
+<script>
+const stage=document.getElementById('stage'),ease=x=>1-Math.pow(1-x,3);
+const li=a=>a.map(x=>`<div class="it">${x}</div>`).join('');
+const R={
+ title:s=>`<div class="${s.size||'big'}">${li(s.lines)}</div>`,
+ chat:s=>`<div class="chat"><div class="hd">💬 ${s.head}</div>${s.msgs.map(m=>`<div class="it b b${m[0]}">${m[1]}</div>`).join('')}</div>`,
+ split:s=>s.cards.map(c=>`<div class="it card ${c[0]}"><span class="lb">${c[1]}</span><br>${c[2]}</div>`).join(''),
+ list:s=>(s.head?`<div class="mid" style="margin-bottom:24px">${s.head}</div>`:'')+s.tiles.map((t,i)=>`<div class="it tile ${s.sm?'sm':''}" style="background:${t[0]}"><div class="n">${t[1]}</div><div>${t[2]}${t[3]?`<small>${t[3]}</small>`:''}</div></div>`).join(''),
+ cta:s=>`<div class="mid it">${s.top}</div><div class="mid it" style="margin:40px 0 30px">คอมเมนต์คำว่า</div><div class="cta it">${s.word}</div><div class="mid hl it" style="margin-top:50px">${s.sub}</div>`
+};
+function build(spec){
+ let t=0;
+ spec.scenes.forEach(s=>{s.a=t;s.b=t+s.dur;t=s.b;
+  const e=document.createElement('div');e.className='s';e.innerHTML=R[s.type](s)+(s.demo?'<div class="demo">* ตัวอย่างร้านสมมติ เพื่อสาธิตเท่านั้น</div>':'');
+  stage.appendChild(e);s.el=e;s.items=[...e.querySelectorAll('.it')];});
+ spec.total=t;window.SPEC=spec;
+}
+function seek(t){
+ const sp=window.SPEC;
+ sp.scenes.forEach((s,si)=>{
+  const on=t>=s.a&&t<s.b;
+  let o=on?1:0;
+  if(on){o*=Math.min(1,(t-s.a)/0.12);if(si<sp.scenes.length-1)o*=Math.min(1,(s.b-t)/0.12);}
+  s.el.style.opacity=o;
+  const n=s.items.length,step=Math.min(1.0,Math.max(0.35,(s.dur-0.9)/Math.max(1,n)));
+  s.items.forEach((it,i)=>{
+   const at=s.a+(si===0?0.05:0.18)+i*step;
+   const p=Math.min(1,Math.max(0,(t-at)/0.28)),e=ease(p);
+   it.style.opacity=e;
+   let sc=0.9+0.1*e;
+   if(si===0&&n===1||(si===0&&i===0))sc*=1+0.025*Math.sin((t-at)*9)*(p>=1?1:0);
+   it.style.transform=`translateY(${(1-e)*50}px) scale(${sc})`;
+  });
+ });
+ document.getElementById('bar').style.width=(t/sp.total*100)+'%';
+}
+</script></body></html>

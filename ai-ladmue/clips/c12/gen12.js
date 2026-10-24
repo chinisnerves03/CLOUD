@@ -1,0 +1,139 @@
+const fs=require('fs');
+const SP=1.07, A0=3.78, H2S=22.36, B0=25.75, D=31.5;
+const RA=t=>+(A0+t/SP).toFixed(2), RB=t=>+(B0+t/SP).toFixed(2);
+const lines=[
+ {s:'H',a:0.08,b:3.55,t:'โอ๊ย! AI แต่งชื่อหนังสือที่ไม่มีอยู่จริงอีกแล้ว!'},
+ {s:'R',a:RA(0.05),b:RA(2.22),t:'ใจเย็นๆ ลองสั่งห้าข้อนี้'},
+ {s:'R',a:RA(2.85),b:RA(5.92),t:'ข้อหนึ่ง ถ้าไม่แน่ใจ ให้บอกว่าไม่แน่ใจ'},
+ {s:'R',a:RA(6.37),b:RA(9.07),t:'ข้อสอง ใช้เฉพาะข้อมูลที่ฉันให้เท่านั้น'},
+ {s:'R',a:RA(9.57),b:RA(12.44),t:'ข้อสาม แยกข้อเท็จจริง ออกจากการคาดเดา'},
+ {s:'R',a:RA(12.87),b:RA(16.51),t:'ข้อสี่ บอกสิ่งที่ควรตรวจซ้ำ และห้ามแต่งแหล่งอ้างอิง'},
+ {s:'R',a:RA(16.88),b:RA(19.43),t:'ข้อห้า ตรวจคำตอบตัวเองอีกรอบก่อนส่ง'},
+ {s:'H',a:+(H2S+0.05).toFixed(2),b:+(H2S+3.15).toFixed(2),t:'ครบแล้ว! งั้นต่อไปก็จะไม่ผิดแล้วใช่ไหม?'},
+ {s:'R',a:RB(0.05),b:RB(2.13),t:'ผิดน้อยลง แต่ยังต้องตรวจเองนะ!'},
+ {s:'R',a:RB(2.47),b:RB(6.05),t:'อยากได้ชุดคำสั่งฟรี คอมเมนต์คำว่า prompt'}
+];
+const tips=[
+ [RA(2.85),RA(6.37),'ถ้าไม่แน่ใจ ให้บอกว่า “ไม่แน่ใจ”'],
+ [RA(6.37),RA(9.57),'ใช้เฉพาะข้อมูลที่ฉันให้เท่านั้น'],
+ [RA(9.57),RA(12.87),'แยก “ข้อเท็จจริง” ออกจาก “การคาดเดา”'],
+ [RA(12.87),RA(16.88),'บอกสิ่งที่ควรตรวจซ้ำ และห้ามแต่งแหล่งอ้างอิง'],
+ [RA(16.88),RA(19.9),'ตรวจคำตอบตัวเองอีกรอบก่อนส่ง']
+];
+const cards=tips.map((x,i)=>`<div class="card" data-a="${x[0]}" data-b="${x[1]}" data-k="pop"><div class="hd"><i></i><i></i><i></i><span>prompt • ข้อ ${i+1}/5</span></div><div class="pbar"><div style="width:${(i+1)*20}%"></div></div><div class="tx">${x[2]}</div></div>`).join('');
+const html=`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>AI ลัดมือ</title><style>
+@font-face{font-family:P;font-weight:500;src:url(../../video/prompt-thai-500-normal.woff2)}
+@font-face{font-family:P;font-weight:700;src:url(../../video/prompt-thai-700-normal.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(../../video/prompt-thai-800-normal.woff2)}
+*{box-sizing:border-box;margin:0}html,body{width:1080px;height:1920px;overflow:hidden;font-family:P,sans-serif;background:#1B120C;color:#fff}
+.layer{position:absolute;inset:0;transform-origin:540px 960px}
+.brand{position:absolute;top:70px;left:80px;display:flex;align-items:center;gap:20px;font-weight:700;font-size:40px;z-index:20;text-shadow:0 2px 10px #000a}
+.brand img{width:76px;height:76px;border-radius:20px}
+.bar{position:absolute;left:0;bottom:0;height:14px;z-index:20;width:0;background:linear-gradient(90deg,#FF8A3D,#FF4D6D)}
+.card{position:absolute;left:90px;right:90px;top:230px;z-index:15;background:#FFF6E8;color:#2B1B10;border-radius:36px;box-shadow:0 18px 50px #000a;overflow:hidden;opacity:0}
+.hd{height:70px;background:#E7D5BC;display:flex;align-items:center;gap:12px;padding:0 26px;font-weight:700;font-size:32px;color:#6B5240}
+.hd i{width:22px;height:22px;border-radius:50%;display:block;background:#FF5F57}.hd i:nth-child(2){background:#FEBC2E}.hd i:nth-child(3){background:#28C840}.hd span{margin-left:12px}
+.pbar{height:12px;background:#EAD9C2}.pbar div{height:100%;background:linear-gradient(90deg,#FF8A3D,#FF4D6D)}
+.tx{padding:40px 44px 46px;font-weight:800;font-size:68px;line-height:1.3;text-align:center}
+.hook{position:absolute;left:90px;right:90px;top:230px;z-index:15;background:#FFF6E8;color:#2B1B10;border-radius:36px;box-shadow:0 18px 50px #000a;overflow:hidden;opacity:0}
+.hook .tx{font-size:56px;text-align:left;padding-bottom:120px}.stamp{position:absolute;right:36px;bottom:26px;transform:rotate(-6deg);border:8px solid #E53935;color:#E53935;font-weight:800;font-size:64px;padding:2px 26px;border-radius:16px;background:#FFF6E8}
+.warn{position:absolute;left:90px;right:90px;top:260px;z-index:15;background:#FFF1B8;color:#2B1B10;border-radius:36px;box-shadow:0 18px 50px #000a;padding:44px;font-weight:800;font-size:64px;line-height:1.35;text-align:center;opacity:0}
+.cta{position:absolute;left:0;right:0;top:300px;z-index:15;text-align:center;opacity:0}
+.cta .p{display:inline-block;font-weight:800;font-size:170px;background:linear-gradient(90deg,#FF8A3D,#FF4D6D);padding:20px 70px;border-radius:60px;box-shadow:0 18px 50px #000a}
+.cta .s{font-weight:800;font-size:72px;margin-bottom:34px;text-shadow:0 3px 12px #000a}
+#sub{position:absolute;left:50px;right:50px;top:1500px;z-index:18;text-align:center}
+#sub .chip{display:inline-block;font-weight:800;font-size:38px;padding:4px 22px;border-radius:999px;margin-bottom:14px}
+#sub .l{display:block;background:#000b;border-radius:28px;padding:20px 30px;font-weight:800;font-size:64px;line-height:1.35}
+#sub .w{color:#fff}#sub .w.on{color:#FFD23F}#sub .w.past{color:#fff}#sub .l{white-space:pre-wrap}
+</style></head><body>
+<div class="brand"><img src="../../avatar.svg">AI ลัดมือ</div>
+<div class="layer" id="L0"><svg width="1080" height="1920" viewBox="0 0 1080 1920">
+ <defs><linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4A2C1A"/><stop offset="1" stop-color="#7A4A2A"/></linearGradient>
+ <linearGradient id="win" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1D2B54"/><stop offset="1" stop-color="#E58A4A"/></linearGradient></defs>
+ <rect x="-200" y="-200" width="1480" height="2400" fill="url(#wall)"/>
+ <rect x="90" y="520" width="360" height="420" rx="18" fill="#2A1A10"/><rect x="108" y="538" width="324" height="384" rx="10" fill="url(#win)"/>
+ <path d="M108 800 L170 740 L220 790 L280 720 L340 800 L432 780 L432 922 L108 922Z" fill="#2B2340" opacity=".85"/>
+ <rect x="268" y="538" width="8" height="384" fill="#2A1A10"/><rect x="108" y="724" width="324" height="8" fill="#2A1A10"/>
+ <path d="M0 470 Q270 540 540 470 T1080 470" stroke="#FFD27A" stroke-width="5" fill="none"/>
+ <g fill="#FFE8A3"><circle cx="90" cy="500" r="11"/><circle cx="270" cy="516" r="11"/><circle cx="450" cy="505" r="11"/><circle cx="630" cy="480" r="11"/><circle cx="810" cy="505" r="11"/><circle cx="990" cy="480" r="11"/></g>
+ <rect x="640" y="560" width="300" height="220" rx="12" fill="#F4E3C5"/><rect x="662" y="582" width="256" height="176" fill="#E0A56B"/><circle cx="790" cy="660" r="40" fill="#FFF1D6"/><path d="M662 758 L740 690 L790 730 L850 680 L918 758Z" fill="#A5522E"/>
+</svg></div>
+<div class="layer" id="L1"><svg width="1080" height="1920" viewBox="0 0 1080 1920">
+ <rect x="560" y="1010" width="460" height="16" rx="6" fill="#3B2314"/>
+ <g><rect x="580" y="930" width="26" height="80" fill="#3E7CB1"/><rect x="610" y="945" width="22" height="65" fill="#D96C4A"/><rect x="636" y="925" width="28" height="85" fill="#E8B04A"/><rect x="668" y="950" width="24" height="60" fill="#6BAA75"/><rect x="696" y="935" width="30" height="75" fill="#8E5BA8"/><rect x="730" y="948" width="22" height="62" fill="#D94F70"/></g>
+ <ellipse cx="900" cy="990" rx="60" ry="22" fill="#6E4325"/><path d="M900 990 C860 900 840 880 820 850 C880 860 900 900 900 990Z" fill="#4C9A5A"/><path d="M900 990 C940 910 970 890 1000 880 C960 930 940 960 900 990Z" fill="#5CB06A"/><path d="M900 990 C900 920 905 880 900 830 C925 880 925 940 900 990Z" fill="#3E8A4E"/>
+ <rect x="40" y="1020" width="12" height="320" fill="#2A1A10"/><path d="M46 1020 L0 1130 L92 1130Z" fill="#E8B04A"/><ellipse cx="46" cy="1132" rx="46" ry="10" fill="#FFE8A3" opacity=".7"/>
+</svg></div>
+<div class="layer" id="L2"><svg width="1080" height="1920" viewBox="0 0 1080 1920">
+ <ellipse cx="540" cy="1360" rx="520" ry="60" fill="#000" opacity=".25"/>
+ <g id="human">
+  <rect x="215" y="1080" width="230" height="270" rx="60" fill="#D96C4A"/>
+  <rect x="300" y="1050" width="60" height="50" fill="#E9B98B"/>
+  <circle cx="330" cy="985" r="94" fill="#F2C9A0"/>
+  <path d="M232 975 Q236 880 330 872 Q424 880 428 975 Q330 950 232 975Z" fill="#2E8B7A"/><rect x="226" y="962" width="208" height="34" rx="14" fill="#256F62"/><circle cx="330" cy="868" r="20" fill="#2E8B7A"/>
+  <g stroke="#3B2A20" stroke-width="7" fill="none"><circle cx="296" cy="1008" r="26"/><circle cx="364" cy="1008" r="26"/><path d="M322 1008 L338 1008"/></g>
+  <g id="eyesH" fill="#2B1B10"><circle cx="296" cy="1010" r="9"/><circle cx="364" cy="1010" r="9"/></g>
+  <path id="browL" d="M270 975 L320 983" stroke="#2B1B10" stroke-width="8" stroke-linecap="round"/><path id="browR" d="M390 975 L340 983" stroke="#2B1B10" stroke-width="8" stroke-linecap="round"/>
+  <ellipse id="mouthH" cx="330" cy="1062" rx="22" ry="6" fill="#7A2E2E"/>
+  <rect x="150" y="1270" width="360" height="26" rx="10" fill="#9AA4AD"/><path d="M175 1270 L195 1170 L465 1170 L485 1270Z" fill="#B8C1C9"/><circle cx="330" cy="1222" r="14" fill="#E8E8E8" opacity=".85"/>
+ </g>
+ <g id="robot"><ellipse id="rshadow" cx="770" cy="1318" rx="130" ry="22" fill="#000" opacity=".3"/>
+  <g id="robotBody"><line x1="770" y1="885" x2="770" y2="830" stroke="#B85F1E" stroke-width="10"/><circle id="bulb" cx="770" cy="820" r="20" fill="#FFD23F"/>
+  <circle cx="770" cy="1050" r="150" fill="#FF8A3D"/><circle cx="770" cy="1050" r="150" fill="url(#shine)" opacity=".5"/>
+  <rect x="610" y="1020" width="26" height="70" rx="12" fill="#B85F1E"/><rect x="904" y="1020" width="26" height="70" rx="12" fill="#B85F1E"/>
+  <ellipse cx="770" cy="1050" rx="118" ry="86" fill="#1E1B2E"/>
+  <g id="eyesR" fill="#6FF0FF"><rect x="708" y="1010" width="26" height="40" rx="13"/><rect x="806" y="1010" width="26" height="40" rx="13"/></g>
+  <g id="wave" fill="#6FF0FF"></g></g></g>
+ <defs><radialGradient id="shine" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
+</svg></div>
+<div class="layer" id="L3"><svg width="1080" height="1920" viewBox="0 0 1080 1920">
+ <rect x="-100" y="1318" width="1280" height="700" fill="#5A3520"/><rect x="-100" y="1318" width="1280" height="26" fill="#7A4A2A"/>
+ <rect x="640" y="1290" width="130" height="30" rx="8" fill="#2B2B38"/>
+</svg></div>
+<div class="hook" data-a="0.2" data-b="3.6" data-k="pop"><div class="hd"><i></i><i></i><i></i><span>แชต AI</span></div><div class="tx">หนังสือ “เคล็ดลับพันล้านใน 7 วัน” โดย ดร.สมมติ นามสกุลสมมติ</div><div class="stamp">ไม่มีอยู่จริง!</div></div>
+${cards}
+<div class="warn" data-a="${RB(0.1)}" data-b="${RB(2.2)}" data-k="pop">⚠️ ลดโอกาสผิด<br>ไม่ได้ทำให้ถูก 100%<br><span style="color:#C0392B">ต้องตรวจเองด้วย</span></div>
+<div class="cta" data-a="${RB(2.5)}" data-k="pop"><div class="s">คอมเมนต์คำว่า</div><div class="p">prompt</div><div class="s" style="margin-top:34px">รับชุดคำสั่งฟรี 🎁</div></div>
+<div id="sub"></div>
+<div class="bar" id="bar"></div>
+<script>const DUR=${D};</script><script src="../lib.js"></script>
+<script>
+const LINES=${JSON.stringify(lines)};
+const wseg=new Intl.Segmenter('th',{granularity:'word'}),gseg=new Intl.Segmenter('th',{granularity:'grapheme'});
+LINES.forEach(l=>{const ws=[...wseg.segment(l.t)].map(s=>s.segment);const lens=ws.map(w=>w.trim().length?[...gseg.segment(w)].length+0.5:0);const tot=lens.reduce((a,b)=>a+b,0);let acc=0;l.w=ws.map((w,i)=>{const s=l.a+(l.b-l.a)*acc/tot;acc+=lens[i];return{w,s,e:l.a+(l.b-l.a)*acc/tot,sp:!w.trim().length}})});
+const CAM={wide:{x:540,y:1000,z:1.0},H:{x:330,y:1100,z:1.5},R:{x:780,y:1030,z:1.45}};
+const keys=[{t:0,...CAM.H}];
+LINES.forEach(l=>{keys.push({t:Math.max(0,l.a-0.1),...CAM[l.s]})});keys.push({t:${D}-4.5,...CAM.wide});
+keys.sort((a,b)=>a.t-b.t);
+const sm=x=>x*x*(3-2*x),cl=x=>Math.min(1,Math.max(0,x));
+function cam(t){let i=0;while(i+1<keys.length&&keys[i+1].t<=t)i++;const k=keys[i],p=i>0?keys[i-1]:keys[0];const b=sm(cl((t-k.t)/0.45));return{x:p.x+(k.x-p.x)*b,y:p.y+(k.y-p.y)*b,z:p.z+(k.z-p.z)*b}}
+const F=[0.35,0.7,1.0,1.12];
+const layers=[0,1,2,3].map(i=>document.getElementById('L'+i));
+const mouthH=document.getElementById('mouthH'),wave=document.getElementById('wave'),bulb=document.getElementById('bulb'),rb=document.getElementById('robotBody'),rsh=document.getElementById('rshadow');
+const browL=document.getElementById('browL'),browR=document.getElementById('browR');
+for(let i=0;i<9;i++){const r=document.createElementNS('http://www.w3.org/2000/svg','rect');r.setAttribute('x',712+i*12);r.setAttribute('width',8);r.setAttribute('rx',4);wave.appendChild(r)}
+const sub=document.getElementById('sub');
+const base=seek;
+window.seek=function(t){
+  base(t);
+  const c=cam(t);
+  layers.forEach((L,i)=>{const f=F[i],z=1+(c.z-1)*f;L.style.transform='translate('+(-(c.x-540)*c.z*f)+'px,'+(-(c.y-960)*c.z*f)+'px) scale('+z+')'});
+  const act=LINES.find(l=>t>=l.a&&t<=l.b);
+  const spk=act?act.s:null;
+  mouthH.setAttribute('ry',spk==='H'?6+Math.abs(Math.sin(t*20))*16:5);
+  const rects=wave.children;
+  for(let i=0;i<rects.length;i++){const h=spk==='R'?8+Math.abs(Math.sin(t*14+i*0.9))*44*(0.5+0.5*Math.sin(i*0.7+1)):6;rects[i].setAttribute('height',h);rects[i].setAttribute('y',1100-h/2)}
+  const bob=Math.sin(t*2.2)*10;rb.setAttribute('transform','translate(0,'+bob+')');rsh.setAttribute('rx',130-bob*0.8);
+  bulb.setAttribute('fill',spk==='R'?'#FFEE88':'#FFB300');
+  const worried=t<4,happy=t>${H2S+3.3};
+  browL.setAttribute('d',worried?'M270 990 L320 972':happy?'M270 978 L320 972':'M270 975 L320 983');
+  browR.setAttribute('d',worried?'M390 990 L340 972':happy?'M390 978 L340 972':'M390 975 L340 983');
+  if(act){const col=act.s==='H'?'#4D8BFF':'#FF8A3D';let h='<span class="chip" style="background:'+col+'">'+(act.s==='H'?'นัท':'หุ่น AI')+'</span><span class="l">';
+    act.w.forEach(x=>{const on=t>=x.s&&t<x.e;h+=x.sp?' ':'<span class="w'+(on?' on':'')+'">'+x.w+'</span>'});
+    h+='</span>';if(sub._h!==h){sub.innerHTML=h;sub._h=h}sub.style.opacity=1}else{sub.style.opacity=0}
+};
+seek(0);
+</script></body></html>`;
+fs.writeFileSync('clip.html',html);
+fs.writeFileSync('timeline.json',JSON.stringify({lines,tips,D,A0,H2S,B0,SP}));
+console.log('ok');

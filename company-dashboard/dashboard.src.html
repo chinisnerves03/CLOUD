@@ -1,0 +1,427 @@
+<title>ห้องควบคุม AI ลัดมือ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Prompt:wght@600;700&display=swap">
+<style>
+/* Layout concept: phone-first control room. Sticky masthead, one scrolling column, thumb-reach tab bar fixed at the bottom.
+   Palette is the two mascots: signal orange (หุ่นส้ม) on ink, teal (น้องฟ้า) for "done/ok". */
+:root{
+  --bg:#eef1ef; --surface:#ffffff; --ink:#142021; --muted:#5b6b69; --line:#d5dcda;
+  --orange:#e8590c; --orange-ink:#ffffff; --teal:#0f8f84; --warn:#b7791f; --bad:#c53030;
+  --soft:#e3e9e7;
+  --f-display:"Prompt","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai","Prompt",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1515; --surface:#16201f; --ink:#e8efed; --muted:#93a5a2; --line:#2a3836;
+  --orange:#ff8a45; --orange-ink:#1a0e05; --teal:#3fd0c2; --warn:#e3b04b; --bad:#ff7b7b; --soft:#1e2b29; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1515; --surface:#16201f; --ink:#e8efed; --muted:#93a5a2; --line:#2a3836;
+  --orange:#ff8a45; --orange-ink:#1a0e05; --teal:#3fd0c2; --warn:#e3b04b; --bad:#ff7b7b; --soft:#1e2b29; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--f-body);padding-block:0 84px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance}
+.mast{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px 10px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.mast h1{font-size:20px;letter-spacing:.2px}.mast h1 b{color:var(--orange)}
+.mast small{font:500 12px var(--f-mono);color:var(--muted)}
+main{padding-block:16px;display:flex;flex-direction:column;gap:16px;min-width:0}
+section[hidden]{display:none}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.stat b{display:block;font:600 26px/1.1 var(--f-mono)}.stat span{font-size:12px;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card h2{font-size:17px}.card h3{font-size:15px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;min-width:0}
+.grow{flex:1;min-width:0}
+.muted{color:var(--muted);font-size:13px}
+.pill{font:600 11px var(--f-mono);padding:3px 8px;border-radius:99px;border:1px solid var(--line);background:var(--soft);white-space:nowrap}
+.pill.queued{color:var(--warn)}.pill.running{color:var(--orange)}.pill.done{color:var(--teal)}.pill.failed{color:var(--bad)}
+.empty{border:1px dashed var(--line);border-radius:12px;padding:18px;color:var(--muted);text-align:center}
+button,select,textarea,input{font:inherit;color:var(--ink)}
+button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 14px;min-height:44px;cursor:pointer}
+button.primary{background:var(--orange);border-color:var(--orange);color:var(--orange-ink);font-weight:600}
+button.ghost{background:transparent}
+button:disabled{opacity:.5;cursor:not-allowed}
+button:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+select,textarea,input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px}
+textarea{min-height:130px;resize:vertical}
+label{font-size:13px;color:var(--muted);display:block;margin-bottom:4px}
+.field{display:flex;flex-direction:column}
+.fields2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.clip{display:flex;flex-direction:column;gap:8px}
+.clip .num{font:600 13px var(--f-mono);color:var(--orange)}
+.clip details summary{cursor:pointer;color:var(--muted);font-size:13px;min-height:32px;display:flex;align-items:center}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.long{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;max-height:340px;overflow:auto;background:var(--bg);border-radius:8px;padding:10px}
+.agent-note{font-size:13px;color:var(--muted);border-left:3px solid var(--orange);padding-left:10px}
+.hint{font-size:13px;background:var(--soft);border-radius:10px;padding:10px 12px}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(6,1fr);
+  padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+nav.tabs button{border:0;background:transparent;border-radius:8px;min-height:48px;font-size:11.5px;color:var(--muted);padding:4px 2px}
+nav.tabs button[aria-selected="true"]{color:var(--orange);font-weight:600;background:var(--soft)}
+.modal{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;padding:16px}
+.modal .box{background:var(--surface);border-radius:16px;padding:18px;width:100%;max-width:460px;display:flex;flex-direction:column;gap:12px;margin-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-reduced-motion:no-preference){.pill.running{animation:pulse 1.6s ease-in-out infinite}@keyframes pulse{50%{opacity:.55}}}
+</style>
+
+<header class="mast"><h1>AI ลัดมือ <b>·</b> ห้องควบคุม</h1><small id="who">กำลังเชื่อมต่อ…</small></header>
+<main id="main">
+  <section id="t-overview" data-tab="overview"></section>
+  <section id="t-clips" data-tab="clips" hidden></section>
+  <section id="t-research" data-tab="research" hidden></section>
+  <section id="t-command" data-tab="command" hidden></section>
+  <section id="t-ig" data-tab="ig" hidden></section>
+  <section id="t-log" data-tab="log" hidden></section>
+</main>
+<nav class="tabs" role="tablist" aria-label="เมนู">
+  <button role="tab" data-go="overview" aria-selected="true">ภาพรวม</button>
+  <button role="tab" data-go="clips" aria-selected="false">คลิป</button>
+  <button role="tab" data-go="research" aria-selected="false">สำรวจ</button>
+  <button role="tab" data-go="command" aria-selected="false">สั่งงาน</button>
+  <button role="tab" data-go="ig" aria-selected="false">IG</button>
+  <button role="tab" data-go="log" aria-selected="false">บันทึก</button>
+</nav>
+<div id="modal" hidden></div>
+
+<script>
+const AGENTS = /*__AGENTS__*/;
+const REPO_URL = 'https://github.com/chinisnerves03/CLOUD';
+const COLLS = ['tasks', 'clips', 'ideas', 'research', 'log', 'igreels'];
+const S = { tasks: [], clips: [], ideas: [], research: [], log: [], igreels: [], ig: { accounts: null, msg: '', busy: false, raw: '', form: { acc: '', url: '', cap: '', ai: false }, pubMsg: '', pubBusy: false }, owner: false, dbOk: false, tab: 'overview', sending: false, scout: { busy: false, msg: '' } };
+let DB = null, MCP = null, USER = null;
+
+function el(tag, attrs, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === 'class') n.className = v;
+    else if (k === 'text') n.textContent = v;
+    else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+    else if (v === true) n.setAttribute(k, '');
+    else if (v !== false && v != null) n.setAttribute(k, v);
+  }
+  for (const c of kids.flat()) if (c != null && c !== false) n.append(c.nodeType ? c : document.createTextNode(String(c)));
+  return n;
+}
+const fmtTime = ts => { try { return new Date(ts).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' }); } catch { return ''; } };
+const byNewest = (a, b) => (b.createdAt || b.ts || 0) - (a.createdAt || a.ts || 0);
+const empty = text => el('div', { class: 'empty', text });
+const pill = st => el('span', { class: 'pill ' + st, text: ({ queued: 'รอคิว', running: 'กำลังทำ', done: 'เสร็จ', failed: 'ล้มเหลว' })[st] || st });
+
+// ---------- data layer
+async function addDoc(coll, data) { return (await DB.collection(coll).add(data)).id; }
+async function patchDoc(coll, id, data) { return DB.doc(coll + '/' + id).update(data); }
+async function removeDoc(coll, id) { return DB.doc(coll + '/' + id).delete(); }
+
+async function addTask({ agent, prompt }) {
+  const a = AGENTS[agent];
+  const id = await addDoc('tasks', { agent, prompt, status: 'queued', createdAt: Date.now(), creditEstimate: a.creditHint, lastError: '' });
+  return id;
+}
+
+async function dispatch(taskId) {
+  const t = S.tasks.find(x => x.id === taskId) || (await DB.doc('tasks/' + taskId).get()).data();
+  const a = AGENTS[t.agent];
+  const body = a.prompt + '\n\n## คำสั่งจากเจ้าของ\n' + t.prompt + '\n\n## การส่งงาน\nรหัสงาน: ' + taskId +
+    '\nบันทึกผลเป็นไฟล์ใน repo (company-dashboard/results/' + taskId + '.md หรือโฟลเดอร์ ai-ladmue/) แล้ว commit/push เปิด PR แบบ draft และสรุปผลสั้นๆ ในข้อความสุดท้าย';
+  if (!MCP) { await patchDoc('tasks', taskId, { lastError: 'หน้านี้ยังเชื่อมต่อ Claude Code Remote ไม่ได้' }); return 'queued'; }
+  try {
+    const r = await MCP.callTool('Claude Code Remote', 'create_session', { title: a.name + ': ' + t.prompt.slice(0, 40), prompt: body, source_url: REPO_URL });
+    const p = r && (r.payload || r.structuredContent) || {};
+    let txt = (r && r.content && r.content[0] && r.content[0].text) || '';
+    let sid = p.session_id || p.id || '';
+    if (!sid && txt) { try { const j = JSON.parse(txt); sid = j.session_id || j.id || ''; } catch { /* plain text */ } }
+    await patchDoc('tasks', taskId, { status: 'running', sessionId: sid || '', startedAt: Date.now(), lastError: '' });
+    return 'running';
+  } catch (e) {
+    await patchDoc('tasks', taskId, { status: 'queued', lastError: String((e && e.message) || e || 'dispatch failed').slice(0, 300) });
+    return 'queued';
+  }
+}
+
+// ---------- confirm modal (no window.confirm in the viewer)
+function askConfirm({ title, body, okText }) {
+  return new Promise(res => {
+    const m = document.getElementById('modal'); m.hidden = false; m.className = 'modal'; m.replaceChildren(
+      el('div', { class: 'box', role: 'dialog', 'aria-modal': 'true' },
+        el('h3', { text: title }), el('div', { class: 'muted', style: 'white-space:pre-wrap;overflow-wrap:anywhere', text: body }),
+        el('div', { class: 'row' },
+          el('button', { class: 'ghost grow', id: 'm-cancel', text: 'ยกเลิก', onclick: () => { m.hidden = true; res(false); } }),
+          el('button', { class: 'primary grow', id: 'm-ok', text: okText || 'ยืนยัน', onclick: () => { m.hidden = true; res(true); } }))));
+  });
+}
+
+// ---------- views
+function viewOverview() {
+  const c = k => S.tasks.filter(t => t.status === k).length;
+  const last = [...S.tasks].sort(byNewest).slice(0, 4);
+  const posted = S.clips.filter(x => x.platforms && (x.platforms.ig || x.platforms.yt)).length;
+  return el('div', { class: 'grow', style: 'display:flex;flex-direction:column;gap:16px' },
+    el('div', { class: 'stats' },
+      el('div', { class: 'stat' }, el('b', { text: String(c('queued')) }), el('span', { text: 'รอคิว' })),
+      el('div', { class: 'stat' }, el('b', { text: String(c('running')) }), el('span', { text: 'กำลังทำ' })),
+      el('div', { class: 'stat' }, el('b', { text: String(c('done')) }), el('span', { text: 'เสร็จ' }))),
+    el('div', { class: 'card' }, el('h2', { text: 'คลิป' }),
+      el('div', { class: 'muted', text: S.clips.length ? `ทั้งหมด ${S.clips.length} คลิป · ลงแล้ว ${posted}` : 'ยังไม่มีข้อมูลคลิป' })),
+    el('div', { class: 'card' }, el('h2', { text: 'งานล่าสุด' }),
+      last.length ? last.map(t => el('div', { class: 'row' }, el('span', { class: 'grow', text: (AGENTS[t.agent] ? AGENTS[t.agent].name : t.agent) + ': ' + (t.prompt || '').slice(0, 60) }), pill(t.status)))
+        : empty('ยังไม่มีงาน ไปแท็บ "สั่งงาน" เพื่อเริ่มต้น')),
+    el('div', { class: 'row' }, el('button', { class: 'primary grow', text: 'สั่งงานใหม่', onclick: () => go('command') })));
+}
+
+function metricInput(id, label, val) { return el('div', { class: 'field' }, el('label', { for: id, text: label }), el('input', { id, inputmode: 'decimal', value: val ?? '' })); }
+function viewClips() {
+  if (!S.clips.length) return empty('ยังไม่มีคลิปในระบบ (ข้อมูลตั้งต้นจะถูกใส่หลังเผยแพร่)');
+  return el('div', { style: 'display:flex;flex-direction:column;gap:12px' }, [...S.clips].sort((a, b) => b.number - a.number).map(c => {
+    const m = c.metrics || {}; const p = c.platforms || {};
+    const ids = k => `c${c.number}-${k}`;
+    return el('div', { class: 'card clip', 'data-clip': String(c.number) },
+      el('div', { class: 'row' }, el('span', { class: 'num', text: '#' + c.number }), el('span', { class: 'grow' }, el('b', { text: c.topic })), el('span', { class: 'pill', text: c.durationSec + ' วิ' })),
+      el('div', { class: 'muted', text: c.style }),
+      el('div', { class: 'row' },
+        el('span', { class: 'pill', text: p.ig ? 'IG ✓' : 'IG –' }), el('span', { class: 'pill', text: p.yt ? 'YT ✓' : 'YT –' }),
+        el('span', { class: 'muted grow', text: m.views != null && m.views !== '' ? `ดู ${m.views} · จนจบ ${m.completionPct ?? '–'}% · skip ${m.skipPct ?? '–'}%` : 'ยังไม่มีตัวเลข' })),
+      S.owner ? el('details', {}, el('summary', { text: 'กรอกผล/แก้สถานะ' }),
+        el('div', { class: 'metrics' }, metricInput(ids('v'), 'ยอดดู', m.views), metricInput(ids('c'), '% ดูจนจบ', m.completionPct), metricInput(ids('s'), '% skip', m.skipPct),
+          el('div', { class: 'field' }, el('label', { for: ids('n'), text: 'หมายเหตุ' }), el('input', { id: ids('n'), value: m.notes || '' }))),
+        el('div', { class: 'row', style: 'margin-top:8px' },
+          el('label', { class: 'row', style: 'margin:0' }, el('input', { type: 'checkbox', id: ids('ig'), checked: !!p.ig, style: 'width:auto;min-height:0' }), 'ลง IG แล้ว'),
+          el('label', { class: 'row', style: 'margin:0' }, el('input', { type: 'checkbox', id: ids('yt'), checked: !!p.yt, style: 'width:auto;min-height:0' }), 'ลง YouTube แล้ว'),
+          el('button', { class: 'primary', text: 'บันทึก', onclick: () => saveClip(c) }))) : null);
+  }));
+}
+async function saveClip(c) {
+  const g = k => document.getElementById(`c${c.number}-${k}`);
+  const num = v => (v.value.trim() === '' ? null : Number(v.value));
+  await patchDoc('clips', c.id, { metrics: { views: num(g('v')), completionPct: num(g('c')), skipPct: num(g('s')), notes: g('n').value }, platforms: { ig: g('ig').checked, yt: g('yt').checked } });
+}
+
+function viewResearch() {
+  const box = el('div', { style: 'display:flex;flex-direction:column;gap:16px' });
+  const q = el('input', { id: 'scout-q', value: 'คลิปไทย ตลก เล่าเรื่อง ตัวละครการ์ตูน hook แรง', 'aria-label': 'คำค้นสำรวจ' });
+  box.append(el('div', { class: 'card' }, el('h2', { text: 'สำรวจช่องอื่น' }),
+    el('div', { class: 'muted', text: 'ค้นคลิปไทยที่ยอดโดดเด่นผ่าน vidIQ (5 เครดิตต่อครั้ง)' }), q,
+    el('button', { class: 'primary', id: 'scout-go', text: 'สำรวจเพิ่ม', disabled: !S.owner || S.scout.busy, onclick: () => runScout(q.value) }),
+    S.scout.msg ? el('div', { class: 'hint', id: 'scout-msg', text: S.scout.msg }) : null));
+  const items = [...S.research].sort(byNewest);
+  box.append(el('div', { class: 'card' }, el('h2', { text: 'ผลสำรวจ' }),
+    items.length ? items.map(r => el('details', {}, el('summary', { text: `${fmtTime(r.createdAt)} · ${r.query || ''}` }), el('div', { class: 'long', text: r.summary || '' })))
+      : empty('ยังไม่มีผลสำรวจ กด "สำรวจเพิ่ม" หรือสั่งงาน "ตัวสำรวจช่อง"')));
+  const ideas = [...S.ideas].sort(byNewest);
+  box.append(el('div', { class: 'card' }, el('h2', { text: 'ไอเดียที่น่าทำ' }),
+    ideas.length ? ideas.map(i => el('div', { class: 'row' }, el('span', { class: 'grow', text: i.title }), el('span', { class: 'pill', text: i.status || 'new' }))) : empty('ยังไม่มีไอเดีย')));
+  return box;
+}
+async function runScout(query) {
+  if (!MCP) { S.scout.msg = 'หน้านี้เรียก vidIQ ไม่ได้ ใช้แท็บ "สั่งงาน" เลือก "ตัวสำรวจช่อง" แทน'; return render(); }
+  const ok = await askConfirm({ title: 'ใช้เครดิต vidIQ 5 เครดิต', body: 'ค้นคลิปไทยที่ยอดโดดเด่น 1 ครั้ง ต้องการดำเนินการต่อไหม', okText: 'ยืนยัน ใช้ 5 เครดิต' });
+  if (!ok) return;
+  S.scout = { busy: true, msg: 'กำลังค้นหา…' }; render();
+  try {
+    const r = await MCP.callTool('vidIQ', 'vidiq_instagram_tiktok_outlier_search', { query, audienceQuery: 'Culture/Region: Thai; Global: false; Demographics: Thai adults 18-40 on Instagram and TikTok;', descriptionLanguage: ['th'], embeddingType: 'hook', viewsMin: 200000, resultsPerPlatform: 8 });
+    const text = (r.content || []).map(b => b.text || '').join('\n').slice(0, 20000);
+    await addDoc('research', { platform: 'ig+tiktok', query, summary: text, createdAt: Date.now() });
+    S.scout = { busy: false, msg: 'บันทึกผลสำรวจแล้ว' };
+  } catch (e) { S.scout = { busy: false, msg: 'สำรวจไม่สำเร็จ: ' + String((e && e.message) || e).slice(0, 160) }; }
+  render();
+}
+
+function viewCommand() {
+  if (!S.owner) return empty('เฉพาะเจ้าของเท่านั้นที่สั่งงานได้');
+  const sel = el('select', { id: 'cmd-agent', 'aria-label': 'เอเจนต์' }, Object.entries(AGENTS).map(([k, a]) => el('option', { value: k, text: a.name })));
+  const note = el('div', { class: 'agent-note', id: 'cmd-note' });
+  const ta = el('textarea', { id: 'cmd-prompt', placeholder: 'เช่น ทำคลิปแนวข่าวด่วนเรื่อง…', 'aria-label': 'คำสั่ง', maxlength: '4000' });
+  const msg = el('div', { id: 'cmd-msg', class: 'hint', hidden: true });
+  const send = el('button', { class: 'primary', id: 'cmd-send', text: 'ส่งงาน' });
+  const upd = () => { const a = AGENTS[sel.value]; note.textContent = a.role + (a.creditHint ? `  ·  ประมาณ ${a.creditHint} เครดิต` : '  ·  ไม่ใช้เครดิต'); };
+  sel.addEventListener('change', upd); upd();
+  send.addEventListener('click', async () => {
+    if (S.sending) return; const prompt = ta.value.trim(); if (!prompt) { msg.hidden = false; msg.textContent = 'พิมพ์คำสั่งก่อน'; return; }
+    S.sending = true; send.disabled = true;
+    try {
+      const a = AGENTS[sel.value];
+      if (a.creditHint > 0 && !(await askConfirm({ title: 'งานนี้ใช้เครดิต', body: `${a.name} ใช้ประมาณ ${a.creditHint} เครดิต ต้องการส่งงานไหม`, okText: 'ยืนยัน ส่งงาน' }))) return;
+      const id = await addTask({ agent: sel.value, prompt });
+      const st = await dispatch(id);
+      msg.hidden = false; msg.textContent = st === 'running' ? 'ส่งงานแล้ว เอเจนต์กำลังทำ ดูสถานะในแท็บ "บันทึก"' : 'บันทึกงานในคิวแล้ว แต่ยังเริ่มอัตโนมัติไม่ได้ พิมพ์ในแชทกับผมว่า "ทำคิว" เพื่อให้ผมทำให้';
+      ta.value = '';
+    } catch (e) { msg.hidden = false; msg.textContent = 'ส่งไม่สำเร็จ: ' + String((e && e.message) || e).slice(0, 160); }
+    finally { S.sending = false; send.disabled = false; }
+  });
+  return el('div', { class: 'card' }, el('h2', { text: 'สั่งงานเอเจนต์' }),
+    el('div', { class: 'field' }, el('label', { for: 'cmd-agent', text: 'เอเจนต์' }), sel), note,
+    el('div', { class: 'field' }, el('label', { for: 'cmd-prompt', text: 'คำสั่ง' }), ta), send, msg);
+}
+
+function viewLog() {
+  const tasks = [...S.tasks].sort(byNewest); const logs = [...S.log].sort(byNewest);
+  return el('div', { style: 'display:flex;flex-direction:column;gap:16px' },
+    el('div', { class: 'card' }, el('h2', { text: 'งานทั้งหมด' }),
+      tasks.length ? tasks.map(t => el('div', { class: 'card', 'data-task': t.id, style: 'background:var(--bg)' },
+        el('div', { class: 'row' }, el('b', { class: 'grow', text: AGENTS[t.agent] ? AGENTS[t.agent].name : t.agent }), pill(t.status)),
+        el('div', { class: 'long', text: t.prompt || '', style: 'max-height:120px' }),
+        t.lastError ? el('div', { class: 'hint', text: t.lastError }) : null,
+        el('div', { class: 'muted', text: fmtTime(t.createdAt) + (t.sessionId ? ' · เซสชัน ' + t.sessionId : '') }),
+        S.owner ? el('div', { class: 'row' },
+          t.status === 'queued' ? el('button', { text: 'ส่งอีกครั้ง', onclick: async () => { await dispatch(t.id); } }) : null,
+          t.status !== 'done' ? el('button', { text: 'ทำเสร็จแล้ว', onclick: () => patchDoc('tasks', t.id, { status: 'done', finishedAt: Date.now() }) }) : null,
+          el('button', { class: 'ghost', text: 'ลบ', onclick: () => removeDoc('tasks', t.id) })) : null))
+        : empty('ยังไม่มีงาน')),
+    el('div', { class: 'card' }, el('h2', { text: 'บันทึกจากเอเจนต์' }),
+      logs.length ? logs.map(l => el('div', {}, el('div', { class: 'muted', text: fmtTime(l.ts || l.createdAt) + ' · ' + (l.agent || '') }), el('div', { text: l.text || '' }))) : empty('ยังไม่มีบันทึก')));
+}
+
+
+// ---------- Instagram via vidIQ connector
+const sleep = ms => new Promise(r => setTimeout(r, window.__fast ? 0 : ms));
+function parseResult(r) {
+  let p = r && (r.payload || r.structuredContent);
+  if (!p) { const t = (r && r.content && r.content[0] && r.content[0].text) || ''; try { p = JSON.parse(t); } catch { p = { text: t }; } }
+  return p || {};
+}
+const vq = (tool, input) => MCP.callTool('vidIQ', tool, input).then(parseResult);
+const pct = v => (v == null || v === '' ? null : (Number(v) > 0 && Number(v) <= 1 ? Math.round(Number(v) * 1000) / 10 : Math.round(Number(v) * 10) / 10));
+function findArray(p) {
+  if (Array.isArray(p)) return p;
+  for (const k of ['media', 'reels', 'recentMedia', 'items', 'data']) if (Array.isArray(p && p[k])) return p[k];
+  for (const v of Object.values(p || {})) if (Array.isArray(v) && v.length && typeof v[0] === 'object') return v;
+  return [];
+}
+function normalizeReel(m) {
+  const first = (...k) => { for (const x of k) if (m[x] != null) return m[x]; return null; };
+  return { id: String(first('id', 'mediaId', 'shortcode', 'platformMediaId') || ''), caption: String(first('caption') || '').slice(0, 300), permalink: first('permalink', 'url', 'videoUrl'),
+    views: first('plays', 'views', 'viewCount', 'videoViews'), likes: first('likes', 'likeCount'), comments: first('comments', 'commentCount'), shares: first('shares', 'shareCount'), saves: first('saves', 'saveCount'),
+    skipPct: pct(first('skipRate', 'skip_rate')), completionPct: pct(first('watchedPercentage', 'avgWatchedPercentage', 'watched_percentage')), takenAt: first('timestamp', 'publishedAt', 'createdTime', 'takenAt') };
+}
+async function igCheck() {
+  if (!MCP) { S.ig.msg = 'หน้านี้ยังเรียก vidIQ ไม่ได้ (ยังไม่ได้อนุญาตสิทธิ์หรือไม่ได้เชื่อมต่อ)'; return render(); }
+  S.ig.busy = true; render();
+  try { const p = await vq('vidiq_instagram_connected_accounts', {}); S.ig.accounts = p.accounts || []; S.ig.msg = S.ig.accounts.length ? '' : 'ยังไม่มีบัญชี Instagram ที่เชื่อมกับ vidIQ เปิด app.vidiq.com เชื่อม Instagram แล้วกดตรวจอีกครั้ง'; }
+  catch (e) { S.ig.msg = 'ตรวจไม่สำเร็จ: ' + String((e && e.message) || e).slice(0, 160); }
+  S.ig.busy = false; render();
+}
+async function applyReelToClip(reel) {
+  const clip = S.clips.find(c => c.number === reel.clipNumber); if (!clip) return;
+  await patchDoc('clips', clip.id, { metrics: { ...(clip.metrics || {}), views: reel.views, completionPct: reel.completionPct, skipPct: reel.skipPct, notes: 'ซิงก์จาก IG ' + fmtTime(Date.now()) }, platforms: { ...(clip.platforms || {}), ig: true } });
+}
+async function igSync() {
+  const acc = (S.ig.accounts || []).find(a => a.accessLevel === 'owner'); if (!acc) { S.ig.msg = 'ไม่มีบัญชีที่ดึงสถิติเจ้าของได้'; return render(); }
+  S.ig.busy = true; S.ig.msg = 'กำลังดึงสถิติ…'; render();
+  try {
+    const p = await vq('vidiq_instagram_owner_insights', { platformAccountId: acc.platformAccountId });
+    if (p.status === 'unavailable') { S.ig.msg = 'Instagram ยังไม่ส่งสถิติเจ้าของ ลองใหม่ภายหลัง'; S.ig.busy = false; return render(); }
+    S.ig.raw = JSON.stringify(p).slice(0, 4000);
+    const reels = findArray(p).map(normalizeReel).filter(r => r.id);
+    for (const r of reels) {
+      const old = S.igreels.find(x => x.id === r.id); const doc = { ...r, syncedAt: Date.now(), clipNumber: old ? old.clipNumber ?? null : null };
+      if (old) await DB.doc('igreels/' + encodeURIComponent(r.id)).update(doc); else await DB.doc('igreels/' + encodeURIComponent(r.id)).set(doc);
+      if (doc.clipNumber != null) await applyReelToClip(doc);
+    }
+    S.ig.msg = reels.length ? `ดึงสถิติ ${reels.length} รีลแล้ว` : 'ไม่พบรีลในผลลัพธ์ ดูข้อมูลดิบด้านล่าง';
+  } catch (e) { S.ig.msg = 'ดึงสถิติไม่สำเร็จ: ' + String((e && e.message) || e).slice(0, 160); }
+  S.ig.busy = false; render();
+}
+async function linkReel(reel, num) {
+  const n = num === '' ? null : Number(num);
+  await DB.doc('igreels/' + encodeURIComponent(reel.id)).update({ clipNumber: n });
+  if (n != null) await applyReelToClip({ ...reel, clipNumber: n });
+}
+async function publishFlow({ account, url, caption, ai }) {
+  const isYt = /(^https:\/\/(www\.|m\.)?youtube\.com\/)|(^https:\/\/youtu\.be\/)/.test(url);
+  let videoUrl = url;
+  if (!isYt) { const up = await vq('vidiq_video_upload', { url, title: caption.slice(0, 80) || 'AI ลัดมือ' }); if (!up.videoUrl) throw new Error('นำเข้าวิดีโอไม่สำเร็จ'); videoUrl = up.videoUrl; }
+  const base = { platformAccountId: account };
+  const start = { ...base, videoUrl, caption }; if (ai) start.isAiGenerated = true;
+  let r = await vq('vidiq_instagram_publish_reel', start);
+  for (let i = 0; i < 60; i++) {
+    const st = String(r.status || '').toUpperCase();
+    if (st === 'PUBLISHED') return r;
+    if (r.error) throw new Error(String(r.error.message || r.error));
+    if (r.mcpJobId && st === 'INPROGRESS') {
+      let j = await vq('vidiq_job_poll', { mcpJobId: r.mcpJobId });
+      for (let k = 0; k < 60 && String(j.status) === 'inprogress'; k++) { await sleep(5000); j = await vq('vidiq_job_poll', { mcpJobId: r.mcpJobId }); }
+      if (j.status !== 'completed') throw new Error('เตรียมวิดีโอไม่สำเร็จ: ' + (j.message || j.status));
+      r = await vq('vidiq_instagram_publish_reel', { ...base, mcpJobId: r.mcpJobId });
+    } else if (r.containerId) { await sleep(5000); r = await vq('vidiq_instagram_publish_reel', { ...base, containerId: r.containerId }); }
+    else throw new Error('ผลลัพธ์ไม่คาดคิด: ' + JSON.stringify(r).slice(0, 160));
+  }
+  throw new Error('รอนานเกินไป');
+}
+
+function viewIG() {
+  const g = S.ig; const owner = S.owner;
+  const accCard = el('div', { class: 'card' }, el('h2', { text: 'บัญชี Instagram' }),
+    el('div', { class: 'muted', text: 'เชื่อมผ่าน vidIQ (ฟรี ไม่เสียเครดิต) ต้องเชื่อม Instagram ที่ app.vidiq.com ก่อน' }),
+    el('button', { class: 'primary', id: 'ig-check', text: 'ตรวจการเชื่อมต่อ', disabled: !owner || g.busy, onclick: igCheck }),
+    g.msg ? el('div', { class: 'hint', id: 'ig-msg', text: g.msg }) : null,
+    (g.accounts || []).map(a => el('div', { class: 'row', 'data-acc': a.platformAccountId }, el('b', { class: 'grow', text: '@' + (a.username || a.platformAccountId) }),
+      el('span', { class: 'pill', text: a.accessLevel === 'owner' ? 'สถิติเจ้าของ' : 'สาธารณะ' }), el('span', { class: 'pill', text: a.publishingAvailable ? 'ลงรีลได้' : 'ลงรีลไม่ได้' }))));
+  const reels = [...S.igreels].sort((a, b) => String(b.takenAt || '').localeCompare(String(a.takenAt || '')));
+  const stats = el('div', { class: 'card' }, el('h2', { text: 'สถิติรีลจริง' }),
+    el('button', { id: 'ig-sync', text: 'ดึงสถิติ (ฟรี)', disabled: !owner || g.busy || !(g.accounts || []).some(a => a.accessLevel === 'owner'), onclick: igSync }),
+    reels.length ? reels.map(r => el('div', { class: 'card', style: 'background:var(--bg)', 'data-reel': r.id },
+      el('div', { text: r.caption || '(ไม่มีแคปชั่น)' }),
+      el('div', { class: 'muted', text: `ดู ${r.views ?? '–'} · จนจบ ${r.completionPct ?? '–'}% · skip ${r.skipPct ?? '–'}% · แชร์ ${r.shares ?? '–'} · เซฟ ${r.saves ?? '–'}` }),
+      owner ? el('div', { class: 'field' }, el('label', { for: 'link-' + r.id, text: 'ผูกกับคลิป' }),
+        el('select', { id: 'link-' + r.id, onchange: e => linkReel(r, e.target.value) }, el('option', { value: '', text: '— ไม่ผูก —' }),
+          [...S.clips].sort((a, b) => b.number - a.number).map(c => el('option', { value: String(c.number), selected: r.clipNumber === c.number, text: `#${c.number} ${c.topic}` })))) : null))
+      : empty('ยังไม่มีสถิติ ตรวจการเชื่อมต่อแล้วกด "ดึงสถิติ"'),
+    g.raw ? el('details', {}, el('summary', { text: 'ข้อมูลดิบจาก vidIQ (ไว้ตรวจรูปแบบ)' }), el('div', { class: 'long', id: 'ig-raw', text: g.raw })) : null);
+  const pubAccounts = (g.accounts || []).filter(a => a.publishingAvailable);
+  const form = el('div', { class: 'card' }, el('h2', { text: 'ลงรีลไป Instagram' }),
+    el('div', { class: 'muted', text: 'ต้องมีลิงก์วิดีโอสาธารณะ (HTTPS .mp4) หรือลิงก์ YouTube ไฟล์ในเครื่อง/GitHub ส่วนตัวอัปโหลดตรงจากหน้านี้ไม่ได้' }),
+    !owner ? empty('เฉพาะเจ้าของ') : !pubAccounts.length ? empty('ยังไม่มีบัญชีที่ลงรีลได้ กด "ตรวจการเชื่อมต่อ" ก่อน') : [
+      el('div', { class: 'field' }, el('label', { for: 'pub-acc', text: 'บัญชี' }), el('select', { id: 'pub-acc', onchange: e => { g.form.acc = e.target.value; } }, pubAccounts.map(a => el('option', { value: a.platformAccountId, selected: g.form.acc === a.platformAccountId, text: '@' + (a.username || a.platformAccountId) })))),
+      el('div', { class: 'field' }, el('label', { for: 'pub-url', text: 'ลิงก์วิดีโอ' }), el('input', { id: 'pub-url', inputmode: 'url', placeholder: 'https://…', value: g.form.url, oninput: e => { g.form.url = e.target.value; } })),
+      el('div', { class: 'field' }, el('label', { for: 'pub-cap', text: 'แคปชั่น (ไม่เกิน 2,200 ตัวอักษร)' }), el('textarea', { id: 'pub-cap', maxlength: '2200', oninput: e => { g.form.cap = e.target.value; } }, g.form.cap)),
+      el('label', { class: 'row', style: 'margin:0' }, el('input', { type: 'checkbox', id: 'pub-ai', checked: g.form.ai, onchange: e => { g.form.ai = e.target.checked; }, style: 'width:auto;min-height:0' }), 'ติดป้าย "สร้างด้วย AI" ของ Instagram (ตัดสินใจเอง ลงแล้วแก้ไม่ได้)'),
+      el('button', { class: 'primary', id: 'pub-go', text: 'ตรวจก่อนลง', disabled: g.pubBusy, onclick: onPublishClick }),
+      el('div', { class: 'hint', id: 'pub-msg', hidden: !g.pubMsg, text: g.pubMsg })]);
+  return el('div', { style: 'display:flex;flex-direction:column;gap:16px' }, accCard, stats, form);
+}
+async function onPublishClick() {
+  const f = S.ig.form; const say = t => { S.ig.pubMsg = t; render(); };
+  if (S.ig.pubBusy) return;
+  const account = f.acc || (S.ig.accounts.find(a => a.publishingAvailable) || {}).platformAccountId, url = f.url.trim(), caption = f.cap, ai = f.ai;
+  if (!/^https:\/\//.test(url)) return say('ใส่ลิงก์ HTTPS ของวิดีโอก่อน');
+  const acc = S.ig.accounts.find(a => a.platformAccountId === account);
+  const ok = await askConfirm({ title: 'ยืนยันการลงรีลจริง', okText: 'ยืนยัน ลงเลย',
+    body: `บัญชี @${acc.username || account}\nวิดีโอ: ${url}\nแคปชั่น: ${caption.slice(0, 200) || '(ไม่มี)'}${caption.length > 200 ? '…' : ''}\nป้าย AI: ${ai ? 'ติด' : 'ไม่ติด'}\nรีลแบบปกติ (ไม่ใช่ Trial)\nหลังกดยืนยัน จะโพสต์สู่สาธารณะทันทีและเรียกคืนจากหน้านี้ไม่ได้` });
+  if (!ok) return;
+  S.ig.pubBusy = true; say('กำลังส่งไป Instagram…');
+  try {
+    const r = await publishFlow({ account, url, caption, ai });
+    await addDoc('log', { ts: Date.now(), agent: 'IG', text: 'ลงรีลสำเร็จ ' + (r.permalink || ''), links: r.permalink ? [r.permalink] : [] });
+    S.ig.pubBusy = false; say('ลงรีลสำเร็จ ' + (r.permalink || ''));
+  } catch (e) { S.ig.pubBusy = false; say('ลงรีลไม่สำเร็จ (ไม่ลองซ้ำอัตโนมัติ): ' + String((e && e.message) || e).slice(0, 200)); }
+}
+
+// ---------- shell
+const VIEWS = { overview: viewOverview, clips: viewClips, research: viewResearch, command: viewCommand, ig: viewIG, log: viewLog };
+function render(fromSnapshot) {
+  document.querySelectorAll('section[data-tab]').forEach(s => { s.hidden = s.dataset.tab !== S.tab; });
+  document.querySelectorAll('nav.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.go === S.tab)));
+  const sec = document.getElementById('t-' + S.tab);
+  // keep a half-typed form: command tab is rebuilt only when it is not focused
+  const ae = document.activeElement; if (fromSnapshot === true && sec.firstChild && sec.contains(ae) && (S.tab === 'command' || S.tab === 'ig' || ['INPUT', 'TEXTAREA', 'SELECT'].includes(ae.tagName))) return;
+  sec.replaceChildren(VIEWS[S.tab]());
+}
+function go(tab) { S.tab = tab; try { history.replaceState(null, '', '#' + tab); } catch {} render(); window.scrollTo(0, 0); }
+document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('click', () => go(b.dataset.go)));
+
+async function boot() {
+  render();
+  if (!window.claude || !window.claude.use) { document.getElementById('who').textContent = 'เปิดนอกแอป'; return; }
+  const [db, user, mcp] = await Promise.all([claude.use('db'), claude.use('user'), claude.use('mcp')]);
+  DB = db; USER = user; MCP = mcp;
+  S.owner = user ? await user.isOwner() : false;
+  document.getElementById('who').textContent = !DB ? 'ออฟไลน์' : S.owner ? 'เจ้าของ' : 'ดูอย่างเดียว';
+  if (!DB) return render();
+  S.dbOk = true;
+  COLLS.forEach(c => DB.collection(c).onSnapshot(snap => { S[c] = snap.docs.map(d => ({ id: d.id, ...d.data() })); render(true); }, () => { }));
+  render();
+}
+boot();
+</script>

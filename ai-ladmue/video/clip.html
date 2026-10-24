@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><title>AI ลัดมือ - คลิป 1</title>
+<style>
+@font-face{font-family:P;font-weight:500;src:url(prompt-thai-500-normal.woff2)}
+@font-face{font-family:P;font-weight:700;src:url(prompt-thai-700-normal.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(prompt-thai-800-normal.woff2)}
+*{box-sizing:border-box;margin:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#12132B;font-family:P,sans-serif;color:#FFF8EE}
+#stage{position:relative;width:1080px;height:1920px;background:radial-gradient(900px 700px at 80% 10%,#2B2E6B55,transparent),radial-gradient(800px 800px at 10% 95%,#FF4D6D33,transparent),#12132B}
+.s{position:absolute;inset:0;padding:150px 80px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;opacity:0}
+.brand{position:absolute;top:70px;left:80px;display:flex;align-items:center;gap:20px;font-weight:700;font-size:40px;z-index:5}
+.brand img{width:76px;height:76px;border-radius:20px}
+.bar{position:absolute;left:0;bottom:0;height:12px;background:linear-gradient(90deg,#FF8A3D,#FF4D6D);width:0}
+.big{font-weight:800;font-size:120px;line-height:1.2}
+.mid{font-weight:700;font-size:72px;line-height:1.35}
+.hl{color:#FFD23F}.pk{color:#FF6B8B}.gn{color:#4ADE80}
+.tile{width:860px;border-radius:44px;padding:48px 56px;margin:22px 0;font-weight:800;font-size:84px;text-align:left;display:flex;align-items:center;gap:36px;opacity:0}
+.tile small{display:block;font-size:40px;font-weight:500;opacity:.85}
+.n{width:120px;height:120px;border-radius:34px;background:#12132B33;display:flex;align-items:center;justify-content:center;font-size:72px;flex:none}
+.card{width:900px;border-radius:48px;padding:56px;text-align:left;font-size:60px;line-height:1.5;font-weight:500}
+.tag{display:inline-block;font-weight:800;font-size:44px;padding:8px 32px;border-radius:999px;margin-bottom:28px}
+.cta{font-weight:800;font-size:150px;background:linear-gradient(90deg,#FF8A3D,#FF4D6D);padding:20px 70px;border-radius:60px;color:#fff;display:inline-block}
+.cur{display:inline-block;width:6px;height:60px;background:#FFD23F;vertical-align:-8px;margin-left:4px}
+</style></head><body>
+<div id="stage">
+ <div class="brand"><img src="avatar.svg">AI ลัดมือ</div>
+
+ <div class="s" data-a="0" data-b="4.9">
+  <div class="big">ยังสั่ง AI ว่า</div>
+  <div class="big pk" style="margin:30px 0">“ช่วยหน่อย”</div>
+  <div class="big">อยู่หรือเปล่า?</div>
+  <div class="mid hl" style="margin-top:70px" data-a="2.7" data-b="4.9">เสียเวลาทุกวัน ⏳</div>
+ </div>
+
+ <div class="s" data-a="4.9" data-b="10.2">
+  <div class="mid" style="margin-bottom:40px">สูตรสั่ง AI มีแค่ <span class="hl">3 ส่วน</span></div>
+  <div class="tile" data-a="6.4" style="background:#FF8A3D"><div class="n">1</div><div>บทบาท<small>คุณคือใคร</small></div></div>
+  <div class="tile" data-a="7.5" style="background:#FF4D6D"><div class="n">2</div><div>งาน<small>ให้ทำอะไร</small></div></div>
+  <div class="tile" data-a="8.6" style="background:#7C5CFF"><div class="n">3</div><div>รูปแบบคำตอบ<small>อยากได้แบบไหน</small></div></div>
+ </div>
+
+ <div class="s" data-a="10.2" data-b="15.3">
+  <div class="tag" style="background:#FF4D6D55;color:#FF6B8B">❌ แบบแย่</div>
+  <div class="card" style="background:#1D1F45;border:4px solid #FF6B8B"><span data-type="10.8,13.0">ช่วยเขียนโพสต์ขายของ</span><span class="cur"></span></div>
+  <div class="mid" style="margin-top:60px" data-a="13.9"><span class="pk">ได้คำตอบกลางๆ</span> 😐</div>
+ </div>
+
+ <div class="s" data-a="15.3" data-b="23.0">
+  <div class="tag" style="background:#4ADE8033;color:#4ADE80">✅ แบบดี</div>
+  <div class="card" style="background:#1D1F45;border:4px solid #4ADE80;font-size:47px">
+   <span class="hl" data-a="15.6">คุณคือแอดมินร้านกาแฟ</span><br>
+   <span class="pk" data-a="17.0">เขียนโพสต์ขายกาแฟเย็น 3 บรรทัด</span><br>
+   <span style="color:#7FA8FF" data-a="19.6">โทนเป็นกันเอง ลงท้ายด้วยคำถาม</span>
+  </div>
+  <div class="mid" style="margin-top:60px" data-a="21.0"><span class="gn">ได้ใช้ทันที!</span> ⚡</div>
+ </div>
+
+ <div class="s" data-a="23.0" data-b="99">
+  <div class="mid">อยากได้ชุดคำสั่ง<br>สำเร็จรูป <span class="hl">20 แบบ</span></div>
+  <div class="mid" style="margin:50px 0 30px" data-a="24.6">คอมเมนต์คำว่า</div>
+  <div class="cta" data-a="25.0">prompt</div>
+  <div class="mid hl" style="margin-top:60px" data-a="26.6">ส่งให้ฟรี 🎁</div>
+ </div>
+ <div class="bar" id="bar"></div>
+</div>
+<script>
+const seg=new Intl.Segmenter('th',{granularity:'grapheme'});
+const ease=x=>1-Math.pow(1-x,3);
+const all=[...document.querySelectorAll('[data-a]')];
+const typed=[...document.querySelectorAll('[data-type]')];
+typed.forEach(e=>{e._full=[...seg.segment(e.textContent)].map(s=>s.segment)});
+function seek(t){
+  all.forEach(e=>{
+    const a=+e.dataset.a,b=e.dataset.b?+e.dataset.b:1e9;
+    const isScreen=e.classList.contains('s');
+    const p=Math.min(1,Math.max(0,(t-a)/0.35));
+    let o=ease(p);
+    if(t>b-0.2&&isScreen)o*=Math.max(0,(b-t)/0.2);
+    e.style.opacity=o;
+    e.style.transform=isScreen?'none':`translateY(${(1-ease(p))*40}px) scale(${0.94+0.06*ease(p)})`;
+  });
+  typed.forEach(e=>{
+    const [s,f]=e.dataset.type.split(',').map(Number);
+    const n=Math.round(e._full.length*Math.min(1,Math.max(0,(t-s)/(f-s))));
+    e.textContent=e._full.slice(0,n).join('');
+  });
+  document.getElementById('bar').style.width=(t/28.3*100)+'%';
+}
+seek(0);
+</script></body></html>

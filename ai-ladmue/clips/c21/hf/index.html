@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="th"><head><meta charset="UTF-8"/><meta name="viewport" content="width=1080, height=1920"/><title>News</title>
+<script src="assets/gsap.min.js"></script><style>
+@font-face{font-family:P;font-weight:700;src:url(assets/prompt-thai-700-normal.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(assets/prompt-thai-800-normal.woff2)}
+*{box-sizing:border-box;margin:0}
+body{margin:0;background:#000;font-family:P,sans-serif}
+#root{position:relative;width:1080px;height:1920px;overflow:hidden;background:#000}
+.sc{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden}
+.bg{position:absolute;inset:0}
+.ab{position:absolute}
+
+.grid{position:absolute;inset:0;background:repeating-linear-gradient(90deg,#ffffff10 0 2px,transparent 2px 90px),repeating-linear-gradient(0deg,#ffffff10 0 2px,transparent 2px 90px)}
+.stripes{position:absolute;inset:0;background:repeating-linear-gradient(135deg,#00000030 0 60px,transparent 60px 120px)}
+.brk{position:absolute;left:0;right:0;top:640px;text-align:center;font-weight:800;font-size:250px;color:#fff;text-shadow:10px 10px 0 #000}
+.brk2{position:absolute;left:0;right:0;top:960px;text-align:center;font-weight:800;font-size:90px;color:#ffd23f;letter-spacing:10px;text-shadow:5px 5px 0 #000}
+.tagr{position:absolute;left:0;top:80px;background:#d62839;color:#fff;font-weight:800;font-size:64px;padding:6px 40px 6px 40px;border-right:10px solid #fff;z-index:5}
+.live{position:absolute;left:0;top:190px;background:#000;color:#fff;font-weight:800;font-size:44px;padding:4px 28px;z-index:5}.live i{display:inline-block;width:24px;height:24px;border-radius:50%;background:#f33;margin-right:12px}
+.logo{position:absolute;right:30px;top:90px;background:#fff;color:#16468f;font-weight:800;font-size:44px;padding:6px 22px;border-radius:12px;z-index:5}
+.ticker{position:absolute;left:0;right:0;top:1800px;height:100px;background:#111;overflow:hidden;z-index:6;border-top:6px solid #ffd23f}
+.tk{position:absolute;left:0;top:14px;white-space:nowrap;font-weight:800;font-size:54px;color:#fff}
+.lt{position:absolute;left:0;right:100px;top:1320px;background:#fff;color:#111;font-weight:800;font-size:56px;padding:14px 30px;border-left:30px solid #d62839;z-index:5;box-shadow:10px 10px 0 #0006}.lt b{display:block;font-size:40px;color:#d62839}
+.desk{position:absolute;left:0;right:0;top:1180px;height:120px;background:linear-gradient(#e6e9f0,#aab);border-top:10px solid #fff;z-index:2}
+.sbt{position:absolute;left:60px;right:60px;top:1560px;text-align:center;font-weight:800;font-size:68px;line-height:1.2;color:#fff;background:#000b;border-radius:20px;padding:14px;z-index:9;opacity:0}
+.screen2{width:330px;height:420px;background:#0b1020;border:10px solid #fff;border-radius:16px;position:relative}.st1{position:absolute;top:100px;left:0;right:0;text-align:center;font-weight:800;font-size:60px;color:#ffd23f}.st2{position:absolute;top:210px;left:0;right:0;text-align:center;font-weight:800;font-size:64px;color:#fff}
+.mic{position:absolute;left:380px;top:1000px;width:40px;height:150px;background:#222;border-radius:20px;border:8px solid #888;transform:rotate(-30deg);z-index:3}
+.stamp2{position:absolute;left:60px;top:300px;font-weight:800;font-size:78px;color:#d62839;border:10px solid #d62839;background:#fff;padding:6px 26px;border-radius:20px;transform:rotate(-8deg);z-index:6}
+.xx{position:absolute;left:90px;top:360px;font-weight:800;font-size:380px;color:#ff3b4a;line-height:1;text-shadow:8px 8px 0 #000;z-index:4}
+.bigtxt{position:absolute;left:0;right:0;top:340px;text-align:center;font-weight:800;font-size:150px;color:#ffd23f;text-shadow:8px 8px 0 #000;z-index:4}
+.box{position:absolute;left:560px;top:760px;z-index:3}
+.endc{position:absolute;left:90px;right:90px;top:1180px;background:#ffd23f;border:10px solid #000;box-shadow:12px 12px 0 #000;text-align:center;font-weight:800;font-size:64px;color:#000;padding:20px;z-index:7}.endc b{font-size:90px}
+</style></head>
+<body><div id="root" data-composition-id="main" data-width="1080" data-height="1920" data-duration="16.5">
+<section id="sc-n0" class="clip sc" data-start="0" data-duration="1.0" data-track-index="1"><div class="bg" style="background:#d62839"></div><div class="stripes"></div><div class="brk" id="n0-t">ข่าวด่วน</div><div class="brk2" id="n0-t2">BREAKING NEWS</div></section>
+<section id="sc-n1" class="clip sc" data-start="1.0" data-duration="3.8" data-track-index="1"><div class="bg" style="background:linear-gradient(#0b2a5b,#16468f)"></div><div class="grid"></div><div class="ab" id="n1-scr" style="left:60px;top:300px"><div class="screen2"><svg width="200" height="300" viewBox="0 0 420 760" style="transform:scale(.4);transform-origin:0 0"></svg><div class="st1">เปิดตู้เย็น</div><div class="st2">10 รอบ/ชม.</div></div></div><div class="ab" id="n1-a" style="left:330px;top:640px;transform:scale(1.6);transform-origin:0 0"><svg viewBox="0 0 300 520" width="300" height="520" style="overflow:visible">
+<g id="n1a-body"><line x1="150" y1="14" x2="150" y2="54" stroke="#1b9a90" stroke-width="8" stroke-linecap="round"/><circle cx="150" cy="14" r="14" fill="#ff6f91"/>
+<g id="n1a-head"><rect x="28" y="108" width="20" height="56" rx="9" fill="#1b9a90"/><rect x="252" y="108" width="20" height="56" rx="9" fill="#1b9a90"/>
+<rect x="40" y="50" width="220" height="172" rx="56" fill="#4fd9cc" stroke="#1b9a90" stroke-width="6"/><rect x="64" y="76" width="172" height="122" rx="40" fill="#10142a"/><rect x="70" y="112" width="160" height="34" rx="14" fill="#9dff7a"/><rect x="70" y="112" width="160" height="10" rx="5" fill="#d8ffc8"/><path d="M124 178 Q150 190 176 176" stroke="#ff7aa2" stroke-width="9" stroke-linecap="round" fill="none"/>
+<ellipse cx="92" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/><ellipse cx="208" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/></g>
+<rect x="124" y="218" width="52" height="22" fill="#1b9a90"/>
+<path d="M62 262 Q150 232 238 262 L248 420 L52 420 Z" fill="#2fc4b8" stroke="#1b9a90" stroke-width="6"/><rect x="118" y="282" width="64" height="60" rx="16" fill="#10142a"/><path d="M150 330 C122 308 130 290 150 302 C170 290 178 308 150 330Z" fill="#ff6f91"/>
+<g id="n1a-armL" style="transform-origin:78px 268px"><path d="M78 268 L38 350" stroke="#1b9a90" stroke-width="44" stroke-linecap="round"/><path d="M78 268 L38 350" stroke="#2fc4b8" stroke-width="34" stroke-linecap="round"/><circle cx="36" cy="354" r="22" fill="#f2f6f8" stroke="#1b9a90" stroke-width="5"/></g>
+<g id="n1a-armR" style="transform-origin:222px 268px"><path d="M222 268 L262 350" stroke="#1b9a90" stroke-width="44" stroke-linecap="round"/><path d="M222 268 L262 350" stroke="#2fc4b8" stroke-width="34" stroke-linecap="round"/><circle cx="264" cy="354" r="22" fill="#f2f6f8" stroke="#1b9a90" stroke-width="5"/></g></g></svg></div><div class="desk"></div><div class="lt" id="n1-lt"><b>ชายวัยทำงาน</b>เปิดตู้เย็น 10 รอบ ใน 1 ชั่วโมง</div><div class="tagr">ข่าวด่วน</div><div class="live"><i></i>LIVE</div><div class="logo">AI ลัดมือ NEWS</div>
+</section>
+<section id="sc-n2" class="clip sc" data-start="4.8" data-duration="4.6" data-track-index="1"><div class="bg" style="background:linear-gradient(#0b2a5b,#16468f)"></div><div class="grid"></div><div class="ab" id="n2-f" style="left:560px;top:420px"><svg width="420" height="760" viewBox="0 0 420 760"><rect x="10" y="10" width="400" height="740" rx="30" fill="#dfe6f0" stroke="#222" stroke-width="10"/><rect x="40" y="50" width="340" height="330" rx="14" fill="#fffbd6"/><rect x="40" y="410" width="340" height="300" rx="14" fill="#fffbd6"/><rect x="40" y="200" width="340" height="12" fill="#9aa"/><rect x="40" y="560" width="340" height="12" fill="#9aa"/><path d="M60 70 L130 120 M60 120 L130 70" stroke="#bbb" stroke-width="4"/><text x="210" y="320" text-anchor="middle" font-size="60" font-family="P" font-weight="800" fill="#c33">ว่างเปล่า</text><rect x="360" y="420" width="16" height="140" rx="8" fill="#777"/></svg></div><div class="ab" id="n2-a" style="left:20px;top:700px;transform:scale(1.5);transform-origin:0 0"><svg viewBox="0 0 300 520" width="300" height="520" style="overflow:visible">
+<g id="n2a-body"><line x1="150" y1="14" x2="150" y2="54" stroke="#c4561a" stroke-width="8" stroke-linecap="round"/><circle cx="150" cy="14" r="14" fill="#ff6f91"/>
+<g id="n2a-head"><rect x="28" y="108" width="20" height="56" rx="9" fill="#c4561a"/><rect x="252" y="108" width="20" height="56" rx="9" fill="#c4561a"/>
+<rect x="40" y="50" width="220" height="172" rx="56" fill="#ffa05a" stroke="#c4561a" stroke-width="6"/><rect x="64" y="76" width="172" height="122" rx="40" fill="#10142a"/><ellipse cx="112" cy="130" rx="22" ry="30" fill="#9dff7a"/><ellipse cx="188" cy="130" rx="22" ry="30" fill="#9dff7a"/><circle cx="119" cy="122" r="6" fill="#10142a"/><circle cx="195" cy="122" r="6" fill="#10142a"/><path d="M86 102 L134 86 M214 102 L166 86" stroke="#9dff7a" stroke-width="9" stroke-linecap="round"/><path d="M120 184 Q135 168 150 182 Q165 196 180 182" stroke="#ff7aa2" stroke-width="9" stroke-linecap="round" fill="none"/>
+<ellipse cx="92" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/><ellipse cx="208" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/></g>
+<rect x="124" y="218" width="52" height="22" fill="#c4561a"/>
+<path d="M62 262 Q150 232 238 262 L248 420 L52 420 Z" fill="#ff8a3d" stroke="#c4561a" stroke-width="6"/><rect x="118" y="282" width="64" height="60" rx="16" fill="#10142a"/><path d="M150 330 C122 308 130 290 150 302 C170 290 178 308 150 330Z" fill="#ff6f91"/>
+<g id="n2a-armL" style="transform-origin:78px 268px"><path d="M78 268 L38 350" stroke="#c4561a" stroke-width="44" stroke-linecap="round"/><path d="M78 268 L38 350" stroke="#ff8a3d" stroke-width="34" stroke-linecap="round"/><circle cx="36" cy="354" r="22" fill="#ffe3c2" stroke="#c4561a" stroke-width="5"/></g>
+<g id="n2a-armR" style="transform-origin:222px 268px"><path d="M222 268 L262 350" stroke="#c4561a" stroke-width="44" stroke-linecap="round"/><path d="M222 268 L262 350" stroke="#ff8a3d" stroke-width="34" stroke-linecap="round"/><circle cx="264" cy="354" r="22" fill="#ffe3c2" stroke="#c4561a" stroke-width="5"/></g></g></svg></div><div class="mic"></div><div class="stamp2" id="n2-st">ยังไม่พบอะไรใหม่!</div><div class="lt" id="n2-lt"><b>ถ่ายทอดสด</b>หน้าตู้เย็นที่เกิดเหตุ</div><div class="tagr">ข่าวด่วน</div><div class="live"><i></i>LIVE</div><div class="logo">AI ลัดมือ NEWS</div>
+</section>
+<section id="sc-n3" class="clip sc" data-start="9.4" data-duration="3.3" data-track-index="1"><div class="bg" style="background:linear-gradient(#0b2a5b,#16468f)"></div><div class="grid"></div><div class="ab" id="n3-a" style="left:330px;top:640px;transform:scale(1.6);transform-origin:0 0"><svg viewBox="0 0 300 520" width="300" height="520" style="overflow:visible">
+<g id="n3a-body"><line x1="150" y1="14" x2="150" y2="54" stroke="#1b9a90" stroke-width="8" stroke-linecap="round"/><circle cx="150" cy="14" r="14" fill="#ff6f91"/>
+<g id="n3a-head"><rect x="28" y="108" width="20" height="56" rx="9" fill="#1b9a90"/><rect x="252" y="108" width="20" height="56" rx="9" fill="#1b9a90"/>
+<rect x="40" y="50" width="220" height="172" rx="56" fill="#4fd9cc" stroke="#1b9a90" stroke-width="6"/><rect x="64" y="76" width="172" height="122" rx="40" fill="#10142a"/><rect x="70" y="112" width="160" height="34" rx="14" fill="#9dff7a"/><rect x="70" y="112" width="160" height="10" rx="5" fill="#d8ffc8"/><path d="M124 178 Q150 190 176 176" stroke="#ff7aa2" stroke-width="9" stroke-linecap="round" fill="none"/>
+<ellipse cx="92" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/><ellipse cx="208" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/></g>
+<rect x="124" y="218" width="52" height="22" fill="#1b9a90"/>
+<path d="M62 262 Q150 232 238 262 L248 420 L52 420 Z" fill="#2fc4b8" stroke="#1b9a90" stroke-width="6"/><rect x="118" y="282" width="64" height="60" rx="16" fill="#10142a"/><path d="M150 330 C122 308 130 290 150 302 C170 290 178 308 150 330Z" fill="#ff6f91"/>
+<g id="n3a-armL" style="transform-origin:78px 268px"><path d="M78 268 L38 350" stroke="#1b9a90" stroke-width="44" stroke-linecap="round"/><path d="M78 268 L38 350" stroke="#2fc4b8" stroke-width="34" stroke-linecap="round"/><circle cx="36" cy="354" r="22" fill="#f2f6f8" stroke="#1b9a90" stroke-width="5"/></g>
+<g id="n3a-armR" style="transform-origin:222px 268px"><path d="M222 268 L262 350" stroke="#1b9a90" stroke-width="44" stroke-linecap="round"/><path d="M222 268 L262 350" stroke="#2fc4b8" stroke-width="34" stroke-linecap="round"/><circle cx="264" cy="354" r="22" fill="#f2f6f8" stroke="#1b9a90" stroke-width="5"/></g></g></svg></div><div class="desk"></div><div class="xx" id="n3-x"><svg width="360" height="360" viewBox="0 0 420 760" preserveAspectRatio="xMidYMid meet"><g transform="scale(.9)"></g></svg>✖</div><div class="lt" id="n3-lt"><b>ผู้เชี่ยวชาญ</b>แนะนำ: เลิกเปิดตู้เย็น!</div><div class="tagr">ข่าวด่วน</div><div class="live"><i></i>LIVE</div><div class="logo">AI ลัดมือ NEWS</div>
+</section>
+<section id="sc-n4" class="clip sc" data-start="12.7" data-duration="3.8" data-track-index="1"><div class="bg" style="background:linear-gradient(#0b2a5b,#16468f)"></div><div class="grid"></div><div class="ab" id="n4-a" style="left:40px;top:640px;transform:scale(1.5);transform-origin:0 0"><svg viewBox="0 0 300 520" width="300" height="520" style="overflow:visible">
+<g id="n4a-body"><line x1="150" y1="14" x2="150" y2="54" stroke="#c4561a" stroke-width="8" stroke-linecap="round"/><circle cx="150" cy="14" r="14" fill="#ff6f91"/>
+<g id="n4a-head"><rect x="28" y="108" width="20" height="56" rx="9" fill="#c4561a"/><rect x="252" y="108" width="20" height="56" rx="9" fill="#c4561a"/>
+<rect x="40" y="50" width="220" height="172" rx="56" fill="#ffa05a" stroke="#c4561a" stroke-width="6"/><rect x="64" y="76" width="172" height="122" rx="40" fill="#10142a"/><path d="M78 140 Q112 98 146 140" stroke="#9dff7a" stroke-width="14" stroke-linecap="round" fill="none"/><path d="M154 140 Q188 98 222 140" stroke="#9dff7a" stroke-width="14" stroke-linecap="round" fill="none"/><path d="M116 170 Q150 204 184 170" stroke="#ff7aa2" stroke-width="9" stroke-linecap="round" fill="none"/>
+<ellipse cx="92" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/><ellipse cx="208" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/></g>
+<rect x="124" y="218" width="52" height="22" fill="#c4561a"/>
+<path d="M62 262 Q150 232 238 262 L248 420 L52 420 Z" fill="#ff8a3d" stroke="#c4561a" stroke-width="6"/><rect x="118" y="282" width="64" height="60" rx="16" fill="#10142a"/><path d="M150 330 C122 308 130 290 150 302 C170 290 178 308 150 330Z" fill="#ff6f91"/>
+<g id="n4a-armL" style="transform-origin:78px 268px"><path d="M78 268 L38 350" stroke="#c4561a" stroke-width="44" stroke-linecap="round"/><path d="M78 268 L38 350" stroke="#ff8a3d" stroke-width="34" stroke-linecap="round"/><circle cx="36" cy="354" r="22" fill="#ffe3c2" stroke="#c4561a" stroke-width="5"/></g>
+<g id="n4a-armR" style="transform-origin:222px 268px"><path d="M222 268 L262 350" stroke="#c4561a" stroke-width="44" stroke-linecap="round"/><path d="M222 268 L262 350" stroke="#ff8a3d" stroke-width="34" stroke-linecap="round"/><circle cx="264" cy="354" r="22" fill="#ffe3c2" stroke="#c4561a" stroke-width="5"/></g></g></svg></div><div class="bigtxt" id="n4-t">สั่งข้าวแทน!</div><div class="box" id="n4-box"><svg width="420" height="360" viewBox="0 0 420 360"><path d="M30 110 L210 30 L390 110 L390 320 L30 320 Z" fill="#ffb066" stroke="#222" stroke-width="10"/><path d="M30 110 L210 190 L390 110" fill="none" stroke="#222" stroke-width="10"/><path d="M210 190 L210 320" stroke="#222" stroke-width="10"/></svg></div><div class="endc" id="n4-end">ติดตามข่าวต่อ<br><b>เพจ AI ลัดมือ</b></div><div class="tagr">ข่าวด่วน</div><div class="live"><i></i>LIVE</div><div class="logo">AI ลัดมือ NEWS</div>
+</section>
+<section id="sc-sub" class="clip sc" data-start="0" data-duration="16.5" data-track-index="2" style="pointer-events:none"><div class="ticker" id="tkb"><div class="tk" id="tk">ข่าวด่วน: พบชายเปิดตู้เย็นซ้ำสิบรอบ ★ อาหารยังไม่เกิดใหม่ ★ ผู้เชี่ยวชาญแนะนำให้สั่งข้าว ★ ติดตามได้ที่ AI ลัดมือ ★ ข่าวด่วน: พบชายเปิดตู้เย็นซ้ำสิบรอบ ★ อาหารยังไม่เกิดใหม่ ★</div></div><div class="sbt" id="sb0">ข่าวด่วน!</div><div class="sbt" id="sb1">พบชายวัยทำงานคนหนึ่ง</div><div class="sbt" id="sb2">เปิดตู้เย็นสิบรอบ ภายในหนึ่งชั่วโมง</div><div class="sbt" id="sb3">หวังว่าอาหารจะเกิดใหม่เอง</div><div class="sbt" id="sb4">ล่าสุด</div><div class="sbt" id="sb5">ยังไม่พบอะไรใหม่ในตู้เย็น</div><div class="sbt" id="sb6">ผู้เชี่ยวชาญแนะนำ ให้เลิกเปิด</div><div class="sbt" id="sb7">แล้วสั่งข้าวแทน</div><div class="sbt" id="sb8">ติดตามข่าวต่อ ที่เพจ AI ลัดมือ</div></section>
+<audio id="v" src="assets/v.mp3" data-start="0.05" data-duration="16.02" data-track-index="10" data-volume="1"></audio>
+<audio id="bgm" src="assets/bgm.wav" data-start="0" data-duration="16.5" data-track-index="30" data-volume="0.35"></audio>
+<audio id="sfx" src="assets/sfx.wav" data-start="0" data-duration="16.5" data-track-index="31" data-volume="1"></audio>
+</div>
+<script>
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+tl.to("#n0-t",{scale:1.08,duration:0.12,yoyo:true,repeat:7,ease:"none",transformOrigin:"50% 50%"},0.0);
+tl.from("#n1-lt",{x:-900,duration:0.35,ease:"power3.out"},1.20);
+tl.from("#n2-lt",{x:-900,duration:0.35,ease:"power3.out"},5.00);
+tl.from("#n3-lt",{x:-900,duration:0.35,ease:"power3.out"},9.60);
+tl.from("#n4-lt",{x:-900,duration:0.35,ease:"power3.out"},12.90);
+tl.set("#tkb",{opacity:0},0);tl.set("#tkb",{opacity:1},1.0);tl.fromTo("#tk",{x:1080},{x:-3200,duration:15.5,ease:"none"},1.0);
+tl.to("#n1a-body,#n3a-body",{y:-8,duration:0.35,yoyo:true,repeat:9,ease:"sine.inOut"},1.1);
+tl.from("#n1-a",{y:300,opacity:0,duration:0.4,ease:"back.out(1.4)"},1.02);tl.from("#n1-scr",{x:-400,opacity:0,duration:0.4},1.1);
+tl.from("#n2-f",{x:500,opacity:0,duration:0.4,ease:"power3.out"},4.85);tl.from("#n2-a",{x:-500,opacity:0,duration:0.4,ease:"back.out(1.4)"},4.9);tl.to("#n2a-body",{y:-8,duration:0.3,yoyo:true,repeat:11,ease:"sine.inOut"},5.2);
+tl.from("#n2-st",{scale:3,opacity:0,rotation:-25,duration:0.3,ease:"power4.in"},7.75);
+tl.from("#n3-a",{y:300,opacity:0,duration:0.4,ease:"back.out(1.4)"},9.42);tl.from("#n3-x",{scale:0,rotation:-40,duration:0.4,ease:"back.out(2)"},10.2);
+tl.from("#n4-a",{x:-500,opacity:0,duration:0.4,ease:"back.out(1.4)"},12.75);tl.from("#n4-t",{scale:2.5,opacity:0,duration:0.3,ease:"power4.out"},12.85);tl.from("#n4-box",{y:400,opacity:0,duration:0.4,ease:"bounce.out"},13.1);tl.from("#n4-end",{scale:0.2,opacity:0,duration:0.35,ease:"back.out(2)"},14.5);tl.to("#n4a-body",{y:-14,duration:0.3,yoyo:true,repeat:9,ease:"sine.inOut"},13.0);
+tl.to("#sb0",{opacity:1,duration:0.08},0.00);tl.to("#sb0",{opacity:0,duration:0.08},0.60);
+tl.to("#sb1",{opacity:1,duration:0.08},1.00);tl.to("#sb1",{opacity:0,duration:0.08},2.25);
+tl.to("#sb2",{opacity:1,duration:0.08},2.50);tl.to("#sb2",{opacity:0,duration:0.08},4.60);
+tl.to("#sb3",{opacity:1,duration:0.08},4.85);tl.to("#sb3",{opacity:0,duration:0.08},6.50);
+tl.to("#sb4",{opacity:1,duration:0.08},7.00);tl.to("#sb4",{opacity:0,duration:0.08},7.45);
+tl.to("#sb5",{opacity:1,duration:0.08},7.70);tl.to("#sb5",{opacity:0,duration:0.08},9.10);
+tl.to("#sb6",{opacity:1,duration:0.08},9.50);tl.to("#sb6",{opacity:0,duration:0.08},12.40);
+tl.to("#sb7",{opacity:1,duration:0.08},12.80);tl.to("#sb7",{opacity:0,duration:0.08},14.50);
+tl.to("#sb8",{opacity:1,duration:0.08},14.50);tl.to("#sb8",{opacity:0,duration:0.08},16.00);
+window.__timelines["main"] = tl;
+</script></body></html>
