@@ -1,6 +1,17 @@
 const fs=require('fs');
 const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const packs=[
+{n:12,clip:28,slug:'money-plan',color:['#F59E0B','#10B981'],emoji:'💰',title:'ให้ AI ช่วยวางแผนเก็บเงิน',sub:'5 คำสั่งแปลงเป้าหมายเป็นตารางเก็บเงิน',
+ intro:'บอก AI 4 อย่าง คือ รายได้ รายจ่าย เป้าหมาย และเวลา แล้วให้ช่วยทำตาราง จากนั้นตรวจตัวเลขเองทุกครั้ง AI คำนวณพลาดได้',
+ key:'รายได้ + รายจ่าย + เป้าหมาย + ระยะเวลา',
+ sections:[{h:'5 คำสั่งวางแผนเก็บเงิน',items:[
+ ['1. ตารางเก็บเงินตามเป้าหมาย','คุณคือผู้ช่วยวางแผนการเงินส่วนบุคคล ฉันอยากเก็บเงิน [จำนวนเงิน] บาท ภายใน [ระยะเวลา] รายได้ต่อเดือน [รายได้] บาท รายจ่ายประจำ [รายจ่าย] บาท ช่วยคำนวณว่าต้องเก็บเดือนละกี่บาท และทำตารางรายเดือน: เดือนที่ | ยอดที่เก็บ | ยอดสะสม | % ถึงเป้า แสดงวิธีคิดทุกขั้นตอน และระบุว่าไม่ได้รวมดอกเบี้ยและเงินเฟ้อ'],
+ ['2. เช็กว่าเป้าหมายเป็นไปได้ไหม','จากรายได้ [รายได้] และรายจ่าย [รายจ่าย] ต่อเดือน เป้าหมายเก็บ [จำนวนเงิน] ใน [ระยะเวลา] เป็นไปได้จริงไหม ถ้าไม่ได้ ช่วยเสนอ 3 ทางเลือก: ขยายเวลา ลดเป้า หรือหารายได้เพิ่ม พร้อมตัวเลขของแต่ละทาง'],
+ ['3. หาจุดรั่วในรายจ่าย','นี่คือรายจ่ายของฉันเดือนที่แล้ว: [วางรายการ] จัดหมวด จำเป็น/ควรมี/ฟุ่มเฟือย แล้วชี้ 3 รายการที่ลดได้มากสุด บอกตัวเลขที่ประหยัดได้ต่อเดือนและต่อปี อย่าตัดสินหรือตำหนิ'],
+ ['4. แผนเก็บเงินแบบวันละนิด','ฉันอยากเก็บเงิน [จำนวนเงิน] ใน [ระยะเวลา] ช่วยแปลงเป็นเป้ารายวันและรายสัปดาห์ เสนอกฎง่ายๆ 3 ข้อที่ทำตามได้จริง เช่น เก็บทันทีที่เงินเข้า'],
+ ['5. ตรวจตัวเลขของ AI','ตรวจแผนที่คุณเพิ่งทำให้ฉัน: คำนวณใหม่ทีละขั้น บอกสมมติฐานที่ใช้ ชี้จุดที่อาจผิดหรือต้องตรวจเอง และถ้าไม่แน่ใจให้บอกว่าไม่แน่ใจ']]},
+ {h:'ตัวอย่างการคิดแบบเร็ว',items:[['เก็บ 1,000,000 บาทใน 3 ปี','1,000,000 ÷ 1,095 วัน ≈ 913 บาทต่อวัน หรือ 1,000,000 ÷ 36 เดือน ≈ 27,800 บาทต่อเดือน (ไม่รวมดอกเบี้ยและเงินเฟ้อ)']]}],
+ tips:['ตัวเลขที่ AI คำนวณให้ ต้องตรวจเองด้วยเครื่องคิดเลขหรือสเปรดชีตก่อนใช้','ชุดนี้ช่วยวางแผนออมเงินเท่านั้น ไม่ใช่คำแนะนำการลงทุน','อย่าใส่เลขบัญชี รหัสผ่าน หรือข้อมูลส่วนตัวลงใน AI ใช้ตัวเลขประมาณแทน']},
 {n:2,slug:'ask-back',color:['#7C5CFF','#4D8BFF'],emoji:'🙋',title:'ให้ AI ถามกลับก่อนตอบ',sub:'10 คำสั่งที่ทำให้คำตอบตรงใจขึ้น',
  intro:'AI ตอบไม่ตรงใจ มักเพราะเรายังบอกข้อมูลไม่พอ เติมประโยคเดียวท้ายคำสั่งเดิมของคุณ แล้วให้ AI ถามสิ่งที่ขาดก่อนลงมือทำ',
  key:'“ก่อนตอบ ให้ถามฉันก่อน ถ้าข้อมูลไม่พอ”',
@@ -189,7 +200,7 @@ body{font-family:P,sans-serif;font-weight:500;color:#1B1B2F;font-size:11.5pt;lin
 .cover .em{font-size:64pt;line-height:1}.cover img{width:92px;border-radius:24px;margin-bottom:22px}
 .cover h1{font-size:34pt;font-weight:800;margin:14px 0 0;line-height:1.25}.cover p{font-size:15pt;margin:14px 0 0}
 .cover .b{font-weight:700;margin-top:34px;font-size:13pt;opacity:.95}
-h2{font-weight:800;font-size:16pt;color:${c[0]};margin:22px 0 6px}
+h2{break-after:avoid;font-weight:800;font-size:16pt;color:${c[0]};margin:22px 0 6px}
 .intro{background:#F4F4FB;border-radius:14px;padding:14px 18px;margin-bottom:6px}
 .key{display:inline-block;margin-top:8px;font-weight:800;color:${c[0]}}
 .p{border:2px solid ${c[0]}33;border-radius:14px;padding:10px 16px;margin:9px 0;page-break-inside:avoid}
@@ -202,7 +213,7 @@ for(const p of packs){
  let n=0;
  const body=p.sections.map(s=>`<h2>${esc(s.h)}</h2>`+s.items.map(([t,x])=>`<div class="p"><div class="t">${esc(t)}</div><code>${esc(x)}</code></div>`).join('')).join('');
  const h=`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>${esc(p.title)}</title><style>${css(p.color)}</style></head><body>
-<div class="cover"><img src="../../avatar.svg"><div class="em">${p.emoji}</div><h1>${esc(p.title)}</h1><p>${esc(p.sub)}</p><div class="b">AI ลัดมือ · @ailadmue · คลิปที่ ${p.n}</div></div>
+<div class="cover"><img src="../../avatar.svg"><div class="em">${p.emoji}</div><h1>${esc(p.title)}</h1><p>${esc(p.sub)}</p><div class="b">AI ลัดมือ · @ailadmue · คลิปที่ ${p.clip||p.n}</div></div>
 <div class="intro">${esc(p.intro)}<br><span class="key">${esc(p.key)}</span></div>${body}
 <div class="tips"><b>ข้อควรจำ</b><ul>${p.tips.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div>
 <p class="foot">ติดตาม @ailadmue เพื่อเทคนิค AI สั้นๆ ใช้ได้จริงทุกวัน ✨</p>
