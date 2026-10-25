@@ -8,8 +8,8 @@
   },
   {
    "name": "crowd",
-   "gain": -40,
-   "to": 14
+   "gain": -38,
+   "to": 12
   }
  ],
  "shots": [
@@ -18,19 +18,29 @@
    "lines": [
     "n1"
    ],
-   "bg": "plaza_wall",
+   "bg": "plaza",
+   "bgopts": {
+    "ceiling": true,
+    "threadX": 420
+   },
    "cam": [
     {
      "at": 0,
-     "x": 540,
-     "y": 990,
+     "x": 270,
+     "y": 540,
      "z": 1
     },
     {
-     "at": "n1.end",
-     "x": 540,
-     "y": 930,
-     "z": 1.03
+     "at": "n1.end-2.4",
+     "x": 270,
+     "y": 540,
+     "z": 1
+    },
+    {
+     "at": "n1.end-0.3",
+     "x": 270,
+     "y": -450,
+     "z": 1
     }
    ],
    "actors": [
@@ -39,10 +49,11 @@
      "keys": [
       {
        "at": 0,
-       "x": 330,
-       "y": 1340,
+       "x": 130,
+       "y": 760,
+       "mood": "curious",
        "ly": -1,
-       "mood": "curious"
+       "hr": -10
       }
      ]
     },
@@ -51,18 +62,19 @@
      "keys": [
       {
        "at": 0,
-       "x": 760,
-       "y": 1340,
-       "ly": -1,
+       "x": 400,
+       "y": 700,
+       "flip": 1,
+       "glide": 1,
        "mood": "neutral",
-       "flip": 1
+       "ly": -1
       }
      ]
     }
    ],
    "sfx": [
     {
-     "at": "n1.end-1.2",
+     "at": "n1.end-2.2",
      "name": "dust_puff",
      "gain": -14
     }
@@ -71,90 +83,40 @@
   {
    "id": "s2",
    "lines": [
-    "juno1",
-    "pip1"
+    "juno1"
    ],
-   "bg": "plaza_wall",
+   "bg": "plaza",
+   "bgopts": {
+    "ceiling": true,
+    "threadX": 420
+   },
+   "pre": 0.1,
    "cam": [
     {
      "at": 0,
-     "x": 540,
-     "y": 900,
+     "x": 270,
+     "y": -470,
      "z": 1
     }
    ],
    "actors": [
     {
-     "who": "pip",
-     "keys": [
-      {
-       "at": 0,
-       "x": 330,
-       "y": 1340,
-       "ly": -1,
-       "mood": "neutral"
-      },
-      {
-       "at": "pip1.start",
-       "mood": "curious"
-      }
-     ]
-    },
-    {
      "who": "juno",
      "keys": [
       {
        "at": 0,
-       "x": -200,
-       "y": 630,
-       "rot": -6,
-       "armL": 70,
-       "armR": 70,
-       "mood": "smirk",
-       "ly": 0
-      },
-      {
-       "at": "juno1.end",
-       "x": 760,
-       "y": 490,
-       "rot": -2,
-       "armL": 70,
-       "armR": 70,
+       "x": -40,
+       "y": -330,
+       "glide": 1,
+       "gt": -4,
        "mood": "smirk"
       },
       {
-       "at": "pip1.end",
-       "x": 1000,
-       "y": 460,
-       "rot": -4,
-       "armL": 70,
-       "armR": 70
-      }
-     ]
-    }
-   ],
-   "props": [
-    {
-     "kind": "glider",
-     "layer": "stuff",
-     "keys": [
-      {
-       "at": 0,
-       "x": -200,
-       "y": 645,
-       "rot": -6
-      },
-      {
        "at": "juno1.end",
-       "x": 760,
-       "y": 505,
-       "rot": -2
-      },
-      {
-       "at": "pip1.end",
-       "x": 1000,
-       "y": 475,
-       "rot": -4
+       "x": 640,
+       "y": -350,
+       "glide": 1,
+       "gt": -4
       }
      ]
     }
@@ -170,16 +132,64 @@
   {
    "id": "s3",
    "lines": [
+    "pip1"
+   ],
+   "bg": "plaza",
+   "bgopts": {
+    "ceiling": true,
+    "threadX": 420
+   },
+   "pre": 0.15,
+   "cam": [
+    {
+     "at": 0,
+     "x": 150,
+     "y": 660,
+     "z": 1.5
+    },
+    {
+     "at": "pip1.end",
+     "x": 150,
+     "y": 650,
+     "z": 1.62
+    }
+   ],
+   "actors": [
+    {
+     "who": "pip",
+     "keys": [
+      {
+       "at": 0,
+       "x": 150,
+       "y": 760,
+       "mood": "neutral",
+       "ly": -1,
+       "hr": -8
+      },
+      {
+       "at": "pip1.start",
+       "mood": "curious"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s4",
+   "lines": [
     "brass1",
     "pip2"
    ],
-   "bg": "plaza_wall",
+   "bg": "plaza",
+   "bgopts": {
+    "threadX": 420
+   },
    "pre": 0.3,
    "cam": [
     {
      "at": 0,
-     "x": 540,
-     "y": 990,
+     "x": 270,
+     "y": 560,
      "z": 1
     }
    ],
@@ -189,8 +199,8 @@
      "keys": [
       {
        "at": 0,
-       "x": 400,
-       "y": 1340,
+       "x": 200,
+       "y": 760,
        "mood": "neutral",
        "lx": 1
       },
@@ -205,10 +215,11 @@
      "keys": [
       {
        "at": 0,
-       "x": 140,
-       "y": 1340,
+       "x": 80,
+       "y": 760,
        "mood": "smirk",
-       "lx": 1
+       "lx": 1,
+       "glide": 0
       }
      ]
     },
@@ -217,20 +228,16 @@
      "keys": [
       {
        "at": 0,
-       "x": 1350,
-       "y": 1340,
+       "x": 680,
+       "y": 760,
        "flip": 1,
        "mood": "shout"
       },
       {
        "at": "brass1.start+0.9",
-       "x": 800,
-       "y": 1340,
+       "x": 410,
+       "y": 760,
        "flip": 1,
-       "mood": "shout"
-      },
-      {
-       "at": "brass1.end",
        "mood": "shout"
       },
       {
@@ -259,24 +266,28 @@
    ]
   },
   {
-   "id": "s4",
+   "id": "s5",
    "lines": [
     "n2",
     "pip3"
    ],
-   "bg": "plaza_wall",
+   "bg": "plaza",
+   "bgopts": {
+    "threadX": 420
+   },
+   "pre": 0.2,
    "cam": [
     {
      "at": 0,
-     "x": 520,
-     "y": 1050,
-     "z": 1.1
+     "x": 200,
+     "y": 640,
+     "z": 1.3
     },
     {
      "at": "pip3.start",
-     "x": 400,
-     "y": 1100,
-     "z": 1.45
+     "x": 150,
+     "y": 690,
+     "z": 1.8
     }
    ],
    "actors": [
@@ -285,16 +296,15 @@
      "keys": [
       {
        "at": 0,
-       "x": 420,
-       "y": 1340,
+       "x": 150,
+       "y": 760,
        "mood": "curious",
-       "prop": "tweezers",
-       "armL": 20,
-       "lx": -1
+       "lx": 1
       },
       {
-       "at": "n2.start+1.0",
-       "armL": 72,
+       "at": "n2.start+0.9",
+       "kneel": 0.8,
+       "hold": "strand",
        "mood": "curious"
       },
       {
@@ -304,98 +314,66 @@
      ]
     }
    ],
-   "props": [
-    {
-     "kind": "strand",
-     "layer": "stuff",
-     "keys": [
-      {
-       "at": 0,
-       "x": 250,
-       "y": 1300,
-       "s": 0.0001,
-       "rot": -12
-      },
-      {
-       "at": "n2.start+1.0",
-       "x": 238,
-       "y": 1118,
-       "s": 0.8,
-       "rot": -12
-      }
-     ]
-    }
-   ],
    "cues": [
     {
      "at": "pip3.start",
      "until": "pip3.end+0.5",
      "do": "clue",
-     "card": "gold_thread",
-     "label": "CLUE",
-     "y": 640
+     "card": "thread",
+     "label": "CLUE No. 2",
+     "sub": "SILK THREAD"
     }
    ],
    "sfx": [
     {
-     "at": "n2.start+1.1",
+     "at": "n2.start+1.0",
      "name": "thread_shimmer",
      "gain": -12
     }
    ]
   },
   {
-   "id": "s5",
+   "id": "s6",
    "lines": [
     "brass2"
    ],
-   "bg": "plaza_wall",
+   "bg": "plaza",
+   "bgopts": {
+    "threadX": 420
+   },
    "pre": 0.35,
    "cam": [
     {
      "at": 0,
-     "x": 540,
-     "y": 1040,
-     "z": 1.2
+     "x": 270,
+     "y": 640,
+     "z": 1.5
     },
     {
      "at": "brass2.end",
-     "x": 540,
-     "y": 1060,
-     "z": 1.4
+     "x": 270,
+     "y": 650,
+     "z": 1.75
     }
    ],
    "actors": [
-    {
-     "who": "pip",
-     "keys": [
-      {
-       "at": 0,
-       "x": 180,
-       "y": 1340,
-       "s": 0.85,
-       "mood": "curious",
-       "lx": 1
-      }
-     ]
-    },
     {
      "who": "brass",
      "keys": [
       {
        "at": 0,
-       "x": 640,
-       "y": 1340,
-       "s": 1.1,
+       "x": 270,
+       "y": 760,
+       "s": 1.2,
        "mood": "neutral",
-       "armL": 10,
-       "armR": 10,
+       "armL": 6,
+       "armR": 6,
        "badge": 1
       },
       {
-       "at": "brass2.start",
-       "armL": 42,
-       "armR": 42,
+       "at": "brass2.start-0.3",
+       "armL": 40,
+       "armR": 40,
        "pat": 1,
        "badge": 0,
        "mood": "worried"
@@ -405,24 +383,24 @@
    ],
    "sfx": [
     {
-     "at": "brass2.start-0.4",
+     "at": "brass2.start-0.3",
      "name": "pat",
      "gain": -6
     },
     {
-     "at": "brass2.start-0.15",
+     "at": "brass2.start-0.1",
      "name": "pat",
      "gain": -6
     },
     {
-     "at": "brass2.start+0.9",
+     "at": "brass2.start+0.8",
      "name": "pat",
      "gain": -6
     }
    ]
   },
   {
-   "id": "s6",
+   "id": "s7",
    "lines": [
     "n3"
    ],
@@ -431,42 +409,35 @@
    "cam": [
     {
      "at": 0,
-     "x": 640,
-     "y": 1000,
-     "z": 1.0
+     "x": 270,
+     "y": 520,
+     "z": 1
     },
     {
      "at": "n3.end",
-     "x": 760,
-     "y": 1060,
-     "z": 1.5
+     "x": 330,
+     "y": 520,
+     "z": 1.45
     }
    ],
    "props": [
     {
      "kind": "eyemark",
-     "layer": "main",
-     "still": true,
+     "layer": "back",
      "keys": [
       {
        "at": 0,
-       "x": 860,
-       "y": 1060,
-       "w": 120,
-       "open": 0.05
+       "x": 450,
+       "y": 510,
+       "w": 1.5,
+       "open": 0.1
       },
       {
        "at": "n3.resume1",
-       "x": 860,
-       "y": 1060,
-       "w": 120,
-       "open": 0.05
+       "open": 0.1
       },
       {
        "at": "n3.resume1+0.7",
-       "x": 860,
-       "y": 1060,
-       "w": 120,
        "open": 1
       }
      ]
@@ -483,7 +454,7 @@
     },
     {
      "at": "n3.end+0.4",
-     "a": 0.35
+     "a": 0.3
     }
    ],
    "sfx": [

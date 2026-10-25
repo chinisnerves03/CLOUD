@@ -1,0 +1,62 @@
+// Backgrounds, props, clue-card faces. Plaza is ported from ep01_preview.src.html.
+const BG={},PROPS={};
+function wood(){let s='';for(let i=0;i<46;i++){const y=i*22+rnd(i)*14;let d=`M-40 ${y}`;for(let x=0;x<=600;x+=60)d+=` Q${x+30} ${y+(rnd(i*9+x)-.5)*16} ${x+60} ${y+(rnd(i*3+x)-.5)*10}`;
+ s+=`<path d="${d}" fill="none" stroke="${i%3?'#b58557':'#a2744a'}" stroke-width="${1.2+rnd(i+4)*2.2}" opacity=".7"/>`}
+ for(let i=0;i<14;i++)s+=`<ellipse cx="${rnd(i+30)*540}" cy="${rnd(i+60)*960}" rx="${8+rnd(i)*16}" ry="${3+rnd(i+2)*5}" fill="#9a6c43" opacity=".35"/>`;return s}
+function city(){let s='';const cols=['#1F2A44','#2F8F8B','#C8452F','#E0A526','#6d5d86'];
+ [[-30,80,130],[40,60,100],[100,70,150],[170,60,90],[470,70,140],[540,60,100],[600,80,150],[380,60,100]].forEach(([x,w,hh],i)=>{const col=cols[i%5];
+  s+=`<rect x="${x}" y="${560-hh}" width="${w}" height="${hh}" fill="${col}"/><path d="M${x-8} ${560-hh+4} Q${x+w/2} ${560-hh-52} ${x+w+8} ${560-hh+4}Z" fill="#c9ced6" stroke="#8e96a3" stroke-width="2"/><g fill="#f6d98a" opacity=".9"><rect x="${x+10}" y="${560-hh+22}" width="12" height="16" rx="2"/><rect x="${x+w-24}" y="${560-hh+22}" width="12" height="16" rx="2"/></g>`;
+  for(let k=0;k<5;k++)s+=`<circle cx="${x+w/2+(k-2)*9}" cy="${560-hh-14-Math.abs(k-2)*-3}" r="1.6" fill="#8e96a3"/>`});
+ return s+`<g><rect x="365" y="250" width="58" height="310" fill="#E0A526"/><path d="M365 250 L394 160 L423 250Z" fill="#e9c58f"/><path d="M381 205 L394 160 L407 205Z" fill="#33343c"/><path d="M386 250 V560 M402 250 V560" stroke="#b88618" stroke-width="2"/><circle cx="394" cy="300" r="21" fill="#F3E9D2" stroke="#1F2A44" stroke-width="4"/><path d="M394 300 V286 M394 300 L404 305" stroke="#1F2A44" stroke-width="3" stroke-linecap="round"/></g>`}
+const bootprint=(x,y,rot)=>`<g transform="translate(${x} ${y}) rotate(${rot}) scale(1.7)" opacity=".85"><path d="M-6 -17 q8 -5 13 1 q4 8 1 20 q-2 6 -7 6 q-5 0 -7 -6 q-3 -12 0 -21Z" fill="#cbb994"/><ellipse cy="23" rx="5.5" ry="4.5" fill="#cbb994"/></g>`;
+
+BG.plaza=function($,shot){const o=shot.bgopts||{};
+ let sky=`<rect x="-600" y="-1600" width="1740" height="2300" fill="url(#skyG)"/><circle cx="270" cy="560" r="520" fill="url(#sun)"/>`;
+ if(o.ceiling){sky+=`<rect x="-600" y="-760" width="1740" height="360" fill="#2a1d17"/><rect x="-600" y="-410" width="1740" height="10" fill="#4b3326"/>`;
+  for(let i=0;i<10;i++)sky+=bootprint(-30+i*66,-545+(i%2?26:-22)+Math.sin(i)*8,90+(rnd(i)-.5)*10);
+  sky+=`<g transform="translate(60 -470) scale(.4)" opacity=".5"><use href="#eyeGlyphY"/></g>`}
+ else sky+=`<rect x="-600" y="-470" width="1740" height="70" fill="#2a1d17"/><rect x="-600" y="-410" width="1740" height="10" fill="#4b3326"/>`;
+ sky+=`<path id="thrBg" d="M${o.threadX||270} -1500 L${o.threadX||270} -720" stroke="#F3E9D2" stroke-width="2.2" fill="none"/>`;
+ $('sky').innerHTML=sky;
+ $('bg').innerHTML=`<path d="M-600 560 Q-300 470 0 520 T600 500 T1140 520 L1140 700 L-600 700Z" fill="#b98a5d" opacity=".75"/><g filter="url(#paper)">${city()}</g>`;
+ const pal=['#1F2A44','#2F8F8B','#6d5d86','#C8452F','#8a6a3d'];let crowd='';
+ [[44,712],[78,730],[108,706],[16,738],[428,716],[466,734],[500,708],[520,740],[148,742],[398,745]].forEach(([x,y],i)=>{const c=pal[i%5],sc=.85+rnd(i)*.4;
+  crowd+=`<g class="cr" data-i="${i}" data-x="${x}" data-y="${y}" data-s="${sc}"><g filter="url(#paper)"><path d="M-9 0 L-7 -26 Q0 -32 7 -26 L9 0Z" fill="${c}"/><circle cy="-36" r="8.5" fill="#f1cfaa"/><path d="M-9 -38 Q0 -50 9 -38Q0 -44 -9 -38Z" fill="${i%2?'#222':'#8a5a2b'}"/><circle cx="-3" cy="-36" r="1.2" fill="#1F2A44"/><circle cx="3" cy="-36" r="1.2" fill="#1F2A44"/></g></g>`});
+ const stalls=[[28,640],[430,630]].map(([x,y],i)=>`<g><rect x="${x}" y="${y}" width="80" height="60" fill="#d0452b"/><rect x="${x+6}" y="${y+10}" width="68" height="32" fill="#F3E9D2"/><path d="M${x-6} ${y} H${x+86} L${x+78} ${y-22} H${x+2}Z" fill="${i?'#2F8F8B':'#E0A526'}"/></g>`).join('');
+ $('mid').innerHTML=`<g filter="url(#paperNoOutline)"><ellipse cx="270" cy="790" rx="500" ry="250" fill="#F3E9D2" stroke="#d9c9a3" stroke-width="7"/><ellipse cx="270" cy="790" rx="470" ry="228" fill="none" stroke="#d9c9a3" stroke-width="3"/><g fill="#c9b78d"><ellipse cx="236" cy="800" rx="16" ry="8"/><ellipse cx="304" cy="800" rx="16" ry="8"/><ellipse cx="236" cy="840" rx="16" ry="8"/><ellipse cx="304" cy="840" rx="16" ry="8"/></g></g>
+  <g filter="url(#paper)">${stalls}</g>${o.plinth===false?'':`<g filter="url(#paper)"><path d="M190 620 L190 722 A80 20 0 0 0 350 722 L350 620Z" fill="#C89B6D"/><path d="M190 660 L350 660" stroke="#a97d52" stroke-width="2" fill="none"/><ellipse cx="270" cy="620" rx="80" ry="20" fill="#d8b085"/><ellipse cx="270" cy="620" rx="62" ry="13" fill="#C8452F" opacity=".38"/></g>`}
+  <g id="crowd">${crowd}</g>`;
+ let b='<path d="M-60 140 Q270 215 600 140" fill="none" stroke="#8a6a3d" stroke-width="3"/>';const cl=['#C8452F','#E0A526','#2F8F8B','#F3E9D2'];
+ for(let i=0;i<12;i++){const t=i/11,x=-40+t*620,y=140+Math.sin(t*Math.PI)*60*1.12;b+=`<g class="fl" data-i="${i}" data-x="${x}" data-y="${y}"><path d="M-17 0 L17 0 L0 36Z" fill="${cl[i%4]}"/></g>`}
+ $('fg').innerHTML=`<g filter="url(#paperNoOutline)">${b}</g><g filter="url(#paper)">${[[-30,930],[570,940]].map(([x,y])=>`<g transform="translate(${x} ${y})"><rect x="-75" y="-95" width="150" height="26" rx="6" fill="#d8b085"/><rect x="-75" y="-18" width="150" height="26" rx="6" fill="#d8b085"/><rect x="-48" y="-72" width="96" height="56" fill="#E0A526"/><path d="M-48 -62 H48 M-48 -48 H48 M-48 -34 H48 M-48 -22 H48" stroke="#b88618" stroke-width="2"/></g>`).join('')}</g>`;
+ const cr=[...document.querySelectorAll('.cr')],fl=[...document.querySelectorAll('.fl')];
+ return(t,ct)=>{fl.forEach(f=>{const i=+f.dataset.i;f.setAttribute('transform',`translate(${f.dataset.x} ${f.dataset.y}) rotate(${f2(Math.sin(ct*2.2+i)*7)})`)});
+  cr.forEach(c=>{const i=+c.dataset.i,bob=(Math.floor(ct*3+i*.37)%2)*-3;c.setAttribute('transform',`translate(${c.dataset.x} ${+c.dataset.y+bob}) rotate(${f2(Math.sin(ct*1.4+i)*2)}) scale(${c.dataset.s})`)});
+  const tw=shot.bgopts&&shot.bgopts.twitch?Math.sin(t*8)*3:0;const th=$('thrBg');if(th)th.setAttribute('d',`M${(shot.bgopts&&shot.bgopts.threadX)||270} -1500 Q${((shot.bgopts&&shot.bgopts.threadX)||270)+tw} -1100 ${(shot.bgopts&&shot.bgopts.threadX)||270} -720`)}};
+
+BG.desk=function($,shot){
+ $('sky').innerHTML=`<rect x="-300" y="-300" width="1140" height="1560" fill="#C89B6D"/>`;
+ $('bg').innerHTML=`<g transform="translate(0 0)">${wood()}</g>`;
+ let d='';for(let i=0;i<70;i++)d+=`<circle cx="${-100+rnd(i+200)*740}" cy="${-100+rnd(i+300)*1160}" r="${.8+rnd(i+400)*1.8}" fill="#e8dcc0" opacity="${.3+rnd(i+500)*.4}"/>`;
+ $('mid').innerHTML=`${d}<g filter="url(#paper)"><rect x="170" y="440" width="200" height="140" fill="#d3ad82" stroke="#a97d52" stroke-width="3" stroke-dasharray="6 4"/>
+  <path d="M30 150 L230 164 L230 178 L30 164Z" fill="#E0A526"/><path d="M230 164 L260 171 L230 178Z" fill="#e9c58f"/>
+  <g transform="translate(430 700) rotate(-8)"><rect x="-60" y="-38" width="120" height="76" fill="#C8452F"/><text y="-4" text-anchor="middle" font-family="Georgia,serif" font-size="22" fill="#F3E9D2">CASE</text><text y="26" text-anchor="middle" font-family="Georgia,serif" font-size="22" fill="#F3E9D2">CLOSED!</text><rect x="-14" y="-72" width="28" height="34" fill="#a97d52"/></g></g>`;
+ $('fg').innerHTML='';return null};
+
+// ---- props ----
+const eyeSVG=(col,open,s)=>`<g transform="scale(${s} ${f2(s*Math.max(.05,open))})"><path d="M-30 0 Q0 -26 30 0 Q0 26 -30 0Z" fill="none" stroke="${col}" stroke-width="4" stroke-linejoin="round"/>${open>.25?`<circle r="11" fill="${col}"/><circle cy="-2" r="3.6" fill="#F3E9D2"/><path d="M-2 0 L2 0 L3.6 8 L-3.6 8Z" fill="#F3E9D2"/>`:''}</g>`;
+PROPS.eyemark=p=>eyeSVG(p.col||'#6d4a2a',p.open??1,p.w??1);
+PROPS.glider=p=>`<path d="M-62 4 L60 -6 L46 7 L-42 12Z" fill="#F3E9D2" stroke="#d6c59d" stroke-width="1.5"/><path d="M-42 12 L46 7 L2 24Z" fill="#e3d6b8"/>`;
+PROPS.coin=p=>`<ellipse cy="${p.sink||0}" rx="26" ry="9" fill="#E0A526" stroke="#b88618" stroke-width="2"/>`;
+PROPS.redbutton=p=>`<circle r="${60*(p.size||1)}" fill="#C8452F"/><circle r="${46*(p.size||1)}" fill="#a83a28"/>${[[-11,-11],[11,-11],[-11,11],[11,11]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="4.5" fill="#14141c"/>`).join('')}`;
+PROPS.tag=p=>`<path d="M0 -30 V0" stroke="#9c7248"/><rect x="-35" y="0" width="70" height="30" fill="#F3E9D2" stroke="#c9b78d"/><text y="22" text-anchor="middle" font-family="Georgia,serif" font-size="15" fill="#1F2A44">${p.label||''}</text>`;
+PROPS.crumb=p=>`<ellipse rx="5" ry="4" fill="#a97d52"/>`;
+PROPS.pole=p=>`<rect x="-3" y="-125" width="6" height="125" fill="#aab1bd"/><ellipse cy="-125" rx="35" ry="9" fill="#cfd4dc" stroke="#8e96a3"/>`;
+PROPS.stucksock=p=>`<path d="M-25 20 Q-30 -40 -15 -62 Q30 -68 45 -55 Q52 -10 40 20Z" fill="#C8452F"/><g fill="#F3E9D2" opacity=".9"><rect x="-24" y="-40" width="62" height="7"/><rect x="-24" y="-20" width="62" height="7"/></g><path d="M-5 -45 L50 -95 L20 -35Z" fill="#F3E9D2"/>`;
+
+// ---- clue-card faces (276 x 376 card, origin centre) ----
+CARD.eye=u=>`<use href="#eyeGlyph" transform="translate(0 -32) scale(2.35)"/>`;
+CARD.thread=u=>`<g transform="translate(0 -40)">${[0,1,2,3].map(k=>`<path d="M-110 ${-40+k*22} q30 -50 60 -4 t60 0 t60 -4 t50 4" stroke="${k%2?'#e8d9a8':'#F3E9D2'}" stroke-width="${4-k*.5}" fill="none" stroke-linecap="round" style="filter:drop-shadow(0 1px 0 #b9a77a)"/>`).join('')}
+ ${Array.from({length:14},(_,i)=>`<circle cx="${-100+rnd(i+3)*200}" cy="${-60+rnd(i+9)*110}" r="${1.8+rnd(i+5)*2}" fill="#E0A526"/>`).join('')}</g>`;
+CARD.seal=u=>`<g transform="translate(0 -32)"><circle r="62" fill="#C8452F"/><circle r="46" fill="#9e3322"/><g transform="scale(1.1)"><use href="#eyeGlyphY" opacity=".0"/></g><g transform="scale(1.3)"><path d="M-30 0 Q0 -26 30 0 Q0 26 -30 0Z" fill="none" stroke="#F3E9D2" stroke-width="3"/><circle r="9" fill="#F3E9D2"/><path d="M-2 0 L2 0 L3.6 8 L-3.6 8Z" fill="#9e3322"/></g></g>`;
+CARD.ledger=u=>`<g transform="translate(0 -40)">${[0,1,2,3,4].map(k=>`<path d="M-120 ${-90+k*34} H120" stroke="#9db4c0" stroke-width="2"/>`).join('')}<text transform="translate(-4 -40) rotate(-4)" text-anchor="middle" font-family="Georgia,serif" font-size="32" fill="#1F2A44">Collection</text><text transform="translate(0 20) rotate(-4)" text-anchor="middle" font-family="Georgia,serif" font-size="40" fill="#C8452F">17 of 400</text></g>`;

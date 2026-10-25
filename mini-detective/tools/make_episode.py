@@ -190,7 +190,7 @@ def main():
     print("[3/6] build scene html")
     ep, sfx_events = build_ep(entry, shotcfg, tl, speech_end, total, not a.no_captions)
     tpl = (HERE / "template" / "scene.html").read_text(encoding="utf-8")
-    tpl = re.sub(r"/\*__INLINE:([\w.]+)__\*/", lambda m: (HERE / "template" / m.group(1)).read_text(encoding="utf-8"), tpl)
+    tpl = re.sub(r"(?:/\*__|<!--)INLINE:([\w.]+?)(?:__\*/|-->)", lambda m: (HERE / "template" / m.group(1)).read_text(encoding="utf-8"), tpl)
     html = work / "scene.html"
     html.write_text(tpl.replace("/*__EP_DATA__*/null", json.dumps(ep)), encoding="utf-8")
     if a.stills:
