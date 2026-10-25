@@ -1,5 +1,0 @@
-[1/6] voice (SCRATCH tone voice - not real speech)
-[2/6] measure clips, find pauses, build timeline
-      speech ends 36.5s, total 38.7s
-[3/6] build scene html
-[4/6] render 1162 frames with 4 workers

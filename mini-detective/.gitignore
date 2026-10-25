@@ -3,3 +3,4 @@ out/*_scratch.mp4
 audio/mock/
 __pycache__/
 *.pyc
+out/*.log
