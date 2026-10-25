@@ -1,0 +1,9 @@
+{
+ "voice": "Ruby B \u2014 Authentic Cockney London Female",
+ "voice_id": "jUPSOpRcPt8GMPsWx5fy",
+ "model": "eleven_v3",
+ "text": "[excited] Nobody asked, but people don't walk on ceilings.",
+ "chars": 58,
+ "source": "elevenlabs-connector",
+ "created": "2026-10-25T04:10:24Z"
+}
