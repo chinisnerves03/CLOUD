@@ -15,6 +15,7 @@ function track(keys,t){if(!keys||!keys.length)return{};if(t<=keys[0].t)return ke
   for(const k in a)o[k]=(typeof a[k]==='number'&&typeof b[k]==='number'&&k!=='t')?mix(a[k],b[k],u):a[k];for(const k in b)if(!(k in o))o[k]=b[k];return o}}return last}
 
 function init(){
+ if(EP.aspect==='4:5')document.body.classList.add('a45');
  $('tableLines').innerHTML=Array.from({length:30},(_,i)=>`<path d="M0 ${i*34} L540 ${i*34+(i%2?5:-5)}"/>`).join('');
 }
 function cam(t){const c=SHOT.cam&&SHOT.cam.length?track(SHOT.cam,t):{};return[c.x??270,c.y??540,c.z??1]}

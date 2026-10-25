@@ -4,9 +4,9 @@ import { createRequire } from 'module';
 import { pathToFileURL } from 'url';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
-const [html, outDir, a, b, fps, q = '92'] = process.argv.slice(2);
+const [html, outDir, a, b, fps, q = '92', H = '960'] = process.argv.slice(2);
 const browser = await chromium.launch({ args: ['--font-render-hinting=none', '--disable-lcd-text'] });
-const page = await browser.newPage({ viewport: { width: 540, height: 960 }, deviceScaleFactor: 2 });
+const page = await browser.newPage({ viewport: { width: 540, height: +H }, deviceScaleFactor: 2 });
 page.on('pageerror', e => { console.error('PAGEERROR', e.message); process.exitCode = 3; });
 await page.goto(pathToFileURL(html).href);
 for (let f = +a; f < +b; f++) {

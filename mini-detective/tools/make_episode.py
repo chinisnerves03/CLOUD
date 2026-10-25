@@ -115,12 +115,12 @@ def build_ep(entry, shotcfg, tl, speech_end, total, captions):
     return ep, sfx_events
 
 
-def render(html, framedir, total, workers, quality):
+def render(html, framedir, total, workers, quality, height=960):
     n = int(total * FPS) + 1
     framedir.mkdir(parents=True, exist_ok=True)
     for f in framedir.glob("f*.jpg"): f.unlink()
     chunk = -(-n // workers)
-    procs = [subprocess.Popen(["node", str(HERE / "render_worker.mjs"), str(html), str(framedir), str(i), str(min(n, i + chunk)), str(FPS), str(quality)])
+    procs = [subprocess.Popen(["node", str(HERE / "render_worker.mjs"), str(html), str(framedir), str(i), str(min(n, i + chunk)), str(FPS), str(quality), str(height)])
              for i in range(0, n, chunk)]
     rc = [p.wait() for p in procs]
     got = len(list(framedir.glob("f*.jpg")))
@@ -149,6 +149,7 @@ def main():
     ap.add_argument("--workers", type=int, default=min(4, os.cpu_count() or 2))
     ap.add_argument("--no-captions", action="store_true", help="no burned-in subtitles")
     ap.add_argument("--no-music", action="store_true")
+    ap.add_argument("--aspect", choices=["9:16", "4:5"], default="9:16", help="4:5 renders 1080x1350 (centre crop of the same scene)")
     ap.add_argument("--quality", type=int, default=92, help="jpeg quality of rendered frames")
     ap.add_argument("--stills", nargs="*", type=float, help="render only these times (s) to out/epNN_work/still_*.jpg and stop")
     a = ap.parse_args()
@@ -165,7 +166,8 @@ def main():
         return
 
     scratch = a.tts == "mock"
-    name = f"ep{a.entry:02d}"
+    name = f"ep{a.entry:02d}" + ("_4x5" if a.aspect == "4:5" else "")
+    height = 675 if a.aspect == "4:5" else 960
     work = OUT / f"{name}_work"
     work.mkdir(parents=True, exist_ok=True)
     print(f"[1/6] voice ({'SCRATCH tone voice - not real speech' if scratch else 'ElevenLabs, cached'})")
@@ -189,6 +191,7 @@ def main():
 
     print("[3/6] build scene html")
     ep, sfx_events = build_ep(entry, shotcfg, tl, speech_end, total, not a.no_captions)
+    ep["aspect"] = a.aspect
     tpl = (HERE / "template" / "scene.html").read_text(encoding="utf-8")
     tpl = re.sub(r"(?:/\*__|<!--)INLINE:([\w.]+?)(?:__\*/|-->)", lambda m: (HERE / "template" / m.group(1)).read_text(encoding="utf-8"), tpl)
     html = work / "scene.html"
@@ -196,13 +199,14 @@ def main():
     if a.stills:
         for old in work.glob("still_*.jpg"): old.unlink()
         for t in a.stills:
-            subprocess.run(["node", str(HERE / "render_worker.mjs"), str(html), str(work), str(int(t * FPS)), str(int(t * FPS) + 1), str(FPS), "92"], check=True)
+            subprocess.run(["node", str(HERE / "render_worker.mjs"), str(html), str(work), str(int(t * FPS)), str(int(t * FPS) + 1), str(FPS), "92", str(height)], check=True)
             (work / f"f{int(t * FPS):05d}.jpg").rename(work / f"still_{t:07.2f}.jpg")
         try:  # contact sheet for quick review
             from PIL import Image
             fs = sorted(work.glob("still_*.jpg")); cols = min(4, len(fs)); rows_ = -(-len(fs) // cols)
-            sheet = Image.new("RGB", (360 * cols, 640 * rows_))
-            for i, f in enumerate(fs): sheet.paste(Image.open(f).resize((360, 640)), ((i % cols) * 360, (i // cols) * 640))
+            w0, h0 = Image.open(fs[0]).size; th = round(360 * h0 / w0)
+            sheet = Image.new("RGB", (360 * cols, th * rows_))
+            for i, f in enumerate(fs): sheet.paste(Image.open(f).resize((360, th)), ((i % cols) * 360, (i // cols) * th))
             sheet.save(work / "contact.jpg", quality=85)
         except ImportError:
             pass
@@ -210,7 +214,7 @@ def main():
 
     print(f"[4/6] render {int(total * FPS) + 1} frames with {a.workers} workers")
     t0 = time.time()
-    render(html, work / "frames", total, a.workers, a.quality)
+    render(html, work / "frames", total, a.workers, a.quality, height)
     print(f"      done in {time.time() - t0:.0f}s")
 
     print("[5/6] mix audio (voices + synthesized sfx/beds), loudnorm -14 LUFS")
