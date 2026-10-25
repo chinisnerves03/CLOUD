@@ -1,0 +1,9 @@
+{
+ "voice": "Jesse \u2014 Animation Character, Friendly",
+ "voice_id": "rLl4PSDTzX3VHL4wjSFI",
+ "model": "eleven_v3",
+ "text": "[whispers] I know that song. [short pause] Why do I know that song?",
+ "chars": 67,
+ "source": "elevenlabs-connector",
+ "created": "2026-10-25T15:11:29Z"
+}

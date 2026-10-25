@@ -1,0 +1,9 @@
+{
+ "voice": "Lyra",
+ "voice_id": "ofWwoMxOYgLntvYlQLiB",
+ "model": "eleven_v3",
+ "text": "[softly] They call themselves the Keyhole Society. [pause] They take what is lost\u2026 and what is loved.",
+ "chars": 101,
+ "source": "elevenlabs-connector",
+ "created": "2026-10-25T15:11:29Z"
+}
