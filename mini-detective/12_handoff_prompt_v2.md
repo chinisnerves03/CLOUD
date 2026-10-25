@@ -16,7 +16,7 @@ Run full renders in the background with a log (about 5 min on 4 cores); a foregr
 STATE
 - Entry 1: finished earlier by the user (about 53 s, over the 45 s goal).
 - Entry 2 "Footprints on the Ceiling": DONE. out/ep02.mp4 (40.9 s, real voices, 520 credits), cover_ep02.png, captions/ep02.md. 
-- Entry 3 "Madame Velvet's Silent Night": DONE. out/ep03.mp4 (39.9 s, real voices, 497 credits), cover_ep03.png, captions/ep03.md. A 4:5 (1080x1350) version was started with --aspect 4:5 and may or may not have finished (out/ep03_4x5.mp4, not in git; re-run if missing; no new credits needed).
+- Entry 3 "Madame Velvet's Silent Night": DONE. out/ep03.mp4 (39.9 s, real voices, 497 credits), cover_ep03.png, captions/ep03.md. A 4:5 (1080x1350) version was started with --aspect 4:5 and finished: out/ep03_4x5.mp4 (39.9 s, 1080x1350).
 - Entry 4 "The Sock Marsh": NOT DONE. shots/ep04.json is an OLD draft in 1080-wide coordinates and must be rewritten; BG.marsh and BG.warehouse_int do not exist yet in art_bg.js (the lounge, plaza and desk do); props coin, redbutton, tag, stucksock, crumb exist but are untested; CARD.ledger exists. Plan: 439 credits (8 lines, ~42 s est), voices George, Jesse, Ruby B; ask for approval first.
 - Entries 5-10: not started. Cog and Collector characters are basic.
 - Total ElevenLabs credits spent in this project by the assistant: 1,017 (entries 2 and 3), all user-approved. Entry 1 earlier: about 564 by the user.
