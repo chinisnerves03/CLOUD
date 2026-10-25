@@ -60,3 +60,18 @@ CARD.thread=u=>`<g transform="translate(0 -40)">${[0,1,2,3].map(k=>`<path d="M-1
  ${Array.from({length:14},(_,i)=>`<circle cx="${-100+rnd(i+3)*200}" cy="${-60+rnd(i+9)*110}" r="${1.8+rnd(i+5)*2}" fill="#E0A526"/>`).join('')}</g>`;
 CARD.seal=u=>`<g transform="translate(0 -32)"><circle r="62" fill="#C8452F"/><circle r="46" fill="#9e3322"/><g transform="scale(1.1)"><use href="#eyeGlyphY" opacity=".0"/></g><g transform="scale(1.3)"><path d="M-30 0 Q0 -26 30 0 Q0 26 -30 0Z" fill="none" stroke="#F3E9D2" stroke-width="3"/><circle r="9" fill="#F3E9D2"/><path d="M-2 0 L2 0 L3.6 8 L-3.6 8Z" fill="#9e3322"/></g></g>`;
 CARD.ledger=u=>`<g transform="translate(0 -40)">${[0,1,2,3,4].map(k=>`<path d="M-120 ${-90+k*34} H120" stroke="#9db4c0" stroke-width="2"/>`).join('')}<text transform="translate(-4 -40) rotate(-4)" text-anchor="middle" font-family="Georgia,serif" font-size="32" fill="#1F2A44">Collection</text><text transform="translate(0 20) rotate(-4)" text-anchor="middle" font-family="Georgia,serif" font-size="40" fill="#C8452F">17 of 400</text></g>`;
+
+// --- Tin Lounge (entry 3) ---
+BG.lounge=function($,shot){const dark=!!(shot.bgopts&&shot.bgopts.dark);
+ $('sky').innerHTML=`<rect x="-600" y="-600" width="1740" height="2200" fill="url(#loungeG)"/>`;
+ const fold=(x0,dir)=>{let s='';for(let k=0;k<5;k++)s+=`<path d="M${x0+dir*k*22} -200 Q${x0+dir*(k*22+8)} 300 ${x0+dir*(k*20+14)} 800" stroke="#9e3322" stroke-width="3" fill="none" opacity=".7"/>`;return s};
+ $('bg').innerHTML=`<g filter="url(#paperNoOutline)"><ellipse cx="270" cy="360" rx="430" ry="560" fill="#243052" stroke="#C89B6D" stroke-width="12"/><ellipse cx="270" cy="360" rx="400" ry="530" fill="none" stroke="#1a2340" stroke-width="3"/></g>
+  <g filter="url(#paper)"><path d="M-100 -200 L120 -200 Q110 300 150 790 L-100 800Z" fill="#C8452F"/>${fold(-80,1)}<path d="M640 -200 L420 -200 Q430 300 390 790 L640 800Z" fill="#C8452F"/>${fold(620,-1)}</g>
+  <path d="M190 -200 L350 -200 L560 800 L-20 800Z" fill="#F3E9D2" opacity="${dark?.06:.15}"/>
+  <g filter="url(#paper)"><g transform="translate(270 40)"><circle r="16" fill="#E0A526"/><path d="M0 -240 V-16" stroke="#8e6a14" stroke-width="3"/></g></g>
+  <g transform="translate(60 300) scale(.5)" opacity=".5"><use href="#eyeGlyphY"/></g>`;
+ $('mid').innerHTML=`<g filter="url(#paper)"><ellipse cx="270" cy="790" rx="360" ry="80" fill="#a97d52"/><ellipse cx="270" cy="778" rx="330" ry="66" fill="#C89B6D"/></g><rect x="-100" y="830" width="740" height="300" fill="#7a2a1f"/>`;
+ let aud='';[[60,930,'#2F8F8B'],[470,940,'#C8452F'],[270,990,'#E0A526']].forEach(([x,y,c],i)=>{aud+=`<ellipse cx="${x}" cy="${y}" rx="85" ry="26" fill="${c}"/><ellipse cx="${x}" cy="${y-6}" rx="64" ry="15" fill="rgba(0,0,0,.18)"/><circle cx="${x-18}" cy="${y-44}" r="17" fill="#141A2E"/><circle cx="${x+20}" cy="${y-38}" r="15" fill="#141A2E"/>`});
+ $('fg').innerHTML=`<g filter="url(#paper)">${aud}</g>${dark?'<rect x="-300" y="-300" width="1140" height="1700" fill="#05070d" opacity=".42"/>':''}`;
+ return null};
+PROPS.notes=p=>'';
