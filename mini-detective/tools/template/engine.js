@@ -9,10 +9,13 @@ const f2=n=>(+n).toFixed(2);
 const LAYERS=[['sky',.9],['bg',.6],['mid',1],['back',1],['actors',1],['front',1],['fg',1.38]];
 let SHOT=null,CUR=-1,TICK=null,ACT=[],PROP=[];
 
-// numeric fields lerp (eased), others step; later keys were forward-filled by the builder
+// numeric fields: monotone cubic through the keys (continuous velocity, no overshoot, flat between equal values, ease at the ends); others step
+function mono(ks,i,f,u){const n=ks.length,y=j=>ks[j][f],dt=j=>Math.max(1e-6,ks[j+1].t-ks[j].t),d=j=>(y(j+1)-y(j))/dt(j);
+ const m=j=>{if(j<=0||j>=n-1)return 0;const d0=d(j-1),d1=d(j);if(d0*d1<=0)return 0;const h0=dt(j-1),h1=dt(j);return 3*(h0+h1)/((2*h1+h0)/d0+(h1+2*h0)/d1)};
+ const h=dt(i),m0=m(i),m1=m(i+1),u2=u*u,u3=u2*u;return (2*u3-3*u2+1)*y(i)+(u3-2*u2+u)*h*m0+(-2*u3+3*u2)*y(i+1)+(u3-u2)*h*m1}
 function track(keys,t){if(!keys||!keys.length)return{};if(t<=keys[0].t)return keys[0];const last=keys[keys.length-1];if(t>=last.t)return last;
- for(let i=0;i<keys.length-1;i++){const a=keys[i],b=keys[i+1];if(t>=a.t&&t<=b.t){const u=E.io3((t-a.t)/Math.max(1e-6,b.t-a.t)),o={};
-  for(const k in a)o[k]=(typeof a[k]==='number'&&typeof b[k]==='number'&&k!=='t')?mix(a[k],b[k],u):a[k];for(const k in b)if(!(k in o))o[k]=b[k];return o}}return last}
+ for(let i=0;i<keys.length-1;i++){const a=keys[i],b=keys[i+1];if(t>=a.t&&t<=b.t){const u=(t-a.t)/Math.max(1e-6,b.t-a.t),o={};
+  for(const k in a)o[k]=(typeof a[k]==='number'&&typeof b[k]==='number'&&k!=='t')?mono(keys,i,k,u):a[k];for(const k in b)if(!(k in o))o[k]=b[k];return o}}return last}
 
 function init(){
  if(EP.aspect==='4:5')document.body.classList.add('a45');
@@ -80,7 +83,7 @@ function drawHUD(t){let s='';
  $('HUD').innerHTML=s}
 
 function seek(t){
- const ct=Math.floor(t*12)/12,qt=Math.floor(t*24)/24,fr=Math.floor(t*12);
+ const ct=Math.floor(t*12)/12,qt=t,fr=Math.floor(t*12);
  let idx=EP.shots.findIndex((s,i)=>t>=s.t0&&(t<s.t1||i===EP.shots.length-1));if(idx<0)idx=0;if(idx!==CUR)buildShot(idx);
  const clue=(SHOT.cues||[]).find(c=>c.do==='clue'&&t>=c.t&&t<=c.t+c.dur);
  const ended=t>=EP.speech_end+.35;
