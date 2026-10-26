@@ -75,3 +75,32 @@ BG.lounge=function($,shot){const dark=!!(shot.bgopts&&shot.bgopts.dark);
  $('fg').innerHTML=`<g filter="url(#paper)">${aud}</g>${dark?'<rect x="-300" y="-300" width="1140" height="1700" fill="#05070d" opacity=".42"/>':''}`;
  return null};
 PROPS.notes=p=>'';
+
+// --- Sock Marsh + warehouse (entry 4) ---
+let CP=0;
+function sockHill(cx,cy,rx,ry,c1,c2,seed){const id='sk'+(CP++);let sd=seed*13;const r=()=>rnd(sd++);const pts=[];for(let i=0;i<26;i++){const a=i/26*Math.PI*2;pts.push([cx+Math.cos(a)*rx*(1+(r()-.5)*.06),cy+Math.sin(a)*ry*(1+(r()-.5)*.08)])}
+ const d='M'+pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L')+'Z';let st='';for(let k=-3;k<=3;k++)st+=`<rect x="${cx-rx-8}" y="${cy+k*ry*.42-ry*.1}" width="${rx*2+16}" height="${ry*.21}" fill="${c2}" transform="rotate(${(r()-.5)*10} ${cx} ${cy})"/>`;
+ return `<clipPath id="${id}"><path d="${d}"/></clipPath><path d="${d}" fill="${c1}"/><g clip-path="url(#${id})">${st}</g>`}
+const fogBand=(y,op)=>`<path d="M-700 ${y+20} Q-300 ${y-24} 0 ${y+6} T540 ${y-4} T1240 ${y+10} L1240 ${y+110} L-700 ${y+110}Z" fill="#F3E9D2" opacity="${op}"/>`;
+BG.marsh=function($,shot){const o=shot.bgopts||{};const cols=[['#C8452F','#F3E9D2'],['#2F8F8B','#E0A526'],['#E0A526','#1F2A44'],['#F3E9D2','#C8452F'],['#1F2A44','#2F8F8B']];
+ $('sky').innerHTML=`<rect x="-600" y="-600" width="1740" height="1500" fill="url(#marshG)"/><circle cx="400" cy="140" r="70" fill="#F3E9D2" opacity=".16"/>`+Array.from({length:22},(_,i)=>`<circle cx="${rnd(i+7)*640-50}" cy="${rnd(i+3)*400-100}" r="${1+rnd(i)*2}" fill="#F3E9D2" opacity="${.2+rnd(i+1)*.3}"/>`).join('');
+ let far='';for(let i=0;i<7;i++){const c=cols[i%5];far+=sockHill(-40+i*100+rnd(i)*20,560+rnd(i+2)*30,80+rnd(i+4)*25,55+rnd(i+6)*15,c[0],c[1],40+i)}
+ $('bg').innerHTML=`<g filter="url(#paper)">${far}</g>${fogBand(640,.32)}`;
+ let mid='';for(let i=0;i<5;i++){const c=cols[(i+2)%5];mid+=sockHill(i*140+rnd(i+9)*30,700+rnd(i+11)*20,100+rnd(i+13)*25,62+rnd(i+15)*10,c[0],c[1],60+i)}
+ let bld='';if(o.building){bld=`<g filter="url(#paper)" transform="translate(330 520)"><rect x="-150" y="-30" width="300" height="190" fill="#C89B6D"/><path d="M-165 -30 L165 -30 L150 -66 L-145 -62Z" fill="#a97d52"/><rect x="-30" y="50" width="60" height="110" fill="#141A2E"/><circle cx="-95" cy="20" r="10" fill="#E0A526"/><circle cx="95" cy="20" r="10" fill="#E0A526"/><g transform="translate(0 -4) scale(.6)"><use href="#eyeGlyphN"/></g></g>`}
+ let coins='';for(let i=0;i<9;i++)coins+=`<ellipse cx="${-20+i*68}" cy="${772+(i%2)*6}" rx="26" ry="9" fill="#E0A526" stroke="#b88618" stroke-width="2"/>`;
+ let reeds='';[[40,770,'#C8452F'],[500,760,'#C89B6D'],[440,790,'#2F8F8B']].forEach(([x,y,c])=>{reeds+=`<g transform="translate(${x} ${y})"><path d="M-14 0 L14 0 L16 -46 L-16 -46Z" fill="${c}"/>${[0,1,2,3].map(f=>`<path d="M${-16+f*9} -46 L${-10+f*9} -46 L${-8+f*9} ${-84-(f%2)*8} L${-17+f*9} ${-82}Z" fill="${c}"/>`).join('')}</g>`});
+ $('mid').innerHTML=`<g filter="url(#paper)">${mid}${bld}</g><rect x="-100" y="790" width="740" height="400" fill="#226B68"/><rect x="-100" y="780" width="740" height="14" fill="#2F8F8B"/><g filter="url(#paperNoOutline)">${coins}</g><g filter="url(#paper)">${reeds}</g>`;
+ $('fg').innerHTML=fogBand(830,.3)+fogBand(900,.22);
+ return(t)=>{const f=$('fg');f.setAttribute('transform',`translate(${Math.sin(t*.5)*14} 0)`+(f.getAttribute('transform')||'').replace(/^translate\([^)]*\)/,''))}};
+
+BG.warehouse_int=function($,shot){
+ $('sky').innerHTML=`<rect x="-600" y="-600" width="1740" height="1700" fill="url(#whG)"/>`;
+ const rows=[['#C8452F',150],['#E0A526',310],['#2F8F8B',470],['#F3E9D2',630]];let sh='';
+ rows.forEach(([col,y],ri)=>{sh+=`<rect x="-60" y="${y+58}" width="660" height="16" fill="#a97d52"/>`;for(let i=0;i<8;i++){const x=-20+i*72+rnd(ri*9+i)*10,k=i%3,h=34+rnd(ri*7+i)*20;
+  if(k==0)sh+=`<circle cx="${x}" cy="${y+58-20}" r="20" fill="${col}"/>`;else if(k==1)sh+=`<rect x="${x-16}" y="${y+58-h}" width="32" height="${h}" fill="${col}"/>`;else sh+=`<path d="M${x-20} ${y+58} L${x+20} ${y+58} L${x} ${y+58-h}Z" fill="${col}"/>`;
+  sh+=`<rect x="${x-7}" y="${y+58-24}" width="14" height="12" fill="#FBF7EC"/><g transform="translate(${x} ${y+58-18}) scale(.16)"><use href="#eyeGlyphN"/></g>`}});
+ $('bg').innerHTML=`<path d="M170 -100 L370 -100 L520 770 L20 770Z" fill="#F3E9D2" opacity=".07"/><g filter="url(#paper)">${sh}</g><rect x="-60" y="-100" width="16" height="900" fill="#a97d52"/><rect x="584" y="-100" width="16" height="900" fill="#a97d52"/>`;
+ $('mid').innerHTML=`<rect x="-100" y="766" width="740" height="400" fill="#a97d52"/><rect x="-100" y="760" width="740" height="10" fill="#C89B6D"/>`;
+ $('fg').innerHTML='';return null};
+PROPS.coin=p=>`<ellipse cy="${p.sink||0}" rx="26" ry="9" fill="#E0A526" stroke="#b88618" stroke-width="2"/>`;
