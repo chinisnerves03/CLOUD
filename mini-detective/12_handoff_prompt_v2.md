@@ -17,14 +17,14 @@ STATE
 - Entry 1: finished earlier by the user (about 53 s, over the 45 s goal).
 - Entry 2 "Footprints on the Ceiling": DONE. out/ep02.mp4 (40.9 s, real voices, 520 credits), cover_ep02.png, captions/ep02.md. 
 - Entry 3 "Madame Velvet's Silent Night": DONE. out/ep03.mp4 (39.9 s, real voices, 497 credits), cover_ep03.png, captions/ep03.md. A 4:5 (1080x1350) version was started with --aspect 4:5 and finished: out/ep03_4x5.mp4 (39.9 s, 1080x1350).
-- Entry 4 "The Sock Marsh": NOT DONE. shots/ep04.json is an OLD draft in 1080-wide coordinates and must be rewritten; BG.marsh and BG.warehouse_int do not exist yet in art_bg.js (the lounge, plaza and desk do); props coin, redbutton, tag, stucksock, crumb exist but are untested; CARD.ledger exists. Plan: 439 credits (8 lines, ~42 s est), voices George, Jesse, Ruby B; ask for approval first.
+- Entry 4 "The Sock Marsh": DONE. out/ep04.mp4 (35.4 s, real voices, 439 credits), cover_ep04.png, captions/ep04.md. Marsh and warehouse_int backgrounds now exist in art_bg.js.
 - Entries 5-10: not started. Cog and Collector characters are basic.
-- Total ElevenLabs credits spent in this project by the assistant: 1,017 (entries 2 and 3), all user-approved. Entry 1 earlier: about 564 by the user.
+- Total ElevenLabs credits spent in this project by the assistant: 1,456 (entries 2, 3, 4 = 520+497+439 = 1,456), all user-approved. Entry 1 earlier: about 564 by the user.
 
 REMAINING TASKS (commit and push after each; the repo has a stop hook that demands it)
-1. Entry 4, then show the user before 5-10. State line count and credits and WAIT for approval before generating voices. One take per line.
+1. Entries 5-10 (show the user first, e.g. 5-6). State line count and credits and WAIT for approval before generating voices. One take per line.
 2. Trim entry 1 to <= 45 s (about 67 words) keeping the clue and cliffhanger; re-voice only changed lines.
-3. Captions for entries 1 (exists), 4-10 in captions/epNN.md (IG, TikTok, Facebook, YouTube; same shape as captions/ep02.md; lint with tools/pt_captions.py; no secret canon from 08_knowledge_base.md).
+3. Captions for entries 1 (exists), 5-10 in captions/epNN.md (IG, TikTok, Facebook, YouTube; same shape as captions/ep02.md; lint with tools/pt_captions.py; no secret canon from 08_knowledge_base.md).
 4. posting_plan.md: one entry per day, same time each day, first 14 days per 01_series_bible.md section 9.
 
 RULES
