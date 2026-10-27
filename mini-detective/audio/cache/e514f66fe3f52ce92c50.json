@@ -1,0 +1,9 @@
+{
+ "voice": "George \u2014 Warm, Captivating Storyteller",
+ "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+ "model": "eleven_v3",
+ "text": "Pip found a single thread. Silk, fine as breath, flecked with gold.",
+ "chars": 67,
+ "source": "elevenlabs-connector",
+ "created": "2026-10-25T04:10:24Z"
+}

@@ -1,0 +1,9 @@
+{
+ "voice": "Ruby B \u2014 Authentic Cockney London Female",
+ "voice_id": "jUPSOpRcPt8GMPsWx5fy",
+ "model": "eleven_v3",
+ "text": "[nervous] Pip\u2026 the Red Button is right there.",
+ "chars": 45,
+ "source": "elevenlabs-connector",
+ "created": "2026-10-26T09:14:40Z"
+}

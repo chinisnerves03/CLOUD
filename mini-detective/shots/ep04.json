@@ -1,0 +1,530 @@
+{
+ "entry": 4,
+ "gap": 0.2,
+ "beds": [
+  {
+   "name": "fog",
+   "gain": -34
+  },
+  {
+   "name": "room",
+   "gain": -38
+  }
+ ],
+ "shots": [
+  {
+   "id": "s1",
+   "lines": [
+    "n1"
+   ],
+   "bg": "marsh",
+   "cam": [
+    {
+     "at": 0,
+     "x": 270,
+     "y": 540,
+     "z": 1
+    },
+    {
+     "at": "n1.end",
+     "x": 280,
+     "y": 545,
+     "z": 1.1
+    }
+   ],
+   "sfx": [
+    {
+     "at": 0.2,
+     "name": "wool_squelch",
+     "gain": -16
+    }
+   ]
+  },
+  {
+   "id": "s2",
+   "lines": [
+    "pip1",
+    "juno1"
+   ],
+   "bg": "marsh",
+   "pre": 0.3,
+   "cam": [
+    {
+     "at": 0,
+     "x": 270,
+     "y": 540,
+     "z": 1.05
+    }
+   ],
+   "actors": [
+    {
+     "who": "pip",
+     "keys": [
+      {
+       "at": 0,
+       "x": 160,
+       "y": 768,
+       "mood": "worried",
+       "lx": 1
+      }
+     ]
+    },
+    {
+     "who": "juno",
+     "keys": [
+      {
+       "at": 0,
+       "x": 360,
+       "y": 768,
+       "flip": 1,
+       "mood": "neutral",
+       "lx": -1
+      },
+      {
+       "at": "juno1.start",
+       "mood": "shout"
+      }
+     ]
+    }
+   ],
+   "props": [
+    {
+     "kind": "coin",
+     "layer": "back",
+     "keys": [
+      {
+       "at": 0,
+       "x": 160,
+       "y": 772,
+       "sink": 0
+      },
+      {
+       "at": "pip1.start",
+       "sink": 0
+      },
+      {
+       "at": "pip1.start+1.2",
+       "sink": 8
+      }
+     ]
+    },
+    {
+     "kind": "stucksock",
+     "layer": "front",
+     "keys": [
+      {
+       "at": 0,
+       "x": 470,
+       "y": 790,
+       "s": 0.9
+      }
+     ]
+    }
+   ],
+   "sfx": [
+    {
+     "at": "pip1.start+0.1",
+     "name": "wool_squelch",
+     "gain": -7
+    },
+    {
+     "at": "juno1.start+0.3",
+     "name": "wool_squelch",
+     "gain": -12
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "lines": [
+    "n2"
+   ],
+   "bg": "marsh",
+   "pre": 0.2,
+   "cam": [
+    {
+     "at": 0,
+     "x": 180,
+     "y": 540,
+     "z": 1
+    },
+    {
+     "at": "n2.end",
+     "x": 400,
+     "y": 540,
+     "z": 1
+    }
+   ],
+   "actors": [
+    {
+     "who": "pip",
+     "keys": [
+      {
+       "at": 0,
+       "x": 90,
+       "y": 768,
+       "mood": "worried"
+      },
+      {
+       "at": "n2.start+0.6",
+       "x": 140,
+       "y": 748
+      },
+      {
+       "at": "n2.start+1.2",
+       "x": 190,
+       "y": 768
+      },
+      {
+       "at": "n2.start+1.8",
+       "x": 240,
+       "y": 748
+      },
+      {
+       "at": "n2.start+2.4",
+       "x": 290,
+       "y": 768
+      },
+      {
+       "at": "n2.start+3.0",
+       "x": 340,
+       "y": 748
+      },
+      {
+       "at": "n2.end",
+       "x": 380,
+       "y": 768
+      }
+     ]
+    },
+    {
+     "who": "juno",
+     "keys": [
+      {
+       "at": 0,
+       "x": 10,
+       "y": 768,
+       "mood": "worried"
+      },
+      {
+       "at": "n2.start+0.6",
+       "x": 60,
+       "y": 748
+      },
+      {
+       "at": "n2.start+1.2",
+       "x": 110,
+       "y": 768
+      },
+      {
+       "at": "n2.start+1.8",
+       "x": 160,
+       "y": 748
+      },
+      {
+       "at": "n2.start+2.4",
+       "x": 210,
+       "y": 768
+      },
+      {
+       "at": "n2.start+3.0",
+       "x": 260,
+       "y": 748
+      },
+      {
+       "at": "n2.end",
+       "x": 300,
+       "y": 768
+      }
+     ]
+    }
+   ],
+   "sfx": [
+    {
+     "at": "n2.start+0.6",
+     "name": "coin_clink",
+     "gain": -14
+    },
+    {
+     "at": "n2.start+1.8",
+     "name": "coin_clink",
+     "gain": -14
+    },
+    {
+     "at": "n2.start+3.0",
+     "name": "coin_clink",
+     "gain": -14
+    },
+    {
+     "at": "n2.start+0.3",
+     "name": "wool_squelch",
+     "gain": -12
+    },
+    {
+     "at": "n2.start+2.1",
+     "name": "wool_squelch",
+     "gain": -12
+    }
+   ]
+  },
+  {
+   "id": "s4",
+   "lines": [
+    "pip2"
+   ],
+   "bg": "marsh",
+   "bgopts": {
+    "building": true
+   },
+   "pre": 0.2,
+   "cam": [
+    {
+     "at": 0,
+     "x": 320,
+     "y": 540,
+     "z": 1.05
+    },
+    {
+     "at": "pip2.end",
+     "x": 320,
+     "y": 530,
+     "z": 1.2
+    }
+   ],
+   "actors": [
+    {
+     "who": "pip",
+     "keys": [
+      {
+       "at": 0,
+       "x": 230,
+       "y": 768,
+       "mood": "whisper",
+       "armR": 70,
+       "lx": 1
+      }
+     ]
+    },
+    {
+     "who": "juno",
+     "keys": [
+      {
+       "at": 0,
+       "x": 380,
+       "y": 768,
+       "flip": 1,
+       "mood": "worried",
+       "lx": -1
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s5",
+   "lines": [
+    "n3",
+    "juno2"
+   ],
+   "bg": "warehouse_int",
+   "pre": 0.35,
+   "cam": [
+    {
+     "at": 0,
+     "x": 270,
+     "y": 540,
+     "z": 1
+    },
+    {
+     "at": "juno2.start",
+     "x": 270,
+     "y": 520,
+     "z": 1.05
+    },
+    {
+     "at": "juno2.end",
+     "x": 270,
+     "y": 330,
+     "z": 1.4
+    }
+   ],
+   "actors": [
+    {
+     "who": "pip",
+     "keys": [
+      {
+       "at": 0,
+       "x": 130,
+       "y": 768,
+       "mood": "worried",
+       "ly": -1
+      }
+     ]
+    },
+    {
+     "who": "juno",
+     "keys": [
+      {
+       "at": 0,
+       "x": 410,
+       "y": 768,
+       "flip": 1,
+       "mood": "worried",
+       "ly": -1
+      }
+     ]
+    }
+   ],
+   "props": [
+    {
+     "kind": "redbutton",
+     "layer": "back",
+     "still": true,
+     "keys": [
+      {
+       "at": 0,
+       "x": 270,
+       "y": 100,
+       "size": 0.9
+      }
+     ]
+    },
+    {
+     "kind": "tag",
+     "layer": "back",
+     "still": true,
+     "keys": [
+      {
+       "at": 0,
+       "x": 270,
+       "y": 165,
+       "label": "LOT 17"
+      }
+     ]
+    }
+   ],
+   "cues": [
+    {
+     "at": "n3.start",
+     "until": "n3.end+0.2",
+     "do": "clue",
+     "card": "ledger",
+     "label": "CLUE No. 4",
+     "sub": "THE LEDGER"
+    }
+   ]
+  },
+  {
+   "id": "s6",
+   "lines": [
+    "n4"
+   ],
+   "bg": "warehouse_int",
+   "pre": 0.25,
+   "cam": [
+    {
+     "at": 0,
+     "x": 270,
+     "y": 540,
+     "z": 1.05
+    },
+    {
+     "at": "n4.end",
+     "x": 270,
+     "y": 545,
+     "z": 1.2
+    }
+   ],
+   "actors": [
+    {
+     "who": "pip",
+     "keys": [
+      {
+       "at": 0,
+       "x": 130,
+       "y": 768,
+       "mood": "worried",
+       "ly": -1
+      }
+     ]
+    },
+    {
+     "who": "juno",
+     "keys": [
+      {
+       "at": 0,
+       "x": 410,
+       "y": 768,
+       "flip": 1,
+       "mood": "worried",
+       "ly": -1
+      }
+     ]
+    }
+   ],
+   "props": [
+    {
+     "kind": "redbutton",
+     "layer": "back",
+     "still": true,
+     "keys": [
+      {
+       "at": 0,
+       "x": 270,
+       "y": 100,
+       "size": 0.9
+      }
+     ]
+    }
+   ],
+   "overlay": [
+    {
+     "at": 0,
+     "a": 0
+    },
+    {
+     "at": "n4.start+0.9",
+     "a": 0
+    },
+    {
+     "at": "n4.start+1.0",
+     "a": 0.93
+    }
+   ],
+   "cues": [
+    {
+     "at": "n4.end-1.4",
+     "until": "n4.end+0.6",
+     "do": "eye",
+     "x": 270,
+     "y": 380,
+     "s": 1.6
+    }
+   ],
+   "shake": [
+    {
+     "at": "n4.start+0.9",
+     "dur": 0.4,
+     "amp": 6
+    }
+   ],
+   "sfx": [
+    {
+     "at": "n4.start+0.9",
+     "name": "door_slam",
+     "gain": -4
+    },
+    {
+     "at": "n4.start+1.4",
+     "name": "lock_click",
+     "gain": -8
+    },
+    {
+     "at": "n4.end-0.9",
+     "name": "tick3",
+     "gain": -12
+    }
+   ]
+  }
+ ]
+}

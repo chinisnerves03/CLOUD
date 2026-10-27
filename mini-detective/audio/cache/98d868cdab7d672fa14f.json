@@ -1,0 +1,9 @@
+{
+ "voice": "Ruby B \u2014 Authentic Cockney London Female",
+ "voice_id": "jUPSOpRcPt8GMPsWx5fy",
+ "model": "eleven_v3",
+ "text": "[sarcastic] Squishy? I've lost a glider and my dignity.",
+ "chars": 55,
+ "source": "elevenlabs-connector",
+ "created": "2026-10-26T09:14:40Z"
+}

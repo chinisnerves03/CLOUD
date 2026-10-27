@@ -1,0 +1,9 @@
+{
+ "voice": "Boom Mike",
+ "voice_id": "2UyW0L6yjNuo3ZH3XnoV",
+ "model": "eleven_v3",
+ "text": "[shouting] Drift accident! Buttons fall UP sometimes! Case closed!",
+ "chars": 66,
+ "source": "elevenlabs-connector",
+ "created": "2026-10-25T04:10:24Z"
+}

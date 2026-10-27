@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="th"><head><meta charset="UTF-8"/><meta name="viewport" content="width=1080, height=1920"/><title>Comic</title>
+<script src="assets/gsap.min.js"></script><style>
+@font-face{font-family:P;font-weight:700;src:url(assets/prompt-thai-700-normal.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(assets/prompt-thai-800-normal.woff2)}
+*{box-sizing:border-box;margin:0}
+body{margin:0;background:#000;font-family:P,sans-serif}
+#root{position:relative;width:1080px;height:1920px;overflow:hidden;background:#000}
+.sc{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden}
+.bg{position:absolute;inset:0}
+.ab{position:absolute}
+
+.dots,.dots2{position:absolute;inset:0;background-image:radial-gradient(#00000022 3px,transparent 3.5px);background-size:22px 22px}
+.hd{position:absolute;left:30px;right:30px;top:90px;text-align:center;font-weight:800;font-size:92px;line-height:1.1;color:#111}.hd span{background:#111;color:#ffe66b;padding:0 24px;border-radius:16px;display:inline-block;margin-top:8px}
+.pn{position:absolute;width:480px;height:640px;border:12px solid #111;box-shadow:10px 10px 0 #111;overflow:hidden}
+.bub{position:absolute;background:#fff;border:8px solid #111;border-radius:30px;font-weight:800;font-size:46px;line-height:1.2;padding:16px 18px;color:#111;text-align:center;z-index:4}
+.bub.r{background:#fff6c4}
+.oneword{position:absolute;left:30px;top:430px;width:200px;text-align:center;font-weight:800;font-size:120px;color:#d62839;background:#fff;border:8px solid #111;border-radius:20px}
+.burst{position:absolute;inset:-40px;background:repeating-conic-gradient(#ff3b3b 0 10deg,#ffb3b3 10deg 20deg);opacity:.55}
+.pow{position:absolute;right:20px;top:240px;font-weight:800;font-size:150px;color:#ffe66b;text-shadow:8px 8px 0 #111,-4px -4px 0 #111,4px -4px 0 #111,-4px 4px 0 #111;transform:rotate(12deg);z-index:5}
+.tip{position:absolute;left:20px;right:20px;top:30px;text-align:center;font-weight:800;font-size:76px;line-height:1.15;color:#111}.tip span{font-size:56px;background:#111;color:#b9ffb0;padding:0 14px;border-radius:12px;display:inline-block;margin-top:8px}
+.code{position:absolute;left:30px;right:30px;top:290px;background:#111;color:#9dff7a;font-weight:800;font-size:72px;line-height:1.2;text-align:center;border-radius:24px;padding:26px 10px;font-family:P,monospace}
+.cta{position:absolute;left:40px;right:40px;top:1700px;text-align:center;font-weight:800;font-size:54px;background:#ff3d81;color:#fff;border:10px solid #111;box-shadow:10px 10px 0 #111;padding:14px;z-index:9}.cta b{background:#fff;color:#111;padding:0 18px;border-radius:10px}
+</style></head>
+<body><div id="root" data-composition-id="main" data-width="1080" data-height="1920" data-duration="17.7">
+<section id="sc-c" class="clip sc" data-start="0" data-duration="17.7" data-track-index="1"><div class="bg" style="background:#ffe66b"></div><div class="dots"></div>
+<div class="hd" id="hd">สั่ง AI ว่า<br><span>“ย่อให้สั้นลง”</span></div>
+<div class="pn" id="p1" style="left:40px;top:340px;background:#bfe9ff"><div class="dots2"></div>
+ <div class="ab" style="left:200px;top:210px;transform:scale(.62);transform-origin:0 0"><svg viewBox="0 0 300 520" width="300" height="520" style="overflow:visible">
+<g id="p1a-body"><line x1="150" y1="14" x2="150" y2="54" stroke="#1b9a90" stroke-width="8" stroke-linecap="round"/><circle cx="150" cy="14" r="14" fill="#ff6f91"/>
+<g id="p1a-head"><rect x="28" y="108" width="20" height="56" rx="9" fill="#1b9a90"/><rect x="252" y="108" width="20" height="56" rx="9" fill="#1b9a90"/>
+<rect x="40" y="50" width="220" height="172" rx="56" fill="#4fd9cc" stroke="#1b9a90" stroke-width="6"/><rect x="64" y="76" width="172" height="122" rx="40" fill="#10142a"/><path d="M78 140 Q112 98 146 140" stroke="#9dff7a" stroke-width="14" stroke-linecap="round" fill="none"/><path d="M154 140 Q188 98 222 140" stroke="#9dff7a" stroke-width="14" stroke-linecap="round" fill="none"/><path d="M116 170 Q150 204 184 170" stroke="#ff7aa2" stroke-width="9" stroke-linecap="round" fill="none"/>
+<ellipse cx="92" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/><ellipse cx="208" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/></g>
+<rect x="124" y="218" width="52" height="22" fill="#1b9a90"/>
+<path d="M62 262 Q150 232 238 262 L248 420 L52 420 Z" fill="#2fc4b8" stroke="#1b9a90" stroke-width="6"/><rect x="118" y="282" width="64" height="60" rx="16" fill="#10142a"/><path d="M150 330 C122 308 130 290 150 302 C170 290 178 308 150 330Z" fill="#ff6f91"/>
+<g id="p1a-armL" style="transform-origin:78px 268px"><path d="M78 268 L38 350" stroke="#1b9a90" stroke-width="44" stroke-linecap="round"/><path d="M78 268 L38 350" stroke="#2fc4b8" stroke-width="34" stroke-linecap="round"/><circle cx="36" cy="354" r="22" fill="#f2f6f8" stroke="#1b9a90" stroke-width="5"/></g>
+<g id="p1a-armR" style="transform-origin:222px 268px"><path d="M222 268 L262 350" stroke="#1b9a90" stroke-width="44" stroke-linecap="round"/><path d="M222 268 L262 350" stroke="#2fc4b8" stroke-width="34" stroke-linecap="round"/><circle cx="264" cy="354" r="22" fill="#f2f6f8" stroke="#1b9a90" stroke-width="5"/></g></g></svg></div><div class="ab" id="p1d" style="left:40px;top:300px;transform:scale(1.4);transform-origin:0 0"><svg width="150" height="190" viewBox="0 0 150 190"><rect x="8" y="8" width="134" height="174" rx="8" fill="#fff" stroke="#111" stroke-width="7"/><rect x="26" y="30" width="70" height="9" fill="#999"/><rect x="26" y="52" width="98" height="9" fill="#999"/><rect x="26" y="74" width="98" height="9" fill="#999"/><rect x="26" y="96" width="70" height="9" fill="#999"/><rect x="26" y="118" width="98" height="9" fill="#999"/><rect x="26" y="140" width="98" height="9" fill="#999"/><rect x="26" y="162" width="70" height="9" fill="#999"/></svg></div>
+ <div class="bub" id="b1" style="left:20px;top:20px;width:420px">ช่วยย่อบทความนี้ ให้สั้นลงหน่อย</div></div>
+<div class="pn" id="p2" style="left:560px;top:340px;background:#ffd9b0"><div class="dots2"></div>
+ <div class="ab" style="left:30px;top:215px;transform:scale(.62);transform-origin:0 0"><svg viewBox="0 0 300 520" width="300" height="520" style="overflow:visible">
+<g id="p2a-body"><line x1="150" y1="14" x2="150" y2="54" stroke="#c4561a" stroke-width="8" stroke-linecap="round"/><circle cx="150" cy="14" r="14" fill="#ff6f91"/>
+<g id="p2a-head"><rect x="28" y="108" width="20" height="56" rx="9" fill="#c4561a"/><rect x="252" y="108" width="20" height="56" rx="9" fill="#c4561a"/>
+<rect x="40" y="50" width="220" height="172" rx="56" fill="#ffa05a" stroke="#c4561a" stroke-width="6"/><rect x="64" y="76" width="172" height="122" rx="40" fill="#10142a"/><path d="M80 142 Q112 108 144 142" stroke="#9dff7a" stroke-width="14" stroke-linecap="round" fill="none"/><path d="M156 142 Q188 108 220 142" stroke="#9dff7a" stroke-width="14" stroke-linecap="round" fill="none"/><path d="M112 168 Q150 208 188 168 Z" fill="#7a2a4a" stroke="#ff7aa2" stroke-width="6" stroke-linejoin="round"/>
+<ellipse cx="92" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/><ellipse cx="208" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/></g>
+<rect x="124" y="218" width="52" height="22" fill="#c4561a"/>
+<path d="M62 262 Q150 232 238 262 L248 420 L52 420 Z" fill="#ff8a3d" stroke="#c4561a" stroke-width="6"/><rect x="118" y="282" width="64" height="60" rx="16" fill="#10142a"/><path d="M150 330 C122 308 130 290 150 302 C170 290 178 308 150 330Z" fill="#ff6f91"/>
+<g id="p2a-armL" style="transform-origin:78px 268px"><path d="M78 268 L38 350" stroke="#c4561a" stroke-width="44" stroke-linecap="round"/><path d="M78 268 L38 350" stroke="#ff8a3d" stroke-width="34" stroke-linecap="round"/><circle cx="36" cy="354" r="22" fill="#ffe3c2" stroke="#c4561a" stroke-width="5"/></g>
+<g id="p2a-armR" style="transform-origin:222px 268px"><path d="M222 268 L262 350" stroke="#c4561a" stroke-width="44" stroke-linecap="round"/><path d="M222 268 L262 350" stroke="#ff8a3d" stroke-width="34" stroke-linecap="round"/><circle cx="264" cy="354" r="22" fill="#ffe3c2" stroke="#c4561a" stroke-width="5"/></g></g></svg></div>
+ <div class="ab" id="p2d" style="left:290px;top:330px;transform-origin:50% 100%"><svg width="150" height="190" viewBox="0 0 150 190"><rect x="8" y="8" width="134" height="174" rx="8" fill="#fff" stroke="#111" stroke-width="7"/><rect x="26" y="30" width="70" height="9" fill="#999"/><rect x="26" y="52" width="98" height="9" fill="#999"/><rect x="26" y="74" width="98" height="9" fill="#999"/><rect x="26" y="96" width="70" height="9" fill="#999"/><rect x="26" y="118" width="98" height="9" fill="#999"/><rect x="26" y="140" width="98" height="9" fill="#999"/><rect x="26" y="162" width="70" height="9" fill="#999"/></svg></div><div class="oneword" id="ow">ดี</div>
+ <div class="bub r" id="b2" style="left:20px;top:20px;width:420px">ได้ครับ! สรุปคือ... ดี.</div></div>
+<div class="pn" id="p3" style="left:40px;top:1020px;background:#ff8a8a"><div class="burst"></div>
+ <div class="ab" id="p3a" style="left:130px;top:200px;transform:scale(.7);transform-origin:0 0"><svg viewBox="0 0 300 520" width="300" height="520" style="overflow:visible">
+<g id="p3a-body"><line x1="150" y1="14" x2="150" y2="54" stroke="#1b9a90" stroke-width="8" stroke-linecap="round"/><circle cx="150" cy="14" r="14" fill="#ff6f91"/>
+<g id="p3a-head"><rect x="28" y="108" width="20" height="56" rx="9" fill="#1b9a90"/><rect x="252" y="108" width="20" height="56" rx="9" fill="#1b9a90"/>
+<rect x="40" y="50" width="220" height="172" rx="56" fill="#4fd9cc" stroke="#1b9a90" stroke-width="6"/><rect x="64" y="76" width="172" height="122" rx="40" fill="#10142a"/><ellipse cx="112" cy="136" rx="22" ry="18" fill="#ff6a6a"/><ellipse cx="188" cy="136" rx="22" ry="18" fill="#ff6a6a"/><path d="M82 96 L136 118 M218 96 L164 118" stroke="#ff6a6a" stroke-width="11" stroke-linecap="round"/><path d="M120 190 Q150 168 180 190" stroke="#ff7aa2" stroke-width="9" stroke-linecap="round" fill="none"/>
+<ellipse cx="92" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/><ellipse cx="208" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/></g>
+<rect x="124" y="218" width="52" height="22" fill="#1b9a90"/>
+<path d="M62 262 Q150 232 238 262 L248 420 L52 420 Z" fill="#2fc4b8" stroke="#1b9a90" stroke-width="6"/><rect x="118" y="282" width="64" height="60" rx="16" fill="#10142a"/><path d="M150 330 C122 308 130 290 150 302 C170 290 178 308 150 330Z" fill="#ff6f91"/>
+<g id="p3a-armL" style="transform-origin:78px 268px"><path d="M78 268 L38 350" stroke="#1b9a90" stroke-width="44" stroke-linecap="round"/><path d="M78 268 L38 350" stroke="#2fc4b8" stroke-width="34" stroke-linecap="round"/><circle cx="36" cy="354" r="22" fill="#f2f6f8" stroke="#1b9a90" stroke-width="5"/></g>
+<g id="p3a-armR" style="transform-origin:222px 268px"><path d="M222 268 L262 350" stroke="#1b9a90" stroke-width="44" stroke-linecap="round"/><path d="M222 268 L262 350" stroke="#2fc4b8" stroke-width="34" stroke-linecap="round"/><circle cx="264" cy="354" r="22" fill="#f2f6f8" stroke="#1b9a90" stroke-width="5"/></g></g></svg></div>
+ <div class="bub" id="b3" style="left:20px;top:20px;width:420px;font-size:54px">ผมหมายถึง สามบรรทัด!</div><div class="pow" id="pow">!!!</div></div>
+<div class="pn" id="p4" style="left:560px;top:1020px;background:#b9ffb0"><div class="dots2"></div>
+ <div class="tip" id="tp">เคล็ดลับ!<br><span>สั่งให้ระบุความยาว</span></div>
+ <div class="code" id="cd">“สรุปเป็น<br>สามบรรทัด”</div>
+</div>
+<div class="cta" id="cta">เซฟไว้! คอมเมนต์ <b>prompt</b> รับชุดคำสั่งฟรี</div></section>
+<audio id="v1" src="assets/v1.mp3" data-start="0.05" data-duration="2.33" data-track-index="10" data-volume="1"></audio>
+<audio id="v2" src="assets/v2.mp3" data-start="2.7" data-duration="4.11" data-track-index="11" data-volume="1"></audio>
+<audio id="v3" src="assets/v3.mp3" data-start="7.0" data-duration="10.33" data-track-index="12" data-volume="1"></audio>
+<audio id="bgm" src="assets/bgm.wav" data-start="0" data-duration="17.7" data-track-index="30" data-volume="0.35"></audio>
+<audio id="sfx" src="assets/sfx.wav" data-start="0" data-duration="17.7" data-track-index="31" data-volume="1"></audio>
+</div>
+<script>
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+tl.to("#hd",{scale:1.03,duration:0.3,yoyo:true,repeat:7,ease:"sine.inOut",transformOrigin:"50% 50%"},0.1);tl.to("#p1a-body",{y:-8,duration:0.3,yoyo:true,repeat:5,ease:"sine.inOut"},0.2);
+tl.from("#p2",{scale:0.3,opacity:0,rotation:-6,duration:0.35,ease:"back.out(1.8)",transformOrigin:"50% 50%"},2.65);
+tl.from("#p3",{scale:0.3,opacity:0,rotation:-6,duration:0.35,ease:"back.out(1.8)",transformOrigin:"50% 50%"},7.00);
+tl.from("#p4",{scale:0.3,opacity:0,rotation:-6,duration:0.35,ease:"back.out(1.8)",transformOrigin:"50% 50%"},9.05);
+tl.to("#p2d",{scaleY:0.2,scaleX:0.5,duration:1.2,ease:"power2.in"},4.75);tl.from("#ow",{scale:3,opacity:0,rotation:-20,duration:0.3,ease:"power4.in"},6.05);
+tl.to("#p3a",{x:10,duration:0.06,yoyo:true,repeat:19,ease:"none"},7.2);tl.from("#pow",{scale:0.1,opacity:0,rotation:-40,duration:0.35,ease:"back.out(3)"},8.0);
+tl.from("#tp",{y:-80,opacity:0,duration:0.3,ease:"power3.out"},9.5);tl.from("#cd",{scale:0.3,opacity:0,duration:0.35,ease:"back.out(2)"},12.5);
+tl.from("#cta",{y:200,opacity:0,duration:0.35,ease:"back.out(1.6)"},14.05);
+window.__timelines["main"] = tl;
+</script></body></html>

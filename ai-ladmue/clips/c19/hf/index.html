@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="th"><head><meta charset="UTF-8"/><meta name="viewport" content="width=1080, height=1920"/><title>POV fortune v3</title>
+<script src="assets/gsap.min.js"></script><style>
+@font-face{font-family:P;font-weight:700;src:url(assets/prompt-thai-700-normal.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(assets/prompt-thai-800-normal.woff2)}
+*{box-sizing:border-box;margin:0}
+body{margin:0;background:#000;font-family:P,sans-serif}
+#root{position:relative;width:1080px;height:1920px;overflow:hidden;background:#000}
+.sc{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden}
+.bg2{position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,#3a2a6a,#150f2c 70%)}
+.pos2{position:absolute}
+.head{position:absolute;left:40px;right:40px;top:90px;text-align:center;font-weight:800;font-size:76px;line-height:1.2;color:#fff;text-shadow:6px 6px 0 #000,-3px -3px 0 #000,3px -3px 0 #000,-3px 3px 0 #000}
+.phone{position:absolute;left:110px;top:330px;width:860px;height:1010px;border-radius:90px;background:#f4f6fa;border:16px solid #0d0d12;box-shadow:0 30px 60px #0008;overflow:hidden}
+.notch{position:absolute;left:50%;top:14px;width:200px;height:34px;margin-left:-100px;background:#0d0d12;border-radius:20px;z-index:5}
+.screen{position:absolute;inset:0;padding-top:70px}
+.app{text-align:center;font-weight:800;font-size:48px;color:#3a2a6a;padding:14px}
+.balbox{position:absolute;left:50px;right:50px;top:720px;background:#fff;border-radius:40px;padding:26px 40px;box-shadow:0 8px 0 #0002;border:4px solid #e0e4f0}
+.bl{font-size:34px;color:#667;font-weight:700}.bv{font-size:104px;font-weight:800;color:#1fae6a;line-height:1.15}
+.bubble{position:absolute;left:60px;right:60px;top:530px;text-align:center;font-weight:800;font-size:52px;color:#fff;background:#6a3fb0;border-radius:36px;padding:20px}
+.alert{position:absolute;left:50px;right:50px;top:130px;background:#ffe2e2;border:6px solid #d62839;border-radius:30px;padding:20px;text-align:center;font-weight:800;font-size:48px;color:#d62839}
+.shield{position:absolute;left:290px;top:330px}
+.rows{position:absolute;left:30px;right:30px;top:130px}
+.row{display:flex;align-items:center;background:#fff;border-radius:28px;border:4px solid #e0e4f0;margin-bottom:18px;padding:18px 24px;font-size:42px;font-weight:700;color:#222;box-shadow:0 6px 0 #0001}
+.dot{width:56px;height:56px;border-radius:16px;margin-right:22px;border:4px solid #222;flex:none}
+.nm{flex:1}.pr{font-weight:800;color:#d62839}
+.okc{position:absolute;left:280px;top:130px}
+.okt{position:absolute;left:0;right:0;top:470px;text-align:center;font-weight:800;font-size:64px;color:#1fae6a}
+.tot{position:absolute;left:0;right:0;top:570px;text-align:center;font-weight:800;font-size:120px;color:#d62839}
+.stamp{position:absolute;left:100px;top:780px;font-weight:800;font-size:60px;color:#d62839;border:10px solid #d62839;border-radius:20px;padding:6px 26px;transform:rotate(-8deg);background:#fff}
+.stamp.big{top:430px;left:90px;font-size:84px}
+.down{position:absolute;left:0;right:0;top:230px;text-align:center;font-weight:800;font-size:110px;color:#d62839}
+.cam{position:absolute;left:50px;top:1420px;width:360px;height:360px;border-radius:50px;border:10px solid #fff;box-shadow:8px 8px 0 #000;overflow:hidden;background:linear-gradient(#5b3fa8,#2a1c55)}
+.camin{position:absolute;left:25px;top:20px;transform:scale(1.05);transform-origin:0 0}
+.rec{position:absolute;right:16px;top:12px;font-family:monospace;font-weight:800;font-size:32px;color:#fff;background:#d62839;padding:0 12px;border-radius:10px}
+.cap{position:absolute;left:440px;right:40px;top:1440px;font-weight:800;font-size:60px;line-height:1.25;color:#fff;text-shadow:5px 5px 0 #000,-3px -3px 0 #000,3px -3px 0 #000,-3px 3px 0 #000}
+.card{position:absolute;left:60px;right:60px;text-align:center;font-weight:800;font-size:84px;line-height:1.25;padding:26px 20px;background:#ffd23f;color:#000;border:10px solid #000;box-shadow:12px 12px 0 #000}
+.card.cta{background:#ff3d81;color:#fff;font-size:64px}
+.card small{font-size:48px;font-weight:700}
+.kw{display:inline-block;background:#fff;color:#000;border:8px solid #000;padding:0 24px;margin:12px 0;font-size:70px}
+.cal{position:absolute;left:100px;right:100px;top:130px;height:300px;background:#fff;border:8px solid #d62839;border-radius:30px;display:flex;align-items:center;justify-content:center}.calm{font-weight:800;font-size:110px;color:#d62839}.head.big{font-size:104px;top:80px;line-height:1.1}.phone{top:400px!important;height:960px!important}.down.c{top:470px!important}.balbox{top:650px!important}</style></head>
+<body><div id="root" data-composition-id="main" data-width="1080" data-height="1920" data-duration="20.6">
+<section id="sc-a" class="clip sc" data-start="0.0" data-duration="3.4" data-track-index="1"><div class="bg2"></div><div class="head big" id="a-hd">หมอดูทัก<br>เงินจะหาย!</div><div class="phone" id="a-ph"><div class="notch"></div><div class="screen"><div class="app">หมอดูออนไลน์</div><div class="pos2" id="a-ball" style="left:300px;top:150px"><svg width="300" height="330" viewBox="0 0 300 330"><ellipse cx="150" cy="300" rx="110" ry="24" fill="#4b2c7a"/><path d="M80 290 L100 250 L200 250 L220 290 Z" fill="#6a3fb0"/><circle cx="150" cy="150" r="110" fill="#b79cff" opacity=".85"/><circle cx="150" cy="150" r="110" fill="none" stroke="#e8dcff" stroke-width="6"/><ellipse cx="110" cy="100" rx="30" ry="18" fill="#fff" opacity=".5"/><path d="M95 160 Q130 120 160 170 Q190 120 210 150" stroke="#fff" stroke-width="7" fill="none" opacity=".8" stroke-linecap="round"/></svg></div><div class="bubble" id="a-bub">เดือนนี้ ระวังเงินหายนะลูก</div><div class="balbox" id="a-bal"><div class="bl">ยอดเงินคงเหลือ</div><div class="bv" id="a-bv" style="color:#1fae6a">฿12,480</div></div></div></div><div class="cam" id="a-cam"><div class="camin"><svg viewBox="0 0 300 520" width="300" height="520" style="overflow:visible">
+<g id="ac-body"><line x1="150" y1="14" x2="150" y2="54" stroke="#c4561a" stroke-width="8" stroke-linecap="round"/><circle cx="150" cy="14" r="14" fill="#ff6f91"/>
+<g id="ac-head"><rect x="28" y="108" width="20" height="56" rx="9" fill="#c4561a"/><rect x="252" y="108" width="20" height="56" rx="9" fill="#c4561a"/>
+<rect x="40" y="50" width="220" height="172" rx="56" fill="#ffa05a" stroke="#c4561a" stroke-width="6"/><rect x="64" y="76" width="172" height="122" rx="40" fill="#10142a"/><ellipse cx="112" cy="130" rx="22" ry="30" fill="#9dff7a"/><ellipse cx="188" cy="130" rx="22" ry="30" fill="#9dff7a"/><circle cx="119" cy="122" r="6" fill="#10142a"/><circle cx="195" cy="122" r="6" fill="#10142a"/><path d="M86 102 L134 86 M214 102 L166 86" stroke="#9dff7a" stroke-width="9" stroke-linecap="round"/><path d="M120 184 Q135 168 150 182 Q165 196 180 182" stroke="#ff7aa2" stroke-width="9" stroke-linecap="round" fill="none"/>
+<ellipse cx="92" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/><ellipse cx="208" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/></g>
+<rect x="124" y="218" width="52" height="22" fill="#c4561a"/>
+<path d="M62 262 Q150 232 238 262 L248 420 L52 420 Z" fill="#ff8a3d" stroke="#c4561a" stroke-width="6"/><rect x="118" y="282" width="64" height="60" rx="16" fill="#10142a"/><path d="M150 330 C122 308 130 290 150 302 C170 290 178 308 150 330Z" fill="#ff6f91"/>
+<g id="ac-armL" style="transform-origin:78px 268px"><path d="M78 268 L38 350" stroke="#c4561a" stroke-width="44" stroke-linecap="round"/><path d="M78 268 L38 350" stroke="#ff8a3d" stroke-width="34" stroke-linecap="round"/><circle cx="36" cy="354" r="22" fill="#ffe3c2" stroke="#c4561a" stroke-width="5"/></g>
+<g id="ac-armR" style="transform-origin:222px 268px"><path d="M222 268 L262 350" stroke="#c4561a" stroke-width="44" stroke-linecap="round"/><path d="M222 268 L262 350" stroke="#ff8a3d" stroke-width="34" stroke-linecap="round"/><circle cx="264" cy="354" r="22" fill="#ffe3c2" stroke="#c4561a" stroke-width="5"/></g></g></svg></div><div class="rec">REC</div></div><div class="cap" id="a-cap">หมอดูทักว่าเดือนนี้เงินจะหาย! ผมเลยรีบแก้เคล็ด!</div></section>
+<section id="sc-b" class="clip sc" data-start="3.4" data-duration="3.7" data-track-index="1"><div class="bg2"></div><div class="head big" id="b-hd">แก้เคล็ด!</div><div class="phone" id="b-ph"><div class="notch"></div><div class="screen"><div class="app">ช้อปแก้เคล็ด</div><div class="balbox" id="b-bal"><div class="bl">ยอดเงินคงเหลือ</div><div class="bv" id="b-bv" style="color:#1fae6a">฿12,480</div></div><div class="rows"><div class="row" id="b-r0"><span class="dot" style="background:#ffd23f"></span><span class="nm">เครื่องรางกันเงินหาย</span><span class="pr">฿1,999</span></div><div class="row" id="b-r1"><span class="dot" style="background:#ff7ab8"></span><span class="nm">ผ้ายันต์ขนาดใหญ่</span><span class="pr">฿899</span></div><div class="row" id="b-r2"><span class="dot" style="background:#4ad2ff"></span><span class="nm">กำไลนำโชค</span><span class="pr">฿2,499</span></div><div class="row" id="b-r3"><span class="dot" style="background:#9dff7a"></span><span class="nm">ชุดเสริมดวงครบเซ็ต</span><span class="pr">฿1,999</span></div></div></div></div><div class="cam" id="b-cam"><div class="camin"><svg viewBox="0 0 300 520" width="300" height="520" style="overflow:visible">
+<g id="bc-body"><line x1="150" y1="14" x2="150" y2="54" stroke="#c4561a" stroke-width="8" stroke-linecap="round"/><circle cx="150" cy="14" r="14" fill="#ff6f91"/>
+<g id="bc-head"><rect x="28" y="108" width="20" height="56" rx="9" fill="#c4561a"/><rect x="252" y="108" width="20" height="56" rx="9" fill="#c4561a"/>
+<rect x="40" y="50" width="220" height="172" rx="56" fill="#ffa05a" stroke="#c4561a" stroke-width="6"/><rect x="64" y="76" width="172" height="122" rx="40" fill="#10142a"/><path d="M78 140 Q112 98 146 140" stroke="#9dff7a" stroke-width="14" stroke-linecap="round" fill="none"/><path d="M154 140 Q188 98 222 140" stroke="#9dff7a" stroke-width="14" stroke-linecap="round" fill="none"/><path d="M116 170 Q150 204 184 170" stroke="#ff7aa2" stroke-width="9" stroke-linecap="round" fill="none"/>
+<ellipse cx="92" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/><ellipse cx="208" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/></g>
+<rect x="124" y="218" width="52" height="22" fill="#c4561a"/>
+<path d="M62 262 Q150 232 238 262 L248 420 L52 420 Z" fill="#ff8a3d" stroke="#c4561a" stroke-width="6"/><rect x="118" y="282" width="64" height="60" rx="16" fill="#10142a"/><path d="M150 330 C122 308 130 290 150 302 C170 290 178 308 150 330Z" fill="#ff6f91"/>
+<g id="bc-armL" style="transform-origin:78px 268px"><path d="M78 268 L38 350" stroke="#c4561a" stroke-width="44" stroke-linecap="round"/><path d="M78 268 L38 350" stroke="#ff8a3d" stroke-width="34" stroke-linecap="round"/><circle cx="36" cy="354" r="22" fill="#ffe3c2" stroke="#c4561a" stroke-width="5"/></g>
+<g id="bc-armR" style="transform-origin:222px 268px"><path d="M222 268 L262 350" stroke="#c4561a" stroke-width="44" stroke-linecap="round"/><path d="M222 268 L262 350" stroke="#ff8a3d" stroke-width="34" stroke-linecap="round"/><circle cx="264" cy="354" r="22" fill="#ffe3c2" stroke="#c4561a" stroke-width="5"/></g></g></svg></div><div class="rec">REC</div></div><div class="cap" id="b-cap">เครื่องราง! ผ้ายันต์! กำไลนำโชค! ชุดเสริมดวง!</div></section>
+<section id="sc-c" class="clip sc" data-start="7.1" data-duration="4.5" data-track-index="1"><div class="bg2"></div><div class="head big" id="c-hd">1 เดือนต่อมา...</div><div class="phone" id="c-ph"><div class="notch"></div><div class="screen"><div class="app">ปฏิทิน</div><div class="cal" id="c-cal"><div class="calm">+1 เดือน</div></div><div class="balbox" id="c-bal"><div class="bl">ยอดเงินคงเหลือ</div><div class="bv" id="c-bv" style="color:#d62839">฿5,084</div></div><div class="down c" id="c-dn">▼ -฿7,396</div></div></div><div class="cam" id="c-cam"><div class="camin"><svg viewBox="0 0 300 520" width="300" height="520" style="overflow:visible">
+<g id="cc-body"><line x1="150" y1="14" x2="150" y2="54" stroke="#c4561a" stroke-width="8" stroke-linecap="round"/><circle cx="150" cy="14" r="14" fill="#ff6f91"/>
+<g id="cc-head"><rect x="28" y="108" width="20" height="56" rx="9" fill="#c4561a"/><rect x="252" y="108" width="20" height="56" rx="9" fill="#c4561a"/>
+<rect x="40" y="50" width="220" height="172" rx="56" fill="#ffa05a" stroke="#c4561a" stroke-width="6"/><rect x="64" y="76" width="172" height="122" rx="40" fill="#10142a"/><circle cx="112" cy="130" r="26" fill="none" stroke="#9dff7a" stroke-width="9"/><circle cx="112" cy="130" r="10" fill="#9dff7a"/><circle cx="188" cy="130" r="26" fill="none" stroke="#9dff7a" stroke-width="9"/><circle cx="188" cy="130" r="10" fill="#9dff7a"/><path d="M124 182 L176 182" stroke="#ff7aa2" stroke-width="9" stroke-linecap="round"/>
+<ellipse cx="92" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/><ellipse cx="208" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/></g>
+<rect x="124" y="218" width="52" height="22" fill="#c4561a"/>
+<path d="M62 262 Q150 232 238 262 L248 420 L52 420 Z" fill="#ff8a3d" stroke="#c4561a" stroke-width="6"/><rect x="118" y="282" width="64" height="60" rx="16" fill="#10142a"/><path d="M150 330 C122 308 130 290 150 302 C170 290 178 308 150 330Z" fill="#ff6f91"/>
+<g id="cc-armL" style="transform-origin:78px 268px"><path d="M78 268 L38 350" stroke="#c4561a" stroke-width="44" stroke-linecap="round"/><path d="M78 268 L38 350" stroke="#ff8a3d" stroke-width="34" stroke-linecap="round"/><circle cx="36" cy="354" r="22" fill="#ffe3c2" stroke="#c4561a" stroke-width="5"/></g>
+<g id="cc-armR" style="transform-origin:222px 268px"><path d="M222 268 L262 350" stroke="#c4561a" stroke-width="44" stroke-linecap="round"/><path d="M222 268 L262 350" stroke="#ff8a3d" stroke-width="34" stroke-linecap="round"/><circle cx="264" cy="354" r="22" fill="#ffe3c2" stroke="#c4561a" stroke-width="5"/></g></g></svg></div><div class="rec">REC</div></div><div class="cap" id="c-cap">ผ่านไปหนึ่งเดือน... เงินหายจริง เจ็ดพันกว่าบาท!</div></section>
+<section id="sc-d" class="clip sc" data-start="11.6" data-duration="3.6" data-track-index="1"><div class="bg2"></div><div class="head big" id="d-hd">ผลลัพธ์:</div><div class="phone" id="d-ph"><div class="notch"></div><div class="screen"><div class="app">แอปธนาคาร</div><div class="balbox" id="d-bal"><div class="bl">ยอดเงินคงเหลือ</div><div class="bv" id="d-bv" style="color:#d62839">฿5,084</div></div><div class="stamp big" id="d-st">หมอดูแม่นมาก</div></div></div><div class="cam" id="d-cam"><div class="camin"><svg viewBox="0 0 300 520" width="300" height="520" style="overflow:visible">
+<g id="dc-body"><line x1="150" y1="14" x2="150" y2="54" stroke="#c4561a" stroke-width="8" stroke-linecap="round"/><circle cx="150" cy="14" r="14" fill="#ff6f91"/>
+<g id="dc-head"><rect x="28" y="108" width="20" height="56" rx="9" fill="#c4561a"/><rect x="252" y="108" width="20" height="56" rx="9" fill="#c4561a"/>
+<rect x="40" y="50" width="220" height="172" rx="56" fill="#ffa05a" stroke="#c4561a" stroke-width="6"/><rect x="64" y="76" width="172" height="122" rx="40" fill="#10142a"/><circle cx="112" cy="130" r="26" fill="none" stroke="#9dff7a" stroke-width="9"/><circle cx="112" cy="130" r="10" fill="#9dff7a"/><circle cx="188" cy="130" r="26" fill="none" stroke="#9dff7a" stroke-width="9"/><circle cx="188" cy="130" r="10" fill="#9dff7a"/><path d="M124 182 L176 182" stroke="#ff7aa2" stroke-width="9" stroke-linecap="round"/>
+<ellipse cx="92" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/><ellipse cx="208" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/></g>
+<rect x="124" y="218" width="52" height="22" fill="#c4561a"/>
+<path d="M62 262 Q150 232 238 262 L248 420 L52 420 Z" fill="#ff8a3d" stroke="#c4561a" stroke-width="6"/><rect x="118" y="282" width="64" height="60" rx="16" fill="#10142a"/><path d="M150 330 C122 308 130 290 150 302 C170 290 178 308 150 330Z" fill="#ff6f91"/>
+<g id="dc-armL" style="transform-origin:78px 268px"><path d="M78 268 L38 350" stroke="#c4561a" stroke-width="44" stroke-linecap="round"/><path d="M78 268 L38 350" stroke="#ff8a3d" stroke-width="34" stroke-linecap="round"/><circle cx="36" cy="354" r="22" fill="#ffe3c2" stroke="#c4561a" stroke-width="5"/></g>
+<g id="dc-armR" style="transform-origin:222px 268px"><path d="M222 268 L262 350" stroke="#c4561a" stroke-width="44" stroke-linecap="round"/><path d="M222 268 L262 350" stroke="#ff8a3d" stroke-width="34" stroke-linecap="round"/><circle cx="264" cy="354" r="22" fill="#ffe3c2" stroke="#c4561a" stroke-width="5"/></g></g></svg></div><div class="rec">REC</div></div><div class="cap" id="d-cap">หมอดูแม่นมาก... แต่ผมทำหายเอง</div></section>
+<section id="sc-e" class="clip sc" data-start="15.2" data-duration="5.4" data-track-index="1"><div class="bg2"></div>
+<div class="pos2" id="e-a" style="left:40px;top:640px;transform:scale(1.15);transform-origin:0 0"><svg viewBox="0 0 300 520" width="300" height="520" style="overflow:visible">
+<g id="ea-body"><line x1="150" y1="14" x2="150" y2="54" stroke="#c4561a" stroke-width="8" stroke-linecap="round"/><circle cx="150" cy="14" r="14" fill="#ff6f91"/>
+<g id="ea-head"><rect x="28" y="108" width="20" height="56" rx="9" fill="#c4561a"/><rect x="252" y="108" width="20" height="56" rx="9" fill="#c4561a"/>
+<rect x="40" y="50" width="220" height="172" rx="56" fill="#ffa05a" stroke="#c4561a" stroke-width="6"/><rect x="64" y="76" width="172" height="122" rx="40" fill="#10142a"/><path d="M78 140 Q112 98 146 140" stroke="#9dff7a" stroke-width="14" stroke-linecap="round" fill="none"/><path d="M154 140 Q188 98 222 140" stroke="#9dff7a" stroke-width="14" stroke-linecap="round" fill="none"/><path d="M116 170 Q150 204 184 170" stroke="#ff7aa2" stroke-width="9" stroke-linecap="round" fill="none"/>
+<ellipse cx="92" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/><ellipse cx="208" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/></g>
+<rect x="124" y="218" width="52" height="22" fill="#c4561a"/>
+<path d="M62 262 Q150 232 238 262 L248 420 L52 420 Z" fill="#ff8a3d" stroke="#c4561a" stroke-width="6"/><rect x="118" y="282" width="64" height="60" rx="16" fill="#10142a"/><path d="M150 330 C122 308 130 290 150 302 C170 290 178 308 150 330Z" fill="#ff6f91"/>
+<g id="ea-armL" style="transform-origin:78px 268px"><path d="M78 268 L38 350" stroke="#c4561a" stroke-width="44" stroke-linecap="round"/><path d="M78 268 L38 350" stroke="#ff8a3d" stroke-width="34" stroke-linecap="round"/><circle cx="36" cy="354" r="22" fill="#ffe3c2" stroke="#c4561a" stroke-width="5"/></g>
+<g id="ea-armR" style="transform-origin:222px 268px"><path d="M222 268 L262 350" stroke="#c4561a" stroke-width="44" stroke-linecap="round"/><path d="M222 268 L262 350" stroke="#ff8a3d" stroke-width="34" stroke-linecap="round"/><circle cx="264" cy="354" r="22" fill="#ffe3c2" stroke="#c4561a" stroke-width="5"/></g></g></svg></div>
+<div class="pos2" id="e-b" style="left:650px;top:660px;transform:scale(1.15);transform-origin:0 0"><svg viewBox="0 0 300 520" width="300" height="520" style="overflow:visible">
+<g id="eb-body"><line x1="150" y1="14" x2="150" y2="54" stroke="#1b9a90" stroke-width="8" stroke-linecap="round"/><circle cx="150" cy="14" r="14" fill="#ff6f91"/>
+<g id="eb-head"><rect x="28" y="108" width="20" height="56" rx="9" fill="#1b9a90"/><rect x="252" y="108" width="20" height="56" rx="9" fill="#1b9a90"/>
+<rect x="40" y="50" width="220" height="172" rx="56" fill="#4fd9cc" stroke="#1b9a90" stroke-width="6"/><rect x="64" y="76" width="172" height="122" rx="40" fill="#10142a"/><path d="M78 140 Q112 98 146 140" stroke="#9dff7a" stroke-width="14" stroke-linecap="round" fill="none"/><path d="M154 140 Q188 98 222 140" stroke="#9dff7a" stroke-width="14" stroke-linecap="round" fill="none"/><path d="M116 170 Q150 204 184 170" stroke="#ff7aa2" stroke-width="9" stroke-linecap="round" fill="none"/>
+<ellipse cx="92" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/><ellipse cx="208" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/></g>
+<rect x="124" y="218" width="52" height="22" fill="#1b9a90"/>
+<path d="M62 262 Q150 232 238 262 L248 420 L52 420 Z" fill="#2fc4b8" stroke="#1b9a90" stroke-width="6"/><rect x="118" y="282" width="64" height="60" rx="16" fill="#10142a"/><path d="M150 330 C122 308 130 290 150 302 C170 290 178 308 150 330Z" fill="#ff6f91"/>
+<g id="eb-armL" style="transform-origin:78px 268px"><path d="M78 268 L38 350" stroke="#1b9a90" stroke-width="44" stroke-linecap="round"/><path d="M78 268 L38 350" stroke="#2fc4b8" stroke-width="34" stroke-linecap="round"/><circle cx="36" cy="354" r="22" fill="#f2f6f8" stroke="#1b9a90" stroke-width="5"/></g>
+<g id="eb-armR" style="transform-origin:222px 268px"><path d="M222 268 L262 350" stroke="#1b9a90" stroke-width="44" stroke-linecap="round"/><path d="M222 268 L262 350" stroke="#2fc4b8" stroke-width="34" stroke-linecap="round"/><circle cx="264" cy="354" r="22" fill="#f2f6f8" stroke="#1b9a90" stroke-width="5"/></g></g></svg></div>
+<div class="card" id="e-c1" style="top:230px">อยากวางแผนเงินเอง<br>ไม่ต้องพึ่งหมอดู?</div>
+<div class="card cta" id="e-c3" style="top:1130px">คอมเมนต์คำว่า<br><span class="kw">prompt</span><br><small>รับชุดคำสั่งฟรี</small></div></section>
+<audio id="v1" src="assets/v1.mp3" data-start="0.05" data-duration="3.30" data-track-index="10" data-volume="1"></audio>
+<audio id="v2" src="assets/v2.mp3" data-start="3.5" data-duration="3.53" data-track-index="11" data-volume="1"></audio>
+<audio id="v3" src="assets/v3.mp3" data-start="7.3" data-duration="4.27" data-track-index="12" data-volume="1"></audio>
+<audio id="v4" src="assets/v4.mp3" data-start="11.7" data-duration="3.38" data-track-index="13" data-volume="1"></audio>
+<audio id="v5" src="assets/v5.mp3" data-start="15.3" data-duration="4.89" data-track-index="14" data-volume="1"></audio>
+<audio id="bgm" src="assets/bgm.wav" data-start="0" data-duration="20.6" data-track-index="30" data-volume="0.5"></audio>
+<audio id="sfx" src="assets/sfx.wav" data-start="0" data-duration="20.6" data-track-index="31" data-volume="1"></audio>
+</div>
+<script>
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+tl.to("#a-ball",{y:-14,duration:0.4,yoyo:true,repeat:7,ease:"sine.inOut"},0.1);tl.to("#a-bal",{x:10,duration:0.05,yoyo:true,repeat:39,ease:"none"},0.2);tl.to("#a-hd",{scale:1.05,duration:0.25,yoyo:true,repeat:11,ease:"sine.inOut",transformOrigin:"50% 50%"},0.1);
+tl.from("#b-hd",{y:-80,opacity:0,duration:0.25,ease:"power3.out"},3.42);tl.from("#b-ph",{y:120,opacity:0,duration:0.3,ease:"power3.out"},3.43);tl.from("#b-cap",{y:50,opacity:0,duration:0.3,ease:"power3.out"},3.50);
+tl.from("#c-hd",{y:-80,opacity:0,duration:0.25,ease:"power3.out"},7.12);tl.from("#c-ph",{y:120,opacity:0,duration:0.3,ease:"power3.out"},7.13);tl.from("#c-cap",{y:50,opacity:0,duration:0.3,ease:"power3.out"},7.20);
+tl.from("#d-hd",{y:-80,opacity:0,duration:0.25,ease:"power3.out"},11.62);tl.from("#d-ph",{y:120,opacity:0,duration:0.3,ease:"power3.out"},11.63);tl.from("#d-cap",{y:50,opacity:0,duration:0.3,ease:"power3.out"},11.70);
+
+tl.to("#ac-body",{y:-10,duration:0.3,yoyo:true,repeat:4,ease:"sine.inOut"},0.10);
+tl.to("#bc-body",{y:-10,duration:0.3,yoyo:true,repeat:5,ease:"sine.inOut"},3.50);
+tl.to("#cc-body",{y:-10,duration:0.3,yoyo:true,repeat:6,ease:"sine.inOut"},7.20);
+tl.to("#dc-body",{y:-10,duration:0.3,yoyo:true,repeat:5,ease:"sine.inOut"},11.70);
+const balb={v:12480};
+tl.from("#b-r0",{x:700,opacity:0,duration:0.25,ease:"power3.out"},3.65);
+tl.to(balb,{v:10481,duration:0.3,ease:"power1.out",onUpdate:function(){document.getElementById("b-bv").textContent="฿"+Math.round(balb.v).toLocaleString("en-US")}},3.73);
+tl.from("#b-r1",{x:700,opacity:0,duration:0.25,ease:"power3.out"},4.45);
+tl.to(balb,{v:9582,duration:0.3,ease:"power1.out",onUpdate:function(){document.getElementById("b-bv").textContent="฿"+Math.round(balb.v).toLocaleString("en-US")}},4.53);
+tl.from("#b-r2",{x:700,opacity:0,duration:0.25,ease:"power3.out"},5.25);
+tl.to(balb,{v:7083,duration:0.3,ease:"power1.out",onUpdate:function(){document.getElementById("b-bv").textContent="฿"+Math.round(balb.v).toLocaleString("en-US")}},5.33);
+tl.from("#b-r3",{x:700,opacity:0,duration:0.25,ease:"power3.out"},6.05);
+tl.to(balb,{v:5084,duration:0.3,ease:"power1.out",onUpdate:function(){document.getElementById("b-bv").textContent="฿"+Math.round(balb.v).toLocaleString("en-US")}},6.13);
+tl.to("#b-bv",{color:"#d62839",duration:0.3},4.40);
+tl.from("#c-cal",{rotationX:90,opacity:0,duration:0.4,ease:"back.out(1.6)",transformOrigin:"50% 0"},7.25);tl.from("#c-bal",{y:150,opacity:0,duration:0.3},8.00);tl.from("#c-dn",{y:-60,opacity:0,duration:0.3,ease:"bounce.out"},8.70);tl.to("#c-bal",{x:10,duration:0.05,yoyo:true,repeat:19,ease:"none"},8.80);
+tl.from("#d-st",{scale:3,opacity:0,rotation:-25,duration:0.3,ease:"power4.in"},12.50);tl.to("#d-bal",{x:8,duration:0.06,yoyo:true,repeat:9,ease:"none"},12.10);
+tl.from("#e-a",{x:-400,opacity:0,duration:0.4,ease:"back.out(1.4)"},15.25);tl.from("#e-b",{x:400,opacity:0,duration:0.4,ease:"back.out(1.4)"},15.32);tl.fromTo("#e-c1",{opacity:0,scale:0.3},{opacity:1,scale:1,duration:0.3,ease:"back.out(2)"},15.30);tl.fromTo("#e-c3",{opacity:0,y:120},{opacity:1,y:0,duration:0.35,ease:"power3.out"},17.00);
+tl.to("#ea-body",{y:-16,duration:0.35,yoyo:true,repeat:13,ease:"sine.inOut"},15.70);tl.to("#eb-body",{y:-16,duration:0.35,yoyo:true,repeat:13,ease:"sine.inOut"},15.80);
+window.__timelines["main"] = tl;
+</script></body></html>

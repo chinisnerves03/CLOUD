@@ -1,0 +1,55 @@
+<!-- status: authored; lint: PASS -->
+# Captions — Entry 2 (copy and paste, nothing is posted yet)
+
+Video: `out/ep02.mp4` (1080x1920, burned-in captions, 40.9 s). Cover: `cover_ep02.png`.
+Job for every caption: the video carries the hook, the caption carries the ask and the search words.
+
+## Instagram Reels
+```
+Comment PIP and I'll tag you when entry 3 drops.
+
+The thief left footprints. On the ceiling.
+
+Pip Thimble is 3 cm tall and he just found a thread of silk, fine as breath and flecked with gold. Nobody in Pocket City makes thread like that. Then Inspector Brass pats his coat and his badge is gone.
+
+Entry 2 of 10 in a new animated mystery series. A fresh Lost and Found Log entry every day, and every one ends on a cliffhanger.
+
+What did YOU lose that never came back?
+
+#tinydetective #animatedmystery #papercraftanimation #miniseries #pipthimble
+```
+First comment (post it yourself right after publishing, it starts the thread):
+```
+Who walks on ceilings? Best guess gets pinned.
+```
+
+## TikTok
+```
+The thief left footprints on the ceiling. A 3 cm detective follows the trail. Entry 2 of 10. Comment PIP for entry 3. #tinydetective #animatedmystery #papercraft #miniseries #pipthimble
+```
+
+## Facebook Reels
+```
+Who leaves footprints on a ceiling? Pip Thimble is 3 cm tall, he found a gold-flecked silk thread, and now the police chief's badge has vanished too. Entry 2 of 10. Entry 3 posts tomorrow on this page. Comment PIP and tell us what you lost that never came back.
+
+#tinydetective #animatedmystery
+```
+
+## YouTube Shorts
+Title (66 characters):
+```
+Footprints on the Ceiling | Pip Thimble, Tiny Detective (Entry 2)
+```
+Description:
+```
+Entry 2 of 10. In Pocket City, a hidden town built from things humans lost, the thief left footprints on the ceiling. Tiny detective Pip Thimble finds a silk thread flecked with gold, and then the Inspector's badge goes missing.
+
+A new Lost and Found Log entry every day. Original animated mystery series. Voices in this series are AI generated.
+
+#PipThimble #AnimatedMystery #TinyDetective
+```
+Tags (YouTube Studio, "Show more"): `tiny detective, animated mystery, mystery series, paper cut out animation, short animated series, pip thimble`
+
+## Notes
+- Post within the same hour as the other platforms and reply to comments for the first 60 minutes. Nobody can guarantee reach.
+- Entry 1 should already be up, and the cover goes on as the Reels cover or the Shorts thumbnail.

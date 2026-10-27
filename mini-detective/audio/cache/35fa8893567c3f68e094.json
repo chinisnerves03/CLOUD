@@ -1,0 +1,9 @@
+{
+ "voice": "Jesse \u2014 Animation Character, Friendly",
+ "voice_id": "rLl4PSDTzX3VHL4wjSFI",
+ "model": "eleven_v3",
+ "text": "[nervous] This is fine. This is\u2026 squishy.",
+ "chars": 41,
+ "source": "elevenlabs-connector",
+ "created": "2026-10-26T09:14:40Z"
+}
