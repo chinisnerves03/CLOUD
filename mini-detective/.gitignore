@@ -4,3 +4,4 @@ audio/mock/
 __pycache__/
 *.pyc
 out/*.log
+out/*.done
