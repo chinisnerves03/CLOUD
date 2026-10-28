@@ -35,3 +35,4 @@ Written from general knowledge, not from a live check of BeamNG or any platform.
 | 22 | content_analyst | reading data, outliers, reports |
 | 23 | instagram_market_understanding | how IG works for a mod creator |
 | 24 | voiceover_dubbing | scripting, recording, AI voices, mixing |
+| effects/ | /effects skill: magazine, beforeafter, orbit (ffmpeg script, tested on stills) |
