@@ -30,3 +30,8 @@ Written from general knowledge, not from a live check of BeamNG or any platform.
 | 17 | ai_workflow_with_claude | using Claude to go faster |
 | 18 | launch_plan_30_days | a day-by-day plan tying it all together |
 | 19 | editing_craft_cutting | cut types, rhythm, ffmpeg recipes, review checklist |
+| 20 | motion_graphics | animated titles, kinetic text, spec sheets |
+| 21 | 3d_for_promo_and_mods | cinematic 3D renders and turntables |
+| 22 | content_analyst | reading data, outliers, reports |
+| 23 | instagram_market_understanding | how IG works for a mod creator |
+| 24 | voiceover_dubbing | scripting, recording, AI voices, mixing |
