@@ -29,3 +29,4 @@ Written from general knowledge, not from a live check of BeamNG or any platform.
 | 16 | thai_market_playbook | Thai-language audience |
 | 17 | ai_workflow_with_claude | using Claude to go faster |
 | 18 | launch_plan_30_days | a day-by-day plan tying it all together |
+| 19 | editing_craft_cutting | cut types, rhythm, ffmpeg recipes, review checklist |
