@@ -41,3 +41,11 @@ See `audio_sound_design`: music under -18 dB, engine and impact SFX, voice ducki
 - Template project: intro/outro, lower-thirds, LUT, audio chain.
 - Keep a bin of reusable b-roll per mod.
 - Review on a phone before publishing.
+
+## Lesson: the hook is not the problem, what follows it is
+Source: Instagram reel https://www.instagram.com/reel/DeXnbhxurWk/ (@viewcci; caption only was read, the video itself was not watched).
+- After the hook, do not explain: delay the answer so the viewer keeps wanting it (open loop, then reveal in steps).
+- Cut every second between hook and payoff that does not raise curiosity; the second 3-8 is where viewers leave.
+- End right after the payoff. No long outro, no recap.
+- Check the retention graph after posting: find the drop, re-cut that spot next time.
+- Trailer use: hook (best crash/drift frame) -> tease the question ("how does it survive this?") -> hold the reveal until near the end.

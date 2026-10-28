@@ -40,3 +40,9 @@ Consistency beats volume: e.g. 3–5 posts per week for 4 weeks, same time slot,
 
 ## Reuse
 One shoot → 1 long video + 5–10 shorts. Re-edit; do not repost identical clips on the same platform.
+
+## Lesson: protect the seconds after the hook
+Source: https://www.instagram.com/reel/DeXnbhxurWk/ (caption only).
+- Write the hook AND the next beat together; the next beat must raise a new question, not answer the first.
+- Place the payoff last, cut immediately after it (loop point instead of an outro).
+- Review retention per post; edit the first drop point in the following video.
