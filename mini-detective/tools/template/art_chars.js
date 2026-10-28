@@ -47,7 +47,7 @@ CHAR.juno=function(st){const mo=st.mouth||0,bob=Math.sin(st.ct*2.4)*1.4,pup=1+(s
   :`<path d="M-20 -72 L8 -60 L6 -54 L-22 -66Z M20 -72 L-8 -60 L-6 -54 L22 -66Z" fill="#26807c" stroke="#1f6764" stroke-width="1"/>`;
  return `<g>${glider}<g transform="translate(0 ${st.glide?0:0}) rotate(${f2(Math.sin(st.ct*2)*.8)})">
   <path d="M4 -92 Q-26 -88 -46 -78 Q-70 -66 -84 -74" stroke="#C8452F" stroke-width="7" fill="none" stroke-linecap="round" transform="rotate(${f2(Math.sin(st.ct*13)*3)} 4 -92)"/>
-  <rect x="-12" y="-34" width="8" height="34" rx="2" fill="#1F2A44"/><rect x="4" y="-34" width="8" height="34" rx="2" fill="#1F2A44"/><path d="M-14 0 H-2 L-2 -6 H-14Z M2 0 H14 L14 -6 H2Z" fill="#2a1d17"/>
+  ${(()=>{const sw=st.mv?Math.sin(st.ph||0)*26:0;return `<g transform="rotate(${f2(sw)} -8 -34)"><rect x="-12" y="-34" width="8" height="34" rx="2" fill="#1F2A44"/><path d="M-14 0 H-2 L-2 -6 H-14Z" fill="#2a1d17"/></g><g transform="rotate(${f2(-sw)} 8 -34)"><rect x="4" y="-34" width="8" height="34" rx="2" fill="#1F2A44"/><path d="M2 0 H14 L14 -6 H2Z" fill="#2a1d17"/></g>`})()}
   <path d="M-16 -32 L16 -32 L12 -86 L-12 -86Z" fill="#2F8F8B" stroke="#1f6764" stroke-width="1.5"/>
   <rect x="8" y="-48" width="20" height="14" fill="#F3E9D2" stroke="#c9b78d" stroke-width="1.2"/><path d="M8 -48 L18 -40 L28 -48" fill="none" stroke="#c9b78d"/>
   ${arms}
@@ -60,7 +60,7 @@ CHAR.juno=function(st){const mo=st.mouth||0,bob=Math.sin(st.ct*2.4)*1.4,pup=1+(s
    <ellipse cx="-1" cy="-87" rx="3" ry="${f2(mo*3.4+.7)}" fill="#7a2f2a"/></g></g></g>`};
 
 CHAR.brass=function(st){const mo=st.mouth||0,pat=st.pat?Math.sin(st.ct*14)*12:0;
- return `<g><rect x="-17" y="-24" width="13" height="24" rx="3" fill="#1F2A44"/><rect x="4" y="-24" width="13" height="24" rx="3" fill="#1F2A44"/><path d="M-20 0 H-2 V-5 H-20Z M2 0 H20 V-5 H2Z" fill="#14141c"/>
+ return `<g>${(()=>{const sw=st.mv?Math.sin(st.ph||0)*24:0;return `<g transform="rotate(${f2(sw)} -10 -24)"><rect x="-17" y="-24" width="13" height="24" rx="3" fill="#1F2A44"/><path d="M-20 0 H-2 V-5 H-20Z" fill="#14141c"/></g><g transform="rotate(${f2(-sw)} 10 -24)"><rect x="4" y="-24" width="13" height="24" rx="3" fill="#1F2A44"/><path d="M2 0 H20 V-5 H2Z" fill="#14141c"/></g>`})()}
   <path d="M-30 -20 L30 -20 L26 -70 L-26 -70Z" fill="#1F2A44" stroke="#14192b" stroke-width="1.5"/>
   <g fill="#E0A526"><circle cy="-60" r="2.6"/><circle cy="-48" r="2.6"/><circle cy="-36" r="2.6"/></g><rect x="-30" y="-27" width="60" height="5" fill="#14192b"/>
   ${st.badge===0?`<circle cx="-14" cy="-58" r="6" fill="#14192b" opacity=".5"/>`:`<circle cx="-14" cy="-58" r="6" fill="#E0A526" stroke="#b88618" stroke-width="1.2"/>`}

@@ -1,6 +1,6 @@
 {
  "entry": 3,
- "gap": 0.2,
+ "gap": 0.45,
  "gaps": {
   "velvet2": 2.2
  },
@@ -64,7 +64,7 @@
     "velvet1"
    ],
    "bg": "lounge",
-   "pre": 0.2,
+   "pre": 0.22,
    "cam": [
     {
      "at": 0,
@@ -104,7 +104,7 @@
     "fuzz2"
    ],
    "bg": "lounge",
-   "pre": 0.3,
+   "pre": 0.22,
    "cam": [
     {
      "at": 0,
@@ -204,7 +204,7 @@
    "bgopts": {
     "dark": true
    },
-   "pre": 0.2,
+   "pre": 0.22,
    "cam": [
     {
      "at": 0,
@@ -233,7 +233,7 @@
    "bgopts": {
     "dark": true
    },
-   "pre": 0.2,
+   "pre": 0.22,
    "cam": [
     {
      "at": 0,
@@ -299,13 +299,11 @@
        "x": 40,
        "y": 760,
        "mv": 1,
-       "ph": 0,
        "mood": "neutral"
       },
       {
        "at": "pip2.start-1.05",
        "x": 220,
-       "ph": 14,
        "mv": 1
       },
       {

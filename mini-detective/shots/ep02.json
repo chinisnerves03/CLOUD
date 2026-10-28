@@ -1,6 +1,6 @@
 {
  "entry": 2,
- "gap": 0.2,
+ "gap": 0.45,
  "beds": [
   {
    "name": "room",
@@ -90,7 +90,7 @@
     "ceiling": true,
     "threadX": 420
    },
-   "pre": 0.1,
+   "pre": 0.22,
    "cam": [
     {
      "at": 0,
@@ -147,7 +147,7 @@
     "ceiling": true,
     "threadX": 420
    },
-   "pre": 0.15,
+   "pre": 0.22,
    "cam": [
     {
      "at": 0,
@@ -192,7 +192,7 @@
    "bgopts": {
     "threadX": 420
    },
-   "pre": 0.3,
+   "pre": 0.22,
    "cam": [
     {
      "at": 0,
@@ -239,14 +239,17 @@
        "x": 680,
        "y": 760,
        "flip": 1,
-       "mood": "shout"
+       "mood": "shout",
+       "mv": 1
       },
       {
        "at": "brass1.start+0.9",
        "x": 410,
-       "y": 760,
-       "flip": 1,
-       "mood": "shout"
+       "mv": 1
+      },
+      {
+       "at": "brass1.start+0.95",
+       "mv": 0
       },
       {
        "at": "pip2.start",
@@ -283,7 +286,7 @@
    "bgopts": {
     "threadX": 420
    },
-   "pre": 0.2,
+   "pre": 0.22,
    "cam": [
     {
      "at": 0,
@@ -349,7 +352,7 @@
    "bgopts": {
     "threadX": 420
    },
-   "pre": 0.35,
+   "pre": 0.22,
    "cam": [
     {
      "at": 0,
@@ -413,7 +416,7 @@
     "n3"
    ],
    "bg": "desk",
-   "pre": 0.3,
+   "pre": 0.22,
    "cam": [
     {
      "at": 0,

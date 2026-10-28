@@ -36,7 +36,7 @@ function lineState(t){for(const id of EP.order){const L=EP.lines[id];if(t>=L.sta
 
 function drawActors(t,ct){const ls=lineState(t);
  for(const A of ACT){const k=track(A.a.keys,t);if(k.vis===0){A.g.innerHTML='';continue}
-  const st=Object.assign({},k,{t,ct,mood:k.mood||'neutral',mouth:(ls&&ls.speaker===A.a.who)?ls.mouth:0,blink:(ct%3.1)<.12});
+  const st=Object.assign({},k,{t,ct,ph:k.mv?(k.x??0)/13:(k.ph||0),mood:k.mood||'neutral',mouth:(ls&&ls.speaker===A.a.who)?ls.mouth:0,blink:(ct%3.1)<.12});
   const s=k.s??1,fl=k.flip?-1:1;
   A.g.setAttribute('transform',`translate(${f2(k.x??270)} ${f2(k.y??760)}) rotate(${f2(k.rot??0)}) scale(${f2(s*fl)} ${f2(s)})`);
   A.g.innerHTML=CHAR[A.a.who](st)}}
@@ -86,7 +86,7 @@ function seek(t){
  const ct=Math.floor(t*12)/12,qt=t,fr=Math.floor(t*12);
  let idx=EP.shots.findIndex((s,i)=>t>=s.t0&&(t<s.t1||i===EP.shots.length-1));if(idx<0)idx=0;if(idx!==CUR)buildShot(idx);
  const clue=(SHOT.cues||[]).find(c=>c.do==='clue'&&t>=c.t&&t<=c.t+c.dur);
- const ended=t>=EP.speech_end+.35;
+ const ended=t>=EP.end_at;
  $('S_card').style.display=clue&&!ended?'':'none';$('WORLD').style.display=(clue||ended)?'none':'';$('S_end').style.display=ended?'':'none';
  $('pt').setAttribute('seed',3+(Math.floor(t*3)%4));
  if(clue&&!ended)drawClue(clue,t);
@@ -96,8 +96,8 @@ function seek(t){
   if(TICK)TICK(t,ct);drawActors(t,ct);drawProps(t,ct)}
  const ov=track(SHOT.overlay,t);$('dim').setAttribute('opacity',(SHOT.overlay&&SHOT.overlay.length)?(ov.a||0):0);
  drawHUD(t);
- if(ended){const k=R(t,EP.speech_end+.35,EP.speech_end+1.05,E.out3);$('endTxt').textContent=EP.end_card;$('endG').setAttribute('opacity',k);$('endG').setAttribute('transform',`translate(0 ${(1-k)*14})`);
-  const bl=(t-EP.speech_end>1.2&&t-EP.speech_end<1.45)?.15:1;$('endEye').setAttribute('transform',`scale(1 ${bl})`)}
+ if(ended){const k=R(t,EP.end_at,EP.end_at+.7,E.out3);$('endTxt').textContent=EP.end_card;$('endG').setAttribute('opacity',k);$('endG').setAttribute('transform',`translate(0 ${(1-k)*14})`);
+  const bl=(t-EP.end_at>.85&&t-EP.end_at<1.1)?.15:1;$('endEye').setAttribute('transform',`scale(1 ${bl})`)}
  $('black').setAttribute('opacity',t<.9?1-R(t,.1,.9,E.io3):0);
  caption(t);
 }

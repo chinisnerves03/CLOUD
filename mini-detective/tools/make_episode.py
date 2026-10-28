@@ -81,7 +81,7 @@ def build_ep(entry, shotcfg, tl, speech_end, total, captions):
         covered += sh["lines"]
     if covered != order:
         die(f"shots must cover every line once, in order. script order: {order}; shots: {covered}")
-    t0s = [0.0] + [round(tl[sh["lines"][0]]["start"] - sh.get("pre", 0.12), 3) for sh in shotcfg["shots"][1:]]
+    t0s = [0.0] + [round(tl[sh["lines"][0]]["start"] - sh.get("pre", 0.22), 3) for sh in shotcfg["shots"][1:]]
     t1s = t0s[1:] + [total]
     sfx_events = []
     for sh, t0, t1 in zip(shotcfg["shots"], t0s, t1s):
@@ -178,7 +178,7 @@ def main():
     gaps = shotcfg.get("gaps", {})
     tl, speech_end, total = {}, 0, 0
     # build_timeline uses a fixed gap; apply per-line gap overrides by shifting afterwards
-    tl, speech_end, total = pt_voice.build_timeline(entry, clips, gap=shotcfg.get("gap", 0.2), lead_in=shotcfg.get("lead_in", 0.5), hold_end=shotcfg.get("hold_end", 2.2))
+    tl, speech_end, total = pt_voice.build_timeline(entry, clips, gap=shotcfg.get("gap", 0.2), lead_in=shotcfg.get("lead_in", 0.5), hold_end=shotcfg.get("hold_end", 2.6))
     if gaps:
         shift = 0.0
         for l in entry["lines"]:
@@ -192,6 +192,7 @@ def main():
     print("[3/6] build scene html")
     ep, sfx_events = build_ep(entry, shotcfg, tl, speech_end, total, not a.no_captions)
     ep["aspect"] = a.aspect
+    ep["end_at"] = round(speech_end + 0.9, 3)
     tpl = (HERE / "template" / "scene.html").read_text(encoding="utf-8")
     tpl = re.sub(r"(?:/\*__|<!--)INLINE:([\w.]+?)(?:__\*/|-->)", lambda m: (HERE / "template" / m.group(1)).read_text(encoding="utf-8"), tpl)
     html = work / "scene.html"
