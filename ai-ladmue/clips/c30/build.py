@@ -1,13 +1,11 @@
 import sys; sys.path.insert(0, '/home/user/CLOUD/ai-ladmue/clips')
 from hfkit import *
-DUR = 17.0
+DUR = 23.7
 OUT = '/home/user/CLOUD/ai-ladmue/clips/c30/hf'
 # scene boundaries (rehearsal: estimated from pauses in v1.mp3, refine with word timestamps)
-SC = [('a', 0, 1.8), ('b', 1.8, 3.0), ('c', 3.0, 5.6), ('d', 5.6, 8.2), ('e', 8.2, 10.3), ('f', 10.3, 12.8), ('g', 12.8, DUR)]
+SC = [('a', 0, 2.9), ('b', 2.9, 5.8), ('c', 5.8, 9.0), ('d', 9.0, 12.3), ('e', 12.3, 14.6), ('f', 14.6, 18.9), ('g', 18.9, DUR)]
 # caption phrases: (text, start, end) -- one pop per word, active word highlighted
-CAPS = [('หยุดพิมพ์ว่า ช่วยหน่อย', 0.05, 1.75), ('ให้ AI ได้แล้ว!', 1.85, 2.95), ('AI จะเก่ง ก็ต่อเมื่อ คำสั่งชัด', 3.0, 5.55),
-        ('ผมรวมคำสั่งที่ใช้จริง ไว้ 20 แบบ', 5.6, 8.15), ('เขียนอีเมล สรุปงาน คิดคอนเทนต์', 8.2, 10.25),
-        ('ก๊อปไปวาง แก้วงเล็บ ใช้ได้เลย', 10.3, 12.75), ('อยากได้ฟรี พิมพ์ prompt ในคอมเมนต์', 12.85, 15.2), ('แล้วกดลิงก์ ที่โปรไฟล์', 15.2, 16.95)]
+CAPS = [('หยุดพิมพ์ว่า ช่วยหน่อย', 0.1, 2.75), ('ให้ AI ได้แล้ว!', 2.9, 5.8), ('AI จะเก่ง ก็ต่อเมื่อ คำสั่งชัด', 5.9, 8.95), ('ผมรวมคำสั่งที่ใช้จริง ไว้ 20 แบบ', 9.1, 12.3), ('เขียนอีเมล สรุปงาน คิดคอนเทนต์', 12.35, 14.6), ('ก๊อปไปวาง แก้วงเล็บ ใช้ได้เลย', 14.6, 17.5), ('ไม่ต้อง คิดเอง', 17.6, 18.85), ('อยากได้ฟรี', 18.9, 19.75), ('พิมพ์ prompt ในคอมเมนต์', 19.8, 21.55), ('แล้วกดลิงก์ ที่โปรไฟล์', 21.6, 23.55)]
 
 def rb(face, uid, scale, left, top, cls='', id_=''):
     return f'<div class="ab {cls}" id="{id_}" style="left:{left}px;top:{top}px;transform:scale({scale});transform-origin:0 0">{robot(face, uid=uid)}</div>'
@@ -93,26 +91,26 @@ css = AE_CSS + '''
 '''
 js = []
 # A: hook
-js.append('tl.from("#a1",{scale:0.4,opacity:0,rotation:-8,duration:0.25,ease:"back.out(2.4)"},0.05);tl.set("#a2",{opacity:1},0.75);tl.from("#a2",{scale:3,duration:0.2,ease:"power4.in"},0.75);tl.to("#ra",{y:-14,duration:0.2,yoyo:true,repeat:6,ease:"sine.inOut"},0.2);')
+js.append('tl.from("#a1",{scale:0.4,opacity:0,rotation:-8,duration:0.25,ease:"back.out(2.4)"},0.05);tl.set("#a2",{opacity:1},2.3);tl.from("#a2",{scale:3,duration:0.2,ease:"power4.in"},2.3);tl.to("#ra",{y:-14,duration:0.2,yoyo:true,repeat:10,ease:"sine.inOut"},0.2);')
 # B
-js.append('tl.from("#b1",{scale:2.4,opacity:0,rotation:6,duration:0.3,ease:"power4.out"},1.85);')
+js.append('tl.from("#b1",{scale:2.4,opacity:0,rotation:6,duration:0.3,ease:"power4.out"},3.0);')
 # C
-js.append('tl.from("#c0",{y:-100,opacity:0,duration:0.3,ease:"back.out(1.8)"},3.0);tl.from("#c1",{x:400,opacity:0,duration:0.28,ease:"back.out(1.7)"},3.35);tl.from("#c2",{scale:0,duration:0.25,ease:"back.out(3)"},3.95);tl.from("#c3",{x:-400,opacity:0,duration:0.28,ease:"back.out(1.7)"},4.3);tl.from("#c4",{scale:0,duration:0.25,ease:"back.out(3)"},5.0);')
+js.append('tl.from("#c0",{y:-100,opacity:0,duration:0.3,ease:"back.out(1.8)"},5.9);tl.from("#c1",{x:400,opacity:0,duration:0.28,ease:"back.out(1.7)"},6.3);tl.from("#c2",{scale:0,duration:0.25,ease:"back.out(3)"},7.0);tl.from("#c3",{x:-400,opacity:0,duration:0.28,ease:"back.out(1.7)"},7.6);tl.from("#c4",{scale:0,duration:0.25,ease:"back.out(3)"},8.3);')
 # D
-js.append('tl.from("#d1",{scale:0.2,opacity:0,rotation:-14,duration:0.4,ease:"back.out(2.6)"},5.65);tl.from("#d2",{y:-120,opacity:0,duration:0.3,ease:"back.out(1.8)"},6.3);tl.from("#d3",{y:300,opacity:0,rotation:20,duration:0.4,ease:"back.out(1.6)"},7.0);tl.fromTo(".burst2",{rotation:0},{rotation:40,duration:2.6,ease:"none"},5.6);')
+js.append('tl.from("#d1",{scale:0.2,opacity:0,rotation:-14,duration:0.4,ease:"back.out(2.6)"},9.1);tl.from("#d2",{y:-120,opacity:0,duration:0.3,ease:"back.out(1.8)"},10.0);tl.from("#d3",{y:300,opacity:0,rotation:20,duration:0.4,ease:"back.out(1.6)"},10.9);tl.fromTo(".burst2",{rotation:0},{rotation:40,duration:3.3,ease:"none"},9.0);')
 # E
-js.append('tl.from("#e0",{y:-80,opacity:0,duration:0.25},8.25);')
-for tid, at in (('e1', 8.4), ('e2', 9.1), ('e3', 9.7)):
+js.append('tl.from("#e0",{y:-80,opacity:0,duration:0.25},12.35);')
+for tid, at in (('e1', 12.4), ('e2', 13.2), ('e3', 14.1)):
     js.append(f'tl.from("#{tid}",{{x:-700,opacity:0,duration:0.3,ease:"back.out(1.6)"}},{at});')
 # F
-js.append('tl.from("#f0",{scale:0.5,opacity:0,duration:0.3,ease:"back.out(2)"},10.35);')
-for tid, at in (('f1', 10.55), ('f2', 11.2), ('f3', 11.95)):
+js.append('tl.from("#f0",{scale:0.5,opacity:0,duration:0.3,ease:"back.out(2)"},14.65);')
+for tid, at in (('f1', 14.9), ('f2', 15.9), ('f3', 16.9)):
     js.append(f'tl.from("#{tid}",{{x:700,opacity:0,duration:0.3,ease:"back.out(1.6)"}},{at});')
 # G: typing "prompt" then DM bubble
-js.append('tl.from("#g1",{scale:0.3,opacity:0,rotation:-8,duration:0.35,ease:"back.out(2.4)"},12.85);tl.from("#g2",{y:120,opacity:0,duration:0.3},13.4);')
+js.append('tl.from("#g1",{scale:0.3,opacity:0,rotation:-8,duration:0.35,ease:"back.out(2.4)"},18.95);tl.from("#g2",{y:120,opacity:0,duration:0.3},19.4);')
 for k, ch in enumerate('prompt'):
-    js.append(f'tl.call(function(){{document.getElementById("typ").textContent="{"prompt"[:k+1]}"}},[],{14.0 + k*0.12:.2f});')
-js.append('tl.fromTo(".cur",{opacity:0},{opacity:0.8,duration:0.2,yoyo:true,repeat:9},13.5);tl.from("#g3",{y:200,opacity:0,scale:0.6,duration:0.4,ease:"back.out(1.8)"},15.2);tl.fromTo(".burst",{rotation:0},{rotation:40,duration:4.2,ease:"none"},12.8);')
+    js.append(f'tl.call(function(){{document.getElementById("typ").textContent="{"prompt"[:k+1]}"}},[],{19.85 + k*0.12:.2f});')
+js.append('tl.fromTo(".cur",{opacity:0},{opacity:0.8,duration:0.2,yoyo:true,repeat:9},19.5);tl.from("#g3",{y:200,opacity:0,scale:0.6,duration:0.4,ease:"back.out(1.8)"},21.6);tl.fromTo(".burst",{rotation:0},{rotation:40,duration:4.8,ease:"none"},18.9);')
 for k, s, t in SC:
     js += cam_js(k, s, t, rot=0.5, push=0.05)
 cuts = [s for k, s, t in SC[1:]]
@@ -120,16 +118,16 @@ sections += ae_overlay_html(('#ff3b30', '#ffe66b', '#111')).replace('__DUR__', s
 js += ae_overlay_js(DUR, cuts)
 js += cap_js
 # zoom punches on emphasis beats
-for sel, at in (('#b1', 1.85), ('#d1', 6.0), ('#g1', 13.15), ('#g3', 15.5)):
+for sel, at in (('#b1', 3.0), ('#d1', 9.4), ('#g1', 19.2), ('#g3', 21.9)):
     js += punch_js(sel, at, 0.06)
-audio = audio_el(0, 'v1', 0.0, 17.0) + bed_audio(DUR, 0.22)
+audio = audio_el(0, 'v1', 0.0, 23.7) + bed_audio(DUR, 0.22)
 import os; os.makedirs(OUT + '/assets', exist_ok=True)
 write_index(OUT + '/index.html', 'Prompt Pack ฟรี', css, sections, audio, js, DUR)
 s = Sfx(DUR)
 for t in cuts: s.whoosh(t - 0.05, 0.25); s.pop(t, 520)
-s.scratch(0.75); s.ding(5.8, 1175)
-for at in (8.4, 9.1, 9.7): s.pop(at, 900)
-for at in (10.55, 11.2, 11.95): s.pop(at, 700)
-for k in range(6): s.pop(14.0 + k * 0.12, 1200)
-s.ding(15.2, 1760); s.chaching(15.6)
+s.scratch(2.3); s.ding(9.2, 1175)
+for at in (12.4, 13.2, 14.1): s.pop(at, 900)
+for at in (14.9, 15.9, 16.9): s.pop(at, 700)
+for k in range(6): s.pop(19.85 + k * 0.12, 1200)
+s.ding(21.6, 1760); s.chaching(22.0)
 s.save(OUT + '/assets/sfx.wav'); print('ok')
