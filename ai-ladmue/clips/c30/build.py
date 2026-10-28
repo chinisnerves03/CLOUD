@@ -1,13 +1,13 @@
 import sys; sys.path.insert(0, '/home/user/CLOUD/ai-ladmue/clips')
 from hfkit import *
-DUR = 16.5
+DUR = 17.0
 OUT = '/home/user/CLOUD/ai-ladmue/clips/c30/hf'
 # scene boundaries (rehearsal: estimated from pauses in v1.mp3, refine with word timestamps)
 SC = [('a', 0, 1.8), ('b', 1.8, 3.0), ('c', 3.0, 5.6), ('d', 5.6, 8.2), ('e', 8.2, 10.3), ('f', 10.3, 12.8), ('g', 12.8, DUR)]
 # caption phrases: (text, start, end) -- one pop per word, active word highlighted
 CAPS = [('หยุดพิมพ์ว่า ช่วยหน่อย', 0.05, 1.75), ('ให้ AI ได้แล้ว!', 1.85, 2.95), ('AI จะเก่ง ก็ต่อเมื่อ คำสั่งชัด', 3.0, 5.55),
         ('ผมรวมคำสั่งที่ใช้จริง ไว้ 20 แบบ', 5.6, 8.15), ('เขียนอีเมล สรุปงาน คิดคอนเทนต์', 8.2, 10.25),
-        ('ก๊อปไปวาง แก้วงเล็บ ใช้ได้เลย', 10.3, 12.75), ('อยากได้ฟรี คอมเมนต์ว่า prompt', 12.8, 16.4)]
+        ('ก๊อปไปวาง แก้วงเล็บ ใช้ได้เลย', 10.3, 12.75), ('อยากได้ฟรี พิมพ์ prompt ในคอมเมนต์', 12.85, 15.2), ('แล้วกดลิงก์ ที่โปรไฟล์', 15.2, 16.95)]
 
 def rb(face, uid, scale, left, top, cls='', id_=''):
     return f'<div class="ab {cls}" id="{id_}" style="left:{left}px;top:{top}px;transform:scale({scale});transform-origin:0 0">{robot(face, uid=uid)}</div>'
@@ -47,7 +47,7 @@ f = '''<div class="bg" style="background:#18b6d9"></div><div class="dots"></div>
 g = '''<div class="bg" style="background:#ff3d81"></div><div class="burst"></div>
 <div class="hd" id="g1" style="top:150px;color:#fff;font-size:120px">ฟรี!</div>
 <div class="cbox" id="g2"><span class="who">@คุณ</span><span id="typ"></span><span class="cur">|</span></div>
-<div class="dm" id="g3">📩 ส่งใน DM ให้เลย</div>'''
+<div class="dm" id="g3">🔗 กดลิงก์ที่โปรไฟล์</div>'''
 bodies = dict(zip('abcdefg', [a, b, c, d, e, f, g]))
 sections = ''.join(section(k, s, t, f'<div class="cam" id="cam-{k}">{bodies[k]}</div>') for k, s, t in SC)
 
@@ -112,7 +112,7 @@ for tid, at in (('f1', 10.55), ('f2', 11.2), ('f3', 11.95)):
 js.append('tl.from("#g1",{scale:0.3,opacity:0,rotation:-8,duration:0.35,ease:"back.out(2.4)"},12.85);tl.from("#g2",{y:120,opacity:0,duration:0.3},13.4);')
 for k, ch in enumerate('prompt'):
     js.append(f'tl.call(function(){{document.getElementById("typ").textContent="{"prompt"[:k+1]}"}},[],{14.0 + k*0.12:.2f});')
-js.append('tl.fromTo(".cur",{opacity:0},{opacity:0.8,duration:0.2,yoyo:true,repeat:9},13.5);tl.from("#g3",{y:200,opacity:0,scale:0.6,duration:0.4,ease:"back.out(1.8)"},14.6);tl.fromTo(".burst",{rotation:0},{rotation:40,duration:3.7,ease:"none"},12.8);')
+js.append('tl.fromTo(".cur",{opacity:0},{opacity:0.8,duration:0.2,yoyo:true,repeat:9},13.5);tl.from("#g3",{y:200,opacity:0,scale:0.6,duration:0.4,ease:"back.out(1.8)"},15.2);tl.fromTo(".burst",{rotation:0},{rotation:40,duration:4.2,ease:"none"},12.8);')
 for k, s, t in SC:
     js += cam_js(k, s, t, rot=0.5, push=0.05)
 cuts = [s for k, s, t in SC[1:]]
@@ -120,9 +120,9 @@ sections += ae_overlay_html(('#ff3b30', '#ffe66b', '#111')).replace('__DUR__', s
 js += ae_overlay_js(DUR, cuts)
 js += cap_js
 # zoom punches on emphasis beats
-for sel, at in (('#b1', 1.85), ('#d1', 6.0), ('#g1', 13.15), ('#g3', 14.9)):
+for sel, at in (('#b1', 1.85), ('#d1', 6.0), ('#g1', 13.15), ('#g3', 15.5)):
     js += punch_js(sel, at, 0.06)
-audio = audio_el(0, 'v1', 0.0, 16.5) + bed_audio(DUR, 0.22)
+audio = audio_el(0, 'v1', 0.0, 17.0) + bed_audio(DUR, 0.22)
 import os; os.makedirs(OUT + '/assets', exist_ok=True)
 write_index(OUT + '/index.html', 'Prompt Pack ฟรี', css, sections, audio, js, DUR)
 s = Sfx(DUR)
@@ -131,5 +131,5 @@ s.scratch(0.75); s.ding(5.8, 1175)
 for at in (8.4, 9.1, 9.7): s.pop(at, 900)
 for at in (10.55, 11.2, 11.95): s.pop(at, 700)
 for k in range(6): s.pop(14.0 + k * 0.12, 1200)
-s.ding(14.6, 1760); s.chaching(15.5)
+s.ding(15.2, 1760); s.chaching(15.6)
 s.save(OUT + '/assets/sfx.wav'); print('ok')
