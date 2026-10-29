@@ -40,7 +40,7 @@ BG.desk=function($,shot){
  let d='';for(let i=0;i<70;i++)d+=`<circle cx="${-100+rnd(i+200)*740}" cy="${-100+rnd(i+300)*1160}" r="${.8+rnd(i+400)*1.8}" fill="#e8dcc0" opacity="${.3+rnd(i+500)*.4}"/>`;
  $('mid').innerHTML=`${d}<g filter="url(#paper)"><rect x="170" y="440" width="200" height="140" fill="#d3ad82" stroke="#a97d52" stroke-width="3" stroke-dasharray="6 4"/>
   <path d="M30 150 L230 164 L230 178 L30 164Z" fill="#E0A526"/><path d="M230 164 L260 171 L230 178Z" fill="#e9c58f"/>
-  <g transform="translate(430 700) rotate(-8)"><rect x="-60" y="-38" width="120" height="76" fill="#C8452F"/><text y="-4" text-anchor="middle" font-family="Georgia,serif" font-size="22" fill="#F3E9D2">CASE</text><text y="26" text-anchor="middle" font-family="Georgia,serif" font-size="22" fill="#F3E9D2">CLOSED!</text><rect x="-14" y="-72" width="28" height="34" fill="#a97d52"/></g></g>`;
+  <g transform="translate(430 700) rotate(-8)" ${shot.bgopts&&shot.bgopts.clean?'display="none"':''}><rect x="-60" y="-38" width="120" height="76" fill="#C8452F"/><text y="-4" text-anchor="middle" font-family="Georgia,serif" font-size="22" fill="#F3E9D2">CASE</text><text y="26" text-anchor="middle" font-family="Georgia,serif" font-size="22" fill="#F3E9D2">CLOSED!</text><rect x="-14" y="-72" width="28" height="34" fill="#a97d52"/></g></g>`;
  $('fg').innerHTML='';return null};
 
 // ---- props ----
@@ -104,3 +104,22 @@ BG.warehouse_int=function($,shot){
  $('mid').innerHTML=`<rect x="-100" y="766" width="740" height="400" fill="#a97d52"/><rect x="-100" y="760" width="740" height="10" fill="#C89B6D"/>`;
  $('fg').innerHTML='';return null};
 PROPS.coin=p=>`<ellipse cy="${p.sink||0}" rx="26" ry="9" fill="#E0A526" stroke="#b88618" stroke-width="2"/>`;
+
+// ---- entry 5: clock and workshop ----
+const clockHands=(h,m,len)=>{const am=m*6,ah=(h%12)*30+m*.5;return `<path d="M0 8 L-5 0 L0 ${-len*.62} L5 0Z" fill="#1F2A44" transform="rotate(${ah})"/><path d="M0 10 L-3.5 0 L0 ${-len*.92} L3.5 0Z" fill="#1F2A44" transform="rotate(${am})"/>`};
+const clockFace=(r,h,m,sec)=>{let t='';for(let i=0;i<12;i++)t+=`<rect x="-3" y="${-r+6}" width="6" height="${i%3?10:18}" fill="#1F2A44" transform="rotate(${i*30})"/>`;
+ return `<circle r="${r+10}" fill="#a97d52"/><circle r="${r}" fill="#F3E9D2" stroke="#1F2A44" stroke-width="5"/>${t}${clockHands(h,m,r)}${sec==null?'':`<path d="M0 12 V${-r*.9}" stroke="#C8452F" stroke-width="2.5" transform="rotate(${sec*6})"/>`}<circle r="7" fill="#C8452F"/>`};
+PROPS.pocketwatch=p=>{const s=(Math.floor(p.ct||0)%60);return `<path d="M-8 -118 h16 v18 h-16Z" fill="#E0A526"/><circle cy="-120" r="14" fill="none" stroke="#E0A526" stroke-width="6"/><g transform="scale(1.3)"><circle r="92" fill="#E0A526" stroke="#b88618" stroke-width="5"/>${clockFace(78,3,11,p.tick?s:null)}</g>`};
+PROPS.gear=p=>{let t='';for(let i=0;i<10;i++)t+=`<rect x="-8" y="-46" width="16" height="14" fill="#b88618" transform="rotate(${i*36})"/>`;return `<g transform="rotate(${(p.ct||0)*(p.spin||20)})"><circle r="38" fill="#E0A526" stroke="#b88618" stroke-width="3"/>${t}<circle r="12" fill="#a97d52"/></g>`};
+PROPS.notebook=p=>`<g transform="rotate(-3)"><rect x="-150" y="-100" width="300" height="200" fill="#F3E9D2" stroke="#c9b78d" stroke-width="3"/><path d="M0 -100 V100" stroke="#c9b78d" stroke-width="3"/>${[0,1,2,3,4].map(k=>`<path d="M-135 ${-60+k*30} H-12" stroke="#9db4c0" stroke-width="1.5"/>`).join('')}<text x="-130" y="-70" font-family="Georgia,serif" font-style="italic" font-size="17" fill="#1F2A44">clue: 3:11 ...</text><text x="20" y="-20" font-family="Georgia,serif" font-style="italic" font-size="19" fill="#C8452F" opacity="${p.a??1}">Don't wait up.</text><text x="20" y="8" font-family="Georgia,serif" font-style="italic" font-size="19" fill="#C8452F" opacity="${p.a??1}">— P.</text></g>`;
+BG.wall=function($,shot){const pins=[[110,260],[300,200],[430,340],[170,470],[390,560],[250,640]];
+ $('sky').innerHTML=`<rect x="-300" y="-300" width="1140" height="1560" fill="#8a6a46"/>`;
+ let th='',pn='';pins.forEach(([x,y],i)=>{const [x2,y2]=pins[(i+1)%pins.length];th+=`<path d="M${x} ${y} L${x2} ${y2}" stroke="#C8452F" stroke-width="3.5" fill="none"/>`;
+  pn+=`<g transform="translate(${x} ${y})"><rect x="-34" y="-8" width="68" height="40" fill="#F3E9D2" stroke="#c9b78d" transform="rotate(${(i%3-1)*4})"/><text y="22" text-anchor="middle" font-family="Georgia,serif" font-size="22" fill="#1F2A44">3:11</text><circle cy="-8" r="8" fill="#C8452F"/></g>`});
+ $('bg').innerHTML=`<g filter="url(#paper)"><rect x="40" y="120" width="460" height="700" fill="#C89B6D" stroke="#6d4a2a" stroke-width="12"/>${th}${pn}</g>`;$('mid').innerHTML='';$('fg').innerHTML='';return null};
+BG.workshop=function($,shot){const o=shot.bgopts||{};const hh=o.h??3,mm=o.m??0;
+ $('sky').innerHTML=`<rect x="-300" y="-300" width="1140" height="1560" fill="#3a2a1e"/>`;
+ let g='';for(let i=0;i<7;i++)g+=`<g transform="translate(${40+i*78} ${620+(i%2)*24})" opacity=".9"><circle r="${20+i%3*8}" fill="${i%2?'#E0A526':'#2F8F8B'}" stroke="#1F2A44" stroke-width="3"/><circle r="6" fill="#3a2a1e"/></g>`;
+ $('bg').innerHTML=`<g filter="url(#paper)"><rect x="-100" y="-100" width="740" height="1100" fill="#4b3326"/><g transform="translate(270 300)">${clockFace(170,hh,mm,o.stopped?null:(shot.ct||0))}</g><rect x="-100" y="740" width="740" height="300" fill="#6d4a2a"/>${g}</g>`;
+ $('mid').innerHTML='';$('fg').innerHTML=o.empty?'':'';return null};
+CARD.clock=u=>`<g transform="translate(0 -40)"><circle r="82" fill="#F3E9D2" stroke="#1F2A44" stroke-width="5"/>${[0,1,2,3,4,5,6,7,8,9,10,11].map(i=>`<rect x="-2.5" y="-74" width="5" height="${i%3?8:14}" fill="#1F2A44" transform="rotate(${i*30})"/>`).join('')}${clockHands(3,11,78)}<circle r="6" fill="#C8452F"/></g>`;

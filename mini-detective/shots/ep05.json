@@ -1,0 +1,324 @@
+{
+ "entry": 5,
+ "gap": 0.45,
+ "beds": [
+  {
+   "name": "room",
+   "gain": -38
+  }
+ ],
+ "shots": [
+  {
+   "id": "s1",
+   "lines": [
+    "n1"
+   ],
+   "bg": "desk",
+   "cam": [
+    {
+     "at": 0,
+     "x": 270,
+     "y": 500,
+     "z": 1.0
+    },
+    {
+     "at": "n1.end",
+     "x": 270,
+     "y": 520,
+     "z": 1.25
+    }
+   ],
+   "props": [
+    {
+     "kind": "pocketwatch",
+     "layer": "front",
+     "keys": [
+      {
+       "at": 0,
+       "x": 270,
+       "y": 560,
+       "s": 1.5,
+       "tick": 1
+      }
+     ]
+    }
+   ],
+   "sfx": [
+    {
+     "at": 0.1,
+     "name": "tick3",
+     "gain": -10
+    },
+    {
+     "at": "n1.end-1.2",
+     "name": "tick3",
+     "gain": -12
+    }
+   ],
+   "bgopts": {
+    "clean": 1
+   }
+  },
+  {
+   "id": "s2",
+   "lines": [
+    "pip1"
+   ],
+   "bg": "wall",
+   "pre": 0.22,
+   "cam": [
+    {
+     "at": 0,
+     "x": 270,
+     "y": 540,
+     "z": 1.05
+    }
+   ],
+   "actors": [
+    {
+     "who": "pip",
+     "keys": [
+      {
+       "at": 0,
+       "x": 400,
+       "y": 810,
+       "mood": "curious",
+       "lx": 0
+      }
+     ]
+    }
+   ],
+   "sfx": [
+    {
+     "at": "pip1.start",
+     "name": "thread_shimmer",
+     "gain": -16
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "lines": [
+    "cog1"
+   ],
+   "bg": "workshop",
+   "bgopts": {
+    "h": 3,
+    "m": 0
+   },
+   "pre": 0.22,
+   "cam": [
+    {
+     "at": 0,
+     "x": 270,
+     "y": 540,
+     "z": 1.0
+    },
+    {
+     "at": "cog1.end",
+     "x": 300,
+     "y": 540,
+     "z": 1.08
+    }
+   ],
+   "actors": [
+    {
+     "who": "pip",
+     "keys": [
+      {
+       "at": 0,
+       "x": 130,
+       "y": 768,
+       "mood": "curious",
+       "lx": 1
+      }
+     ]
+    },
+    {
+     "who": "cog",
+     "keys": [
+      {
+       "at": 0,
+       "x": 380,
+       "y": 768,
+       "mood": "worried",
+       "flip": 1,
+       "lx": -1
+      }
+     ]
+    }
+   ],
+   "props": [
+    {
+     "kind": "gear",
+     "layer": "front",
+     "keys": [
+      {
+       "at": 0,
+       "x": 430,
+       "y": 690,
+       "s": 0.9,
+       "spin": 40
+      }
+     ]
+    }
+   ],
+   "sfx": [
+    {
+     "at": "cog1.start",
+     "name": "tick3",
+     "gain": -14
+    }
+   ]
+  },
+  {
+   "id": "s4",
+   "lines": [
+    "n2"
+   ],
+   "bg": "plaza",
+   "pre": 0.22,
+   "cam": [
+    {
+     "at": 0,
+     "x": 270,
+     "y": 540,
+     "z": 1.0
+    }
+   ],
+   "actors": [
+    {
+     "who": "pip",
+     "keys": [
+      {
+       "at": 0,
+       "x": 270,
+       "y": 768,
+       "mood": "worried"
+      }
+     ]
+    }
+   ],
+   "overlay": [
+    {
+     "at": 0,
+     "a": 0.55
+    },
+    {
+     "at": "n2.start+2.2",
+     "a": 0.55
+    },
+    {
+     "at": "n2.start+2.35",
+     "a": 0.95
+    },
+    {
+     "at": "n2.start+2.55",
+     "a": 0.2
+    }
+   ],
+   "sfx": [
+    {
+     "at": "n2.start+2.3",
+     "name": "whoosh",
+     "gain": -12
+    }
+   ]
+  },
+  {
+   "id": "s5",
+   "lines": [
+    "pip2"
+   ],
+   "bg": "desk",
+   "pre": 0.22,
+   "cam": [
+    {
+     "at": 0,
+     "x": 270,
+     "y": 500,
+     "z": 1.0
+    },
+    {
+     "at": "pip2.end",
+     "x": 270,
+     "y": 520,
+     "z": 1.3
+    }
+   ],
+   "props": [
+    {
+     "kind": "notebook",
+     "layer": "front",
+     "keys": [
+      {
+       "at": 0,
+       "x": 270,
+       "y": 520,
+       "s": 1.4
+      }
+     ]
+    }
+   ],
+   "sfx": [
+    {
+     "at": "pip2.start",
+     "name": "paper_tear",
+     "gain": -18
+    }
+   ],
+   "bgopts": {
+    "clean": 1
+   }
+  },
+  {
+   "id": "s6",
+   "lines": [
+    "n3"
+   ],
+   "bg": "workshop",
+   "bgopts": {
+    "h": 3,
+    "m": 11,
+    "stopped": 1
+   },
+   "pre": 0.22,
+   "cam": [
+    {
+     "at": 0,
+     "x": 270,
+     "y": 540,
+     "z": 1.0
+    },
+    {
+     "at": "n3.end",
+     "x": 270,
+     "y": 520,
+     "z": 1.12
+    }
+   ],
+   "overlay": [
+    {
+     "at": 0,
+     "a": 0.5
+    },
+    {
+     "at": "n3.start+0.9",
+     "a": 0.1
+    }
+   ],
+   "sfx": [
+    {
+     "at": "n3.start+0.2",
+     "name": "door_slam",
+     "gain": -10
+    },
+    {
+     "at": "n3.end-0.9",
+     "name": "tick3",
+     "gain": -12
+    }
+   ]
+  }
+ ]
+}
