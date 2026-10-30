@@ -47,6 +47,9 @@ Do not copy files from the Volumetric Backfire mod (someone else's work); recrea
   antilag_up/limiter from the 2JZ clip so the whole mod is one car.
 - Done r31: popBang overrun window (burble/pops/bangs/flames/turbo whistle by RPM on lift + shifts), anti-lag,
   burble, spool re-cut from 2JZ (limiter still RB26). Mock-tested in lupa only. Next: in-game test, zip.
+- Full summary + merge notes for the local R29 copy: beamng/TURBOCRAFT_R31_HANDOVER.md.
+- USER FEEDBACK (todo next): flames look like a light flash only, not a fire jet "whoosh" out of the pipe.
+  Make real flame particles (bigger/longer jet, orange core, blue edge; maybe whoosh sound).
 0. 2026-10-30: blocked. Env network policy denies freesound.org, cdn.freesound.org and github.com
    (proxy 403; earshot clone also blocked). Key is set. User must add these hosts under the environment's
    Network access -> Allowed domains (https://code.claude.com/docs/en/cloud-environments#network-access).
