@@ -1,0 +1,23 @@
+<!doctype html><html lang="th"><head><meta charset="utf-8"><title>ให้ AI สรุปเอกสารยาว</title><style>
+@font-face{font-family:P;font-weight:500;src:url(../../video/prompt-thai-500-normal.woff2)}
+@font-face{font-family:P;font-weight:700;src:url(../../video/prompt-thai-700-normal.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(../../video/prompt-thai-800-normal.woff2)}
+@page{size:A4;margin:16mm}*{box-sizing:border-box}
+body{font-family:P,sans-serif;font-weight:500;color:#1B1B2F;font-size:11.5pt;line-height:1.55;margin:0}
+.cover{height:262mm;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:linear-gradient(135deg,#12C26B,#2F6BFF);color:#fff;border-radius:18px;page-break-after:always;padding:0 24mm}
+.cover .em{font-size:64pt;line-height:1}.cover img{width:92px;border-radius:24px;margin-bottom:22px}
+.cover h1{font-size:34pt;font-weight:800;margin:14px 0 0;line-height:1.25}.cover p{font-size:15pt;margin:14px 0 0}
+.cover .b{font-weight:700;margin-top:34px;font-size:13pt;opacity:.95}
+h2{break-after:avoid;font-weight:800;font-size:16pt;color:#12C26B;margin:22px 0 6px}
+.intro{background:#F4F4FB;border-radius:14px;padding:14px 18px;margin-bottom:6px}
+.key{display:inline-block;margin-top:8px;font-weight:800;color:#12C26B}
+.p{border:2px solid #12C26B33;border-radius:14px;padding:10px 16px;margin:9px 0;page-break-inside:avoid}
+.t{font-weight:800;font-size:12pt;color:#12C26B}
+code{display:block;margin-top:5px;font-family:P,sans-serif;background:#F6F6FB;border-radius:10px;padding:9px 12px;white-space:pre-wrap}
+.tips{background:#FFF8E1;border-radius:14px;padding:12px 18px;margin-top:18px;page-break-inside:avoid}.tips li{margin:3px 0}
+.foot{text-align:center;margin-top:18px;font-weight:700;font-size:10.5pt}.note{font-size:9.5pt;opacity:.75;text-align:center;margin-top:6px}</style></head><body>
+<div class="cover"><img src="../../avatar.svg"><div class="em">📄</div><h1>ให้ AI สรุปเอกสารยาว</h1><p>10 คำสั่งสรุปให้ได้สาระและเช็กได้</p><div class="b">AI ลัดมือ · @ailadmue · คลิปที่ 4</div></div>
+<div class="intro">อย่าสั่งแค่ “สรุปให้หน่อย” ให้บอกจำนวนข้อ ระดับภาษา และสิ่งที่ต้องการต่อ แล้วเช็กตัวเลขสำคัญกับต้นฉบับทุกครั้ง<br><span class="key">“สรุป 5 ข้อสำคัญ ภาษาง่ายๆ แล้วบอกสิ่งที่ต้องทำต่อ 2 ข้อ”</span></div><h2>10 คำสั่งสรุป</h2><div class="p"><div class="t">สูตรหลัก</div><code>สรุปข้อความต่อไปนี้เป็น 5 ข้อสำคัญ ภาษาง่ายๆ ปิดท้ายด้วย “สิ่งที่ควรทำต่อ” 2 ข้อ: [วางข้อความ]</code></div><div class="p"><div class="t">สรุปสำหรับผู้บริหาร</div><code>สรุปเอกสารนี้สำหรับผู้บริหารที่มีเวลาอ่าน 1 นาที: ประเด็นหลัก ความเสี่ยง และสิ่งที่ต้องตัดสินใจ: [วางข้อความ]</code></div><div class="p"><div class="t">สรุปประชุม</div><code>จากบันทึกประชุมนี้ สรุป: มติที่ตกลง, งานที่ต้องทำ (ใคร ทำอะไร ภายในเมื่อไร), และเรื่องที่ยังค้าง: [วางบันทึก]</code></div><div class="p"><div class="t">ย่อให้เข้าใจง่าย</div><code>อธิบายเนื้อหานี้ให้คนที่ไม่มีพื้นฐานเข้าใจ ใช้ตัวอย่างในชีวิตประจำวัน 1 ตัวอย่าง: [วางข้อความ]</code></div><div class="p"><div class="t">สรุปเป็นตาราง</div><code>สรุปเนื้อหานี้เป็นตาราง: หัวข้อ | ใจความสำคัญ | ตัวเลขหรือวันที่ที่เกี่ยวข้อง: [วางข้อความ]</code></div><div class="p"><div class="t">ดึงตัวเลขสำคัญ</div><code>ดึงตัวเลข วันที่ และชื่อสำคัญทั้งหมดจากข้อความนี้เป็นรายการ โดยคัดลอกตามต้นฉบับ ห้ามคำนวณหรือปัดเอง: [วางข้อความ]</code></div><div class="p"><div class="t">หาจุดที่ไม่ชัด</div><code>อ่านเอกสารนี้ แล้วบอก 5 จุดที่คลุมเครือหรือข้อมูลไม่ครบ ที่ควรถามเพิ่มก่อนตัดสินใจ: [วางข้อความ]</code></div><div class="p"><div class="t">ทำ Q&amp;A</div><code>จากเนื้อหานี้ สร้างคำถามที่คนมักสงสัย 5 ข้อ พร้อมคำตอบสั้นๆ โดยตอบเฉพาะที่มีในเนื้อหา: [วางข้อความ]</code></div><div class="p"><div class="t">ย่อ 3 บรรทัดสำหรับแชร์</div><code>ย่อเนื้อหานี้เหลือ 3 บรรทัด โทนเป็นกันเอง สำหรับส่งในไลน์กลุ่ม: [วางข้อความ]</code></div><div class="p"><div class="t">เทียบสองฉบับ</div><code>เปรียบเทียบเอกสาร A กับ B ว่าต่างกันตรงไหนบ้าง สรุปเป็นข้อๆ: A: [วาง] B: [วาง]</code></div>
+<div class="tips"><b>ข้อควรจำ</b><ul><li>เช็กตัวเลข ชื่อ และวันที่กับต้นฉบับทุกครั้ง AI อาจสรุปผิดหรือตกหล่นได้</li><li>เอกสารที่เป็นความลับ อย่าวางลงไปโดยไม่ได้รับอนุญาต</li><li>ถ้าเอกสารยาวมาก ให้แบ่งส่งเป็นช่วง แล้วค่อยให้สรุปรวม</li></ul></div>
+<p class="foot">ติดตาม @ailadmue เพื่อเทคนิค AI สั้นๆ ใช้ได้จริงทุกวัน ✨</p>
+<p class="note">ผลลัพธ์จาก AI เป็นร่างแรก ตรวจสอบก่อนนำไปใช้เสมอ</p></body></html>

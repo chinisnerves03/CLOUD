@@ -1,0 +1,141 @@
+{
+  "version": 1,
+  "historyId": "7436c96d-0212-4875-9169-aabe6b959894",
+  "currentRevision": "2639beac-a51a-4da1-8040-48d1139f7484",
+  "pendingChanges": false,
+  "files": {
+    "assets/grain.png": {
+      "hash": "effab9e0ab81da1de41b9561b586bd88b8b0ac7226ed2bb7266023b1e3582f7e",
+      "content": "/root/.cache/hyperframes/history/7436c96d-0212-4875-9169-aabe6b959894/blobs/ef/effab9e0ab81da1de41b9561b586bd88b8b0ac7226ed2bb7266023b1e3582f7e"
+    },
+    "assets/gsap.min.js": {
+      "hash": "28033e449a31ebcc396e5be8b13b63152bf03094288fb5867034321927bce087",
+      "content": "/root/.cache/hyperframes/history/7436c96d-0212-4875-9169-aabe6b959894/blobs/28/28033e449a31ebcc396e5be8b13b63152bf03094288fb5867034321927bce087"
+    },
+    "assets/prompt-thai-700-normal.woff2": {
+      "hash": "6709b0361745936ff7ec5b75bb63c4d67deb04669fbf40285e39e3421a0ab510",
+      "content": "/root/.cache/hyperframes/history/7436c96d-0212-4875-9169-aabe6b959894/blobs/67/6709b0361745936ff7ec5b75bb63c4d67deb04669fbf40285e39e3421a0ab510"
+    },
+    "assets/prompt-thai-800-normal.woff2": {
+      "hash": "627142bc821b23bf63181cedf546d3d127516d73545f110734cfd87f6a584f74",
+      "content": "/root/.cache/hyperframes/history/7436c96d-0212-4875-9169-aabe6b959894/blobs/62/627142bc821b23bf63181cedf546d3d127516d73545f110734cfd87f6a584f74"
+    },
+    "assets/v.mp3": {
+      "hash": "6070d472a8bedc6f608d31f0e1807ef9513210b15296d3c8d4046f3f5e3cec60",
+      "content": "/root/.cache/hyperframes/history/7436c96d-0212-4875-9169-aabe6b959894/blobs/60/6070d472a8bedc6f608d31f0e1807ef9513210b15296d3c8d4046f3f5e3cec60"
+    },
+    "index.html": {
+      "hash": "0232c2dad319a89036d078cb630563698acdc405decf1ba83fd91af7c49d3672",
+      "content": "/root/.cache/hyperframes/history/7436c96d-0212-4875-9169-aabe6b959894/blobs/02/0232c2dad319a89036d078cb630563698acdc405decf1ba83fd91af7c49d3672"
+    },
+    "assets/bgm.wav": {
+      "hash": "ea287ad37147c37f3c65a743483646192fe630eb48bfd7a50fb3aacac8cb1299",
+      "content": "/root/.cache/hyperframes/history/7436c96d-0212-4875-9169-aabe6b959894/blobs/ea/ea287ad37147c37f3c65a743483646192fe630eb48bfd7a50fb3aacac8cb1299"
+    },
+    "assets/sfx.wav": {
+      "hash": "b922d94695e3949f2e40f1816461d9c6d79b8247bc2587caba597fb25e09573f",
+      "content": "/root/.cache/hyperframes/history/7436c96d-0212-4875-9169-aabe6b959894/blobs/b9/b922d94695e3949f2e40f1816461d9c6d79b8247bc2587caba597fb25e09573f"
+    }
+  },
+  "revisions": {
+    "ace8a813-b0f2-4e9b-96dc-cf1e2a6a68e5": {
+      "actor": {
+        "kind": "outside",
+        "name": "Outside"
+      },
+      "label": "Changed outside the app",
+      "startedAt": 1792843118849,
+      "endedAt": 1792843118856,
+      "files": {
+        "index.html": {
+          "before": "/root/.cache/hyperframes/history/7436c96d-0212-4875-9169-aabe6b959894/blobs/da/daca601887dc04ce82b9b01778c56d7033e23dbecaf24bd7580ec03139daaa10",
+          "after": "/root/.cache/hyperframes/history/7436c96d-0212-4875-9169-aabe6b959894/blobs/75/75836fc7050561385c7804b1ae643156558c051a3a1eea4ef040d39348360a1b"
+        }
+      }
+    },
+    "2639beac-a51a-4da1-8040-48d1139f7484": {
+      "actor": {
+        "kind": "outside",
+        "name": "Outside"
+      },
+      "label": "Changed outside the app",
+      "startedAt": 1792843401252,
+      "endedAt": 1792843401265,
+      "files": {
+        "index.html": {
+          "before": "/root/.cache/hyperframes/history/7436c96d-0212-4875-9169-aabe6b959894/blobs/75/75836fc7050561385c7804b1ae643156558c051a3a1eea4ef040d39348360a1b",
+          "after": "/root/.cache/hyperframes/history/7436c96d-0212-4875-9169-aabe6b959894/blobs/02/0232c2dad319a89036d078cb630563698acdc405decf1ba83fd91af7c49d3672"
+        }
+      }
+    }
+  },
+  "checks": {
+    "latest": null,
+    "revisions": {},
+    "unversioned": []
+  },
+  "snapshots": {
+    "latest": {
+      "revision": "ace8a813-b0f2-4e9b-96dc-cf1e2a6a68e5",
+      "id": "982c1a43-843b-4386-8120-a92a5996eeda-1"
+    },
+    "revisions": {
+      "ace8a813-b0f2-4e9b-96dc-cf1e2a6a68e5": [
+        {
+          "scope": "full",
+          "id": "982c1a43-843b-4386-8120-a92a5996eeda-0",
+          "image": "/tmp/s26/frame-00-at-0.4s.png",
+          "time": 0.4,
+          "metadata": {
+            "width": 1080,
+            "height": 1920,
+            "zoomScale": 1,
+            "browserGpuMode": "auto",
+            "warnings": [],
+            "partial": false
+          },
+          "createdAt": 1792843127007,
+          "contentHash": "106c2cc27b16972bba2f8b64f1b2e5719ae04578a6befebf2188a8de579bee20",
+          "revision": "ace8a813-b0f2-4e9b-96dc-cf1e2a6a68e5",
+          "inputFingerprint": "2346162f8dc5b111a1225d1e98f5b3a3e30231d5b99b38572761ef28d6dc2c9a",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision"
+        },
+        {
+          "scope": "full",
+          "id": "982c1a43-843b-4386-8120-a92a5996eeda-1",
+          "image": "/tmp/s26/frame-01-at-12.5s.png",
+          "time": 12.5,
+          "metadata": {
+            "width": 1080,
+            "height": 1920,
+            "zoomScale": 1,
+            "browserGpuMode": "auto",
+            "warnings": [],
+            "partial": false
+          },
+          "createdAt": 1792843127007,
+          "contentHash": "17ec2da4a4c9260bc91181bcf8ef51574d5ec91f2fefa16dacb6b2d87a19eae7",
+          "revision": "ace8a813-b0f2-4e9b-96dc-cf1e2a6a68e5",
+          "inputFingerprint": "2346162f8dc5b111a1225d1e98f5b3a3e30231d5b99b38572761ef28d6dc2c9a",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision"
+        }
+      ]
+    },
+    "unversioned": []
+  },
+  "renders": {
+    "latest": {
+      "id": "8e053f73-a55d-4aaf-93da-30b63226966c",
+      "completedAt": 1792843538968,
+      "output": "/home/user/CLOUD/ai-ladmue/clip26_tier_ae.mp4",
+      "status": "completed",
+      "revision": "2639beac-a51a-4da1-8040-48d1139f7484"
+    },
+    "retainedRevisions": [
+      "2639beac-a51a-4da1-8040-48d1139f7484"
+    ]
+  },
+  "pendingArtifactCleanup": []
+}

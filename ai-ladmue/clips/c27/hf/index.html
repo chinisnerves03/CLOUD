@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="th"><head><meta charset="UTF-8"/><meta name="viewport" content="width=1080, height=1920"/><title>Comic</title>
+<script src="assets/gsap.min.js"></script><style>
+@font-face{font-family:P;font-weight:700;src:url(assets/prompt-thai-700-normal.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(assets/prompt-thai-800-normal.woff2)}
+*{box-sizing:border-box;margin:0}
+body{margin:0;background:#000;font-family:P,sans-serif}
+#root{position:relative;width:1080px;height:1920px;overflow:hidden;background:#000}
+.sc{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden}
+.bg{position:absolute;inset:0}
+.ab{position:absolute}
+
+.ch{display:inline-block;white-space:pre;will-change:transform}
+.cam{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:50% 50%}
+#ovl{position:absolute;left:0;top:0;width:1080px;height:1920px;pointer-events:none}
+#grain{position:absolute;left:-200px;top:-300px;width:1500px;height:2500px;background-image:url(assets/grain.png);background-size:512px 512px;opacity:.16;mix-blend-mode:overlay}
+#vig{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,transparent 52%,rgba(0,0,0,.55) 100%)}
+#leak{position:absolute;left:-700px;top:-300px;width:900px;height:2600px;background:linear-gradient(90deg,transparent,rgba(255,120,60,.55),rgba(255,60,120,.35),transparent);mix-blend-mode:screen;opacity:0;transform:rotate(14deg)}
+#flash{position:absolute;inset:0;background:#fff;opacity:0}
+.wipe{position:absolute;top:-200px;height:2400px;width:1500px;transform:skewX(-14deg);left:-1700px}
+
+.pn{transform-style:preserve-3d}
+.dots,.dots2{position:absolute;inset:0;background-image:radial-gradient(#00000022 3px,transparent 3.5px);background-size:22px 22px}
+.hd{position:absolute;left:30px;right:30px;top:90px;text-align:center;font-weight:800;font-size:92px;line-height:1.1;color:#111}.hd span{background:#111;color:#ffe66b;padding:0 24px;border-radius:16px;display:inline-block;margin-top:8px}
+.pn{position:absolute;width:480px;height:640px;border:12px solid #111;box-shadow:10px 10px 0 #111;overflow:hidden}
+.bub{position:absolute;background:#fff;border:8px solid #111;border-radius:30px;font-weight:800;font-size:46px;line-height:1.2;padding:16px 18px;color:#111;text-align:center;z-index:4}
+.bub.r{background:#fff6c4}
+.oneword{position:absolute;left:30px;top:430px;width:200px;text-align:center;font-weight:800;font-size:120px;color:#d62839;background:#fff;border:8px solid #111;border-radius:20px}
+.burst{position:absolute;inset:-40px;background:repeating-conic-gradient(#ff3b3b 0 10deg,#ffb3b3 10deg 20deg);opacity:.55}
+.pow{position:absolute;right:20px;top:240px;font-weight:800;font-size:150px;color:#ffe66b;text-shadow:8px 8px 0 #111,-4px -4px 0 #111,4px -4px 0 #111,-4px 4px 0 #111;transform:rotate(12deg);z-index:5}
+.tip{position:absolute;left:20px;right:20px;top:30px;text-align:center;font-weight:800;font-size:76px;line-height:1.15;color:#111}.tip span{font-size:56px;background:#111;color:#b9ffb0;padding:0 14px;border-radius:12px;display:inline-block;margin-top:8px}
+.code{position:absolute;left:30px;right:30px;top:290px;background:#111;color:#9dff7a;font-weight:800;font-size:72px;line-height:1.2;text-align:center;border-radius:24px;padding:26px 10px;font-family:P,monospace}
+.cta{position:absolute;left:40px;right:40px;top:1700px;text-align:center;font-weight:800;font-size:54px;background:#ff3d81;color:#fff;border:10px solid #111;box-shadow:10px 10px 0 #111;padding:14px;z-index:9}.cta b{background:#fff;color:#111;padding:0 18px;border-radius:10px}
+</style></head>
+<body><div id="root" data-composition-id="main" data-width="1080" data-height="1920" data-duration="17.7">
+<section id="sc-c" class="clip sc" data-start="0" data-duration="17.7" data-track-index="1"><div class="cam" id="cam-c"><div class="bg" style="background:#ffe66b"></div><div class="dots"></div>
+<div class="hd" id="hd">สั่ง AI ว่า<br><span>“ย่อให้สั้นลง”</span></div>
+<div class="pn" id="p1" style="left:40px;top:340px;background:#bfe9ff"><div class="dots2"></div>
+ <div class="ab" style="left:200px;top:210px;transform:scale(.62);transform-origin:0 0"><svg viewBox="0 0 300 520" width="300" height="520" style="overflow:visible">
+<g id="p1a-body"><line x1="150" y1="14" x2="150" y2="54" stroke="#1b9a90" stroke-width="8" stroke-linecap="round"/><circle cx="150" cy="14" r="14" fill="#ff6f91"/>
+<g id="p1a-head"><rect x="28" y="108" width="20" height="56" rx="9" fill="#1b9a90"/><rect x="252" y="108" width="20" height="56" rx="9" fill="#1b9a90"/>
+<rect x="40" y="50" width="220" height="172" rx="56" fill="#4fd9cc" stroke="#1b9a90" stroke-width="6"/><rect x="64" y="76" width="172" height="122" rx="40" fill="#10142a"/><path d="M78 140 Q112 98 146 140" stroke="#9dff7a" stroke-width="14" stroke-linecap="round" fill="none"/><path d="M154 140 Q188 98 222 140" stroke="#9dff7a" stroke-width="14" stroke-linecap="round" fill="none"/><path d="M116 170 Q150 204 184 170" stroke="#ff7aa2" stroke-width="9" stroke-linecap="round" fill="none"/>
+<ellipse cx="92" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/><ellipse cx="208" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/></g>
+<rect x="124" y="218" width="52" height="22" fill="#1b9a90"/>
+<path d="M62 262 Q150 232 238 262 L248 420 L52 420 Z" fill="#2fc4b8" stroke="#1b9a90" stroke-width="6"/><rect x="118" y="282" width="64" height="60" rx="16" fill="#10142a"/><path d="M150 330 C122 308 130 290 150 302 C170 290 178 308 150 330Z" fill="#ff6f91"/>
+<g id="p1a-armL" style="transform-origin:78px 268px"><path d="M78 268 L38 350" stroke="#1b9a90" stroke-width="44" stroke-linecap="round"/><path d="M78 268 L38 350" stroke="#2fc4b8" stroke-width="34" stroke-linecap="round"/><circle cx="36" cy="354" r="22" fill="#f2f6f8" stroke="#1b9a90" stroke-width="5"/></g>
+<g id="p1a-armR" style="transform-origin:222px 268px"><path d="M222 268 L262 350" stroke="#1b9a90" stroke-width="44" stroke-linecap="round"/><path d="M222 268 L262 350" stroke="#2fc4b8" stroke-width="34" stroke-linecap="round"/><circle cx="264" cy="354" r="22" fill="#f2f6f8" stroke="#1b9a90" stroke-width="5"/></g></g></svg></div><div class="ab" id="p1d" style="left:40px;top:300px;transform:scale(1.4);transform-origin:0 0"><svg width="150" height="190" viewBox="0 0 150 190"><rect x="8" y="8" width="134" height="174" rx="8" fill="#fff" stroke="#111" stroke-width="7"/><rect x="26" y="30" width="70" height="9" fill="#999"/><rect x="26" y="52" width="98" height="9" fill="#999"/><rect x="26" y="74" width="98" height="9" fill="#999"/><rect x="26" y="96" width="70" height="9" fill="#999"/><rect x="26" y="118" width="98" height="9" fill="#999"/><rect x="26" y="140" width="98" height="9" fill="#999"/><rect x="26" y="162" width="70" height="9" fill="#999"/></svg></div>
+ <div class="bub" id="b1" style="left:20px;top:20px;width:420px">ช่วยย่อบทความนี้ ให้สั้นลงหน่อย</div></div>
+<div class="pn" id="p2" style="left:560px;top:340px;background:#ffd9b0"><div class="dots2"></div>
+ <div class="ab" style="left:30px;top:215px;transform:scale(.62);transform-origin:0 0"><svg viewBox="0 0 300 520" width="300" height="520" style="overflow:visible">
+<g id="p2a-body"><line x1="150" y1="14" x2="150" y2="54" stroke="#c4561a" stroke-width="8" stroke-linecap="round"/><circle cx="150" cy="14" r="14" fill="#ff6f91"/>
+<g id="p2a-head"><rect x="28" y="108" width="20" height="56" rx="9" fill="#c4561a"/><rect x="252" y="108" width="20" height="56" rx="9" fill="#c4561a"/>
+<rect x="40" y="50" width="220" height="172" rx="56" fill="#ffa05a" stroke="#c4561a" stroke-width="6"/><rect x="64" y="76" width="172" height="122" rx="40" fill="#10142a"/><path d="M80 142 Q112 108 144 142" stroke="#9dff7a" stroke-width="14" stroke-linecap="round" fill="none"/><path d="M156 142 Q188 108 220 142" stroke="#9dff7a" stroke-width="14" stroke-linecap="round" fill="none"/><path d="M112 168 Q150 208 188 168 Z" fill="#7a2a4a" stroke="#ff7aa2" stroke-width="6" stroke-linejoin="round"/>
+<ellipse cx="92" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/><ellipse cx="208" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/></g>
+<rect x="124" y="218" width="52" height="22" fill="#c4561a"/>
+<path d="M62 262 Q150 232 238 262 L248 420 L52 420 Z" fill="#ff8a3d" stroke="#c4561a" stroke-width="6"/><rect x="118" y="282" width="64" height="60" rx="16" fill="#10142a"/><path d="M150 330 C122 308 130 290 150 302 C170 290 178 308 150 330Z" fill="#ff6f91"/>
+<g id="p2a-armL" style="transform-origin:78px 268px"><path d="M78 268 L38 350" stroke="#c4561a" stroke-width="44" stroke-linecap="round"/><path d="M78 268 L38 350" stroke="#ff8a3d" stroke-width="34" stroke-linecap="round"/><circle cx="36" cy="354" r="22" fill="#ffe3c2" stroke="#c4561a" stroke-width="5"/></g>
+<g id="p2a-armR" style="transform-origin:222px 268px"><path d="M222 268 L262 350" stroke="#c4561a" stroke-width="44" stroke-linecap="round"/><path d="M222 268 L262 350" stroke="#ff8a3d" stroke-width="34" stroke-linecap="round"/><circle cx="264" cy="354" r="22" fill="#ffe3c2" stroke="#c4561a" stroke-width="5"/></g></g></svg></div>
+ <div class="ab" id="p2d" style="left:290px;top:330px;transform-origin:50% 100%"><svg width="150" height="190" viewBox="0 0 150 190"><rect x="8" y="8" width="134" height="174" rx="8" fill="#fff" stroke="#111" stroke-width="7"/><rect x="26" y="30" width="70" height="9" fill="#999"/><rect x="26" y="52" width="98" height="9" fill="#999"/><rect x="26" y="74" width="98" height="9" fill="#999"/><rect x="26" y="96" width="70" height="9" fill="#999"/><rect x="26" y="118" width="98" height="9" fill="#999"/><rect x="26" y="140" width="98" height="9" fill="#999"/><rect x="26" y="162" width="70" height="9" fill="#999"/></svg></div><div class="oneword" id="ow">ดี</div>
+ <div class="bub r" id="b2" style="left:20px;top:20px;width:420px">ได้ครับ! สรุปคือ... ดี.</div></div>
+<div class="pn" id="p3" style="left:40px;top:1020px;background:#ff8a8a"><div class="burst"></div>
+ <div class="ab" id="p3a" style="left:130px;top:200px;transform:scale(.7);transform-origin:0 0"><svg viewBox="0 0 300 520" width="300" height="520" style="overflow:visible">
+<g id="p3a-body"><line x1="150" y1="14" x2="150" y2="54" stroke="#1b9a90" stroke-width="8" stroke-linecap="round"/><circle cx="150" cy="14" r="14" fill="#ff6f91"/>
+<g id="p3a-head"><rect x="28" y="108" width="20" height="56" rx="9" fill="#1b9a90"/><rect x="252" y="108" width="20" height="56" rx="9" fill="#1b9a90"/>
+<rect x="40" y="50" width="220" height="172" rx="56" fill="#4fd9cc" stroke="#1b9a90" stroke-width="6"/><rect x="64" y="76" width="172" height="122" rx="40" fill="#10142a"/><ellipse cx="112" cy="136" rx="22" ry="18" fill="#ff6a6a"/><ellipse cx="188" cy="136" rx="22" ry="18" fill="#ff6a6a"/><path d="M82 96 L136 118 M218 96 L164 118" stroke="#ff6a6a" stroke-width="11" stroke-linecap="round"/><path d="M120 190 Q150 168 180 190" stroke="#ff7aa2" stroke-width="9" stroke-linecap="round" fill="none"/>
+<ellipse cx="92" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/><ellipse cx="208" cy="172" rx="16" ry="9" fill="#ff7aa2" opacity=".45"/></g>
+<rect x="124" y="218" width="52" height="22" fill="#1b9a90"/>
+<path d="M62 262 Q150 232 238 262 L248 420 L52 420 Z" fill="#2fc4b8" stroke="#1b9a90" stroke-width="6"/><rect x="118" y="282" width="64" height="60" rx="16" fill="#10142a"/><path d="M150 330 C122 308 130 290 150 302 C170 290 178 308 150 330Z" fill="#ff6f91"/>
+<g id="p3a-armL" style="transform-origin:78px 268px"><path d="M78 268 L38 350" stroke="#1b9a90" stroke-width="44" stroke-linecap="round"/><path d="M78 268 L38 350" stroke="#2fc4b8" stroke-width="34" stroke-linecap="round"/><circle cx="36" cy="354" r="22" fill="#f2f6f8" stroke="#1b9a90" stroke-width="5"/></g>
+<g id="p3a-armR" style="transform-origin:222px 268px"><path d="M222 268 L262 350" stroke="#1b9a90" stroke-width="44" stroke-linecap="round"/><path d="M222 268 L262 350" stroke="#2fc4b8" stroke-width="34" stroke-linecap="round"/><circle cx="264" cy="354" r="22" fill="#f2f6f8" stroke="#1b9a90" stroke-width="5"/></g></g></svg></div>
+ <div class="bub" id="b3" style="left:20px;top:20px;width:420px;font-size:54px">ผมหมายถึง สามบรรทัด!</div><div class="pow" id="pow">!!!</div></div>
+<div class="pn" id="p4" style="left:560px;top:1020px;background:#b9ffb0"><div class="dots2"></div>
+ <div class="tip" id="tp">เคล็ดลับ!<br><span>สั่งให้ระบุความยาว</span></div>
+ <div class="code" id="cd">“สรุปเป็น<br>สามบรรทัด”</div>
+</div>
+<div class="cta" id="cta">เซฟไว้! คอมเมนต์ <b>prompt</b> รับชุดคำสั่งฟรี</div></div></section>
+<section id="sc-ovl" class="clip sc" data-start="0" data-duration="17.7" data-track-index="5" style="pointer-events:none"><div id="ovl"><div id="leak"></div><div id="vig"></div><div id="grain"></div><div class="wipe w0" style="background:#ff3b30"></div><div class="wipe w1" style="background:#ffe66b"></div><div class="wipe w2" style="background:#111"></div><div id="flash"></div></div></section>
+<audio id="v1" src="assets/v1.mp3" data-start="0.05" data-duration="2.33" data-track-index="10" data-volume="1"></audio>
+<audio id="v2" src="assets/v2.mp3" data-start="2.7" data-duration="4.11" data-track-index="11" data-volume="1"></audio>
+<audio id="v3" src="assets/v3.mp3" data-start="7.0" data-duration="10.33" data-track-index="12" data-volume="1"></audio>
+<audio id="bgm" src="assets/bgm.wav" data-start="0" data-duration="17.7" data-track-index="30" data-volume="0.35"></audio>
+<audio id="sfx" src="assets/sfx.wav" data-start="0" data-duration="17.7" data-track-index="31" data-volume="1"></audio>
+</div>
+<script>
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+tl.to("#hd",{scale:1.03,duration:0.3,yoyo:true,repeat:7,ease:"sine.inOut",transformOrigin:"50% 50%"},0.1);tl.to("#p1a-body",{y:-8,duration:0.3,yoyo:true,repeat:5,ease:"sine.inOut"},0.2);
+tl.from("#p2",{rotationY:90,scale:0.6,opacity:0,transformPerspective:900,duration:0.5,ease:"back.out(1.6)",transformOrigin:"50% 50%"},2.65);
+tl.from("#p3",{rotationY:90,scale:0.6,opacity:0,transformPerspective:900,duration:0.5,ease:"back.out(1.6)",transformOrigin:"50% 50%"},7.00);
+tl.from("#p4",{rotationY:90,scale:0.6,opacity:0,transformPerspective:900,duration:0.5,ease:"back.out(1.6)",transformOrigin:"50% 50%"},9.05);
+tl.to("#p2d",{scaleY:0.2,scaleX:0.5,duration:1.2,ease:"power2.in"},4.75);tl.from("#ow",{scale:3,opacity:0,rotation:-20,duration:0.3,ease:"power4.in"},6.05);
+tl.to("#p3a",{x:10,duration:0.06,yoyo:true,repeat:19,ease:"none"},7.2);tl.from("#pow",{scale:0.1,opacity:0,rotation:-40,duration:0.35,ease:"back.out(3)"},8.0);
+tl.from("#tp",{y:-80,opacity:0,duration:0.3,ease:"power3.out"},9.5);tl.from("#cd",{scale:0.3,opacity:0,duration:0.35,ease:"back.out(2)"},12.5);
+tl.from("#cta",{y:200,opacity:0,duration:0.35,ease:"back.out(1.6)"},14.05);
+tl.set("#grain",{x:-85,y:-61},0.000);
+tl.set("#grain",{x:-59,y:-47},0.083);
+tl.set("#grain",{x:-15,y:-243},0.167);
+tl.set("#grain",{x:-31,y:-52},0.250);
+tl.set("#grain",{x:-87,y:-84},0.333);
+tl.set("#grain",{x:-137,y:-20},0.417);
+tl.set("#grain",{x:-110,y:-222},0.500);
+tl.set("#grain",{x:-55,y:-130},0.583);
+tl.set("#grain",{x:-87,y:-153},0.667);
+tl.set("#grain",{x:-11,y:-224},0.750);
+tl.set("#grain",{x:-4,y:-187},0.833);
+tl.set("#grain",{x:-147,y:-63},0.917);
+tl.set("#grain",{x:-95,y:-146},1.000);
+tl.set("#grain",{x:-79,y:-204},1.083);
+tl.set("#grain",{x:-51,y:-210},1.167);
+tl.set("#grain",{x:-132,y:-215},1.250);
+tl.set("#grain",{x:-37,y:-218},1.333);
+tl.set("#grain",{x:-117,y:-250},1.417);
+tl.set("#grain",{x:-149,y:-197},1.500);
+tl.set("#grain",{x:-95,y:-5},1.583);
+tl.set("#grain",{x:-108,y:-27},1.667);
+tl.set("#grain",{x:-108,y:-176},1.750);
+tl.set("#grain",{x:-70,y:-4},1.833);
+tl.set("#grain",{x:-100,y:-112},1.917);
+tl.set("#grain",{x:-98,y:-204},2.000);
+tl.set("#grain",{x:-100,y:-3},2.083);
+tl.set("#grain",{x:-52,y:-174},2.167);
+tl.set("#grain",{x:-145,y:-158},2.250);
+tl.set("#grain",{x:-44,y:-208},2.333);
+tl.set("#grain",{x:-113,y:-183},2.417);
+tl.set("#grain",{x:-134,y:-166},2.500);
+tl.set("#grain",{x:-73,y:-41},2.583);
+tl.set("#grain",{x:0,y:-250},2.667);
+tl.set("#grain",{x:-64,y:-234},2.750);
+tl.set("#grain",{x:-71,y:-160},2.833);
+tl.set("#grain",{x:-72,y:-127},2.917);
+tl.set("#grain",{x:-70,y:-203},3.000);
+tl.set("#grain",{x:-27,y:-130},3.083);
+tl.set("#grain",{x:-105,y:-236},3.167);
+tl.set("#grain",{x:-85,y:-1},3.250);
+tl.set("#grain",{x:-145,y:-7},3.333);
+tl.set("#grain",{x:-59,y:-34},3.417);
+tl.set("#grain",{x:-47,y:-246},3.500);
+tl.set("#grain",{x:-10,y:-49},3.583);
+tl.set("#grain",{x:-43,y:-157},3.667);
+tl.set("#grain",{x:-54,y:-102},3.750);
+tl.set("#grain",{x:-148,y:-135},3.833);
+tl.set("#grain",{x:-139,y:-69},3.917);
+tl.set("#grain",{x:-104,y:-91},4.000);
+tl.set("#grain",{x:-100,y:-220},4.083);
+tl.set("#grain",{x:-88,y:-13},4.167);
+tl.set("#grain",{x:-32,y:-162},4.250);
+tl.set("#grain",{x:-19,y:-160},4.333);
+tl.set("#grain",{x:-16,y:-186},4.417);
+tl.set("#grain",{x:-32,y:-223},4.500);
+tl.set("#grain",{x:0,y:-59},4.583);
+tl.set("#grain",{x:-56,y:-30},4.667);
+tl.set("#grain",{x:-75,y:-241},4.750);
+tl.set("#grain",{x:-40,y:-8},4.833);
+tl.set("#grain",{x:-127,y:-197},4.917);
+tl.set("#grain",{x:-63,y:-119},5.000);
+tl.set("#grain",{x:-58,y:-15},5.083);
+tl.set("#grain",{x:-113,y:-163},5.167);
+tl.set("#grain",{x:-80,y:-14},5.250);
+tl.set("#grain",{x:-11,y:-227},5.333);
+tl.set("#grain",{x:-71,y:-75},5.417);
+tl.set("#grain",{x:-69,y:-172},5.500);
+tl.set("#grain",{x:-105,y:-46},5.583);
+tl.set("#grain",{x:-130,y:-90},5.667);
+tl.set("#grain",{x:-112,y:-66},5.750);
+tl.set("#grain",{x:-71,y:-127},5.833);
+tl.set("#grain",{x:-109,y:-66},5.917);
+tl.set("#grain",{x:-138,y:-230},6.000);
+tl.set("#grain",{x:-14,y:-14},6.083);
+tl.set("#grain",{x:-47,y:-242},6.167);
+tl.set("#grain",{x:-90,y:-61},6.250);
+tl.set("#grain",{x:-62,y:-39},6.333);
+tl.set("#grain",{x:-86,y:-134},6.417);
+tl.set("#grain",{x:-43,y:-213},6.500);
+tl.set("#grain",{x:-136,y:0},6.583);
+tl.set("#grain",{x:-142,y:-45},6.667);
+tl.set("#grain",{x:-24,y:-165},6.750);
+tl.set("#grain",{x:-97,y:-217},6.833);
+tl.set("#grain",{x:-6,y:-7},6.917);
+tl.set("#grain",{x:-117,y:-89},7.000);
+tl.set("#grain",{x:-45,y:-223},7.083);
+tl.set("#grain",{x:-107,y:-139},7.167);
+tl.set("#grain",{x:-55,y:-212},7.250);
+tl.set("#grain",{x:-135,y:-34},7.333);
+tl.set("#grain",{x:-43,y:-175},7.417);
+tl.set("#grain",{x:-114,y:-134},7.500);
+tl.set("#grain",{x:-107,y:-1},7.583);
+tl.set("#grain",{x:-17,y:-134},7.667);
+tl.set("#grain",{x:-26,y:-74},7.750);
+tl.set("#grain",{x:-69,y:-128},7.833);
+tl.set("#grain",{x:-80,y:-176},7.917);
+tl.set("#grain",{x:-30,y:-147},8.000);
+tl.set("#grain",{x:-113,y:-222},8.083);
+tl.set("#grain",{x:-54,y:-40},8.167);
+tl.set("#grain",{x:-14,y:-5},8.250);
+tl.set("#grain",{x:-105,y:-90},8.333);
+tl.set("#grain",{x:-23,y:-28},8.417);
+tl.set("#grain",{x:-64,y:-204},8.500);
+tl.set("#grain",{x:-128,y:-125},8.583);
+tl.set("#grain",{x:-81,y:-119},8.667);
+tl.set("#grain",{x:-10,y:-28},8.750);
+tl.set("#grain",{x:-22,y:-158},8.833);
+tl.set("#grain",{x:-134,y:-49},8.917);
+tl.set("#grain",{x:-59,y:-73},9.000);
+tl.set("#grain",{x:0,y:-81},9.083);
+tl.set("#grain",{x:-142,y:-56},9.167);
+tl.set("#grain",{x:-72,y:-157},9.250);
+tl.set("#grain",{x:-7,y:-70},9.333);
+tl.set("#grain",{x:-79,y:-37},9.417);
+tl.set("#grain",{x:-26,y:-183},9.500);
+tl.set("#grain",{x:-75,y:-6},9.583);
+tl.set("#grain",{x:-63,y:-84},9.667);
+tl.set("#grain",{x:-105,y:-102},9.750);
+tl.set("#grain",{x:-148,y:-129},9.833);
+tl.set("#grain",{x:-10,y:-52},9.917);
+tl.set("#grain",{x:-86,y:-167},10.000);
+tl.set("#grain",{x:-80,y:-132},10.083);
+tl.set("#grain",{x:-77,y:-41},10.167);
+tl.set("#grain",{x:-22,y:-85},10.250);
+tl.set("#grain",{x:-59,y:-161},10.333);
+tl.set("#grain",{x:-80,y:-86},10.417);
+tl.set("#grain",{x:-62,y:-62},10.500);
+tl.set("#grain",{x:-46,y:-161},10.583);
+tl.set("#grain",{x:-106,y:-28},10.667);
+tl.set("#grain",{x:-35,y:-1},10.750);
+tl.set("#grain",{x:-57,y:-6},10.833);
+tl.set("#grain",{x:-65,y:-118},10.917);
+tl.set("#grain",{x:-114,y:-115},11.000);
+tl.set("#grain",{x:-108,y:-200},11.083);
+tl.set("#grain",{x:-58,y:-11},11.167);
+tl.set("#grain",{x:-28,y:-178},11.250);
+tl.set("#grain",{x:-130,y:-66},11.333);
+tl.set("#grain",{x:-44,y:-207},11.417);
+tl.set("#grain",{x:-2,y:-118},11.500);
+tl.set("#grain",{x:-43,y:-173},11.583);
+tl.set("#grain",{x:-9,y:-52},11.667);
+tl.set("#grain",{x:-81,y:-66},11.750);
+tl.set("#grain",{x:-143,y:-200},11.833);
+tl.set("#grain",{x:-110,y:-100},11.917);
+tl.set("#grain",{x:-38,y:-91},12.000);
+tl.set("#grain",{x:-104,y:-194},12.083);
+tl.set("#grain",{x:-104,y:-89},12.167);
+tl.set("#grain",{x:-140,y:-130},12.250);
+tl.set("#grain",{x:-93,y:-208},12.333);
+tl.set("#grain",{x:-137,y:-22},12.417);
+tl.set("#grain",{x:-116,y:-222},12.500);
+tl.set("#grain",{x:-69,y:-3},12.583);
+tl.set("#grain",{x:-104,y:-127},12.667);
+tl.set("#grain",{x:-101,y:-110},12.750);
+tl.set("#grain",{x:-141,y:-144},12.833);
+tl.set("#grain",{x:-31,y:-161},12.917);
+tl.set("#grain",{x:-53,y:-81},13.000);
+tl.set("#grain",{x:-132,y:-99},13.083);
+tl.set("#grain",{x:-98,y:-190},13.167);
+tl.set("#grain",{x:-55,y:-250},13.250);
+tl.set("#grain",{x:-61,y:-147},13.333);
+tl.set("#grain",{x:-79,y:-31},13.417);
+tl.set("#grain",{x:-46,y:-29},13.500);
+tl.set("#grain",{x:-121,y:-74},13.583);
+tl.set("#grain",{x:-10,y:-155},13.667);
+tl.set("#grain",{x:-141,y:-110},13.750);
+tl.set("#grain",{x:-73,y:-226},13.833);
+tl.set("#grain",{x:-75,y:-111},13.917);
+tl.set("#grain",{x:-19,y:-164},14.000);
+tl.set("#grain",{x:-2,y:-175},14.083);
+tl.set("#grain",{x:-60,y:-41},14.167);
+tl.set("#grain",{x:-117,y:-143},14.250);
+tl.set("#grain",{x:-46,y:-42},14.333);
+tl.set("#grain",{x:-6,y:-86},14.417);
+tl.set("#grain",{x:-13,y:-156},14.500);
+tl.set("#grain",{x:-31,y:-214},14.583);
+tl.set("#grain",{x:-110,y:-98},14.667);
+tl.set("#grain",{x:-53,y:-106},14.750);
+tl.set("#grain",{x:-28,y:-5},14.833);
+tl.set("#grain",{x:-100,y:-3},14.917);
+tl.set("#grain",{x:-116,y:-95},15.000);
+tl.set("#grain",{x:-127,y:-161},15.083);
+tl.set("#grain",{x:-150,y:-153},15.167);
+tl.set("#grain",{x:-123,y:-167},15.250);
+tl.set("#grain",{x:-6,y:-16},15.333);
+tl.set("#grain",{x:-12,y:-214},15.417);
+tl.set("#grain",{x:-67,y:-89},15.500);
+tl.set("#grain",{x:-6,y:-154},15.583);
+tl.set("#grain",{x:-41,y:-140},15.667);
+tl.set("#grain",{x:-93,y:-124},15.750);
+tl.set("#grain",{x:-76,y:-128},15.833);
+tl.set("#grain",{x:-53,y:-152},15.917);
+tl.set("#grain",{x:-110,y:-98},16.000);
+tl.set("#grain",{x:-84,y:-61},16.083);
+tl.set("#grain",{x:-73,y:-123},16.167);
+tl.set("#grain",{x:-86,y:-144},16.250);
+tl.set("#grain",{x:-145,y:-169},16.333);
+tl.set("#grain",{x:-72,y:-125},16.417);
+tl.set("#grain",{x:-77,y:-214},16.500);
+tl.set("#grain",{x:-28,y:-244},16.583);
+tl.set("#grain",{x:-119,y:-82},16.667);
+tl.set("#grain",{x:-37,y:-188},16.750);
+tl.set("#grain",{x:-75,y:-240},16.833);
+tl.set("#grain",{x:-116,y:-39},16.917);
+tl.set("#grain",{x:-50,y:-247},17.000);
+tl.set("#grain",{x:-28,y:-114},17.083);
+tl.set("#grain",{x:-7,y:-180},17.167);
+tl.set("#grain",{x:-88,y:-11},17.250);
+tl.set("#grain",{x:-29,y:-50},17.333);
+tl.set("#grain",{x:-141,y:-188},17.417);
+tl.set("#grain",{x:-25,y:-182},17.500);
+tl.set("#grain",{x:-111,y:-66},17.583);
+tl.set("#flash",{opacity:0.7},2.65);tl.to("#flash",{opacity:0,duration:0.22,ease:"power2.out"},2.65);
+tl.set("#leak",{x:0,opacity:0.9},2.45);tl.to("#leak",{x:1900,duration:0.9,ease:"power2.inOut"},2.45);tl.set("#leak",{opacity:0},3.40);
+tl.set("#flash",{opacity:0.7},7.00);tl.to("#flash",{opacity:0,duration:0.22,ease:"power2.out"},7.00);
+tl.set("#leak",{x:0,opacity:0.9},6.80);tl.to("#leak",{x:1900,duration:0.9,ease:"power2.inOut"},6.80);tl.set("#leak",{opacity:0},7.75);
+tl.set("#flash",{opacity:0.7},9.05);tl.to("#flash",{opacity:0,duration:0.22,ease:"power2.out"},9.05);
+tl.set("#leak",{x:0,opacity:0.9},8.85);tl.to("#leak",{x:1900,duration:0.9,ease:"power2.inOut"},8.85);tl.set("#leak",{opacity:0},9.80);
+tl.set("#flash",{opacity:0.7},14.05);tl.to("#flash",{opacity:0,duration:0.22,ease:"power2.out"},14.05);
+tl.set("#leak",{x:0,opacity:0.9},13.85);tl.to("#leak",{x:1900,duration:0.9,ease:"power2.inOut"},13.85);tl.set("#leak",{opacity:0},14.80);
+tl.set("#cam-c",{transformOrigin:"800px 660px"},2.65);tl.to("#cam-c",{scale:1.38,x:-260,y:210,duration:0.5,ease:"expo.out"},2.70);tl.to("#cam-c",{scale:1,x:0,y:0,duration:0.45,ease:"expo.inOut"},6.90);
+tl.set("#cam-c",{transformOrigin:"280px 1340px"},7.00);tl.to("#cam-c",{scale:1.38,x:260,y:-266,duration:0.5,ease:"expo.out"},7.05);tl.to("#cam-c",{scale:1,x:0,y:0,duration:0.45,ease:"expo.inOut"},9.00);
+tl.set("#cam-c",{transformOrigin:"800px 1340px"},9.05);tl.to("#cam-c",{scale:1.38,x:-260,y:-266,duration:0.5,ease:"expo.out"},9.10);tl.to("#cam-c",{scale:1,x:0,y:0,duration:0.45,ease:"expo.inOut"},13.90);
+tl.to("#cam-c",{rotation:0.8,duration:17.7,ease:"none"},0);
+tl.fromTo(".burst",{rotation:0},{rotation:60,duration:6,ease:"none"},7.0);
+window.__timelines["main"] = tl;
+</script></body></html>

@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pip Thimble - Entry 1</title>
+<style>
+:root{--kraft:#C89B6D;--navy:#1F2A44;--mustard:#E0A526;--tomato:#C8452F;--cream:#F3E9D2;--teal:#2F8F8B}
+*{box-sizing:border-box;margin:0}
+body{background:#0c0d12;color:var(--cream);font-family:Georgia,serif;display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px;min-height:100vh}
+#wrap{position:relative;height:min(calc(100vh - 78px),960px);aspect-ratio:9/16;background:#000;overflow:hidden;border-radius:4px}
+svg{width:100%;height:100%;display:block}
+#cap{position:absolute;left:6%;right:6%;bottom:5.5%;text-align:center;font-size:clamp(11px,2.3vh,19px);line-height:1.3;color:var(--cream);background:rgba(31,42,68,.86);padding:.5em .8em;border-radius:3px;white-space:pre-line;z-index:3}
+#cap:empty{display:none}
+#ctl{display:flex;gap:8px;align-items:center;width:min(100%,520px)}
+button{font:14px Georgia;padding:6px 14px;background:var(--mustard);border:0;border-radius:4px;cursor:pointer;color:#1b1b1b}
+#sc{flex:1;accent-color:var(--mustard)}
+#tm{font:12px monospace;min-width:76px;text-align:right}
+</style></head>
+<body>
+<div id="wrap">
+<svg id="sv" viewBox="0 0 540 960" preserveAspectRatio="xMidYMid slice">
+<defs>
+ <filter id="paper" x="-15%" y="-15%" width="130%" height="130%">
+  <feTurbulence id="pt" type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="3" result="n"/>
+  <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" result="d"/>
+  <feMorphology in="d" operator="dilate" radius="2.2" result="m"/>
+  <feFlood flood-color="#F3E9D2"/><feComposite in2="m" operator="in" result="o"/>
+  <feMerge result="s"><feMergeNode in="o"/><feMergeNode in="d"/></feMerge>
+  <feDropShadow in="s" dx="3" dy="4" stdDeviation="0" flood-color="#000" flood-opacity=".32"/>
+ </filter>
+ <filter id="paperNoOutline" x="-15%" y="-15%" width="130%" height="130%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="8" result="n"/>
+  <feDisplacementMap in="SourceGraphic" in2="n" scale="3" result="d"/>
+  <feDropShadow in="d" dx="3" dy="4" stdDeviation="0" flood-color="#000" flood-opacity=".3"/>
+ </filter>
+ <filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="5"/><feColorMatrix type="saturate" values="0"/></filter>
+ <linearGradient id="skyG" gradientUnits="userSpaceOnUse" x1="0" y1="-1600" x2="0" y2="620">
+  <stop offset="0" stop-color="#05070d"/><stop offset=".42" stop-color="#121a30"/><stop offset=".7" stop-color="#6d5d62"/><stop offset=".88" stop-color="#e2a766"/><stop offset="1" stop-color="#f4d6a0"/>
+ </linearGradient>
+ <radialGradient id="sun"><stop offset="0" stop-color="#fff2c6" stop-opacity=".95"/><stop offset="1" stop-color="#fff2c6" stop-opacity="0"/></radialGradient>
+ <radialGradient id="vig" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></radialGradient>
+ <linearGradient id="swp" x1="0" x2="1"><stop offset="0" stop-color="#ffd98a" stop-opacity="0"/><stop offset=".5" stop-color="#ffe3a0" stop-opacity=".55"/><stop offset="1" stop-color="#ffd98a" stop-opacity="0"/></linearGradient>
+ <clipPath id="lensClip"><circle r="76"/></clipPath>
+ <g id="eyeGlyph">
+  <path d="M-30 0 Q0 -26 30 0 Q0 26 -30 0Z" fill="none" stroke="#C8452F" stroke-width="4" stroke-linejoin="round"/>
+  <circle r="11" fill="#C8452F"/><circle cy="-2" r="3.6" fill="#F3E9D2"/><path d="M-2 0 L2 0 L3.6 8 L-3.6 8Z" fill="#F3E9D2"/>
+ </g>
+ <g id="woodscene"><rect x="-40" y="-40" width="620" height="1040" fill="#C89B6D"/><g id="grainLines"></g>
+  <g transform="translate(330 520)" opacity=".92"><use href="#eyeGlyph" transform="scale(.52)" style="filter:none" stroke="none"/></g>
+ </g>
+</defs>
+<rect width="540" height="960" fill="#000"/>
+
+<!-- PLAZA -->
+<g id="S_plaza">
+ <g id="L_sky">
+  <rect x="-600" y="-1600" width="1740" height="2300" fill="url(#skyG)"/>
+  <circle cx="270" cy="560" r="520" fill="url(#sun)"/>
+  <g id="shelf"><rect x="-600" y="-470" width="1740" height="70" fill="#2a1d17"/><rect x="-600" y="-410" width="1740" height="10" fill="#4b3326"/></g>
+  <g id="thread0"><path id="thrBg" d="M270 -1500 L270 -720" stroke="#F3E9D2" stroke-width="2.2" fill="none"/></g>
+ </g>
+ <g id="L_bg">
+  <path d="M-600 560 Q-300 470 0 520 T600 500 T1140 520 L1140 700 L-600 700Z" fill="#b98a5d" opacity=".75"/>
+  <g filter="url(#paper)" id="city"></g>
+ </g>
+ <g id="L_mid">
+  <g filter="url(#paperNoOutline)">
+   <ellipse cx="270" cy="790" rx="500" ry="250" fill="#F3E9D2" stroke="#d9c9a3" stroke-width="7"/>
+   <ellipse cx="270" cy="790" rx="470" ry="228" fill="none" stroke="#d9c9a3" stroke-width="3"/>
+   <g fill="#c9b78d"><ellipse cx="236" cy="800" rx="16" ry="8"/><ellipse cx="304" cy="800" rx="16" ry="8"/><ellipse cx="236" cy="840" rx="16" ry="8"/><ellipse cx="304" cy="840" rx="16" ry="8"/></g>
+  </g>
+  <g id="stalls" filter="url(#paper)"></g>
+  <g id="plinth" filter="url(#paper)">
+   <path d="M190 620 L190 722 A80 20 0 0 0 350 722 L350 620Z" fill="#C89B6D"/>
+   <path d="M190 660 L350 660" stroke="#a97d52" stroke-width="2" fill="none"/>
+   <ellipse cx="270" cy="620" rx="80" ry="20" fill="#d8b085"/>
+   <ellipse cx="270" cy="620" rx="62" ry="13" fill="#C8452F" opacity=".38"/>
+   <circle cx="248" cy="620" r="2.5" fill="#6d4a2a"/><circle cx="296" cy="624" r="2" fill="#6d4a2a"/>
+  </g>
+  <g id="crowd"></g>
+  <g id="dust"></g>
+  <g id="pipG" filter="url(#paper)"></g>
+  <g id="junoG" filter="url(#paper)"></g>
+  <g id="magG" filter="url(#paper)"></g>
+ </g>
+ <g id="L_fg">
+  <g id="bunting" filter="url(#paperNoOutline)"></g>
+  <g id="spools" filter="url(#paper)"></g>
+ </g>
+</g>
+
+<!-- LENS -->
+<g id="S_lens" style="display:none">
+ <use href="#woodscene"/>
+ <g id="lensG">
+  <ellipse cx="14" cy="118" rx="70" ry="10" fill="#000" opacity=".18"/>
+  <g clip-path="url(#lensClip)"><g id="lensInner"><use href="#woodscene"/></g><circle r="76" fill="#fff" opacity=".16"/></g>
+  <circle r="76" fill="none" stroke="#1F2A44" stroke-width="9"/>
+  <circle r="80.5" fill="none" stroke="#F3E9D2" stroke-width="3"/>
+  <rect x="62" y="62" width="20" height="96" rx="9" fill="#E0A526" stroke="#F3E9D2" stroke-width="3" transform="rotate(-45 62 62) translate(0 0)"/>
+  <path d="M-40 -48 Q-15 -62 12 -60" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity=".55"/>
+ </g>
+ <g id="motes"></g>
+</g>
+
+<!-- CARD -->
+<g id="S_card" style="display:none">
+ <rect width="540" height="960" fill="#1F2A44"/>
+ <g id="tableLines" stroke="#2a3860" stroke-width="2" opacity=".5"></g>
+ <g id="cardG">
+  <g filter="url(#paper)">
+   <path d="M-150 -200 L-138 -206 -122 -198 -104 -207 -84 -199 -64 -206 -44 -198 -22 -207 0 -199 22 -206 44 -198 64 -207 86 -199 106 -206 124 -198 142 -206 150 -200 L150 200 L-150 200Z" fill="#F3E9D2"/>
+   <rect x="-138" y="-188" width="276" height="376" fill="none" stroke="#d6c59d" stroke-width="3" stroke-dasharray="8 6"/>
+   <use href="#eyeGlyph" transform="translate(0 -32) scale(2.35)"/>
+   <text x="0" y="96" text-anchor="middle" font-family="Georgia,serif" font-size="25" letter-spacing="5" fill="#1F2A44">CLUE No. 1</text>
+   <text x="0" y="132" text-anchor="middle" font-family="Georgia,serif" font-size="14" letter-spacing="2" fill="#6a6f82">BUTTON SQUARE</text>
+   <rect x="-44" y="-224" width="88" height="30" fill="#E0A526" opacity=".9" transform="rotate(-5)"/>
+  </g>
+ </g>
+ <g id="cdust"></g>
+</g>
+
+<!-- THREAD -->
+<g id="S_thread" style="display:none">
+ <rect width="540" height="960" fill="#05070d"/>
+ <g id="specks" fill="#F3E9D2"></g>
+ <polyline id="thr" fill="none" stroke="#1b2236" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+ <polyline id="thr2" fill="none" stroke="#F3E9D2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+ <polyline id="thr3" fill="none" stroke="#E0A526" stroke-width="3" stroke-dasharray="2 22" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+
+<!-- END -->
+<g id="S_end" style="display:none">
+ <rect width="540" height="960" fill="#F3E9D2"/>
+ <g id="endG">
+  <text x="270" y="470" text-anchor="middle" font-family="Georgia,serif" font-size="40" fill="#1F2A44">Entry two tomorrow.</text>
+  <g transform="translate(270 560)"><g id="endEye"><use href="#eyeGlyph" transform="scale(1.4)"/></g></g>
+ </g>
+</g>
+
+<rect id="sweep" x="-540" y="0" width="540" height="960" fill="url(#swp)" style="mix-blend-mode:screen"/>
+<rect id="black" width="540" height="960" fill="#000"/>
+<rect width="540" height="960" fill="url(#vig)" style="pointer-events:none"/>
+<rect id="gr" width="540" height="960" filter="url(#grain)" opacity=".16" style="mix-blend-mode:multiply;pointer-events:none"/>
+<rect id="dawn" x="270" y="479" width="0" height="2" fill="#F3E9D2"/>
+</svg>
+<div id="cap"></div>
+</div>
+<div id="ctl"><button id="play">▶ Play</button><input id="sc" type="range" min="0" max="53.2" step="0.01" value="0"><span id="tm">0.0 / 53.2</span><button id="mu">🔊</button></div>
+
+<script>
+const $=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg',DUR=53.2;
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),mix=(a,b,k)=>a+(b-a)*k;
+const E={lin:x=>x,in2:x=>x*x,out2:x=>1-(1-x)*(1-x),out3:x=>1-Math.pow(1-x,3),io3:x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2,
+ back:x=>{const c=1.70158,d=c+1;return 1+d*Math.pow(x-1,3)+c*Math.pow(x-1,2)}};
+const R=(t,a,b,e=E.io3)=>e(clamp((t-a)/(b-a)));
+const tr=(el,x=0,y=0,r=0,sx=1,sy=sx)=>el.setAttribute('transform',`translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${r.toFixed(2)}) scale(${sx.toFixed(3)} ${sy.toFixed(3)})`);
+function rnd(s){let x=Math.sin(s*127.1)*43758.5453;return x-Math.floor(x)}
+const h=(s)=>{const d=document.createElementNS(NS,'g');d.innerHTML=s;return d};
+
+/* ---------- build static art ---------- */
+// wood grain
+{let s='';for(let i=0;i<46;i++){const y=i*22+rnd(i)*14;let d=`M-40 ${y}`;for(let x=0;x<=600;x+=60)d+=` Q${x+30} ${y+(rnd(i*9+x)-.5)*16} ${x+60} ${y+(rnd(i*3+x)-.5)*10}`;
+ s+=`<path d="${d}" fill="none" stroke="${i%3?'#b58557':'#a2744a'}" stroke-width="${1.2+rnd(i+4)*2.2}" opacity=".7"/>`}
+ for(let i=0;i<14;i++)s+=`<ellipse cx="${rnd(i+30)*540}" cy="${rnd(i+60)*960}" rx="${8+rnd(i)*16}" ry="${3+rnd(i+2)*5}" fill="#9a6c43" opacity=".35"/>`;
+ $('grainLines').innerHTML=s}
+$('tableLines').innerHTML=Array.from({length:30},(_,i)=>`<path d="M0 ${i*34} L540 ${i*34+(i%2?5:-5)}"/>`).join('');
+// city
+{const c=$('city');let s='';
+ const cols=['#1F2A44','#2F8F8B','#C8452F','#E0A526','#6d5d86'];
+ const hs=[[-30,80,130],[40,60,100],[100,70,150],[170,60,90],[470,70,140],[540,60,100],[600,80,150],[380,60,100]];
+ hs.forEach(([x,w,hh],i)=>{const col=cols[i%5];
+  s+=`<rect x="${x}" y="${560-hh}" width="${w}" height="${hh}" fill="${col}"/>`+
+     `<path d="M${x-8} ${560-hh+4} Q${x+w/2} ${560-hh-52} ${x+w+8} ${560-hh+4}Z" fill="#c9ced6" stroke="#8e96a3" stroke-width="2"/>`+
+     `<g fill="#f6d98a" opacity=".9"><rect x="${x+10}" y="${560-hh+22}" width="12" height="16" rx="2"/><rect x="${x+w-24}" y="${560-hh+22}" width="12" height="16" rx="2"/></g>`;
+  for(let k=0;k<5;k++)s+=`<circle cx="${x+w/2+(k-2)*9}" cy="${560-hh-14-Math.abs(k-2)*-3}" r="1.6" fill="#8e96a3"/>`});
+ // pencil stub clock tower
+ s+=`<g><rect x="365" y="250" width="58" height="310" fill="#E0A526"/><path d="M365 250 L394 160 L423 250Z" fill="#e9c58f"/><path d="M381 205 L394 160 L407 205Z" fill="#33343c"/>
+ <path d="M386 250 V560 M402 250 V560" stroke="#b88618" stroke-width="2"/><circle cx="394" cy="300" r="21" fill="#F3E9D2" stroke="#1F2A44" stroke-width="4"/><path d="M394 300 V286 M394 300 L404 305" stroke="#1F2A44" stroke-width="3" stroke-linecap="round"/></g>`;
+ c.innerHTML=s}
+// stalls (matchboxes)
+$('stalls').innerHTML=[[28,640],[430,630]].map(([x,y],i)=>`<g><rect x="${x}" y="${y}" width="80" height="60" fill="#d0452b"/><rect x="${x+6}" y="${y+10}" width="68" height="32" fill="#F3E9D2"/><path d="M${x-6} ${y} H${x+86} L${x+78} ${y-22} H${x+2}Z" fill="${i?'#2F8F8B':'#E0A526'}"/><path d="M${x-6} ${y} Q${x+4} ${y+10} ${x+14} ${y} Q${x+24} ${y+10} ${x+34} ${y} Q${x+44} ${y+10} ${x+54} ${y} Q${x+64} ${y+10} ${x+74} ${y} Q${x+80} ${y+8} ${x+86} ${y}" fill="${i?'#2F8F8B':'#E0A526'}"/></g>`).join('');
+// crowd
+const crowd=[];
+{const g=$('crowd'),pal=['#1F2A44','#2F8F8B','#6d5d86','#C8452F','#8a6a3d'];
+ [[44,712],[78,730],[108,706],[16,738],[428,716],[466,734],[500,708],[520,740],[148,742],[398,745]].forEach(([x,y],i)=>{
+  const c=pal[i%5],sc=.85+rnd(i)*.4,e=document.createElementNS(NS,'g');
+  e.innerHTML=`<g filter="url(#paper)"><path d="M-9 0 L-7 -26 Q0 -32 7 -26 L9 0Z" fill="${c}"/><circle cy="-36" r="8.5" fill="#f1cfaa"/><path d="M-9 -38 Q0 -50 9 -38Q0 -44 -9 -38Z" fill="${i%2?'#222':'#8a5a2b'}"/><circle cx="-3" cy="-36" r="1.2" fill="#1F2A44"/><circle cx="3" cy="-36" r="1.2" fill="#1F2A44"/></g>`;
+  g.appendChild(e);crowd.push({e,x,y,sc,i})})}
+// dust puffs
+const puffs=[];for(let i=0;i<7;i++){const c=document.createElementNS(NS,'circle');c.setAttribute('fill','#efe2c3');$('dust').appendChild(c);puffs.push(c)}
+// bunting + spools
+{let s='<path d="M-60 140 Q270 215 600 140" fill="none" stroke="#8a6a3d" stroke-width="3"/>';
+ const cl=['#C8452F','#E0A526','#2F8F8B','#F3E9D2'];
+ for(let i=0;i<12;i++){const t=i/11,x=-40+t*620,y=140+Math.sin(t*Math.PI)*60*1.12;s+=`<g class="flag" data-i="${i}" transform="translate(${x} ${y})"><path d="M-17 0 L17 0 L0 36Z" fill="${cl[i%4]}"/></g>`}
+ $('bunting').innerHTML=s;
+ $('spools').innerHTML=[[-30,930],[570,940]].map(([x,y])=>`<g transform="translate(${x} ${y})"><rect x="-75" y="-95" width="150" height="26" rx="6" fill="#d8b085"/><rect x="-75" y="-18" width="150" height="26" rx="6" fill="#d8b085"/><rect x="-48" y="-72" width="96" height="56" fill="#E0A526"/><path d="M-48 -62 H48 M-48 -48 H48 M-48 -34 H48 M-48 -22 H48" stroke="#b88618" stroke-width="2"/></g>`).join('')}
+
+/* ---------- rigs ---------- */
+$('pipG').innerHTML=`<g id="pip">
+ <g id="pL"><rect x="-4" y="0" width="8" height="26" rx="3" fill="#1F2A44"/><ellipse cx="3" cy="28" rx="8" ry="4.5" fill="#2a1d17"/></g>
+ <g id="pR"><rect x="-4" y="0" width="8" height="26" rx="3" fill="#1F2A44"/><ellipse cx="3" cy="28" rx="8" ry="4.5" fill="#2a1d17"/></g>
+ <g id="pB">
+  <path d="M-18 2 L18 2 L14 -44 L-14 -44Z" fill="#C89B6D" stroke="#9c7248" stroke-width="1.6" stroke-linejoin="round"/>
+  <path d="M-11 -12 L9 -16 M-13 -27 L11 -31 M-2 -3 L-4 -40" stroke="#6f93b7" stroke-width="1" opacity=".7" fill="none"/>
+  <path d="M-3 -44 L3 -44 L2.5 -30 L0 -25 L-2.5 -30Z" fill="#C8452F"/><path d="M-14 -44 L-4 -44 L-8 -36Z M14 -44 L4 -44 L8 -36Z" fill="#F3E9D2"/>
+  <rect x="5" y="-22" width="8" height="10" fill="#e8dcc0" stroke="#9c7248" stroke-width=".8"/>
+  <g id="pAL" transform="translate(-16 -40)"><rect x="-4" y="0" width="8" height="26" rx="4" fill="#b5864f"/><circle cy="28" r="4.8" fill="#f1cfaa"/></g>
+  <g id="pH" transform="translate(0 -44)">
+   <circle cy="-20" r="21" fill="#f3d5b3" stroke="#c79e75" stroke-width="1"/>
+   <circle cx="-21" cy="-19" r="4" fill="#f3d5b3"/><circle cx="21" cy="-19" r="4" fill="#f3d5b3"/>
+   <path d="M-22 -23 Q-25 -43 -4 -43 Q17 -47 22 -25 Q14 -33 4 -31 Q-8 -35 -22 -23Z" fill="#14141c"/><path d="M-17 -38 L-26 -45 L-12 -42Z M4 -43 L9 -52 L12 -43Z" fill="#14141c"/>
+   <g id="pEy"><g id="pEL" transform="translate(-8 -20)"><ellipse rx="4.3" ry="5.2" fill="#fff"/><circle class="pp" cx="2" r="2.5" fill="#1F2A44"/></g><g id="pER" transform="translate(8 -20)"><ellipse rx="4.3" ry="5.2" fill="#fff"/><circle class="pp" cx="2" r="2.5" fill="#1F2A44"/></g></g>
+   <path d="M-12 -28 Q-8 -30 -4 -28 M4 -28 Q8 -30 12 -28" stroke="#14141c" stroke-width="1.6" fill="none" stroke-linecap="round" id="pBr"/>
+   <circle cx="-13" cy="-12" r="3.6" fill="#C8452F" opacity=".22"/><circle cx="13" cy="-12" r="3.6" fill="#C8452F" opacity=".22"/>
+   <ellipse id="pM" cx="1" cy="-9" rx="3.4" ry="1" fill="#7a2f2a"/>
+   <g id="pT"><g transform="translate(0 -34) rotate(-11)"><path d="M-16 6 L-13 -13 Q0 -25 13 -13 L16 6Z" fill="#cfd4dc" stroke="#8e96a3" stroke-width="1.6"/><rect x="-18" y="2" width="36" height="6" rx="2.5" fill="#aab1bd"/><g fill="#8e96a3"><circle cx="-6" cy="-8" r="1.2"/><circle cx="2" cy="-12" r="1.2"/><circle cx="8" cy="-5" r="1.2"/><circle cx="-1" cy="-3" r="1.2"/><circle cx="-9" cy="-1" r="1.2"/></g></g></g>
+  </g>
+  <g id="pAR" transform="translate(16 -40)"><rect x="-4" y="0" width="8" height="26" rx="4" fill="#b5864f"/><circle cy="28" r="4.8" fill="#f1cfaa"/></g>
+ </g></g>`;
+$('junoG').innerHTML=`<g id="juno"><g id="jG">
+ <path d="M-62 4 L60 -6 L46 7 L-42 12Z" fill="#F3E9D2" stroke="#d6c59d" stroke-width="1.5"/><path d="M-62 4 L60 -6" stroke="#bda66f" stroke-width="2"/><path d="M-42 12 L46 7 L2 24Z" fill="#e3d6b8"/>
+ </g>
+ <g id="jP">
+  <path id="jSc" d="M4 -92 Q-26 -88 -46 -78 Q-70 -66 -84 -74" stroke="#C8452F" stroke-width="7" fill="none" stroke-linecap="round"/>
+  <rect x="-12" y="-34" width="8" height="34" rx="2" fill="#1F2A44"/><rect x="4" y="-34" width="8" height="34" rx="2" fill="#1F2A44"/><path d="M-14 0 H-2 L-2 -6 H-14Z M2 0 H14 L14 -6 H2Z" fill="#2a1d17"/>
+  <path d="M-16 -32 L16 -32 L12 -86 L-12 -86Z" fill="#2F8F8B" stroke="#1f6764" stroke-width="1.5"/>
+  <rect x="8" y="-48" width="20" height="14" fill="#F3E9D2" stroke="#c9b78d" stroke-width="1.2"/><path d="M8 -48 L18 -40 L28 -48" fill="none" stroke="#c9b78d"/>
+  <path d="M-20 -72 L8 -60 L6 -54 L-22 -66Z M20 -72 L-8 -60 L-6 -54 L22 -66Z" fill="#26807c" stroke="#1f6764" stroke-width="1"/>
+  <g id="jH"><path d="M-14 -96 L14 -96 L10 -118 L-10 -118Z" fill="#f3d5b3"/><path d="M-13 -92 L13 -92 L0 -78Z" fill="#f3d5b3"/>
+   <path d="M-17 -98 L17 -98 L15 -100 L-15 -100Z" fill="#f3d5b3"/>
+   <ellipse cy="-98" rx="16" ry="18" fill="#f3d5b3" stroke="#c79e75" stroke-width="1"/>
+   <path d="M-17 -100 Q-19 -122 0 -122 Q19 -122 17 -100 L12 -106 Q0 -112 -12 -106Z" fill="#2F8F8B"/><path d="M-17 -100 L-24 -88 L-14 -90Z M17 -100 L24 -88 L14 -90Z" fill="#26807c"/>
+   <rect x="-12" y="-112" width="24" height="7" rx="3.5" fill="#E0A526" stroke="#8e6a14" stroke-width="1"/><circle cx="-6" cy="-108.5" r="2.4" fill="#fff6c6"/><circle cx="6" cy="-108.5" r="2.4" fill="#fff6c6"/>
+   <g id="jE"><ellipse cx="-6" cy="-97" rx="3" ry="3.6" fill="#fff"/><ellipse cx="6" cy="-97" rx="3" ry="3.6" fill="#fff"/><circle cx="-7" cy="-97" r="1.9" fill="#1F2A44"/><circle cx="5" cy="-97" r="1.9" fill="#1F2A44"/></g>
+   <path d="M-10 -104 L-3 -102 M10 -104 L3 -102" stroke="#14141c" stroke-width="1.6" stroke-linecap="round" id="jBr"/>
+   <ellipse id="jM" cx="-1" cy="-87" rx="3" ry="1" fill="#7a2f2a"/>
+  </g></g></g></g>`;
+$('magG').innerHTML=`<g id="mag"><path id="magT" stroke="#C8452F" stroke-width="2" fill="none"/><g id="magB"><circle r="19" fill="rgba(255,255,255,.28)" stroke="#1F2A44" stroke-width="4"/><circle r="22" fill="none" stroke="#F3E9D2" stroke-width="2"/><rect x="14" y="14" width="8" height="26" rx="4" fill="#E0A526" transform="rotate(-45 14 14)"/><path d="M-9 -9 Q-4 -14 3 -13" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" opacity=".7"/></g></g>`;
+// specks + motes
+$('specks').innerHTML=Array.from({length:26},(_,i)=>`<circle cx="${rnd(i)*540}" cy="${rnd(i+9)*960}" r="${.6+rnd(i+3)*1.4}" opacity="${.15+rnd(i+5)*.35}"/>`).join('');
+$('motes').innerHTML=Array.from({length:12},(_,i)=>`<circle class="mo" data-i="${i}" r="${1+rnd(i)*2}" fill="#F3E9D2" opacity=".45"/>`).join('');
+$('cdust').innerHTML=Array.from({length:8},(_,i)=>`<circle class="cd" data-i="${i}" fill="#e8dcc0"/>`).join('');
+
+/* ---------- camera ---------- */
+const SEG=[[0,6,[270,540,1],[270,540,1.09],E.io3],[6,9,[250,650,1.55],[250,650,1.68],E.lin],[9,12,[110,625,1.3],[215,625,1.3],E.io3],[12,16,[262,615,1.2],[272,615,1.27],E.io3],
+ [16,20,[203,708,2.1],[212,708,2.38],E.io3],[20,30,[270,540,1],[270,540,1],E.lin],[30,30.3,[270,610,1.12],[270,610,1.12],E.lin],[30.3,34,[270,610,1.12],[270,-1010,.86],E.io3]];
+function cam(t){if(t>=34)return[270,-1010,.86];let s=SEG[0];for(const g of SEG)if(t>=g[0])s=g;const k=s[4](clamp((t-s[0])/(s[1]-s[0])));return[mix(s[2][0],s[3][0],k),mix(s[2][1],s[3][1],k),mix(s[2][2],s[3][2],k)]}
+function layer(id,p,c,jx,jy){const[cx,cy,z]=c,zz=1+(z-1)*p,ax=270+(cx-270)*p,ay=480+(cy-480)*p;$(id).setAttribute('transform',`translate(${270+jx} ${480+jy}) scale(${zz.toFixed(4)}) translate(${(-ax).toFixed(2)} ${(-ay).toFixed(2)})`)}
+const speak=(t,a,b)=>t>=a&&t<b?.2+.8*Math.abs(Math.sin((t-a)*17)):0.12;
+
+/* ---------- audio ---------- */
+let AC=null,nb=null,muted=false;
+function A(){if(AC||muted)return;AC=new(window.AudioContext||window.webkitAudioContext)();const m=AC.createGain();m.gain.value=.4;m.connect(AC.destination);AC.m=m;nb=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate);const d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}
+function noise(dur,type,f0,f1,vol,atk=.01){if(!AC||muted)return;const s=AC.createBufferSource();s.buffer=nb;s.loop=true;const f=AC.createBiquadFilter();f.type=type;f.frequency.setValueAtTime(f0,AC.currentTime);if(f1)f.frequency.exponentialRampToValueAtTime(f1,AC.currentTime+dur);f.Q.value=1.2;const g=AC.createGain();g.gain.setValueAtTime(0,AC.currentTime);g.gain.linearRampToValueAtTime(vol,AC.currentTime+atk);g.gain.exponentialRampToValueAtTime(.0008,AC.currentTime+dur);s.connect(f);f.connect(g);g.connect(AC.m);s.start();s.stop(AC.currentTime+dur+.05)}
+function tone(fr,dur,vol,type='sine',fr2){if(!AC||muted)return;const o=AC.createOscillator();o.type=type;o.frequency.setValueAtTime(fr,AC.currentTime);if(fr2)o.frequency.exponentialRampToValueAtTime(fr2,AC.currentTime+dur);const g=AC.createGain();g.gain.setValueAtTime(vol,AC.currentTime);g.gain.exponentialRampToValueAtTime(.0008,AC.currentTime+dur);o.connect(g);g.connect(AC.m);o.start();o.stop(AC.currentTime+dur+.02)}
+const chirp=()=>{tone(3100,.07,.05,'sine',4000);setTimeout(()=>tone(3500,.06,.05,'sine',4300),90)};
+const EV=[[.3,chirp],[1.1,chirp],[1.9,chirp],[2.6,chirp],[3.0,()=>noise(13,'lowpass',500,350,.09,1.2)],[4.6,chirp],
+ [9.3,()=>tone(180,.08,.18)],[9.8,()=>tone(170,.08,.18)],[10.3,()=>tone(170,.08,.16)],[10.8,()=>tone(160,.08,.14)],[11.2,()=>tone(150,.08,.1)],
+ [12.0,()=>noise(.9,'bandpass',500,2600,.28,.15)],[17.0,()=>noise(.8,'highpass',2500,4000,.06,.05)],[17.8,()=>tone(900,.12,.06,'triangle',500)],
+ [22.9,()=>tone(1200,.05,.14,'square')],[26.15,()=>{tone(90,.14,.35,'sine',50);noise(.14,'lowpass',400,200,.3)}],[26.7,()=>noise(.45,'highpass',1800,5000,.2,.02)],
+ [37.0,()=>tone(880,.07,.2,'square')],[37.1,()=>tone(988,.07,.2,'square')],[37.2,()=>tone(1175,.12,.2,'square')],[40.1,()=>noise(.5,'highpass',2000,3500,.1,.05)]];
+
+/* ---------- render ---------- */
+const CAP=[[1.0,4.0,"Lost and Found Log, entry one."],[4.2,9.5,"In a city built from things people lost…\nsomething just went missing."],[9.9,13.7,"The Great Red Button.\nWide as a fountain."],[14.0,18.1,"The pride of Pocket City.\nGone before breakfast."],[19.0,21.8,"PIP: Huh. That's… interesting."],[22.2,26.8,"JUNO: Interesting? Pip, somebody walked\noff with a whole BUTTON."],[27.3,30.0,"Detective Pip Thimble checked the stone."],[30.2,32.9,"No drag marks. No footprints."],[33.2,36.9,"Just one thing, scratched very small."],[38.0,40.7,"PIP: (whispers) Small clue. Big picture."],[41.4,43.8,"And far above the plaza…"],[43.9,46.1,"…a thread tightened."],[46.4,48.9,"Something was still pulling."]];
+const bunt=document.querySelectorAll('.flag'),motes=document.querySelectorAll('.mo'),cds=document.querySelectorAll('.cd');
+const S={plaza:$('S_plaza'),lens:$('S_lens'),card:$('S_card'),thread:$('S_thread'),end:$('S_end')};
+let t=0,playing=false,last=0,prevT=0,fired=new Set();
+
+const WP=[[0,0],[3,3],[13.9,6],[17.9,9],[19.0,11.4],[21.9,12.0],[23.0,13.15],[26.9,15.9],[27.2,16],[33.2,20],[37.2,26],[41.2,30],[44.0,34],[44.5,36],[45.05,37],[46.5,37.4],[49.6,39.8],[50.0,40],[53.0,43],[53.2,43.2]];
+function warp(x){for(let i=1;i<WP.length;i++)if(x<=WP[i][0]){const a=WP[i-1],b=WP[i];return a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0])}return 43.2}
+function render(tn){const t=warp(tn),cn=Math.floor(tn*12)/12;
+ const ct=Math.floor(t*12)/12,qt=Math.floor(t*24)/24,fr=Math.floor(t*12);
+ const sc=t<20||(t>=30&&t<34)?'plaza':t<26?'lens':t<30?'card':t<40?'thread':'end';
+ for(const k in S)S[k].style.display=k===sc?'':'none';
+ $('pt').setAttribute('seed',3+(Math.floor(t*3)%4));
+ // jitter (stop-motion handheld)
+ const jx=(rnd(fr)-.5)*1.4,jy=(rnd(fr+99)-.5)*1.4;
+ // dawn & fades
+ const dl=$('dawn');if(t<3){const w=540*R(t,.2,1.3,E.out3),hh=mix(2,70,R(t,1.2,2.6,E.io3));dl.setAttribute('x',270-w/2);dl.setAttribute('width',w);dl.setAttribute('y',480-hh/2);dl.setAttribute('height',hh);dl.setAttribute('opacity',1-R(t,2.2,3,E.lin))}else dl.setAttribute('opacity',0);
+ $('sweep').setAttribute('x',mix(-540,540,R(t,1.5,3.6,E.io3)));
+ let bo=t<3?1-R(t,1.5,3.0,E.io3):0;if(t>=39.55&&t<40)bo=R(t,39.55,40,E.lin);if(t>=42.4)bo=R(t,42.4,43,E.lin)*0;$('black').setAttribute('opacity',bo);
+ if(sc==='plaza'){
+  const c=cam(qt);
+  layer('L_sky',.9,c,jx,jy);layer('L_bg',.6,c,jx,jy);layer('L_mid',1,c,jx,jy);layer('L_fg',1.38,c,jx,jy);
+  bunt.forEach(f=>{const i=+f.dataset.i,x=f.getAttribute('transform').match(/translate\(([-\d.]+) ([-\d.]+)\)/);tr(f,+x[1],+x[2],Math.sin(ct*2.2+i)*7,1,1)});
+  crowd.forEach(o=>{const bob=(Math.floor(ct*3+o.i*.37)%2)*-3;tr(o.e,o.x,o.y+bob,Math.sin(ct*1.4+o.i)*2,o.sc)});
+  // thread bg twitch hint (before final shot)
+  const tw=t>=32.5?Math.sin((t-32.5)*8)*3*Math.exp(-(t-32.5)*.8):0;$('thrBg').setAttribute('d',`M270 -1500 Q${270+tw} -1100 270 -720`);
+  // ---- Pip ----
+  const P=$('pip'),walkK=R(ct,9.0,11.4,E.out2),px0=-60,px1=176,x=t<9?-120:mix(px0,px1,walkK);
+  const moving=t>=9&&t<11.4&&walkK<.995,ph=x/13;
+  const kneel=R(ct,16.25,16.9,E.back)*(t<20?1:0)*(t>=16?1:0);
+  const yawn=R(ct,9.5,10.0,E.io3)*(1-R(ct,10.5,10.9,E.io3));
+  const curious=R(ct,11.2,11.6,E.back)*(1-R(ct,12.2,12.8,E.io3));
+  const look=t>=30?R(ct,30.4,33,E.io3):0;
+  const bob=moving?Math.abs(Math.sin(ph))*-3.2:0,sw=moving?Math.sin(ph)*28:0;
+  const shrug=R(ct,14.4,14.8,E.back)*(1-R(ct,15.2,15.7,E.io3));
+  const py=760+(kneel?0:0);
+  tr(P,x,py,0,1);
+  tr($('pL'),-8,-32+kneel*24,mix(sw,70*kneel,kneel>0?1:0)*1,1);
+  tr($('pR'),8,-32+kneel*24,mix(-sw,-22*kneel,kneel>0?1:0),1);
+  tr($('pB'),0,-32+bob+kneel*24+(shrug*-3),16*kneel-4*yawn,1,1-.03*kneel);
+  tr($('pAL'),-16,-40,moving?-sw*1.1:12*shrug+8*kneel,1);
+  tr($('pAR'),16,-40,yawn>0?-150*yawn+(moving?sw*(1-yawn):0):(moving?sw*1.1:0)+(kneel?-66*kneel-Math.sin(ct*9)*12*kneel*(t>16.9?1:0):0)-26*shrug,1);
+  const lk=t>=30?-26*look:0; // look up: rotate head backwards
+  tr($('pH'),0,-44,-12*yawn+9*curious+lk+(kneel?10*kneel:0),1);
+  const blink=(ct%3.1)<.12||yawn>.5;$('pEL').setAttribute('transform',`translate(-8 -20) scale(1 ${blink?.12:1})`);$('pER').setAttribute('transform',`translate(8 -20) scale(1 ${blink?.12:1})`);
+  document.querySelectorAll('#pip .pp').forEach(p=>p.setAttribute('cx',look>0?1.4:(curious>0.1?3.3:2.2)));
+  const pm=$('pM'),sp=speak(cn,19.05,21.75);if(yawn>.05){pm.setAttribute('rx',4+4*yawn);pm.setAttribute('ry',1+8*yawn)}else{pm.setAttribute('rx',3.4);pm.setAttribute('ry',sp*3.4+.8)}
+  $('pBr').setAttribute('transform',`translate(0 ${-3*curious-1.5*shrug})`);
+  tr($('pT'),0,0,Math.sin(ct*9)*(moving?3:0)+curious*6,1);
+  // ---- Juno ----
+  const J=$('juno'),jin=R(ct,12.0,13.15,E.out3),jx0=620,jx1=372,jxx=mix(jx0,jx1,jin),jyj=700-Math.sin(ct*2.4)*4;
+  J.style.display=t<12?'none':'';
+  tr(J,jxx,jyj,0,-1,1);
+  tr($('jG'),0,0,mix(-16,0,R(ct,12.0,13.5,E.back))+Math.sin(ct*2.4)*1.4,1);
+  const lean=jin<1?-6*(1-jin):0;tr($('jP'),0,0,lean+Math.sin(ct*2)*.8,1);
+  $('jM').setAttribute('ry',(speak(cn,22.3,26.7))*3.4+.7);
+  $('jBr').setAttribute('transform',`translate(0 ${(ct>14.9&&ct<15.8)?-2:0})`);
+  tr($('jSc'),0,0,Math.sin(ct*13)*3+(1-jin)*6,1);
+  // ---- magnifier ----
+  const M=$('mag'),mk=R(ct,17.8,18.5,E.out3),swing=Math.sin((ct-17.8)*12)*Math.exp(-(ct-17.8)*3.5)*18;
+  M.style.display=(t>=17.8&&t<20)?'':'none';
+  const mx=mix(280,x+44,mk)+swing*(1-mk),my=mix(560,744,mk);
+  tr($('magB'),mx,my,swing*.6,1);$('magT').setAttribute('d',`M${x+8} ${py-52+(kneel*24)} Q${(x+mx)/2} ${(py-40+my)/2+8} ${mx-6} ${my-10}`);
+  // ---- dust ----
+  puffs.forEach((c,i)=>{const s=17.1+i*.07,k=clamp((t-s)/1.0);if(k<=0||k>=1){c.setAttribute('r',0);return}
+   c.setAttribute('cx',x+36+i*7+k*(10+i*3));c.setAttribute('cy',754-k*(18+i*2)+i%2*4);c.setAttribute('r',2+k*(5+i%3*2));c.setAttribute('opacity',(1-k)*.8)});
+ }
+ if(sc==='lens'){
+  const k=R(ct,20,22.8,E.io3),lx=mix(70,330,k)+Math.sin(ct*7)*3*(1-k),ly=mix(690,520,k)+Math.sin(ct*5)*6*(1-k)+(t>22.8?Math.sin(ct*22)*.8:0);
+  const pulse=1+.07*Math.sin(clamp((t-23)/.9)*Math.PI)*(t>23?1:0);
+  $('lensG').setAttribute('transform',`translate(${lx} ${ly}) scale(${pulse})`);
+  $('lensInner').setAttribute('transform',`scale(2.5) translate(${-lx} ${-ly})`);
+  document.querySelectorAll('#S_lens').forEach(g=>g.style.display='');
+  const camz=1+.06*R(t,20,26,E.lin);$('S_lens').setAttribute('transform',`translate(270 480) scale(${camz}) translate(${-270+jx} ${-480+jy})`);
+  motes.forEach(m=>{const i=+m.dataset.i;m.setAttribute('cx',(rnd(i)*540+t*8*(1+i%3))%540);m.setAttribute('cy',(rnd(i+7)*960-t*6*(1+i%2)+960)%960)});
+ }
+ if(sc==='card'){
+  const tt=t-26,fall=R(t,26,26.2,E.in2);let y=mix(-700,480,fall),sx=1,sy=1,rot=-4;
+  if(t>=26.2){const b=t-26.2;const sq=Math.exp(-b*9)*Math.cos(b*30);sy=1-.1*sq;sx=1+.06*sq;y=480-Math.abs(Math.sin(b*14))*Math.exp(-b*7)*18}
+  const shake=t>=26.2?Math.exp(-(t-26.2)*10)*Math.sin((t-26.2)*60)*6:0;
+  tr($('cardG'),270+shake,y,rot+(t>=26.2?Math.sin((t-26.2)*10)*Math.exp(-(t-26.2)*5)*2.5:0),sx,sy);
+  const z=1+.07*R(t,27,30,E.out2);$('S_card').setAttribute('transform',`translate(270 480) scale(${z}) translate(${-270+jx} ${-480+jy})`);
+  cds.forEach(c=>{const i=+c.dataset.i,k=clamp((t-26.2)/.7),a=i/8*Math.PI*2;c.setAttribute('cx',270+Math.cos(a)*(120+k*90));c.setAttribute('cy',600+Math.sin(a)*14*(1+k)-k*22);c.setAttribute('r',k>0&&k<1?3+k*9:0);c.setAttribute('opacity',(1-k)*.7)})
+ }
+ if(sc==='thread'){
+  const b=t-34,N=70,pts=[],pts2=[],pull=R(t,36.9,37.15,E.out3)*38+R(t,37.4,39.8,E.io3)*160;
+  const slack=R(t,36.0,36.8,E.io3)*(1-R(t,36.95,37.0,E.lin))*10;
+  const ripT=t-37.0;
+  for(let i=0;i<=N;i++){const y=-20+i*(1040/N);let x=270+Math.sin(y*.012+t*.9)*1.6;
+   x+=Math.sin(y*.02)*slack;
+   if(ripT>0)x+=Math.sin(y*.045-ripT*26)*Math.exp(-ripT*3.2)*Math.exp(-Math.abs(y-(900-ripT*1400))*.0025)*13;
+   pts.push(`${x.toFixed(1)},${(y-pull).toFixed(1)}`)}
+  const s=pts.join(' ');['thr','thr2','thr3'].forEach(id=>$(id).setAttribute('points',s));
+  $('thr3').setAttribute('stroke-dashoffset',-(t*30)%24);
+  const z=1+.05*R(t,34,40,E.lin);$('S_thread').setAttribute('transform',`translate(270 480) scale(${z}) translate(${-270+jx} ${-480+jy})`);
+ }
+ if(sc==='end'){
+  const k=R(t,40.1,40.8,E.out3);$('endG').setAttribute('opacity',k);$('endG').setAttribute('transform',`translate(0 ${(1-k)*14})`);
+  const bl=t>=41.5&&t<41.75?.15:1;$('endEye').setAttribute('transform',`scale(1 ${bl})`);
+ }
+ // captions
+ const c=CAP.find(c=>tn>=c[0]&&tn<c[1]);$('cap').textContent=c?c[2]:'';
+ $('sc').value=tn;$('tm').textContent=tn.toFixed(1)+' / '+DUR.toFixed(1);
+}
+
+const VOSRC=/*VOSRC*/{};
+const VO=[['n1',1.0],['n2',9.9],['pip1',18.9],['juno',22.2],['n3',27.3],['pip2',37.9],['n4',41.4]].map(([k,st])=>{const a=new Audio(VOSRC[k]);a.preload='auto';return{a,s:st}});
+function syncAudio(tn,play){VO.forEach(v=>{const off=tn-v.s,d=v.a.duration||9;if(play&&off>=0&&off<d-.02){if(v.a.paused||Math.abs(v.a.currentTime-off)>.3){try{v.a.currentTime=off}catch(e){}v.a.play().catch(()=>{})}}else if(!v.a.paused)v.a.pause()})}
+function frame(ts){
+ if(playing){const dt=Math.min(.1,(ts-last)/1000);prevT=t;t+=dt;
+  if(t>=DUR){t=DUR;playing=false;syncAudio(t,false);$('play').textContent='▶ Replay'}
+  const wp=warp(prevT),wc=warp(t);EV.forEach(([et,fn],i)=>{if(wp<et&&wc>=et&&!fired.has(i)){fired.add(i);fn()}});syncAudio(t,true)
+ }
+ last=ts;render(t);requestAnimationFrame(frame)
+}
+requestAnimationFrame(frame);
+$('play').onclick=()=>{A();if(AC&&AC.state==='suspended')AC.resume();if(t>=DUR-.05){t=0;prevT=0;fired.clear()}playing=!playing;if(!playing)syncAudio(t,false);$('play').textContent=playing?'❚❚ Pause':'▶ Play'};
+$('sc').oninput=e=>{t=+e.target.value;prevT=t;fired.clear();EV.forEach(([et],i)=>{if(et<warp(t))fired.add(i)});syncAudio(t,playing);render(t)};
+$('mu').onclick=()=>{muted=!muted;VO.forEach(v=>v.a.muted=muted);$('mu').textContent=muted?'🔇':'🔊';if(!muted)A()};
+window.seek=x=>{t=x;prevT=x;fired.clear();EV.forEach(([et],i)=>{if(et<warp(x))fired.add(i)});syncAudio(t,false);render(t)};
+render(0);
+</script>
+</body></html>

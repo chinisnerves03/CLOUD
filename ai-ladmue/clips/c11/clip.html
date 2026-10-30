@@ -1,0 +1,42 @@
+<!doctype html><html lang="th"><head><meta charset="utf-8"><title>AI ลัดมือ</title><style>
+@font-face{font-family:P;font-weight:500;src:url(../../video/prompt-thai-500-normal.woff2)}
+@font-face{font-family:P;font-weight:700;src:url(../../video/prompt-thai-700-normal.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(../../video/prompt-thai-800-normal.woff2)}
+*{box-sizing:border-box;margin:0}html,body{width:1080px;height:1920px;overflow:hidden;font-family:P,sans-serif}
+.s{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;opacity:0}
+.brand{position:absolute;top:70px;left:80px;display:flex;align-items:center;gap:20px;font-weight:700;font-size:40px;z-index:9}
+.brand img{width:76px;height:76px;border-radius:20px}
+.bar{position:absolute;left:0;bottom:0;height:14px;z-index:9;width:0}
+body{background:#FFF1C9;color:#111}
+.brand{color:#111}.bar{background:#111}
+.s{padding:150px 70px}
+.num{width:420px;height:420px;border:12px solid #111;border-radius:60px;box-shadow:18px 18px 0 #111;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:300px;line-height:1}
+.card{margin-top:70px;width:940px;border:10px solid #111;border-radius:48px;background:#fff;box-shadow:16px 16px 0 #111;padding:46px 50px;font-weight:800;font-size:92px;line-height:1.25}
+.card small{display:block;font-weight:500;font-size:46px;margin-top:10px}
+.k{font-weight:800;font-size:112px;line-height:1.2}
+.cta{font-weight:800;font-size:150px;background:#FF4FA3;color:#fff;border:12px solid #111;box-shadow:18px 18px 0 #111;padding:20px 70px;border-radius:50px;display:inline-block}
+.mid{font-weight:800;font-size:76px;line-height:1.35}
+</style></head><body>
+<div class="brand"><img src="../../avatar.svg">AI ลัดมือ</div>
+<div class="s" data-a="0" data-b="3.4" data-k="cut">
+ <div class="k" data-a="0.1" data-k="pop">5 งานที่ AI<br>ทำแทนได้</div>
+ <div class="num" style="width:auto;padding:20px 60px;font-size:150px;margin-top:60px;background:#FF8A3D;transform:rotate(-3deg)" data-a="1.2" data-k="pop">ใน 1 นาที ⏱</div></div>
+<div class="s" data-a="3.4" data-b="5.4" data-k="cut"><div class="num" style="background:#FF4FA3" data-a="3.4" data-k="pop">5</div>
+ <div class="card" data-a="4.1" data-k="pop">ตั้งชื่อสินค้า<small>ได้ 15 ชื่อในไม่กี่วิ</small></div></div>
+<div class="s" data-a="5.4" data-b="7.15" data-k="cut"><div class="num" style="background:#4DE1A0" data-a="5.4" data-k="pop">4</div>
+ <div class="card" data-a="6.05" data-k="pop">เขียนแคปชัน<small>หลายโทน เลือกได้เลย</small></div></div>
+<div class="s" data-a="7.15" data-b="9.25" data-k="cut"><div class="num" style="background:#5B8DFF" data-a="7.15" data-k="pop">3</div>
+ <div class="card" data-a="7.25" data-k="pop">สรุปแชตยาวๆ<small>เหลือแค่ประเด็นสำคัญ</small></div></div>
+<div class="s" data-a="9.25" data-b="10.95" data-k="cut"><div class="num" style="background:#FFD23F" data-a="9.25" data-k="pop">2</div>
+ <div class="card" data-a="9.3" data-k="pop">ร่างอีเมล<small>สุภาพ กระชับ พร้อมส่ง</small></div></div>
+<div class="s" data-a="10.95" data-b="13.3" data-k="cut"><div class="num" style="background:#FF4FA3" data-a="10.95" data-k="pop" data-shake="1">1</div>
+ <div class="card" data-a="11.0" data-k="pop">วางแผนคอนเทนต์<br>ทั้งเดือน<small>ตารางครบ 30 วัน</small></div></div>
+<div class="s" data-a="13.3" data-b="16.8" data-k="cut">
+ <div class="k" data-a="13.3" data-k="pop">ลองสัก<span style="background:#FFD23F;padding:0 20px;border:8px solid #111;border-radius:24px">1 ข้อ</span></div>
+ <div class="mid" style="margin-top:60px" data-a="14.4" data-k="pop">แล้วจะรู้ว่า<br>ประหยัดเวลาแค่ไหน ⚡</div></div>
+<div class="s" data-a="16.8" data-b="99" data-k="cut">
+ <div class="mid">อยากได้ชุดคำสั่งฟรี</div>
+ <div class="mid" style="margin:40px 0 30px" data-a="17.3">คอมเมนต์คำว่า</div>
+ <div class="cta" data-a="17.7" data-k="pop" data-shake="1">prompt</div></div>
+<div class="bar" id="bar"></div>
+<script>const DUR=19.49;</script><script src="../lib.js"></script><script>seek(0)</script></body></html>

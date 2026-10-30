@@ -1,0 +1,55 @@
+<!doctype html><html lang="th"><head><meta charset="utf-8"><title>AI ลัดมือ</title><style>
+@font-face{font-family:P;font-weight:500;src:url(../../video/prompt-thai-500-normal.woff2)}
+@font-face{font-family:P;font-weight:700;src:url(../../video/prompt-thai-700-normal.woff2)}
+@font-face{font-family:P;font-weight:800;src:url(../../video/prompt-thai-800-normal.woff2)}
+*{box-sizing:border-box;margin:0}html,body{width:1080px;height:1920px;overflow:hidden;font-family:P,sans-serif}
+.s{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;opacity:0}
+.brand{position:absolute;top:70px;left:80px;display:flex;align-items:center;gap:20px;font-weight:700;font-size:40px;z-index:9}
+.brand img{width:76px;height:76px;border-radius:20px}
+.bar{position:absolute;left:0;bottom:0;height:14px;z-index:9;width:0}
+body{background:#0E1024;color:#F4F4FF}
+.brand{color:#fff}.bar{background:linear-gradient(90deg,#FF8A3D,#FF4D6D)}
+.s{padding:170px 70px 120px;justify-content:flex-start}
+.title{font-weight:800;font-size:84px;margin:40px 0 50px}
+.row{width:100%;display:flex;margin:18px 0}
+.row.u{justify-content:flex-end}
+.b{max-width:800px;border-radius:44px;padding:34px 44px;font-size:56px;line-height:1.45;font-weight:500;text-align:left}
+.u .b{background:#2F6BFF;border-bottom-right-radius:10px}
+.a .b{background:#262A52;border-bottom-left-radius:10px}
+.av{width:84px;height:84px;border-radius:26px;flex:none;margin-right:22px;align-self:flex-end}
+.tag{font-weight:800;font-size:60px;margin-top:34px}
+.lbl{display:inline-block;font-weight:800;font-size:46px;padding:10px 34px;border-radius:999px;margin-bottom:30px}
+.menu span{display:block}
+.mid{font-weight:700;font-size:78px;line-height:1.35}
+.cta{font-weight:800;font-size:150px;background:linear-gradient(90deg,#FF8A3D,#FF4D6D);padding:20px 70px;border-radius:60px;color:#fff;display:inline-block}
+.hl{color:#FFD23F}.pk{color:#FF6B8B}.gn{color:#4ADE80}
+</style></head><body>
+<div class="brand"><img src="../../avatar.svg">AI ลัดมือ</div>
+<div class="s" data-a="0" data-b="6.4" data-k="cut">
+ <div class="title" data-a="0.1">ลองดูความต่าง 👀</div>
+ <div class="row u" data-a="1.5"><div class="b"><span data-type="1.6,3.0">ช่วยคิดเมนูหน่อย</span></div></div>
+ <div class="row a" data-a="3.9" data-k="pop"><img class="av" src="../../avatar.svg"><div class="b menu"><span>ข้าวผัด</span><span>ผัดกะเพรา</span><span>ต้มยำ</span></div></div>
+ <div class="tag pk" data-a="5.1" data-k="pop">😐 ทั่วไปมาก ใครก็คิดได้</div>
+</div>
+<div class="s" data-a="6.4" data-b="17.1" data-k="cut">
+ <div class="lbl" style="background:#4ADE8033;color:#4ADE80" data-a="6.5">แบบบอกบริบท</div>
+ <div class="row u" data-a="7.6"><div class="b">
+   <span data-a="7.6" style="display:block">ฉันอยู่คนเดียว</span>
+   <span data-a="9.9" style="display:block">งบมื้อละ 60 บาท</span>
+   <span data-a="11.0" style="display:block">ไม่มีเตาแก๊ส</span>
+   <span data-a="12.8" style="display:block" class="hl">ช่วยคิดเมนู 7 วัน</span></div></div>
+ <div class="row a" data-a="15.0" data-k="pop"><img class="av" src="../../avatar.svg"><div class="b menu" style="font-size:50px">
+   <span>จ. ข้าวไข่ตุ๋นไมโครเวฟ ~25฿</span><span>อ. ผัดผักรวมใส่ไข่ ~30฿</span><span>พ. ข้าวหน้าไก่ไมโครเวฟ ~40฿</span></div></div>
+ <div class="tag gn" data-a="16.0" data-k="pop">✅ ใช้ได้จริงทันที</div>
+</div>
+<div class="s" data-a="17.1" data-b="19.3" style="justify-content:center">
+ <div class="mid">AI <span class="pk">ไม่ได้อ่านใจคุณ</span></div>
+ <div class="mid" style="margin-top:40px" data-a="18.1">ยิ่งบอกบริบท<br><span class="gn">ยิ่งตรงใจ</span></div>
+</div>
+<div class="s" data-a="19.3" data-b="99" style="justify-content:center">
+ <div class="mid">อยากได้ชุดคำสั่งฟรี</div>
+ <div class="mid" style="margin:40px 0 30px" data-a="19.9">คอมเมนต์คำว่า</div>
+ <div class="cta" data-a="20.3" data-k="pop">prompt</div>
+</div>
+<div class="bar" id="bar"></div>
+<script>const DUR=21.97;</script><script src="../lib.js"></script><script>seek(0)</script></body></html>

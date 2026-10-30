@@ -1,0 +1,156 @@
+[
+ {
+  "number": 14,
+  "style": "ซิทคอม VHS ยุค 90",
+  "topic": "เมื่อ AI ตอบมั่วต่อหน้าเจ้านาย",
+  "durationSec": 31.2,
+  "file": "ai-ladmue/clip14_vhs_sitcom.mp4",
+  "platforms": {
+   "ig": false,
+   "yt": false
+  }
+ },
+ {
+  "number": 15,
+  "style": "เกมต่อสู้พิกเซล 8-bit",
+  "topic": "คำสั่งห่วย VS คำสั่งดี",
+  "durationSec": 29.4,
+  "file": "ai-ladmue/clip15_pixel_battle.mp4",
+  "platforms": {
+   "ig": false,
+   "yt": false
+  }
+ },
+ {
+  "number": 16,
+  "style": "โมชันกราฟิก HyperFrames",
+  "topic": "แผนชีวิตปีใหม่ vs ความจริง",
+  "durationSec": 38.6,
+  "file": "ai-ladmue/clip16_plan_vs_reality.mp4",
+  "platforms": {
+   "ig": false,
+   "yt": false
+  }
+ },
+ {
+  "number": 17,
+  "style": "POV หน้าจอมือถือ + กล้องรีแอคชัน",
+  "topic": "หมอดูทักว่าเงินจะหาย (เวอร์ชันแรก)",
+  "durationSec": 26.5,
+  "file": "ai-ladmue/clip17_pov_fortune.mp4",
+  "platforms": {
+   "ig": false,
+   "yt": false
+  }
+ },
+ {
+  "number": 18,
+  "style": "POV เปิดด้วยผลลัพธ์ก่อน",
+  "topic": "หมอดูทักว่าเงินจะหาย (v2 cold open)",
+  "durationSec": 29.9,
+  "file": "ai-ladmue/clip17_v2_coldopen.mp4",
+  "platforms": {
+   "ig": false,
+   "yt": false
+  }
+ },
+ {
+  "number": 19,
+  "style": "POV ทำใหม่ เฟรมแรกเต็ม",
+  "topic": "หมอดูทักว่าเงินจะหาย (v3 สั้น)",
+  "durationSec": 20.6,
+  "file": "ai-ladmue/clip19_pov_fortune_v3.mp4",
+  "platforms": {
+   "ig": false,
+   "yt": false
+  }
+ },
+ {
+  "number": 20,
+  "style": "ตัวอักษรกระแทกจอ",
+  "topic": "3 ประโยคกัน AI ตอบมั่ว",
+  "durationSec": 14.3,
+  "file": "ai-ladmue/clip20_kinetic_type.mp4",
+  "platforms": {
+   "ig": false,
+   "yt": false
+  }
+ },
+ {
+  "number": 21,
+  "style": "ข่าวด่วน",
+  "topic": "ชายเปิดตู้เย็น 10 รอบ",
+  "durationSec": 16.5,
+  "file": "ai-ladmue/clip21_breaking_news.mp4",
+  "platforms": {
+   "ig": false,
+   "yt": false
+  }
+ },
+ {
+  "number": 22,
+  "style": "ตารางจัดอันดับ",
+  "topic": "ข้ออ้างตอนไม่ไปออกกำลังกาย",
+  "durationSec": 14.6,
+  "file": "ai-ladmue/clip22_tier_list.mp4",
+  "platforms": {
+   "ig": false,
+   "yt": false
+  }
+ },
+ {
+  "number": 23,
+  "style": "การ์ตูนช่อง",
+  "topic": "สั่ง AI ว่า \"ย่อให้สั้นลง\"",
+  "durationSec": 17.7,
+  "file": "ai-ladmue/clip23_comic_panels.mp4",
+  "platforms": {
+   "ig": false,
+   "yt": false
+  }
+ },
+ {
+  "number": 24,
+  "style": "After Effects: ตัวอักษร",
+  "topic": "3 ประโยคกัน AI ตอบมั่ว",
+  "durationSec": 14.3,
+  "file": "ai-ladmue/clip24_kinetic_ae.mp4",
+  "platforms": {
+   "ig": false,
+   "yt": false
+  }
+ },
+ {
+  "number": 25,
+  "style": "After Effects: ข่าวด่วน",
+  "topic": "ชายเปิดตู้เย็น 10 รอบ",
+  "durationSec": 16.5,
+  "file": "ai-ladmue/clip25_news_ae.mp4",
+  "platforms": {
+   "ig": false,
+   "yt": false
+  }
+ },
+ {
+  "number": 26,
+  "style": "After Effects: จัดอันดับ",
+  "topic": "ข้ออ้างตอนไม่ไปออกกำลังกาย",
+  "durationSec": 14.6,
+  "file": "ai-ladmue/clip26_tier_ae.mp4",
+  "platforms": {
+   "ig": false,
+   "yt": false
+  }
+ },
+ {
+  "number": 27,
+  "style": "After Effects: การ์ตูนช่อง",
+  "topic": "สั่ง AI ว่า \"ย่อให้สั้นลง\"",
+  "durationSec": 17.7,
+  "file": "ai-ladmue/clip27_comic_ae.mp4",
+  "platforms": {
+   "ig": false,
+   "yt": false
+  }
+ }
+]
