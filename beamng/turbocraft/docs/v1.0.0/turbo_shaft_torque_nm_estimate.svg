@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="650" viewBox="0 0 1100 650">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="30" y="28" font-family="Arial" font-size="19">Shaft torque estimate (Nm) - OFFLINE ESTIMATES ONLY</text>
+<text x="30" y="51" font-family="Arial" font-size="13">NOT TESTED IN GAME. Blower curves are illustrations, not verified native-model predictions.</text>
+<path d="M75,85.0h690" stroke="#dddddd"/>
+<text x="67" y="89.0" text-anchor="end" font-family="Arial" font-size="12">802.3</text>
+<path d="M75,179.0h690" stroke="#dddddd"/>
+<text x="67" y="183.0" text-anchor="end" font-family="Arial" font-size="12">641.8</text>
+<path d="M75,273.0h690" stroke="#dddddd"/>
+<text x="67" y="277.0" text-anchor="end" font-family="Arial" font-size="12">481.4</text>
+<path d="M75,367.0h690" stroke="#dddddd"/>
+<text x="67" y="371.0" text-anchor="end" font-family="Arial" font-size="12">320.9</text>
+<path d="M75,461.0h690" stroke="#dddddd"/>
+<text x="67" y="465.0" text-anchor="end" font-family="Arial" font-size="12">160.5</text>
+<path d="M75,555.0h690" stroke="#dddddd"/>
+<text x="67" y="559.0" text-anchor="end" font-family="Arial" font-size="12">0.0</text>
+<text x="75.0" y="579" text-anchor="middle" font-family="Arial" font-size="12">1500</text>
+<text x="272.1428571428571" y="579" text-anchor="middle" font-family="Arial" font-size="12">2500</text>
+<text x="469.2857142857143" y="579" text-anchor="middle" font-family="Arial" font-size="12">3500</text>
+<text x="666.4285714285714" y="579" text-anchor="middle" font-family="Arial" font-size="12">4500</text>
+<text x="765.0" y="579" text-anchor="middle" font-family="Arial" font-size="12">5000</text>
+<polyline points="75.00,437.27 124.29,416.69 173.57,388.31 222.86,345.57 272.14,291.48 321.43,236.95 370.71,170.46 420.00,135.12 469.29,120.91 518.57,119.81 567.86,125.86 617.14,142.07 666.43,168.27 715.71,198.56 765.00,221.96" fill="none" stroke="#e69f00" stroke-width="2" stroke-dasharray="7 4"/>
+<text x="790" y="90" font-family="Arial" font-size="11" fill="#e69f00">0.9.9 single_turbo</text>
+<polyline points="75.00,437.27 124.29,416.69 173.57,388.31 222.86,345.57 272.14,291.48 321.43,236.95 370.71,170.46 420.00,135.12 469.29,120.91 518.57,119.81 567.86,125.86 617.14,142.07 666.43,168.27 715.71,198.56 765.00,221.96" fill="none" stroke="#56b4e9" stroke-width="2" stroke-dasharray="7 4"/>
+<text x="790" y="113" font-family="Arial" font-size="11" fill="#56b4e9">0.9.9 twin_turbo</text>
+<polyline points="75.00,437.31 124.29,419.96 173.57,398.66 222.86,364.22 272.14,317.02 321.43,271.36 370.71,229.24 420.00,166.08 469.29,133.10 518.57,127.29 567.86,130.76 617.14,147.78 666.43,175.33 715.71,207.43 765.00,232.97" fill="none" stroke="#0072b2" stroke-width="2" stroke-dasharray="7 4"/>
+<text x="790" y="136" font-family="Arial" font-size="11" fill="#0072b2">0.9.9 big_turbo</text>
+<polyline points="75.00,437.31 124.29,420.48 173.57,406.17 222.86,392.08 272.14,378.43 321.43,367.83 370.71,361.85 420.00,361.39 469.29,363.79 518.57,367.22 567.86,370.34 617.14,367.54 666.43,366.06 715.71,376.34 765.00,384.33" fill="none" stroke="#009e73" stroke-width="2" stroke-dasharray="7 4"/>
+<text x="790" y="159" font-family="Arial" font-size="11" fill="#009e73">0.9.9 large_turbo</text>
+<polyline points="75.00,437.27 124.29,416.70 173.57,388.37 222.86,345.81 272.14,292.05 321.43,238.01 370.71,172.28 420.00,137.93 469.29,124.82 518.57,124.77 567.86,131.78 617.14,148.75 666.43,175.52 715.71,206.78 765.00,231.12" fill="none" stroke="#e69f00" stroke-width="2" />
+<text x="790" y="182" font-family="Arial" font-size="11" fill="#e69f00">1.0.0 single_turbo</text>
+<polyline points="75.00,437.27 124.29,416.70 173.57,388.37 222.86,345.81 272.14,292.05 321.43,238.01 370.71,172.28 420.00,137.93 469.29,124.82 518.57,124.77 567.86,131.78 617.14,148.75 666.43,175.52 715.71,206.78 765.00,231.12" fill="none" stroke="#56b4e9" stroke-width="2" />
+<text x="790" y="205" font-family="Arial" font-size="11" fill="#56b4e9">1.0.0 twin_turbo</text>
+<polyline points="75.00,437.31 124.29,419.96 173.57,398.68 222.86,364.36 272.14,317.42 321.43,272.14 370.71,230.51 420.00,168.51 469.29,136.82 518.57,132.10 567.86,136.57 617.14,154.31 666.43,182.36 715.71,215.33 765.00,241.65" fill="none" stroke="#0072b2" stroke-width="2" />
+<text x="790" y="228" font-family="Arial" font-size="11" fill="#0072b2">1.0.0 big_turbo</text>
+<polyline points="75.00,437.31 124.29,420.48 173.57,406.17 222.86,392.08 272.14,378.43 321.43,367.83 370.71,361.85 420.00,361.40 469.29,363.82 518.57,367.33 567.86,370.61 617.14,368.19 666.43,367.27 715.71,377.95 765.00,386.36" fill="none" stroke="#009e73" stroke-width="2" />
+<text x="790" y="251" font-family="Arial" font-size="11" fill="#009e73">1.0.0 large_turbo</text>
+<polyline points="75.00,437.31 124.29,420.48 173.57,406.17 222.86,389.91 272.14,367.75 321.43,342.53 370.71,312.80 420.00,296.46 469.29,292.27 518.57,296.68 567.86,304.27 617.14,316.70 666.43,334.60 715.71,354.50 765.00,370.24" fill="none" stroke="#d55e00" stroke-width="2" />
+<text x="790" y="274" font-family="Arial" font-size="11" fill="#d55e00">1.0.0 big_twin_turbo</text>
+<polyline points="75.00,437.31 124.29,420.48 173.57,406.17 222.86,392.08 272.14,378.43 321.43,367.83 370.71,361.85 420.00,361.45 469.29,365.40 518.57,372.78 567.86,381.76 617.14,392.16 666.43,405.63 715.71,419.56 765.00,430.42" fill="none" stroke="#cc79a7" stroke-width="2" />
+<text x="790" y="297" font-family="Arial" font-size="11" fill="#cc79a7">1.0.0 large_twin_turbo</text>
+<text x="370" y="600" font-family="Arial" font-size="14">Engine RPM - identical historical D-Series 4.5L NA anchor, manual 3rd gear</text>
+<text x="30" y="628" font-family="Arial" font-size="12">Turbo: same cast/street exhaust, gate shut. Blower: factory drive. No new road/dyno run or thermal coupling.</text>
+</svg>

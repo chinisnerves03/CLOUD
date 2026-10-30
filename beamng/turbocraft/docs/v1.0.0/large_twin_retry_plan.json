@@ -1,0 +1,8 @@
+[
+  {
+    "name": "large_twin_turbo_extended_pull",
+    "family": "large_twin_turbo",
+    "hardwareId": "tc_large_100",
+    "pullSeconds": 45
+  }
+]

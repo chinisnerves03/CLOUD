@@ -1,0 +1,62 @@
+[
+  {
+    "name": "single_turbo",
+    "family": "single_turbo",
+    "hardwareId": "tc_single_060"
+  },
+  {
+    "name": "twin_turbo",
+    "family": "twin_turbo",
+    "hardwareId": "tc_single_060"
+  },
+  {
+    "name": "big_turbo",
+    "family": "big_turbo",
+    "hardwareId": "tc_big_070"
+  },
+  {
+    "name": "large_turbo",
+    "family": "large_turbo",
+    "hardwareId": "tc_large_100"
+  },
+  {
+    "name": "big_twin_turbo",
+    "family": "big_twin_turbo",
+    "hardwareId": "tc_big_070"
+  },
+  {
+    "name": "large_twin_turbo",
+    "family": "large_twin_turbo",
+    "hardwareId": "tc_large_100"
+  },
+  {
+    "name": "supercharger",
+    "family": "supercharger",
+    "hardwareId": "eaton_r1900"
+  },
+  {
+    "name": "procharger",
+    "family": "procharger",
+    "hardwareId": "procharger_p1x"
+  },
+  {
+    "name": "big_supercharger",
+    "family": "big_supercharger",
+    "hardwareId": "tc_roots_265"
+  },
+  {
+    "name": "large_supercharger",
+    "family": "large_supercharger",
+    "hardwareId": "tc_roots_380"
+  },
+  {
+    "name": "big_procharger",
+    "family": "big_procharger",
+    "hardwareId": "tc_cf_1800"
+  },
+  {
+    "name": "large_procharger",
+    "family": "large_procharger",
+    "hardwareId": "tc_cf_2400"
+  }
+]

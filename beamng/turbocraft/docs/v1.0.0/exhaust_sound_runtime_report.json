@@ -1,0 +1,650 @@
+{
+  "status": "PASS",
+  "scope": "Native exhaust EQ/node configuration merge, fitment and third-gear pull/lift",
+  "game_build": "0.40.3.0.290897",
+  "finished": false,
+  "source_sessions": [
+    {
+      "path": "test_runs\\tc100-20261025-021744-142\\current\\turbocraft_sweep_results.json",
+      "finished": false,
+      "sha256": "84820DAF9C21CD0C197DB3E2F11E0872E917C170BDC82845881F62822F87E1DF"
+    },
+    {
+      "path": "test_runs\\tc100-20261025-023158-802\\current\\turbocraft_sweep_results.json",
+      "finished": true,
+      "sha256": "6ACC63B6D17873A8AE4768882A3E48CACD5FBA894D2925F9F6B7287E6DF45A7C"
+    }
+  ],
+  "completion_note": "Initial timeout remains incomplete; supplemental finished run covers missing combination.",
+  "all_nine_combinations": true,
+  "checks": [
+    {
+      "combination": "cast__street",
+      "header": "cast",
+      "exhaust": "street",
+      "status": "PASS",
+      "failures": [],
+      "merged_eq": {
+        "eqFundamentalGain": -4,
+        "eqHighFreq": 2500,
+        "eqHighGain": 0,
+        "eqHighWidth": 0.2,
+        "eqLowFreq": 150,
+        "eqLowGain": 0,
+        "eqLowWidth": 0.2,
+        "fundamentalFrequencyCylinderCount": 8,
+        "highShelfFreq": 2400,
+        "highShelfGain": -7,
+        "lowShelfFreq": 90,
+        "lowShelfGain": -3,
+        "mainGain": 0,
+        "maxLoadMix": 0.69,
+        "minLoadMix": 0,
+        "offLoadGain": 0.58,
+        "onLoadGain": 1,
+        "sampleName": "V8_cross_exhaust"
+      },
+      "expected_part_eq_contribution": {
+        "eqFundamentalGain": 0,
+        "eqLowGain": 0,
+        "highShelfGain": -10,
+        "lowShelfGain": 10
+      },
+      "exhaust_nodes": [
+        {
+          "cid": 212,
+          "gain": -9,
+          "muffling": 0.5,
+          "name": "ex3r"
+        },
+        {
+          "cid": 219,
+          "gain": 0,
+          "muffling": 0.3,
+          "name": "ex9r"
+        },
+        {
+          "cid": 222,
+          "gain": 0,
+          "muffling": 1,
+          "name": "exm1l"
+        },
+        {
+          "cid": 223,
+          "gain": 0,
+          "muffling": 1,
+          "name": "exm1r"
+        }
+      ],
+      "samples": 330,
+      "rpm_min": 1005.20268,
+      "rpm_max": 5460.155123,
+      "boost_max_psi": 21.01062393
+    },
+    {
+      "combination": "cast__race",
+      "header": "cast",
+      "exhaust": "race",
+      "status": "PASS",
+      "failures": [],
+      "merged_eq": {
+        "eqFundamentalGain": -2,
+        "eqHighFreq": 2500,
+        "eqHighGain": 0,
+        "eqHighWidth": 0.2,
+        "eqLowFreq": 150,
+        "eqLowGain": 0,
+        "eqLowWidth": 0.2,
+        "fundamentalFrequencyCylinderCount": 8,
+        "highShelfFreq": 2400,
+        "highShelfGain": -1,
+        "lowShelfFreq": 90,
+        "lowShelfGain": -7,
+        "mainGain": 0,
+        "maxLoadMix": 0.69,
+        "minLoadMix": 0,
+        "offLoadGain": 0.58,
+        "onLoadGain": 1,
+        "sampleName": "V8_cross_exhaust"
+      },
+      "expected_part_eq_contribution": {
+        "eqFundamentalGain": 2,
+        "eqLowGain": 0,
+        "highShelfGain": -4,
+        "lowShelfGain": 6
+      },
+      "exhaust_nodes": [
+        {
+          "cid": 209,
+          "gain": 0,
+          "muffling": 0.3,
+          "name": "ex9r"
+        },
+        {
+          "cid": 212,
+          "gain": 0,
+          "muffling": 1,
+          "name": "exm1l"
+        },
+        {
+          "cid": 213,
+          "gain": 0,
+          "muffling": 1,
+          "name": "exm1r"
+        },
+        {
+          "cid": 220,
+          "gain": -4,
+          "muffling": 0.6,
+          "name": "exs4l"
+        },
+        {
+          "cid": 221,
+          "gain": -4,
+          "muffling": 0.6,
+          "name": "exs4r"
+        }
+      ],
+      "samples": 291,
+      "rpm_min": 752.1215772,
+      "rpm_max": 5464.509806,
+      "boost_max_psi": 21.32297339
+    },
+    {
+      "combination": "cast__open",
+      "header": "cast",
+      "exhaust": "open",
+      "status": "PASS",
+      "failures": [],
+      "merged_eq": {
+        "eqFundamentalGain": -4,
+        "eqHighFreq": 2500,
+        "eqHighGain": 0,
+        "eqHighWidth": 0.2,
+        "eqLowFreq": 150,
+        "eqLowGain": 2,
+        "eqLowWidth": 0.2,
+        "fundamentalFrequencyCylinderCount": 8,
+        "highShelfFreq": 2400,
+        "highShelfGain": 0,
+        "lowShelfFreq": 90,
+        "lowShelfGain": -13,
+        "mainGain": 0,
+        "maxLoadMix": 0.69,
+        "minLoadMix": 0,
+        "offLoadGain": 0.58,
+        "onLoadGain": 1,
+        "sampleName": "V8_cross_exhaust"
+      },
+      "expected_part_eq_contribution": {
+        "eqFundamentalGain": 0,
+        "eqLowGain": 2,
+        "highShelfGain": -3,
+        "lowShelfGain": 0
+      },
+      "exhaust_nodes": [
+        {
+          "cid": 209,
+          "gain": 0,
+          "muffling": 0.3,
+          "name": "ex9r"
+        },
+        {
+          "cid": 212,
+          "gain": 0,
+          "muffling": 1,
+          "name": "exm1l"
+        },
+        {
+          "cid": 213,
+          "gain": 0,
+          "muffling": 1,
+          "name": "exm1r"
+        },
+        {
+          "cid": 214,
+          "gain": -2,
+          "muffling": 0.66,
+          "name": "exs1l"
+        },
+        {
+          "cid": 215,
+          "gain": -2,
+          "muffling": 0.66,
+          "name": "exs1r"
+        }
+      ],
+      "samples": 263,
+      "rpm_min": 753.0269392,
+      "rpm_max": 5458.893959,
+      "boost_max_psi": 21.94579697
+    },
+    {
+      "combination": "tubular__street",
+      "header": "tubular",
+      "exhaust": "street",
+      "status": "PASS",
+      "failures": [],
+      "merged_eq": {
+        "eqFundamentalGain": -4,
+        "eqHighFreq": 2500,
+        "eqHighGain": 0,
+        "eqHighWidth": 0.2,
+        "eqLowFreq": 150,
+        "eqLowGain": 0,
+        "eqLowWidth": 0.2,
+        "fundamentalFrequencyCylinderCount": 8,
+        "highShelfFreq": 2400,
+        "highShelfGain": -6,
+        "lowShelfFreq": 90,
+        "lowShelfGain": -3,
+        "mainGain": 0,
+        "maxLoadMix": 0.69,
+        "minLoadMix": 0,
+        "offLoadGain": 0.58,
+        "onLoadGain": 1,
+        "sampleName": "V8_cross_exhaust"
+      },
+      "expected_part_eq_contribution": {
+        "eqFundamentalGain": 0,
+        "eqLowGain": 0,
+        "highShelfGain": -9,
+        "lowShelfGain": 10
+      },
+      "exhaust_nodes": [
+        {
+          "cid": 212,
+          "gain": -9,
+          "muffling": 0.5,
+          "name": "ex3r"
+        },
+        {
+          "cid": 219,
+          "gain": 0,
+          "muffling": 0.3,
+          "name": "ex9r"
+        },
+        {
+          "cid": 222,
+          "gain": 0,
+          "muffling": 1,
+          "name": "exm1l"
+        },
+        {
+          "cid": 223,
+          "gain": 0,
+          "muffling": 1,
+          "name": "exm1r"
+        }
+      ],
+      "samples": 287,
+      "rpm_min": 757.6225238,
+      "rpm_max": 5450.269366,
+      "boost_max_psi": 21.97918129
+    },
+    {
+      "combination": "tubular__race",
+      "header": "tubular",
+      "exhaust": "race",
+      "status": "PASS",
+      "failures": [],
+      "merged_eq": {
+        "eqFundamentalGain": -2,
+        "eqHighFreq": 2500,
+        "eqHighGain": 0,
+        "eqHighWidth": 0.2,
+        "eqLowFreq": 150,
+        "eqLowGain": 0,
+        "eqLowWidth": 0.2,
+        "fundamentalFrequencyCylinderCount": 8,
+        "highShelfFreq": 2400,
+        "highShelfGain": 0,
+        "lowShelfFreq": 90,
+        "lowShelfGain": -7,
+        "mainGain": 0,
+        "maxLoadMix": 0.69,
+        "minLoadMix": 0,
+        "offLoadGain": 0.58,
+        "onLoadGain": 1,
+        "sampleName": "V8_cross_exhaust"
+      },
+      "expected_part_eq_contribution": {
+        "eqFundamentalGain": 2,
+        "eqLowGain": 0,
+        "highShelfGain": -3,
+        "lowShelfGain": 6
+      },
+      "exhaust_nodes": [
+        {
+          "cid": 209,
+          "gain": 0,
+          "muffling": 0.3,
+          "name": "ex9r"
+        },
+        {
+          "cid": 212,
+          "gain": 0,
+          "muffling": 1,
+          "name": "exm1l"
+        },
+        {
+          "cid": 213,
+          "gain": 0,
+          "muffling": 1,
+          "name": "exm1r"
+        },
+        {
+          "cid": 220,
+          "gain": -4,
+          "muffling": 0.6,
+          "name": "exs4l"
+        },
+        {
+          "cid": 221,
+          "gain": -4,
+          "muffling": 0.6,
+          "name": "exs4r"
+        }
+      ],
+      "samples": 281,
+      "rpm_min": 982.9102837,
+      "rpm_max": 5451.889472,
+      "boost_max_psi": 21.46502113
+    },
+    {
+      "combination": "tubular__open",
+      "header": "tubular",
+      "exhaust": "open",
+      "status": "PASS",
+      "failures": [],
+      "merged_eq": {
+        "eqFundamentalGain": -4,
+        "eqHighFreq": 2500,
+        "eqHighGain": 0,
+        "eqHighWidth": 0.2,
+        "eqLowFreq": 150,
+        "eqLowGain": 2,
+        "eqLowWidth": 0.2,
+        "fundamentalFrequencyCylinderCount": 8,
+        "highShelfFreq": 2400,
+        "highShelfGain": 1,
+        "lowShelfFreq": 90,
+        "lowShelfGain": -13,
+        "mainGain": 0,
+        "maxLoadMix": 0.69,
+        "minLoadMix": 0,
+        "offLoadGain": 0.58,
+        "onLoadGain": 1,
+        "sampleName": "V8_cross_exhaust"
+      },
+      "expected_part_eq_contribution": {
+        "eqFundamentalGain": 0,
+        "eqLowGain": 2,
+        "highShelfGain": -2,
+        "lowShelfGain": 0
+      },
+      "exhaust_nodes": [
+        {
+          "cid": 209,
+          "gain": 0,
+          "muffling": 0.3,
+          "name": "ex9r"
+        },
+        {
+          "cid": 212,
+          "gain": 0,
+          "muffling": 1,
+          "name": "exm1l"
+        },
+        {
+          "cid": 213,
+          "gain": 0,
+          "muffling": 1,
+          "name": "exm1r"
+        },
+        {
+          "cid": 214,
+          "gain": -2,
+          "muffling": 0.66,
+          "name": "exs1l"
+        },
+        {
+          "cid": 215,
+          "gain": -2,
+          "muffling": 0.66,
+          "name": "exs1r"
+        }
+      ],
+      "samples": 264,
+      "rpm_min": 749.9760739,
+      "rpm_max": 5454.045503,
+      "boost_max_psi": 22.07476044
+    },
+    {
+      "combination": "equal_length__street",
+      "header": "equal_length",
+      "exhaust": "street",
+      "status": "PASS",
+      "failures": [],
+      "merged_eq": {
+        "eqFundamentalGain": -4,
+        "eqHighFreq": 2500,
+        "eqHighGain": 0,
+        "eqHighWidth": 0.2,
+        "eqLowFreq": 150,
+        "eqLowGain": 0,
+        "eqLowWidth": 0.2,
+        "fundamentalFrequencyCylinderCount": 8,
+        "highShelfFreq": 2400,
+        "highShelfGain": -5,
+        "lowShelfFreq": 90,
+        "lowShelfGain": -3,
+        "mainGain": 0,
+        "maxLoadMix": 0.69,
+        "minLoadMix": 0,
+        "offLoadGain": 0.58,
+        "onLoadGain": 1,
+        "sampleName": "V8_cross_exhaust"
+      },
+      "expected_part_eq_contribution": {
+        "eqFundamentalGain": 0,
+        "eqLowGain": 0,
+        "highShelfGain": -8,
+        "lowShelfGain": 10
+      },
+      "exhaust_nodes": [
+        {
+          "cid": 212,
+          "gain": -9,
+          "muffling": 0.5,
+          "name": "ex3r"
+        },
+        {
+          "cid": 219,
+          "gain": 0,
+          "muffling": 0.3,
+          "name": "ex9r"
+        },
+        {
+          "cid": 222,
+          "gain": 0,
+          "muffling": 1,
+          "name": "exm1l"
+        },
+        {
+          "cid": 223,
+          "gain": 0,
+          "muffling": 1,
+          "name": "exm1r"
+        }
+      ],
+      "samples": 289,
+      "rpm_min": 990.5783986,
+      "rpm_max": 5460.240503,
+      "boost_max_psi": 22.26444817
+    },
+    {
+      "combination": "equal_length__race",
+      "header": "equal_length",
+      "exhaust": "race",
+      "status": "PASS",
+      "failures": [],
+      "merged_eq": {
+        "eqFundamentalGain": -2,
+        "eqHighFreq": 2500,
+        "eqHighGain": 0,
+        "eqHighWidth": 0.2,
+        "eqLowFreq": 150,
+        "eqLowGain": 0,
+        "eqLowWidth": 0.2,
+        "fundamentalFrequencyCylinderCount": 8,
+        "highShelfFreq": 2400,
+        "highShelfGain": 1,
+        "lowShelfFreq": 90,
+        "lowShelfGain": -7,
+        "mainGain": 0,
+        "maxLoadMix": 0.69,
+        "minLoadMix": 0,
+        "offLoadGain": 0.58,
+        "onLoadGain": 1,
+        "sampleName": "V8_cross_exhaust"
+      },
+      "expected_part_eq_contribution": {
+        "eqFundamentalGain": 2,
+        "eqLowGain": 0,
+        "highShelfGain": -2,
+        "lowShelfGain": 6
+      },
+      "exhaust_nodes": [
+        {
+          "cid": 209,
+          "gain": 0,
+          "muffling": 0.3,
+          "name": "ex9r"
+        },
+        {
+          "cid": 212,
+          "gain": 0,
+          "muffling": 1,
+          "name": "exm1l"
+        },
+        {
+          "cid": 213,
+          "gain": 0,
+          "muffling": 1,
+          "name": "exm1r"
+        },
+        {
+          "cid": 220,
+          "gain": -4,
+          "muffling": 0.6,
+          "name": "exs4l"
+        },
+        {
+          "cid": 221,
+          "gain": -4,
+          "muffling": 0.6,
+          "name": "exs4r"
+        }
+      ],
+      "samples": 279,
+      "rpm_min": 756.82264,
+      "rpm_max": 5461.934165,
+      "boost_max_psi": 22.57004758
+    },
+    {
+      "combination": "equal_length__open",
+      "header": "equal_length",
+      "exhaust": "open",
+      "status": "PASS",
+      "failures": [],
+      "merged_eq": {
+        "eqFundamentalGain": -4,
+        "eqHighFreq": 2500,
+        "eqHighGain": 0,
+        "eqHighWidth": 0.2,
+        "eqLowFreq": 150,
+        "eqLowGain": 2,
+        "eqLowWidth": 0.2,
+        "fundamentalFrequencyCylinderCount": 8,
+        "highShelfFreq": 2400,
+        "highShelfGain": 2,
+        "lowShelfFreq": 90,
+        "lowShelfGain": -13,
+        "mainGain": 0,
+        "maxLoadMix": 0.69,
+        "minLoadMix": 0,
+        "offLoadGain": 0.58,
+        "onLoadGain": 1,
+        "sampleName": "V8_cross_exhaust"
+      },
+      "expected_part_eq_contribution": {
+        "eqFundamentalGain": 0,
+        "eqLowGain": 2,
+        "highShelfGain": -1,
+        "lowShelfGain": 0
+      },
+      "exhaust_nodes": [
+        {
+          "cid": 209,
+          "gain": 0,
+          "muffling": 0.3,
+          "name": "ex9r"
+        },
+        {
+          "cid": 212,
+          "gain": 0,
+          "muffling": 1,
+          "name": "exm1l"
+        },
+        {
+          "cid": 213,
+          "gain": 0,
+          "muffling": 1,
+          "name": "exm1r"
+        },
+        {
+          "cid": 214,
+          "gain": -2,
+          "muffling": 0.66,
+          "name": "exs1l"
+        },
+        {
+          "cid": 215,
+          "gain": -2,
+          "muffling": 0.66,
+          "name": "exs1r"
+        }
+      ],
+      "samples": 266,
+      "rpm_min": 758.9661789,
+      "rpm_max": 5457.584969,
+      "boost_max_psi": 22.64744881
+    }
+  ],
+  "common_engine_eq_residual_consistent": true,
+  "engine_eq_residual": {
+    "eqFundamentalGain": -4,
+    "eqLowGain": 0,
+    "highShelfGain": 3,
+    "lowShelfGain": -13
+  },
+  "eq_proof_scope": "Relative part contributions match across all nine; engine baseline is inferred, not independently measured without parts.",
+  "raw_sha256": "84820DAF9C21CD0C197DB3E2F11E0872E917C170BDC82845881F62822F87E1DF",
+  "console_error_scopes": {
+    "DLSS": 2,
+    "engine::ActionMap::addBinding": 455,
+    "bng::json::deserializeLineObjectsRecursive": 2,
+    "engine::ActionMap::": 1
+  },
+  "sound_or_candidate_errors": [],
+  "console_log_available": true,
+  "not_tested": [
+    "Audible loudness/timbre/clipping",
+    "Actual final mixer spectrum or SPL",
+    "In-cabin/exterior spatial falloff",
+    "Damaged exhaust routing",
+    "Visible afterfire"
+  ],
+  "warning": "Config merge PASS is not audible-quality PASS. Other native errors require baseline comparison."
+}

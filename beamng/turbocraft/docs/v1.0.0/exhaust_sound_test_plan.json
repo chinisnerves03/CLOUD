@@ -1,0 +1,65 @@
+[
+  {
+    "name": "cast__street",
+    "family": "single_turbo",
+    "hardwareId": "tc_single_060",
+    "header": "cast",
+    "exhaust": "street"
+  },
+  {
+    "name": "cast__race",
+    "family": "single_turbo",
+    "hardwareId": "tc_single_060",
+    "header": "cast",
+    "exhaust": "race"
+  },
+  {
+    "name": "cast__open",
+    "family": "single_turbo",
+    "hardwareId": "tc_single_060",
+    "header": "cast",
+    "exhaust": "open"
+  },
+  {
+    "name": "tubular__street",
+    "family": "single_turbo",
+    "hardwareId": "tc_single_060",
+    "header": "tubular",
+    "exhaust": "street"
+  },
+  {
+    "name": "tubular__race",
+    "family": "single_turbo",
+    "hardwareId": "tc_single_060",
+    "header": "tubular",
+    "exhaust": "race"
+  },
+  {
+    "name": "tubular__open",
+    "family": "single_turbo",
+    "hardwareId": "tc_single_060",
+    "header": "tubular",
+    "exhaust": "open"
+  },
+  {
+    "name": "equal_length__street",
+    "family": "single_turbo",
+    "hardwareId": "tc_single_060",
+    "header": "equal_length",
+    "exhaust": "street"
+  },
+  {
+    "name": "equal_length__race",
+    "family": "single_turbo",
+    "hardwareId": "tc_single_060",
+    "header": "equal_length",
+    "exhaust": "race"
+  },
+  {
+    "name": "equal_length__open",
+    "family": "single_turbo",
+    "hardwareId": "tc_single_060",
+    "header": "equal_length",
+    "exhaust": "open"
+  }
+]

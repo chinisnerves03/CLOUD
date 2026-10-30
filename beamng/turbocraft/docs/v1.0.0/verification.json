@@ -1,0 +1,99 @@
+{
+  "timestamp": "2026-10-25T00:10:06.091118+07:00",
+  "status": "PASS",
+  "in_game": "NOT TESTED IN GAME",
+  "gates": [
+    {
+      "command": [
+        "node",
+        "tests\\run_lua_tests.js",
+        "F:\\MovedFromC\\BEAMNGMOD\\tools\\fengari_env\\node_modules"
+      ],
+      "exit_code": 0,
+      "output": "syntax: 10 Lua files, 0 errors\nTurboCraft tests: 126 passed, 0 failed\n"
+    },
+    {
+      "command": [
+        "node",
+        "tests\\ui_compact_test.js"
+      ],
+      "exit_code": 0,
+      "output": "PASS TurboCraft measured/vacuum gauge, scale, stale recovery, mode isolation and lifecycle\n"
+    },
+    {
+      "command": [
+        "node",
+        "tests\\catalog_integration_test.js",
+        "F:\\MovedFromC\\BEAMNGMOD\\tools\\fengari_env\\node_modules"
+      ],
+      "exit_code": 0,
+      "output": "PASS actual-catalog universal integration: 40 kits / 12 families, slots, defaults, metadata and 0\u2013200 targets\n"
+    },
+    {
+      "command": [
+        "C:\\Python314\\python.exe",
+        "tests\\stage_profile_test.py"
+      ],
+      "exit_code": 0,
+      "output": "PASS hardware catalog: 40 kits / 12 families; parallel energy split, differentiated drive/loss/response, bounded audio\n"
+    },
+    {
+      "command": [
+        "C:\\Python314\\python.exe",
+        "tests\\header_exhaust_curve_test.py"
+      ],
+      "exit_code": 0,
+      "output": "Header/exhaust RPM profile and boost-curve assertions passed\n"
+    },
+    {
+      "command": [
+        "C:\\Python314\\python.exe",
+        "tests\\release_compatibility_test.py"
+      ],
+      "exit_code": 0,
+      "output": "PASS v0.9.9 SHA/CRC; every legacy JBeam ID, slot/default, mesh, beam, node position and donor torque/audio preserved\n"
+    },
+    {
+      "command": [
+        "C:\\Python314\\python.exe",
+        "tools\\compare_v100.py"
+      ],
+      "exit_code": 0,
+      "output": "PASS offline evidence generated: 64 profiles, 960 estimate rows, 8 labeled SVGs\n"
+    },
+    {
+      "command": [
+        "C:\\Python314\\python.exe",
+        "tests\\evidence_tools_test.py"
+      ],
+      "exit_code": 0,
+      "output": "PASS evidence-tool synthetic units: CSV/gauge mismatch fails, coverage gates fail closed, twins split energy, model outputs finite\n"
+    },
+    {
+      "command": [
+        "C:\\Python314\\python.exe",
+        "tests\\original_audio_test.py"
+      ],
+      "exit_code": 0,
+      "output": "PASS 12 original WAVs: formula reproduction, SHA, mono/PCM/rate, finite level, DC/seams and BOV endpoints\n"
+    },
+    {
+      "command": [
+        "node",
+        "tests\\syntax_all.js",
+        "F:\\MovedFromC\\BEAMNGMOD\\tools\\fengari_env\\node_modules"
+      ],
+      "exit_code": 0,
+      "output": "PASS complete Lua/JS syntax: 19 Lua files (including harness), 7 JS files\n"
+    },
+    {
+      "command": [
+        "C:\\Python314\\python.exe",
+        "tools\\package.py",
+        "--validate-only"
+      ],
+      "exit_code": 0,
+      "output": "TurboCraft package source validation passed; archive was not written.\n"
+    }
+  ]
+}

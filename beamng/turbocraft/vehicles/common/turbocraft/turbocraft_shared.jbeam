@@ -1,0 +1,1995 @@
+{
+  "turbocraft_turbo_audio_low": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Turbo Audio - Low",
+      "value": 0
+    },
+    "slotType": "turbocraft_turbo_audio",
+    "turbocharger": {
+      "$*whineVolumePer10kRPM": 0.35,
+      "$*hissVolumePerPSI": 0.35,
+      "$*bovSoundVolumeCoef": 0.35,
+      "$*flutterSoundVolumeCoef": 0.35,
+      "turbocraftIntakeVolume": 0.35,
+      "turbocraftSpoolVolume": 0.35,
+      "turbocraftAirVolume": 0.35,
+      "turbocraftCabinGainDB": 6
+    }
+  },
+  "turbocraft_turbo_audio_med": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Turbo Audio - Medium",
+      "value": 0
+    },
+    "slotType": "turbocraft_turbo_audio",
+    "turbocharger": {
+      "$*whineVolumePer10kRPM": 0.65,
+      "$*hissVolumePerPSI": 0.65,
+      "$*bovSoundVolumeCoef": 0.65,
+      "$*flutterSoundVolumeCoef": 0.65,
+      "turbocraftIntakeVolume": 0.65,
+      "turbocraftSpoolVolume": 0.65,
+      "turbocraftAirVolume": 0.65,
+      "turbocraftCabinGainDB": 6
+    }
+  },
+  "turbocraft_turbo_audio_loud": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Turbo Audio - Loud",
+      "value": 0
+    },
+    "slotType": "turbocraft_turbo_audio",
+    "turbocharger": {
+      "$*whineVolumePer10kRPM": 1.0,
+      "$*hissVolumePerPSI": 1.0,
+      "$*bovSoundVolumeCoef": 1.0,
+      "$*flutterSoundVolumeCoef": 1.0,
+      "turbocraftIntakeVolume": 1.0,
+      "turbocraftSpoolVolume": 1.0,
+      "turbocraftAirVolume": 1.0,
+      "turbocraftCabinGainDB": 6
+    }
+  },
+  "turbocraft_turbo_audio_adjust": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Turbo Audio - Adjustable - Tuning",
+      "value": 0
+    },
+    "slotType": "turbocraft_turbo_audio",
+    "variables": [
+      [
+        "name",
+        "type",
+        "unit",
+        "category",
+        "default",
+        "min",
+        "max",
+        "title",
+        "description"
+      ],
+      [
+        "$turbocraftSpoolVolume",
+        "range",
+        "%",
+        "TurboCraft Audio",
+        100,
+        0,
+        200,
+        "Turbo Spool Volume",
+        "Whistle and shaft whine; 100% is Loud",
+        {
+          "stepDis": 5
+        }
+      ],
+      [
+        "$turbocraftAirVolume",
+        "range",
+        "%",
+        "TurboCraft Audio",
+        100,
+        0,
+        200,
+        "Turbo Intake / Air Volume",
+        "Pre-boost intake and pressurized airflow",
+        {
+          "stepDis": 5
+        }
+      ],
+      [
+        "$turbocraftValveVolume",
+        "range",
+        "%",
+        "TurboCraft Audio",
+        100,
+        0,
+        200,
+        "BOV / Flutter Volume",
+        "Native valve and surge sounds",
+        {
+          "stepDis": 5
+        }
+      ],
+      [
+        "$turbocraftCabinGain",
+        "range",
+        "dB",
+        "TurboCraft Audio",
+        6,
+        0,
+        12,
+        "Cabin Induction Compensation",
+        "Boost only TurboCraft induction while the player camera is inside",
+        {
+          "stepDis": 1
+        }
+      ]
+    ],
+    "turbocharger": {
+      "$*whineVolumePer10kRPM": "$=$turbocraftSpoolVolume*0.01",
+      "$*hissVolumePerPSI": "$=$turbocraftAirVolume*0.01",
+      "$*bovSoundVolumeCoef": "$=$turbocraftValveVolume*0.01",
+      "$*flutterSoundVolumeCoef": "$=$turbocraftValveVolume*0.01",
+      "turbocraftIntakeVolume": "$=$turbocraftAirVolume*0.01",
+      "turbocraftSpoolVolume": "$=$turbocraftSpoolVolume*0.01",
+      "turbocraftAirVolume": "$=$turbocraftAirVolume*0.01",
+      "turbocraftCabinGainDB": "$turbocraftCabinGain"
+    }
+  },
+  "turbocraft_turbo_audio_drift": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Easy Turbo Sound",
+      "value": 0
+    },
+    "slotType": "turbocraft_turbo_audio",
+    "variables": [
+      [
+        "name",
+        "type",
+        "unit",
+        "category",
+        "default",
+        "min",
+        "max",
+        "title",
+        "description"
+      ],
+      [
+        "$tcDriftPresence",
+        "range",
+        "%",
+        "TurboCraft Easy",
+        100,
+        0,
+        125,
+        "Sound Presence",
+        "One control for spool, intake and native BOV/flutter; 100% is the drift mix",
+        {
+          "stepDis": 5
+        }
+      ],
+      [
+        "$turbocraftCabinGain",
+        "range",
+        "dB",
+        "TurboCraft Easy",
+        6,
+        0,
+        12,
+        "Cabin Balance",
+        "Induction compensation inside only; reduce if it masks the engine",
+        {
+          "stepDis": 1
+        }
+      ]
+    ],
+    "turbocharger": {
+      "$*whineVolumePer10kRPM": "$=$tcDriftPresence*0.01*1.2",
+      "$*hissVolumePerPSI": "$=$tcDriftPresence*0.01*1.15",
+      "$*bovSoundVolumeCoef": "$=$tcDriftPresence*0.01*1.4",
+      "$*flutterSoundVolumeCoef": "$=$tcDriftPresence*0.01*1.4",
+      "turbocraftIntakeVolume": "$=$tcDriftPresence*0.01*1.15",
+      "turbocraftSpoolVolume": "$=$tcDriftPresence*0.01*1.2",
+      "turbocraftAirVolume": "$=$tcDriftPresence*0.01*1.15",
+      "turbocraftCabinGainDB": "$turbocraftCabinGain"
+    }
+  },
+  "turbocraft_blower_audio_low": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Blower Audio - Low",
+      "value": 0
+    },
+    "slotType": "turbocraft_blower_audio",
+    "supercharger": {
+      "turbocraftSpoolVolume": 0.35,
+      "turbocraftAirVolume": 0.35,
+      "turbocraftCabinGainDB": 6
+    }
+  },
+  "turbocraft_blower_audio_med": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Blower Audio - Medium",
+      "value": 0
+    },
+    "slotType": "turbocraft_blower_audio",
+    "supercharger": {
+      "turbocraftSpoolVolume": 0.65,
+      "turbocraftAirVolume": 0.65,
+      "turbocraftCabinGainDB": 6
+    }
+  },
+  "turbocraft_blower_audio_loud": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Blower Audio - Loud",
+      "value": 0
+    },
+    "slotType": "turbocraft_blower_audio",
+    "supercharger": {
+      "turbocraftSpoolVolume": 1.0,
+      "turbocraftAirVolume": 1.0,
+      "turbocraftCabinGainDB": 6
+    }
+  },
+  "turbocraft_blower_audio_adjust": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Blower Audio - Adjustable - Tuning",
+      "value": 0
+    },
+    "slotType": "turbocraft_blower_audio",
+    "variables": [
+      [
+        "name",
+        "type",
+        "unit",
+        "category",
+        "default",
+        "min",
+        "max",
+        "title",
+        "description"
+      ],
+      [
+        "$turbocraftBlowerWhineVolume",
+        "range",
+        "%",
+        "TurboCraft Blower Audio",
+        100,
+        0,
+        200,
+        "Blower Whine Volume",
+        "Mechanical blower whine; 100% is Loud",
+        {
+          "stepDis": 5
+        }
+      ],
+      [
+        "$turbocraftBlowerAirVolume",
+        "range",
+        "%",
+        "TurboCraft Blower Audio",
+        100,
+        0,
+        200,
+        "Blower Airflow Volume",
+        "Load-driven compressor airflow; 100% is Loud",
+        {
+          "stepDis": 5
+        }
+      ],
+      [
+        "$turbocraftBlowerCabinGain",
+        "range",
+        "dB",
+        "TurboCraft Blower Audio",
+        6,
+        0,
+        12,
+        "Blower Cabin Balance",
+        "Boost TurboCraft blower audio only while the camera is inside",
+        {
+          "stepDis": 1
+        }
+      ]
+    ],
+    "supercharger": {
+      "turbocraftSpoolVolume": "$=$turbocraftBlowerWhineVolume*0.01",
+      "turbocraftAirVolume": "$=$turbocraftBlowerAirVolume*0.01",
+      "turbocraftCabinGainDB": "$turbocraftBlowerCabinGain"
+    }
+  },
+  "turbocraft_blower_audio_drift": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Easy Blower Sound",
+      "value": 0
+    },
+    "slotType": "turbocraft_blower_audio",
+    "variables": [
+      [
+        "name",
+        "type",
+        "unit",
+        "category",
+        "default",
+        "min",
+        "max",
+        "title",
+        "description"
+      ],
+      [
+        "$tcBlowerPresence",
+        "range",
+        "%",
+        "TurboCraft Blower Easy",
+        100,
+        0,
+        125,
+        "Blower Presence",
+        "One control for mechanical whine and airflow; 100% is the drift mix",
+        {
+          "stepDis": 5
+        }
+      ],
+      [
+        "$tcBlowerCabinGain",
+        "range",
+        "dB",
+        "TurboCraft Blower Easy",
+        6,
+        0,
+        12,
+        "Cabin Balance",
+        "Blower compensation inside only; reduce if it masks the engine",
+        {
+          "stepDis": 1
+        }
+      ]
+    ],
+    "supercharger": {
+      "turbocraftSpoolVolume": "$=$tcBlowerPresence*0.01*1.2",
+      "turbocraftAirVolume": "$=$tcBlowerPresence*0.01*1.15",
+      "turbocraftCabinGainDB": "$tcBlowerCabinGain"
+    }
+  },
+  "turbocraft_engine_effects_native": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Factory Exhaust Effects",
+      "value": 0
+    },
+    "slotType": "turbocraft_engine_effects"
+  },
+  "turbocraft_engine_effects_overrun": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 200,
+      "name": "Custom Pops & Flames · Factory Limiter"
+    },
+    "slotType": "turbocraft_engine_effects",
+    "variables": [
+      [
+        "name",
+        "type",
+        "unit",
+        "category",
+        "default",
+        "min",
+        "max",
+        "title",
+        "description"
+      ],
+      [
+        "$tcAfterfireFuel",
+        "range",
+        "",
+        "TurboCraft Advanced Effects",
+        1,
+        0,
+        1.5,
+        "Lift-Off Fuel",
+        "More fuel after lifting can make exhaust pops easier to trigger",
+        {
+          "stepDis": 0.05
+        }
+      ],
+      [
+        "$tcAfterfireSustain",
+        "range",
+        "",
+        "TurboCraft Advanced Effects",
+        0.5,
+        0,
+        1.5,
+        "Pop Sustain",
+        "Fuel available between pops; 0 turns sustained pops off",
+        {
+          "stepDis": 0.05
+        }
+      ],
+      [
+        "$tcAfterfireDuration",
+        "range",
+        "s",
+        "TurboCraft Advanced Effects",
+        0.4,
+        0,
+        1.5,
+        "Pop Time Window",
+        "How long off-throttle pops can continue",
+        {
+          "stepDis": 0.05
+        }
+      ],
+      [
+        "$tcFlame",
+        "range",
+        "%",
+        "TurboCraft Advanced Effects",
+        100,
+        0,
+        100,
+        "Flame Chance",
+        "0 = off; higher values make exhaust flames easier to trigger",
+        {
+          "stepDis": 5
+        }
+      ],
+      [
+        "$tcBang",
+        "range",
+        "%",
+        "TurboCraft Advanced Effects",
+        80,
+        0,
+        150,
+        "Pop & Bang Volume",
+        "Changes exhaust pops only; BOV and turbo sound stay separate",
+        {
+          "stepDis": 5
+        }
+      ]
+    ],
+    "mainEngine": {
+      "instantAfterFireCoef": "$tcAfterfireFuel",
+      "sustainedAfterFireCoef": "$tcAfterfireSustain",
+      "sustainedAfterFireTime": "$tcAfterfireDuration",
+      "instantAfterFireVolumeCoef": "$=$tcBang*0.01",
+      "sustainedAfterFireVolumeCoef": "$=$tcBang*0.01",
+      "shiftAfterFireVolumeCoef": "$=$tcBang*0.02",
+      "turbocraftEffectsProfile": "overrun",
+      "turbocraftFlameChance": "$tcFlame",
+      "afterFireVisualThresholdInstant": "$=$tcFlame > 0 and 500000*25/$tcFlame or 1e30",
+      "afterFireVisualThresholdSustained": "$=$tcFlame > 0 and 150000*25/$tcFlame or 1e30",
+      "afterFireVisualThresholdShift": "$=$tcFlame > 0 and 1e+06*25/$tcFlame or 1e30"
+    }
+  },
+  "turbocraft_engine_effects_hardcut": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 200,
+      "name": "Custom Pops & Flames · Hard-Cut Limiter"
+    },
+    "slotType": "turbocraft_engine_effects",
+    "variables": [
+      [
+        "name",
+        "type",
+        "unit",
+        "category",
+        "default",
+        "min",
+        "max",
+        "title",
+        "description"
+      ],
+      [
+        "$tcAfterfireFuel",
+        "range",
+        "",
+        "TurboCraft Advanced Effects",
+        1,
+        0,
+        1.5,
+        "Lift-Off Fuel",
+        "More fuel after lifting can make exhaust pops easier to trigger",
+        {
+          "stepDis": 0.05
+        }
+      ],
+      [
+        "$tcAfterfireSustain",
+        "range",
+        "",
+        "TurboCraft Advanced Effects",
+        0.5,
+        0,
+        1.5,
+        "Pop Sustain",
+        "Fuel available between pops; 0 turns sustained pops off",
+        {
+          "stepDis": 0.05
+        }
+      ],
+      [
+        "$tcAfterfireDuration",
+        "range",
+        "s",
+        "TurboCraft Advanced Effects",
+        0.4,
+        0,
+        1.5,
+        "Pop Time Window",
+        "How long off-throttle pops can continue",
+        {
+          "stepDis": 0.05
+        }
+      ],
+      [
+        "$tcFlame",
+        "range",
+        "%",
+        "TurboCraft Advanced Effects",
+        100,
+        0,
+        100,
+        "Flame Chance",
+        "0 = off; higher values make exhaust flames easier to trigger",
+        {
+          "stepDis": 5
+        }
+      ],
+      [
+        "$tcBang",
+        "range",
+        "%",
+        "TurboCraft Advanced Effects",
+        80,
+        0,
+        150,
+        "Pop & Bang Volume",
+        "Changes exhaust pops only; BOV and turbo sound stay separate",
+        {
+          "stepDis": 5
+        }
+      ],
+      [
+        "$tcLimiterCut",
+        "range",
+        "s",
+        "TurboCraft Advanced Effects",
+        0.08,
+        0.03,
+        0.2,
+        "Hard-Cut Duration",
+        "Length of each limiter cut; the engine redline stays the same",
+        {
+          "stepDis": 0.01
+        }
+      ]
+    ],
+    "mainEngine": {
+      "instantAfterFireCoef": "$tcAfterfireFuel",
+      "sustainedAfterFireCoef": "$tcAfterfireSustain",
+      "sustainedAfterFireTime": "$tcAfterfireDuration",
+      "instantAfterFireVolumeCoef": "$=$tcBang*0.01",
+      "sustainedAfterFireVolumeCoef": "$=$tcBang*0.01",
+      "shiftAfterFireVolumeCoef": "$=$tcBang*0.02",
+      "turbocraftEffectsProfile": "hardcut",
+      "turbocraftFlameChance": "$tcFlame",
+      "afterFireVisualThresholdInstant": "$=$tcFlame > 0 and 500000*25/$tcFlame or 1e30",
+      "afterFireVisualThresholdSustained": "$=$tcFlame > 0 and 150000*25/$tcFlame or 1e30",
+      "afterFireVisualThresholdShift": "$=$tcFlame > 0 and 1e+06*25/$tcFlame or 1e30",
+      "hasRevLimiter": true,
+      "revLimiterType": "timeBased",
+      "revLimiterCutTime": "$tcLimiterCut"
+    }
+  },
+  "turbocraft_engine_effects_drift": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 200,
+      "name": "Easy Pops & Flames"
+    },
+    "slotType": "turbocraft_engine_effects",
+    "variables": [
+      [
+        "name",
+        "type",
+        "unit",
+        "category",
+        "default",
+        "min",
+        "max",
+        "title",
+        "description"
+      ],
+      [
+        "$tcDriftFlame",
+        "range",
+        "%",
+        "TurboCraft Easy Effects",
+        100,
+        0,
+        100,
+        "Flame Chance",
+        "0 = off; higher values make exhaust flames easier to trigger",
+        {
+          "stepDis": 5
+        }
+      ],
+      [
+        "$tcDriftBang",
+        "range",
+        "%",
+        "TurboCraft Easy Effects",
+        110,
+        0,
+        150,
+        "Pop & Bang Volume",
+        "0 = mute exhaust pops; BOV and turbo sound stay separate",
+        {
+          "stepDis": 5
+        }
+      ],
+      [
+        "$tcDriftFlameMinRPM",
+        "range",
+        "RPM",
+        "TurboCraft Easy Effects",
+        0,
+        0,
+        15000,
+        "Minimum Flame RPM",
+        "0 = any RPM; below this RPM, exhaust flames are hidden",
+        {
+          "stepDis": 100
+        }
+      ]
+    ],
+    "mainEngine": {
+      "instantAfterFireCoef": 1,
+      "sustainedAfterFireCoef": 0.12,
+      "sustainedAfterFireTime": 0.15,
+      "instantAfterFireVolumeCoef": "$=$tcDriftBang*0.01",
+      "sustainedAfterFireVolumeCoef": "$=$tcDriftBang*0.006",
+      "shiftAfterFireVolumeCoef": "$=$tcDriftBang*0.025",
+      "turbocraftEffectsProfile": "drift",
+      "turbocraftAfterfireMinRPM": "$tcDriftFlameMinRPM",
+      "turbocraftFlameChance": "$tcDriftFlame",
+      "afterFireVisualThresholdInstant": "$=$tcDriftFlame > 0 and 500000*25/$tcDriftFlame or 1e30",
+      "afterFireVisualThresholdSustained": "$=$tcDriftFlame > 0 and 150000*25/$tcDriftFlame or 1e30",
+      "afterFireVisualThresholdShift": "$=$tcDriftFlame > 0 and 1e+06*25/$tcDriftFlame or 1e30"
+    }
+  },
+  "turbocraft_comp_cover_042": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 250,
+      "name": "Compressor Cover · A/R 0.42 · Slightly quicker boost"
+    },
+    "slotType": "turbocraft_comp_cover",
+    "turbocharger": {
+      "$*backPressureCoef": 0.9147,
+      "$*pressureRatePSI": 1.1952,
+      "turbocraftCoverAR": 0.42
+    }
+  },
+  "turbocraft_comp_cover_050": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 250,
+      "name": "Compressor Cover · A/R 0.50 · Slightly quicker boost"
+    },
+    "slotType": "turbocraft_comp_cover",
+    "turbocharger": {
+      "$*backPressureCoef": 0.9554,
+      "$*pressureRatePSI": 1.0954,
+      "turbocraftCoverAR": 0.5
+    }
+  },
+  "turbocraft_comp_cover_060": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 250,
+      "name": "Compressor Cover · A/R 0.60 · Balanced"
+    },
+    "slotType": "turbocraft_comp_cover",
+    "turbocharger": {
+      "$*backPressureCoef": 1.0,
+      "$*pressureRatePSI": 1.0,
+      "turbocraftCoverAR": 0.6
+    }
+  },
+  "turbocraft_comp_cover_070": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 250,
+      "name": "Compressor Cover · A/R 0.70 · Slightly slower boost"
+    },
+    "slotType": "turbocraft_comp_cover",
+    "turbocharger": {
+      "$*backPressureCoef": 1.0393,
+      "$*pressureRatePSI": 0.9258,
+      "turbocraftCoverAR": 0.7
+    }
+  },
+  "turbocraft_comp_cover_082": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 250,
+      "name": "Compressor Cover · A/R 0.82 · Slightly slower boost"
+    },
+    "slotType": "turbocraft_comp_cover",
+    "turbocharger": {
+      "$*backPressureCoef": 1.0812,
+      "$*pressureRatePSI": 0.8554,
+      "turbocraftCoverAR": 0.82
+    }
+  },
+  "turbocraft_comp_cover_095": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 250,
+      "name": "Compressor Cover · A/R 0.95 · Slightly slower boost"
+    },
+    "slotType": "turbocraft_comp_cover",
+    "turbocharger": {
+      "$*backPressureCoef": 1.1217,
+      "$*pressureRatePSI": 0.7947,
+      "turbocraftCoverAR": 0.95
+    }
+  },
+  "turbocraft_turbine_housing_048": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 450,
+      "name": "Turbine Housing · A/R 0.48 · Earlier boost, less high-RPM flow"
+    },
+    "slotType": "turbocraft_turbine_housing",
+    "turbocharger": {
+      "$*maxExhaustPower": 0.8747,
+      "turbocraftTurbineAR": 0.48,
+      "engineDef": [
+        [
+          0,
+          0.05,
+          0.058
+        ],
+        [
+          500,
+          0.45,
+          0.102
+        ],
+        [
+          1000,
+          0.66,
+          0.134
+        ],
+        [
+          1500,
+          0.78,
+          0.254
+        ],
+        [
+          2000,
+          0.86,
+          0.461
+        ],
+        [
+          2400,
+          0.908,
+          0.675
+        ],
+        [
+          2500,
+          0.92,
+          0.725
+        ],
+        [
+          2800,
+          0.944,
+          0.855
+        ],
+        [
+          3000,
+          0.96,
+          0.958
+        ],
+        [
+          3100,
+          0.962,
+          1.0
+        ],
+        [
+          3500,
+          0.97,
+          0.983
+        ],
+        [
+          4000,
+          0.98,
+          0.91
+        ],
+        [
+          4500,
+          0.955,
+          0.831
+        ],
+        [
+          5000,
+          0.931,
+          0.75
+        ],
+        [
+          5500,
+          0.888,
+          0.669
+        ],
+        [
+          6000,
+          0.845,
+          0.585
+        ],
+        [
+          7000,
+          0.716,
+          0.425
+        ],
+        [
+          8000,
+          0.572,
+          0.302
+        ]
+      ]
+    }
+  },
+  "turbocraft_turbine_housing_063": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 450,
+      "name": "Turbine Housing · A/R 0.63 · Earlier boost, less high-RPM flow"
+    },
+    "slotType": "turbocraft_turbine_housing",
+    "turbocharger": {
+      "$*maxExhaustPower": 0.9362,
+      "turbocraftTurbineAR": 0.63,
+      "engineDef": [
+        [
+          0,
+          0.05,
+          0.034
+        ],
+        [
+          500,
+          0.45,
+          0.063
+        ],
+        [
+          1000,
+          0.66,
+          0.089
+        ],
+        [
+          1500,
+          0.78,
+          0.181
+        ],
+        [
+          2000,
+          0.86,
+          0.351
+        ],
+        [
+          2400,
+          0.908,
+          0.543
+        ],
+        [
+          2500,
+          0.92,
+          0.591
+        ],
+        [
+          2800,
+          0.944,
+          0.726
+        ],
+        [
+          3000,
+          0.96,
+          0.837
+        ],
+        [
+          3100,
+          0.962,
+          0.889
+        ],
+        [
+          3500,
+          0.97,
+          0.919
+        ],
+        [
+          4000,
+          0.98,
+          0.91
+        ],
+        [
+          4500,
+          0.96,
+          0.889
+        ],
+        [
+          5000,
+          0.941,
+          0.859
+        ],
+        [
+          5500,
+          0.902,
+          0.821
+        ],
+        [
+          6000,
+          0.863,
+          0.768
+        ],
+        [
+          7000,
+          0.738,
+          0.64
+        ],
+        [
+          8000,
+          0.596,
+          0.519
+        ]
+      ]
+    }
+  },
+  "turbocraft_turbine_housing_082": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 450,
+      "name": "Turbine Housing · A/R 0.82 · Balanced"
+    },
+    "slotType": "turbocraft_turbine_housing",
+    "turbocharger": {
+      "$*maxExhaustPower": 1.0,
+      "turbocraftTurbineAR": 0.82,
+      "engineDef": [
+        [
+          0,
+          0.05,
+          0.02
+        ],
+        [
+          500,
+          0.45,
+          0.04
+        ],
+        [
+          1000,
+          0.66,
+          0.06
+        ],
+        [
+          1500,
+          0.78,
+          0.13
+        ],
+        [
+          2000,
+          0.86,
+          0.27
+        ],
+        [
+          2400,
+          0.908,
+          0.44
+        ],
+        [
+          2500,
+          0.92,
+          0.485
+        ],
+        [
+          2800,
+          0.944,
+          0.62
+        ],
+        [
+          3000,
+          0.96,
+          0.733
+        ],
+        [
+          3100,
+          0.962,
+          0.79
+        ],
+        [
+          3500,
+          0.97,
+          0.86
+        ],
+        [
+          4000,
+          0.98,
+          0.91
+        ],
+        [
+          4500,
+          0.965,
+          0.95
+        ],
+        [
+          5000,
+          0.95,
+          0.98
+        ],
+        [
+          5500,
+          0.915,
+          1.0
+        ],
+        [
+          6000,
+          0.88,
+          1.0
+        ],
+        [
+          7000,
+          0.76,
+          0.95
+        ],
+        [
+          8000,
+          0.62,
+          0.88
+        ]
+      ]
+    }
+  },
+  "turbocraft_turbine_housing_096": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 450,
+      "name": "Turbine Housing · A/R 0.96 · Later boost, more high-RPM flow"
+    },
+    "slotType": "turbocraft_turbine_housing",
+    "turbocharger": {
+      "$*maxExhaustPower": 1.0402,
+      "turbocraftTurbineAR": 0.96,
+      "engineDef": [
+        [
+          0,
+          0.05,
+          0.015
+        ],
+        [
+          500,
+          0.45,
+          0.03
+        ],
+        [
+          1000,
+          0.66,
+          0.047
+        ],
+        [
+          1500,
+          0.78,
+          0.107
+        ],
+        [
+          2000,
+          0.86,
+          0.231
+        ],
+        [
+          2400,
+          0.908,
+          0.388
+        ],
+        [
+          2500,
+          0.92,
+          0.431
+        ],
+        [
+          2800,
+          0.944,
+          0.564
+        ],
+        [
+          3000,
+          0.96,
+          0.678
+        ],
+        [
+          3100,
+          0.962,
+          0.736
+        ],
+        [
+          3500,
+          0.97,
+          0.827
+        ],
+        [
+          4000,
+          0.98,
+          0.91
+        ],
+        [
+          4500,
+          0.968,
+          0.988
+        ],
+        [
+          5000,
+          0.956,
+          1.0
+        ],
+        [
+          5500,
+          0.923,
+          1.0
+        ],
+        [
+          6000,
+          0.89,
+          1.0
+        ],
+        [
+          7000,
+          0.774,
+          1.0
+        ],
+        [
+          8000,
+          0.635,
+          1.0
+        ]
+      ]
+    }
+  },
+  "turbocraft_turbine_housing_115": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 450,
+      "name": "Turbine Housing · A/R 1.15 · Later boost, more high-RPM flow"
+    },
+    "slotType": "turbocraft_turbine_housing",
+    "turbocharger": {
+      "$*maxExhaustPower": 1.0882,
+      "turbocraftTurbineAR": 1.15,
+      "engineDef": [
+        [
+          0,
+          0.05,
+          0.01
+        ],
+        [
+          500,
+          0.45,
+          0.022
+        ],
+        [
+          1000,
+          0.66,
+          0.036
+        ],
+        [
+          1500,
+          0.78,
+          0.085
+        ],
+        [
+          2000,
+          0.86,
+          0.193
+        ],
+        [
+          2400,
+          0.908,
+          0.336
+        ],
+        [
+          2500,
+          0.92,
+          0.376
+        ],
+        [
+          2800,
+          0.944,
+          0.506
+        ],
+        [
+          3000,
+          0.96,
+          0.619
+        ],
+        [
+          3100,
+          0.962,
+          0.678
+        ],
+        [
+          3500,
+          0.97,
+          0.79
+        ],
+        [
+          4000,
+          0.98,
+          0.91
+        ],
+        [
+          4500,
+          0.971,
+          1.0
+        ],
+        [
+          5000,
+          0.962,
+          1.0
+        ],
+        [
+          5500,
+          0.933,
+          1.0
+        ],
+        [
+          6000,
+          0.903,
+          1.0
+        ],
+        [
+          7000,
+          0.789,
+          1.0
+        ],
+        [
+          8000,
+          0.652,
+          1.0
+        ]
+      ]
+    }
+  },
+  "turbocraft_turbine_housing_132": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 450,
+      "name": "Turbine Housing · A/R 1.32 · Later boost, more high-RPM flow"
+    },
+    "slotType": "turbocraft_turbine_housing",
+    "turbocharger": {
+      "$*maxExhaustPower": 1.1264,
+      "turbocraftTurbineAR": 1.32,
+      "engineDef": [
+        [
+          0,
+          0.05,
+          0.008
+        ],
+        [
+          500,
+          0.45,
+          0.017
+        ],
+        [
+          1000,
+          0.66,
+          0.029
+        ],
+        [
+          1500,
+          0.78,
+          0.072
+        ],
+        [
+          2000,
+          0.86,
+          0.168
+        ],
+        [
+          2400,
+          0.908,
+          0.301
+        ],
+        [
+          2500,
+          0.92,
+          0.339
+        ],
+        [
+          2800,
+          0.944,
+          0.466
+        ],
+        [
+          3000,
+          0.96,
+          0.578
+        ],
+        [
+          3100,
+          0.962,
+          0.638
+        ],
+        [
+          3500,
+          0.97,
+          0.763
+        ],
+        [
+          4000,
+          0.98,
+          0.91
+        ],
+        [
+          4500,
+          0.974,
+          1.0
+        ],
+        [
+          5000,
+          0.967,
+          1.0
+        ],
+        [
+          5500,
+          0.94,
+          1.0
+        ],
+        [
+          6000,
+          0.912,
+          1.0
+        ],
+        [
+          7000,
+          0.802,
+          1.0
+        ],
+        [
+          8000,
+          0.666,
+          1.0
+        ]
+      ]
+    }
+  },
+  "turbocraft_bov_atmospheric": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 180,
+      "name": "Standard BOV · Audible"
+    },
+    "slotType": "turbocraft_bov",
+    "turbocharger": {
+      "bovEnabled": true,
+      "bovSoundFileName": "event:>Vehicle>Forced_Induction>Turbo_01>turbo_bov",
+      "bovSoundVolumeCoef": 0.45,
+      "turbocraftBov": "atmospheric"
+    }
+  },
+  "turbocraft_bov_tuned": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 180,
+      "name": "Tuned BOV · Street"
+    },
+    "slotType": "turbocraft_bov",
+    "turbocharger": {
+      "bovEnabled": true,
+      "bovSoundFileName": "event:>Vehicle>Forced_Induction>Turbo_05>turbo_bov_tuned",
+      "bovSoundVolumeCoef": 0.6,
+      "turbocraftBov": "tuned"
+    }
+  },
+  "turbocraft_bov_recirculating": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 180,
+      "name": "Quiet Recirculating Valve"
+    },
+    "slotType": "turbocraft_bov",
+    "turbocharger": {
+      "bovEnabled": true,
+      "bovSoundFileName": "event:>Vehicle>Forced_Induction>Turbo_01>turbo_bov",
+      "bovSoundVolumeCoef": 0.15,
+      "turbocraftBov": "recirculating"
+    }
+  },
+  "turbocraft_bov_none": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 180,
+      "name": "Turbo Flutter · No Valve"
+    },
+    "slotType": "turbocraft_bov",
+    "turbocharger": {
+      "bovEnabled": false,
+      "flutterSoundFileName": "event:>Vehicle>Forced_Induction>Turbo_03>turbo_flt_race",
+      "flutterSoundVolumeCoef": 0.85,
+      "turbocraftBov": "none"
+    }
+  },
+  "turbocraft_bov_sharp": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 180,
+      "name": "Sharp BOV · Loud Release"
+    },
+    "slotType": "turbocraft_bov",
+    "turbocharger": {
+      "bovEnabled": true,
+      "bovSoundFileName": "event:>Vehicle>Forced_Induction>Turbo_03>turbo_bov_race",
+      "bovSoundVolumeCoef": 0.65,
+      "turbocraftBov": "sharp"
+    }
+  },
+  "turbocraft_bov_deep": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 180,
+      "name": "Deep Atmospheric BOV"
+    },
+    "slotType": "turbocraft_bov",
+    "turbocharger": {
+      "bovEnabled": true,
+      "bovSoundFileName": "event:>Vehicle>Forced_Induction>Turbo_04>turbo_bov_race",
+      "bovSoundVolumeCoef": 0.65,
+      "turbocraftBov": "deep"
+    }
+  },
+  "turbocraft_bov_compact": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 180,
+      "name": "Compact Street BOV"
+    },
+    "slotType": "turbocraft_bov",
+    "turbocharger": {
+      "bovEnabled": true,
+      "bovSoundFileName": "event:>Vehicle>Forced_Induction>Turbo_02>turbo_bov_tuned",
+      "bovSoundVolumeCoef": 0.5,
+      "turbocraftBov": "compact"
+    }
+  },
+  "turbocraft_wastegate_tight": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Gauge controlled · 0.25 PSI opening band",
+      "value": 200
+    },
+    "slotType": "turbocraft_wastegate",
+    "turbocharger": {
+      "wastegateLimit": "$=$turbocraftBoost+0.25",
+      "turbocraftWastegate": "tight",
+      "turbocraftWastegateBandPSI": 0.25
+    }
+  },
+  "turbocraft_wastegate_standard": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Gauge controlled · 0.5 PSI opening band",
+      "value": 200
+    },
+    "slotType": "turbocraft_wastegate",
+    "turbocharger": {
+      "wastegateLimit": "$=$turbocraftBoost+0.5",
+      "turbocraftWastegate": "standard",
+      "turbocraftWastegateBandPSI": 0.5
+    }
+  },
+  "turbocraft_wastegate_progressive": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Gauge controlled · 1.5 PSI opening band",
+      "value": 200
+    },
+    "slotType": "turbocraft_wastegate",
+    "turbocharger": {
+      "wastegateLimit": "$=$turbocraftBoost+1.5",
+      "turbocraftWastegate": "progressive",
+      "turbocraftWastegateBandPSI": 1.5
+    }
+  },
+  "turbocraft_pulley_low_drive": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Low_Drive · 75% drive speed",
+      "value": 150
+    },
+    "slotType": "turbocraft_pulley",
+    "supercharger": {
+      "$*gearRatio": 0.75,
+      "turbocraftPulleyMultiplier": 0.75
+    }
+  },
+  "turbocraft_pulley_mild_underdrive": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Mild_Underdrive · 85% drive speed",
+      "value": 150
+    },
+    "slotType": "turbocraft_pulley",
+    "supercharger": {
+      "$*gearRatio": 0.85,
+      "turbocraftPulleyMultiplier": 0.85
+    }
+  },
+  "turbocraft_pulley_underdrive": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Underdrive · 90% drive speed",
+      "value": 150
+    },
+    "slotType": "turbocraft_pulley",
+    "supercharger": {
+      "$*gearRatio": 0.9,
+      "turbocraftPulleyMultiplier": 0.9
+    }
+  },
+  "turbocraft_pulley_standard": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Standard · 100% drive speed",
+      "value": 150
+    },
+    "slotType": "turbocraft_pulley",
+    "supercharger": {
+      "$*gearRatio": 1.0,
+      "turbocraftPulleyMultiplier": 1.0
+    }
+  },
+  "turbocraft_pulley_overdrive": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Overdrive · 110% drive speed",
+      "value": 150
+    },
+    "slotType": "turbocraft_pulley",
+    "supercharger": {
+      "$*gearRatio": 1.1,
+      "turbocraftPulleyMultiplier": 1.1
+    }
+  },
+  "turbocraft_pulley_race_overdrive": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Race_Overdrive · 120% drive speed",
+      "value": 150
+    },
+    "slotType": "turbocraft_pulley",
+    "supercharger": {
+      "$*gearRatio": 1.2,
+      "turbocraftPulleyMultiplier": 1.2
+    }
+  },
+  "turbocraft_turbo_response_quick": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Quick Spool · 25% less turbo inertia",
+      "value": 180
+    },
+    "slotType": "turbocraft_turbo_response",
+    "turbocharger": {
+      "$*inertia": 0.75,
+      "turbocraftSpoolResponse": "quick",
+      "turbocraftSpoolInertiaMultiplier": 0.75
+    }
+  },
+  "turbocraft_turbo_response_balanced": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Balanced Spool · standard turbo inertia",
+      "value": 180
+    },
+    "slotType": "turbocraft_turbo_response",
+    "turbocharger": {
+      "$*inertia": 1.0,
+      "turbocraftSpoolResponse": "balanced",
+      "turbocraftSpoolInertiaMultiplier": 1.0
+    }
+  },
+  "turbocraft_turbo_response_long": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "name": "Slow Spool · 35% more turbo inertia",
+      "value": 180
+    },
+    "slotType": "turbocraft_turbo_response",
+    "turbocharger": {
+      "$*inertia": 1.35,
+      "turbocraftSpoolResponse": "long",
+      "turbocraftSpoolInertiaMultiplier": 1.35
+    }
+  },
+  "turbocraft_air_filter_airbox": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 240,
+      "name": "Street Airbox"
+    },
+    "slotType": "turbocraft_air_filter",
+    "turbocharger": {
+      "$*pressureRatePSI": 0.98,
+      "$*maxExhaustPower": 0.98
+    }
+  },
+  "turbocraft_air_filter_cone": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 240,
+      "name": "Cone Filter"
+    },
+    "slotType": "turbocraft_air_filter",
+    "turbocharger": {
+      "$*pressureRatePSI": 1.03,
+      "$*maxExhaustPower": 1.02
+    }
+  },
+  "turbocraft_air_filter_velocity": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 240,
+      "name": "Velocity Stack"
+    },
+    "slotType": "turbocraft_air_filter",
+    "turbocharger": {
+      "$*pressureRatePSI": 1.07,
+      "$*maxExhaustPower": 1.04
+    }
+  },
+  "turbocraft_charge_pipe_street_250": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 240,
+      "name": "2.5\" Street"
+    },
+    "slotType": "turbocraft_charge_pipe",
+    "turbocharger": {
+      "$*pressureRatePSI": 1.08,
+      "$*maxExhaustPower": 0.98
+    }
+  },
+  "turbocraft_charge_pipe_sport_300": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 240,
+      "name": "3.0\" Sport"
+    },
+    "slotType": "turbocraft_charge_pipe",
+    "turbocharger": {
+      "$*pressureRatePSI": 1.0,
+      "$*maxExhaustPower": 1.0
+    }
+  },
+  "turbocraft_charge_pipe_race_350": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 240,
+      "name": "3.5\" Race"
+    },
+    "slotType": "turbocraft_charge_pipe",
+    "turbocharger": {
+      "$*pressureRatePSI": 0.93,
+      "$*maxExhaustPower": 1.04
+    }
+  },
+  "turbocraft_header_cast": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 400,
+      "name": "Cast Turbo Header"
+    },
+    "slotType": "turbocraft_header",
+    "turbocharger": {
+      "$*maxExhaustPower": 1.0661,
+      "turbocraftHeaderEnergyCurve": [
+        [
+          0.0,
+          1.0238
+        ],
+        [
+          0.25,
+          1.0257
+        ],
+        [
+          0.55,
+          1.0
+        ],
+        [
+          0.8,
+          0.9605
+        ],
+        [
+          1.0,
+          0.9219
+        ]
+      ],
+      "turbocraftHeaderEfficiencyCurve": [
+        [
+          0.0,
+          1.0
+        ],
+        [
+          0.25,
+          1.0
+        ],
+        [
+          0.55,
+          0.99
+        ],
+        [
+          0.8,
+          0.97
+        ],
+        [
+          1.0,
+          0.94
+        ]
+      ]
+    },
+    "mainEngine": {
+      "$*friction": 1.06,
+      "$*dynamicFriction": 1.08,
+      "turbocraftHeaderSound": "cast"
+    }
+  },
+  "turbocraft_header_tubular": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 400,
+      "name": "Tubular Turbo Header"
+    },
+    "slotType": "turbocraft_header",
+    "turbocharger": {
+      "$*maxExhaustPower": 1.0326,
+      "turbocraftHeaderEnergyCurve": [
+        [
+          0.0,
+          0.9236
+        ],
+        [
+          0.25,
+          0.9472
+        ],
+        [
+          0.55,
+          1.0
+        ],
+        [
+          0.8,
+          1.0069
+        ],
+        [
+          1.0,
+          1.0041
+        ]
+      ],
+      "turbocraftHeaderEfficiencyCurve": [
+        [
+          0.0,
+          0.98
+        ],
+        [
+          0.25,
+          0.99
+        ],
+        [
+          0.55,
+          1.0
+        ],
+        [
+          0.8,
+          1.01
+        ],
+        [
+          1.0,
+          1.02
+        ]
+      ]
+    },
+    "mainEngine": {
+      "$*friction": 1.0,
+      "$*dynamicFriction": 1.0,
+      "turbocraftHeaderSound": "tubular"
+    }
+  },
+  "turbocraft_header_equal_length": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 400,
+      "name": "Equal-Length Header"
+    },
+    "slotType": "turbocraft_header",
+    "turbocharger": {
+      "$*maxExhaustPower": 1.0212,
+      "turbocraftHeaderEnergyCurve": [
+        [
+          0.0,
+          0.8865
+        ],
+        [
+          0.25,
+          0.9161
+        ],
+        [
+          0.55,
+          1.0
+        ],
+        [
+          0.8,
+          1.0309
+        ],
+        [
+          1.0,
+          1.049
+        ]
+      ],
+      "turbocraftHeaderEfficiencyCurve": [
+        [
+          0.0,
+          0.96
+        ],
+        [
+          0.25,
+          0.98
+        ],
+        [
+          0.55,
+          1.0
+        ],
+        [
+          0.8,
+          1.02
+        ],
+        [
+          1.0,
+          1.03
+        ]
+      ]
+    },
+    "mainEngine": {
+      "$*friction": 0.96,
+      "$*dynamicFriction": 0.94,
+      "turbocraftHeaderSound": "equal_length"
+    }
+  },
+  "turbocraft_exhaust_street": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 450,
+      "name": "Street Exhaust"
+    },
+    "slotType": "turbocraft_exhaust",
+    "turbocharger": {
+      "$*maxExhaustPower": 0.98,
+      "$*backPressureCoef": 1.06,
+      "turbocraftPipeEnergyCurve": [
+        [
+          0.0,
+          1.04
+        ],
+        [
+          0.25,
+          1.02
+        ],
+        [
+          0.55,
+          1.0
+        ],
+        [
+          0.8,
+          0.96
+        ],
+        [
+          1.0,
+          0.92
+        ]
+      ]
+    },
+    "mainEngine": {
+      "$*friction": 1.04,
+      "$*dynamicFriction": 1.06,
+      "turbocraftExhaustSound": "street",
+      "turbocraftAfterfireVisualCoef": 0.08
+    }
+  },
+  "turbocraft_exhaust_sport": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 450,
+      "name": "Sport Exhaust"
+    },
+    "slotType": "turbocraft_exhaust",
+    "turbocharger": {
+      "$*maxExhaustPower": 1.06,
+      "$*backPressureCoef": 0.97,
+      "turbocraftPipeEnergyCurve": [
+        [
+          0.0,
+          0.98
+        ],
+        [
+          0.25,
+          0.99
+        ],
+        [
+          0.55,
+          1.0
+        ],
+        [
+          0.8,
+          1.02
+        ],
+        [
+          1.0,
+          1.03
+        ]
+      ]
+    },
+    "mainEngine": {
+      "$*friction": 1.0,
+      "$*dynamicFriction": 1.0,
+      "turbocraftExhaustSound": "sport",
+      "turbocraftAfterfireVisualCoef": 0.35
+    }
+  },
+  "turbocraft_exhaust_open": {
+    "information": {
+      "authors": "TurboCraft Project",
+      "value": 450,
+      "name": "Open Downpipe"
+    },
+    "slotType": "turbocraft_exhaust",
+    "turbocharger": {
+      "$*maxExhaustPower": 1.12,
+      "$*backPressureCoef": 0.9,
+      "turbocraftPipeEnergyCurve": [
+        [
+          0.0,
+          0.96
+        ],
+        [
+          0.25,
+          0.98
+        ],
+        [
+          0.55,
+          1.01
+        ],
+        [
+          0.8,
+          1.05
+        ],
+        [
+          1.0,
+          1.07
+        ]
+      ]
+    },
+    "mainEngine": {
+      "$*friction": 0.97,
+      "$*dynamicFriction": 0.95,
+      "turbocraftExhaustSound": "open",
+      "turbocraftAfterfireVisualCoef": 0.7
+    }
+  }
+}

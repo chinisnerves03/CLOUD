@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="650" viewBox="0 0 1100 650">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="30" y="28" font-family="Arial" font-size="19">Uncooled discharge temperature estimate (C) - OFFLINE ESTIMATES ONLY</text>
+<text x="30" y="51" font-family="Arial" font-size="13">NOT TESTED IN GAME. Blower curves are illustrations, not verified native-model predictions.</text>
+<path d="M75,85.0h690" stroke="#dddddd"/>
+<text x="67" y="89.0" text-anchor="end" font-family="Arial" font-size="12">110.7</text>
+<path d="M75,179.0h690" stroke="#dddddd"/>
+<text x="67" y="183.0" text-anchor="end" font-family="Arial" font-size="12">88.6</text>
+<path d="M75,273.0h690" stroke="#dddddd"/>
+<text x="67" y="277.0" text-anchor="end" font-family="Arial" font-size="12">66.4</text>
+<path d="M75,367.0h690" stroke="#dddddd"/>
+<text x="67" y="371.0" text-anchor="end" font-family="Arial" font-size="12">44.3</text>
+<path d="M75,461.0h690" stroke="#dddddd"/>
+<text x="67" y="465.0" text-anchor="end" font-family="Arial" font-size="12">22.1</text>
+<path d="M75,555.0h690" stroke="#dddddd"/>
+<text x="67" y="559.0" text-anchor="end" font-family="Arial" font-size="12">0.0</text>
+<text x="75.0" y="579" text-anchor="middle" font-family="Arial" font-size="12">1500</text>
+<text x="272.1428571428571" y="579" text-anchor="middle" font-family="Arial" font-size="12">2500</text>
+<text x="469.2857142857143" y="579" text-anchor="middle" font-family="Arial" font-size="12">3500</text>
+<text x="666.4285714285714" y="579" text-anchor="middle" font-family="Arial" font-size="12">4500</text>
+<text x="765.0" y="579" text-anchor="middle" font-family="Arial" font-size="12">5000</text>
+<polyline points="75.00,325.22 124.29,320.00 173.57,315.35 222.86,311.13 272.14,307.27 321.43,303.71 370.71,300.39 420.00,297.29 469.29,294.37 518.57,291.61 567.86,289.00 617.14,286.51 666.43,284.14 715.71,281.86 765.00,279.69" fill="none" stroke="#56b4e9" stroke-width="2" stroke-dasharray="7 4"/>
+<text x="790" y="90" font-family="Arial" font-size="11" fill="#56b4e9">0.9.9 supercharger</text>
+<polyline points="75.00,454.22 124.29,448.57 173.57,442.11 222.86,434.85 272.14,426.83 321.43,418.07 370.71,408.60 420.00,398.44 469.29,387.64 518.57,376.20 567.86,364.18 617.14,351.59 666.43,338.46 715.71,324.84 765.00,310.74" fill="none" stroke="#e69f00" stroke-width="2" stroke-dasharray="7 4"/>
+<text x="790" y="113" font-family="Arial" font-size="11" fill="#e69f00">0.9.9 procharger</text>
+<polyline points="75.00,325.22 124.29,320.00 173.57,315.35 222.86,311.13 272.14,307.27 321.43,303.71 370.71,300.39 420.00,297.29 469.29,294.37 518.57,291.61 567.86,289.00 617.14,286.51 666.43,284.14 715.71,281.86 765.00,279.69" fill="none" stroke="#56b4e9" stroke-width="2" />
+<text x="790" y="136" font-family="Arial" font-size="11" fill="#56b4e9">1.0.0 supercharger</text>
+<polyline points="75.00,454.22 124.29,448.57 173.57,442.11 222.86,434.85 272.14,426.83 321.43,418.07 370.71,408.60 420.00,398.44 469.29,387.64 518.57,376.20 567.86,364.18 617.14,351.59 666.43,338.46 715.71,324.84 765.00,310.74" fill="none" stroke="#e69f00" stroke-width="2" />
+<text x="790" y="159" font-family="Arial" font-size="11" fill="#e69f00">1.0.0 procharger</text>
+<polyline points="75.00,279.14 124.29,272.44 173.57,266.47 222.86,261.07 272.14,256.13 321.43,251.57 370.71,247.34 420.00,243.38 469.29,239.66 518.57,236.15 567.86,232.82 617.14,229.65 666.43,226.64 715.71,223.75 765.00,220.99" fill="none" stroke="#d55e00" stroke-width="2" />
+<text x="790" y="182" font-family="Arial" font-size="11" fill="#d55e00">1.0.0 big_supercharger</text>
+<polyline points="75.00,198.40 124.29,189.27 173.57,181.15 222.86,173.82 272.14,167.12 321.43,160.96 370.71,155.24 420.00,149.90 469.29,144.88 518.57,140.16 567.86,135.68 617.14,131.43 666.43,127.38 715.71,123.52 765.00,119.81" fill="none" stroke="#cc79a7" stroke-width="2" />
+<text x="790" y="205" font-family="Arial" font-size="11" fill="#cc79a7">1.0.0 large_supercharger</text>
+<polyline points="75.00,447.58 124.29,439.62 173.57,430.54 222.86,420.40 272.14,409.22 321.43,397.08 370.71,384.00 420.00,370.05 469.29,355.28 518.57,339.74 567.86,323.47 617.14,306.54 666.43,288.99 715.71,270.86 765.00,252.20" fill="none" stroke="#0072b2" stroke-width="2" />
+<text x="790" y="228" font-family="Arial" font-size="11" fill="#0072b2">1.0.0 big_procharger</text>
+<polyline points="75.00,436.95 124.29,425.35 173.57,412.20 222.86,397.58 272.14,381.58 321.43,364.30 370.71,345.83 420.00,326.26 469.29,305.69 518.57,284.20 567.86,261.87 617.14,238.79 666.43,215.03 715.71,190.67 765.00,165.76" fill="none" stroke="#009e73" stroke-width="2" />
+<text x="790" y="251" font-family="Arial" font-size="11" fill="#009e73">1.0.0 large_procharger</text>
+<text x="370" y="600" font-family="Arial" font-size="14">Engine RPM - identical historical D-Series 4.5L NA anchor, manual 3rd gear</text>
+<text x="30" y="628" font-family="Arial" font-size="12">Turbo: same cast/street exhaust, gate shut. Blower: factory drive. No new road/dyno run or thermal coupling.</text>
+</svg>

@@ -1,0 +1,14 @@
+{
+  "domElement": "<turbo-craft-monitor></turbo-craft-monitor>",
+  "name": "TurboCraft Monitor",
+  "types": ["ui.apps.categories.vehicle_info"],
+  "description": "Measured PSI/vacuum gauge with source diagnostics, numbered scale, separate LOW/MED/HIGH targets and CSV logging. No synthetic pressure fallback.",
+  "css": {"bottom": "40px", "right": "40px", "width": "220px", "height": "220px"},
+  "author": "TurboCraft Project",
+  "version": "1.0.2",
+  "directive": "turboCraftMonitor",
+  "category": "Vehicle",
+  "isAuxiliary": false,
+  "interactive": "yes",
+  "preserveAspectRatio": false
+}
