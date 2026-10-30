@@ -45,6 +45,8 @@ Do not copy files from the Volumetric Backfire mod (someone else's work); recrea
   18.2-28.6 anti-lag), ffmpeg xfades, low shelf +3 dB, light comp, -14 LUFS. APPROVED by user.
   Flame mock-up video (tools/flame_preview_mock.py) synced to v2 sent; awaiting feedback. Todo: re-cut
   antilag_up/limiter from the 2JZ clip so the whole mod is one car.
+- Done r31: popBang overrun window (burble/pops/bangs/flames/turbo whistle by RPM on lift + shifts), anti-lag,
+  burble, spool re-cut from 2JZ (limiter still RB26). Mock-tested in lupa only. Next: in-game test, zip.
 0. 2026-10-30: blocked. Env network policy denies freesound.org, cdn.freesound.org and github.com
    (proxy 403; earshot clone also blocked). Key is set. User must add these hosts under the environment's
    Network access -> Allowed domains (https://code.claude.com/docs/en/cloud-environments#network-access).
