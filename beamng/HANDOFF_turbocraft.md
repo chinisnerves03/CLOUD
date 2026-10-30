@@ -34,6 +34,12 @@ Do not copy files from the Volumetric Backfire mod (someone else's work); recrea
 - Clip frames: flames are short glowing balls with bloom, lighting the bumper.
 
 ## Next steps
+- 2026-10-30: author supplied 3 clips (RB26 S14 anti-lag, 2JZ GT86 backfire, 25-min dyno compilation;
+  uploads, not in git, licence unknown). 12 mod WAVs now cut from RB26/2JZ (see AUDIO_PROVENANCE.md).
+  `tools/blend_reference_audio.py` matches all 3 sources (band-limit, LTAS EQ, level, comp, room) ->
+  demo.wav + matched set (incl. burble_a/b/c from dyno 477.5 s). Blend v1 sent for approval; if it passes,
+  copy set/*.wav into art/sound/turbocraft, update manifest, then merge with the user's local "R29" work.
+  Old TikTok reference audio is not in this container.
 0. 2026-10-30: blocked. Env network policy denies freesound.org, cdn.freesound.org and github.com
    (proxy 403; earshot clone also blocked). Key is set. User must add these hosts under the environment's
    Network access -> Allowed domains (https://code.claude.com/docs/en/cloud-environments#network-access).
