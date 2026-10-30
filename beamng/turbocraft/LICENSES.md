@@ -17,7 +17,7 @@ TurboCraft Lua/UI/tools are project source. The inherited additive D-Series and
 ETK-C JBeam contain BeamNG-derived donor node/beam structures and references to
 the licensed game's meshes; they are not wholly original vehicle art. No mesh,
 texture, third-party sound pack or game Lua binary/source file is added by this
-candidate. Exception: twelve recorded car-sound excerpts (see below).
+candidate. Exception: twenty-one recorded car-sound excerpts (see below).
 
 Twenty-four current original procedurally synthesized WAVs and two retained
 unreferenced legacy BOV WAVs under `art/sound/turbocraft/` are dedicated under
@@ -25,13 +25,14 @@ unreferenced legacy BOV WAVs under `art/sound/turbocraft/` are dedicated under
 https://creativecommons.org/publicdomain/zero/1.0/
 They contain no sampled recordings. Their source formulas, individual hashes,
 levels and limitations are provided by `tools/make_original_audio.py`,
-the asset manifest and `docs/v1.0.0/AUDIO_PROVENANCE.md`. This dedication applies only to those twenty-six original WAVs, minus the twelve
-files listed next.
+the asset manifest and `docs/v1.0.0/AUDIO_PROVENANCE.md`. This dedication applies only to those twenty-six original WAVs, minus the nineteen
+recorded files listed next (two more are new).
 
-**Not CC0, licence unknown [verify]:** `antilag_up_a/b/c.wav` and
-`limiter_whine_a/b.wav` are now excerpts of a recorded RB26 S14 anti-lag clip,
-and `pop_a/b/c/d.wav` and `bang_a/b/c.wav` of a recorded 2JZ GT86 backfire clip,
-both supplied by the mod author (details in `docs/v1.0.0/AUDIO_PROVENANCE.md`). Do
+**Not CC0, licence unknown [verify]:** `limiter_whine_a/b.wav` are excerpts of a
+recorded RB26 S14 anti-lag clip, and `pop_a/b/c/d.wav`, `bang_a/b/c.wav`,
+`burble_a/b/c.wav`, `antilag_up_a/b/c.wav`, `antilag_down_a/b/c.wav` and
+`antilag_spool_a/b.wav` of a recorded 2JZ GT86 anti-lag/backfire clip, both
+supplied by the mod author (details in `docs/v1.0.0/AUDIO_PROVENANCE.md`). Do
 not redistribute them until their licence is confirmed. The manifest
 lists the current 24 generated profiles and identifies the legacy files as
 unused; no runtime feature refers to the legacy files.

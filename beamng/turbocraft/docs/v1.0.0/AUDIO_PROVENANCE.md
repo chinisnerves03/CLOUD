@@ -113,3 +113,16 @@ the mod author. Origin and licence: **unknown [verify]**, same restriction as ab
 | pop_d.wav | 19.39-19.74 | pop |
 
 Processing: as above, but 120 ms fade-out and loudnorm I=-12 TP=-2.
+
+### Update: one car only (2JZ GT86)
+The author asked for one car's sound throughout. These files were re-cut from the 2JZ GT86 clip with the
+"Blend v2" chain (highpass 30 Hz, +3 dB at 90 Hz, compressor 2.5:1, loudnorm, fades) and replace the RB26 cuts:
+
+| file | cut from (s) | content |
+|---|---|---|
+| antilag_up_a/b/c.wav | 10.05 / 25.00 / 20.25 (0.65-0.7 s) | hard anti-lag burst |
+| antilag_down_a/b/c.wav | 19.35 / 22.00 / 29.50 (1.05 s) | ragged anti-lag crackle |
+| burble_a/b/c.wav | 20.40 / 22.90 / 27.80 (0.95 s) | overrun burble |
+| antilag_spool_a/b.wav (new) | 12.70 / 14.40 (1.6 s) | turbo whistle while anti-lag holds it spinning |
+
+`limiter_whine_a/b.wav` are still RB26 cuts (the 2JZ clip has no clean limiter section).
