@@ -42,7 +42,9 @@ Do not copy files from the Volumetric Backfire mod (someone else's work); recrea
   Old TikTok reference audio is not in this container.
 - User rejected Blend v1 (two engines mixed). Rule: ONE car only; engine pull only at the start, rest =
   anti-lag, turbo, pops/bangs. Blend v2 = 2JZ GT86 clip only (5.3-12.7 pull+bangs, 12.6-16.2 turbo,
-  18.2-28.6 anti-lag), ffmpeg xfades, low shelf +3 dB, light comp, -14 LUFS. Awaiting verdict.
+  18.2-28.6 anti-lag), ffmpeg xfades, low shelf +3 dB, light comp, -14 LUFS. APPROVED by user.
+  Flame mock-up video (tools/flame_preview_mock.py) synced to v2 sent; awaiting feedback. Todo: re-cut
+  antilag_up/limiter from the 2JZ clip so the whole mod is one car.
 0. 2026-10-30: blocked. Env network policy denies freesound.org, cdn.freesound.org and github.com
    (proxy 403; earshot clone also blocked). Key is set. User must add these hosts under the environment's
    Network access -> Allowed domains (https://code.claude.com/docs/en/cloud-environments#network-access).
