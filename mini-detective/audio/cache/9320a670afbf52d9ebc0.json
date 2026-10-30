@@ -1,0 +1,9 @@
+{
+ "voice": "George \u2014 Warm, Captivating Storyteller",
+ "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+ "model": "eleven_v3",
+ "text": "[slowly] Somebody knew they were here. [long pause] And somebody had the key.",
+ "chars": 77,
+ "source": "elevenlabs-connector",
+ "created": "2026-10-26T09:14:40Z"
+}

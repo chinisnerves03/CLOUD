@@ -1,0 +1,9 @@
+[
+  {"name":"S60 standard WG / atmospheric BOV / 8 PSI","family":"single_turbo","hardwareId":"tc_single_060","wastegate":"standard","bov":"atmospheric","target":8,"pullSeconds":12},
+  {"name":"S60 tight WG / sharp BOV / 12 PSI","family":"single_turbo","hardwareId":"tc_single_060","wastegate":"tight","bov":"sharp","target":12,"pullSeconds":12},
+  {"name":"S60 progressive WG / deep BOV / 16 PSI","family":"single_turbo","hardwareId":"tc_single_060","wastegate":"progressive","bov":"deep","target":16,"pullSeconds":12},
+  {"name":"Roots underdrive","family":"supercharger","hardwareId":"eaton_r1900","pulley":"underdrive","target":8,"pullSeconds":12},
+  {"name":"Roots overdrive","family":"supercharger","hardwareId":"eaton_r1900","pulley":"overdrive","target":8,"pullSeconds":12},
+  {"name":"Centrifugal underdrive","family":"procharger","hardwareId":"procharger_p1x","pulley":"underdrive","target":8,"pullSeconds":12},
+  {"name":"Centrifugal overdrive","family":"procharger","hardwareId":"procharger_p1x","pulley":"overdrive","target":8,"pullSeconds":12}
+]

@@ -1,0 +1,9 @@
+{
+ "voice": "George \u2014 Warm, Captivating Storyteller",
+ "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+ "model": "eleven_v3",
+ "text": "[softly] Lost and Found Log, entry two. [short pause] The thief left footprints. [dramatically] On the ceiling.",
+ "chars": 111,
+ "source": "elevenlabs-connector",
+ "created": "2026-10-25T04:10:24Z"
+}

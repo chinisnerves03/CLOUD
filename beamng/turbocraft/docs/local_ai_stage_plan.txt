@@ -1,0 +1,53 @@
+### Implementation Plan: Fixed TurboCraft Stage 1-5 Kits (No Child Slots)
+
+#### Objective:
+Modify `gen.lua` to generate **only five fixed TurboCraft Stage 1–5 kit choices** per intake slot, with no child tuning slots.
+
+---
+
+### 🔧 Key Changes
+
+#### 1. **Function: `M.build()`**
+- Replace logic that builds manifold and wheel child slots.
+- Generate exactly **5 fixed kits**, each with:
+  - One predefined manifold (from a fixed list).
+  - One predefined wheel size (from a fixed list).
+  - Shared parts: cover, turbine, bov, air, pipe, header.
+
+#### 2. **New Helper Function: `buildFixedStageKit()`**
+- Accepts engine data and generates one fixed-stage kit with:
+  - Predefined manifold name.
+  - Predefined wheel name.
+  - Fixed slot assignments for all components (no child slots).
+- Return a single part table representing the stage kit.
+
+#### 3. **New Data Structures:**
+```lua
+local FIXED_MANIFOLDS = {
+  "mf_stage1", "mf_stage2", "mf_stage3", "mf_stage4", "mf_stage5"
+}
+local FIXED_WHEELS = {
+  "wheel_100", "wheel_120", "wheel_140", "wheel_160", "wheel_180"
+}
+```
+
+#### 4. **Test Cases:**
+- Ensure each intake slot generates exactly 5 kits.
+- Validate no child slots are added to the generated parts.
+- Confirm all fixed kits use predefined manifold and wheel names.
+
+---
+
+### ✅ Summary of Functions & Tests
+
+| Function Name            | Purpose |
+|--------------------------|---------|
+| `M.build()`              | Modified to generate only 5 fixed kits per intake slot. |
+| `buildFixedStageKit()`   | Generates one fixed-stage kit with no child slots. |
+
+#### Test Cases:
+1. **Kit Count**: Each intake slot must produce exactly 5 kits.
+2. **No Child Slots**: Generated parts must not contain any `slots` or `slots2`.
+3. **Predefined Components**: All kits use `FIXED_MANIFOLDS` and `FIXED_WHEELS`.
+
+This approach ensures clean, fixed-stage kits without dynamic tuning slots.

@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "scope": "actual automated D-Series fitment/third-gear pull/lift only",
+  "game_build": "0.40.3.0.290897",
+  "finished": true,
+  "raw_result_sha256": "F1B3A34D3B67BE60BEF5D4167A5D28AD7EFB133E27D72795357CFB1371AE73E7",
+  "raw_result": "test_runs\\tc100-20261024-235522-928\\current\\turbocraft_sweep_results.json",
+  "missing_families": [],
+  "checks": [
+    {
+      "family": "large_twin_turbo",
+      "hardware_id": "tc_large_100",
+      "status": "PASS",
+      "failures": [],
+      "samples": 605,
+      "valid_pull_samples": 574,
+      "rpm_min": 746.5955171,
+      "rpm_max": 5450.168489,
+      "boost_max_psi": 1.30102396,
+      "shaft_torque_max_nm": 328.753798,
+      "shaft_power_max_kw": 125.0129741,
+      "shaft_power_max_hp": 167.6451597540711,
+      "pressure_sources": [
+        "electrics.turboBoost"
+      ]
+    }
+  ],
+  "relevant_console_errors": [],
+  "all_console_error_scopes": {
+    "DLSS": 1,
+    "engine::ActionMap::addBinding": 70,
+    "bng::json::deserializeLineObjectsRecursive": 1
+  },
+  "other_console_errors_except_repeated_bindings": [
+    " 25.60575|E|DLSS| NGX init failed (0xbad00001)",
+    " 57.93443|E|bng::json::deserializeLineObjectsRecursive| Unable to deserialize file /levels/gridmap_v2/main/MissionGroup/track_builder_pieces/items.level.json: Path not found"
+  ],
+  "console_caveat": "A clean TurboCraft-named filter is not a clean game console or proof other errors are unrelated; no clean-profile baseline comparison was run.",
+  "not_tested": [
+    "Audible quality/loudness/timing and opt-in original-audio playback",
+    "Visible flames, tip placement, color, brightness, duration and frame time",
+    "Live Monitor display versus CSV, vacuum and saved LOW/MED/HIGH/reset UI",
+    "Physical housing/belt/twin mesh clearance",
+    "Runtime thermal/airflow accuracy",
+    "Controlled v0.9.9 versus v1.0.0 game comparison"
+  ],
+  "limitations": "Shaft output measurements are not chassis/crank dyno certification. HP is a unit conversion of measured shaft kW (1 mechanical HP = 0.7456998715822702 kW), not a new sensor. Different runs may have different temperatures; harness does not prove thermal conditioning."
+}

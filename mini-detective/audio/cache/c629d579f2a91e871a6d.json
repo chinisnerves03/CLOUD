@@ -1,0 +1,9 @@
+{
+ "voice": "Jesse \u2014 Animation Character, Friendly",
+ "voice_id": "rLl4PSDTzX3VHL4wjSFI",
+ "model": "eleven_v3",
+ "text": "[curious] Somebody did.",
+ "chars": 23,
+ "source": "elevenlabs-connector",
+ "created": "2026-10-25T04:10:24Z"
+}

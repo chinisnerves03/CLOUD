@@ -1,0 +1,9 @@
+{
+ "voice": "Lyra",
+ "voice_id": "ofWwoMxOYgLntvYlQLiB",
+ "model": "eleven_v3",
+ "text": "[softly] It's nothing, darlings. Nothing at all.",
+ "chars": 48,
+ "source": "elevenlabs-connector",
+ "created": "2026-10-25T15:11:29Z"
+}

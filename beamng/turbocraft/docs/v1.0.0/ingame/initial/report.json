@@ -1,0 +1,237 @@
+{
+  "status": "FAIL",
+  "scope": "actual automated D-Series fitment/third-gear pull/lift only",
+  "game_build": "0.40.3.0.290897",
+  "finished": true,
+  "raw_result_sha256": "CE7D856C35409BCD1B80278D79914C2659762E1B4E79A6153E812B16FC4CE0AD",
+  "raw_result": "test_runs\\tc100-20261024-234515-210\\current\\turbocraft_sweep_results.json",
+  "missing_families": [],
+  "checks": [
+    {
+      "family": "single_turbo",
+      "hardware_id": "tc_single_060",
+      "status": "PASS",
+      "failures": [],
+      "samples": 302,
+      "valid_pull_samples": 270,
+      "rpm_min": 755.1975079,
+      "rpm_max": 5455.319464,
+      "boost_max_psi": 20.95635796,
+      "shaft_torque_max_nm": 742.0604617,
+      "shaft_power_max_kw": 288.8732616,
+      "shaft_power_max_hp": 387.3854248989631,
+      "pressure_sources": [
+        "electrics.turboBoost"
+      ]
+    },
+    {
+      "family": "twin_turbo",
+      "hardware_id": "tc_single_060",
+      "status": "PASS",
+      "failures": [],
+      "samples": 301,
+      "valid_pull_samples": 269,
+      "rpm_min": 754.6772542,
+      "rpm_max": 5454.060261,
+      "boost_max_psi": 21.60627556,
+      "shaft_torque_max_nm": 747.6872142,
+      "shaft_power_max_kw": 290.078119,
+      "shaft_power_max_hp": 389.0011652871752,
+      "pressure_sources": [
+        "electrics.turboBoost"
+      ]
+    },
+    {
+      "family": "big_turbo",
+      "hardware_id": "tc_big_070",
+      "status": "PASS",
+      "failures": [],
+      "samples": 311,
+      "valid_pull_samples": 280,
+      "rpm_min": 760.2345101,
+      "rpm_max": 5454.845794,
+      "boost_max_psi": 20.92991066,
+      "shaft_torque_max_nm": 718.6524606,
+      "shaft_power_max_kw": 288.6219925,
+      "shaft_power_max_hp": 387.0484674854304,
+      "pressure_sources": [
+        "electrics.turboBoost"
+      ]
+    },
+    {
+      "family": "large_turbo",
+      "hardware_id": "tc_large_100",
+      "status": "PASS",
+      "failures": [],
+      "samples": 366,
+      "valid_pull_samples": 335,
+      "rpm_min": 751.997498,
+      "rpm_max": 5458.203016,
+      "boost_max_psi": 21.60491943,
+      "shaft_torque_max_nm": 563.467167,
+      "shaft_power_max_kw": 270.4679468,
+      "shaft_power_max_hp": 362.70349118621283,
+      "pressure_sources": [
+        "electrics.turboBoost"
+      ]
+    },
+    {
+      "family": "big_twin_turbo",
+      "hardware_id": "tc_big_070",
+      "status": "PASS",
+      "failures": [],
+      "samples": 421,
+      "valid_pull_samples": 390,
+      "rpm_min": 746.8622797,
+      "rpm_max": 5454.733407,
+      "boost_max_psi": 8.669003487,
+      "shaft_torque_max_nm": 443.8265146,
+      "shaft_power_max_kw": 183.2165085,
+      "shaft_power_max_hp": 245.6973850769752,
+      "pressure_sources": [
+        "electrics.turboBoost"
+      ]
+    },
+    {
+      "family": "large_twin_turbo",
+      "hardware_id": "tc_large_100",
+      "status": "FAIL",
+      "failures": [
+        "rpm_sweep_coverage_incomplete"
+      ],
+      "samples": 450,
+      "valid_pull_samples": 419,
+      "rpm_min": 731.3106009,
+      "rpm_max": 4949.955329,
+      "boost_max_psi": 0.8281326294,
+      "shaft_torque_max_nm": 368.074545,
+      "shaft_power_max_kw": 125.4150145,
+      "shaft_power_max_hp": 168.1843048113807,
+      "pressure_sources": [
+        "electrics.turboBoost"
+      ]
+    },
+    {
+      "family": "supercharger",
+      "hardware_id": "eaton_r1900",
+      "status": "PASS",
+      "failures": [],
+      "samples": 281,
+      "valid_pull_samples": 250,
+      "rpm_min": 758.1529633,
+      "rpm_max": 5452.253802,
+      "boost_max_psi": 21.01985584,
+      "shaft_torque_max_nm": 567.357842,
+      "shaft_power_max_kw": 241.8802884,
+      "shaft_power_max_hp": 324.366809782016,
+      "pressure_sources": [
+        "electrics.superchargerBoost"
+      ]
+    },
+    {
+      "family": "procharger",
+      "hardware_id": "procharger_p1x",
+      "status": "PASS",
+      "failures": [],
+      "samples": 391,
+      "valid_pull_samples": 360,
+      "rpm_min": 923.6418851,
+      "rpm_max": 5455.865145,
+      "boost_max_psi": 10.97915704,
+      "shaft_torque_max_nm": 434.5650156,
+      "shaft_power_max_kw": 177.0184064,
+      "shaft_power_max_hp": 237.38559324730986,
+      "pressure_sources": [
+        "electrics.superchargerBoost"
+      ]
+    },
+    {
+      "family": "big_supercharger",
+      "hardware_id": "tc_roots_265",
+      "status": "PASS",
+      "failures": [],
+      "samples": 285,
+      "valid_pull_samples": 254,
+      "rpm_min": 752.5654105,
+      "rpm_max": 5454.088354,
+      "boost_max_psi": 21.02612715,
+      "shaft_torque_max_nm": 561.8980816,
+      "shaft_power_max_kw": 239.1567478,
+      "shaft_power_max_hp": 320.7144816755071,
+      "pressure_sources": [
+        "electrics.superchargerBoost"
+      ]
+    },
+    {
+      "family": "large_supercharger",
+      "hardware_id": "tc_roots_380",
+      "status": "PASS",
+      "failures": [],
+      "samples": 280,
+      "valid_pull_samples": 249,
+      "rpm_min": 751.4961245,
+      "rpm_max": 5460.902348,
+      "boost_max_psi": 23.41471283,
+      "shaft_torque_max_nm": 569.6242143,
+      "shaft_power_max_kw": 242.3804313,
+      "shaft_power_max_hp": 325.0375124588701,
+      "pressure_sources": [
+        "electrics.superchargerBoost"
+      ]
+    },
+    {
+      "family": "big_procharger",
+      "hardware_id": "tc_cf_1800",
+      "status": "PASS",
+      "failures": [],
+      "samples": 377,
+      "valid_pull_samples": 345,
+      "rpm_min": 938.1822972,
+      "rpm_max": 5454.538366,
+      "boost_max_psi": 13.04147456,
+      "shaft_torque_max_nm": 445.4067436,
+      "shaft_power_max_kw": 182.0987689,
+      "shaft_power_max_hp": 244.19847158296008,
+      "pressure_sources": [
+        "electrics.superchargerBoost"
+      ]
+    },
+    {
+      "family": "large_procharger",
+      "hardware_id": "tc_cf_2400",
+      "status": "PASS",
+      "failures": [],
+      "samples": 369,
+      "valid_pull_samples": 338,
+      "rpm_min": 948.9144453,
+      "rpm_max": 5455.35798,
+      "boost_max_psi": 15.4252125,
+      "shaft_torque_max_nm": 449.3294023,
+      "shaft_power_max_kw": 185.1195707,
+      "shaft_power_max_hp": 248.2494335250485,
+      "pressure_sources": [
+        "electrics.superchargerBoost"
+      ]
+    }
+  ],
+  "relevant_console_errors": [],
+  "all_console_error_scopes": {
+    "DLSS": 1,
+    "engine::ActionMap::addBinding": 502,
+    "bng::json::deserializeLineObjectsRecursive": 1
+  },
+  "other_console_errors_except_repeated_bindings": [
+    "  5.48468|E|DLSS| NGX init failed (0xbad00001)",
+    " 27.86982|E|bng::json::deserializeLineObjectsRecursive| Unable to deserialize file /levels/gridmap_v2/main/MissionGroup/track_builder_pieces/items.level.json: Path not found"
+  ],
+  "console_caveat": "A clean TurboCraft-named filter is not a clean game console or proof other errors are unrelated; no clean-profile baseline comparison was run.",
+  "not_tested": [
+    "Audible quality/loudness/timing and opt-in original-audio playback",
+    "Visible flames, tip placement, color, brightness, duration and frame time",
+    "Live Monitor display versus CSV, vacuum and saved LOW/MED/HIGH/reset UI",
+    "Physical housing/belt/twin mesh clearance",
+    "Runtime thermal/airflow accuracy",
+    "Controlled v0.9.9 versus v1.0.0 game comparison"
+  ],
+  "limitations": "Shaft output measurements are not chassis/crank dyno certification. HP is a unit conversion of measured shaft kW (1 mechanical HP = 0.7456998715822702 kW), not a new sensor. Different runs may have different temperatures; harness does not prove thermal conditioning."
+}

@@ -1,0 +1,58 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#1F2A44}svg{display:block}</style></head><body>
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+<defs>
+<filter id="paper" x="-10%" y="-10%" width="120%" height="120%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="4" result="n"/>
+  <feDisplacementMap in="SourceGraphic" in2="n" scale="9" result="d"/>
+  <feMorphology in="d" operator="dilate" radius="7" result="m"/>
+  <feFlood flood-color="#FFFFFF"/><feComposite in2="m" operator="in" result="o"/>
+  <feMerge result="s"><feMergeNode in="o"/><feMergeNode in="d"/></feMerge>
+  <feDropShadow in="s" dx="10" dy="12" stdDeviation="0" flood-color="#000" flood-opacity=".28"/>
+ </filter>
+ <filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="5"/><feColorMatrix type="saturate" values="0"/></filter>
+ 
+<filter id="paper2" x="-10%" y="-10%" width="120%" height="120%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="2" seed="4" result="n"/>
+  <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" result="d"/>
+  <feMorphology in="d" operator="dilate" radius="0.75" result="m"/>
+  <feFlood flood-color="#FFFFFF"/><feComposite in2="m" operator="in" result="o"/>
+  <feMerge result="s"><feMergeNode in="o"/><feMergeNode in="d"/></feMerge>
+  <feDropShadow in="s" dx="1.1" dy="1.3" stdDeviation="0" flood-color="#000" flood-opacity=".28"/>
+ </filter>
+
+<radialGradient id="bg" cx=".5" cy=".42" r=".8"><stop offset="0" stop-color="#2d3b63"/><stop offset="1" stop-color="#121a2e"/></radialGradient>
+<radialGradient id="vig" cx=".5" cy=".5" r=".75"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".4"/></radialGradient>
+<g id="eyeGlyph"><path d="M-30 0 Q0 -26 30 0 Q0 26 -30 0Z" fill="none" stroke="#C8452F" stroke-width="4" stroke-linejoin="round"/><circle r="11" fill="#C8452F"/><circle cy="-2" r="3.6" fill="#F3E9D2"/><path d="M-2 0 L2 0 L3.6 8 L-3.6 8Z" fill="#F3E9D2"/></g>
+</defs>
+<rect width="1080" height="1920" fill="url(#bg)"/>
+<g fill="#F3E9D2" opacity=".5"><circle cx="120" cy="260" r="3"/><circle cx="930" cy="330" r="2.5"/><circle cx="210" cy="1640" r="3"/><circle cx="980" cy="1580" r="3.5"/><circle cx="80" cy="900" r="2"/><circle cx="1010" cy="760" r="2"/></g>
+<g transform="translate(540 900) rotate(-3)">
+ <g filter="url(#paper)">
+  <path d="M-380 -520 L-362 -530 -338 -518 -312 -531 -282 -519 -250 -530 -216 -518 -182 -531 -146 -519 -110 -530 -72 -518 -36 -531 0 -519 36 -530 72 -518 110 -531 146 -519 182 -530 216 -518 250 -531 282 -519 312 -530 338 -518 362 -530 380 -520 L380 520 L-380 520Z" fill="#F3E9D2"/>
+  <rect x="-346" y="-486" width="692" height="972" fill="none" stroke="#d6c59d" stroke-width="4" stroke-dasharray="14 10"/>
+  <rect x="-80" y="-566" width="160" height="50" fill="#E0A526" opacity=".92" transform="rotate(-4)"/>
+ </g>
+ <text x="0" y="-410" text-anchor="middle" font-family="Georgia,serif" font-size="38" letter-spacing="9" fill="#6a6f82">LOST &amp; FOUND LOG</text>
+ <text x="0" y="-355" text-anchor="middle" font-family="Georgia,serif" font-size="52" letter-spacing="10" fill="#C8452F" font-weight="bold">ENTRY 2</text>
+ <use href="#eyeGlyph" transform="translate(0 -170) scale(5)"/>
+ <text text-anchor="middle" font-family="Georgia,serif" font-weight="bold" fill="#1F2A44" font-size="84">
+  <tspan x="0" y="40">FOOTPRINTS</tspan><tspan x="0" y="135">ON THE</tspan><tspan x="0" y="230">CEILING</tspan>
+ </text>
+ <text x="-300" y="420" font-family="Georgia,serif" font-size="40" letter-spacing="6" fill="#6a6f82">PIP THIMBLE</text><text x="-300" y="462" font-family="Georgia,serif" font-size="26" letter-spacing="5" fill="#8a8fa2">TINY DETECTIVE</text>
+</g>
+<g filter="url(#paper2)" transform="translate(830 1600) scale(5.2) rotate(6)">
+<g transform="translate(0 -26)">
+  <circle cy="-20" r="22" fill="#f3d5b3" stroke="#c79e75" stroke-width="1"/>
+  <circle cx="-22" cy="-19" r="4.2" fill="#f3d5b3"/><circle cx="22" cy="-19" r="4.2" fill="#f3d5b3"/>
+  <path d="M-23 -23 Q-26 -44 -4 -44 Q18 -48 23 -25 Q15 -34 4 -32 Q-8 -36 -23 -23Z" fill="#14141c"/><path d="M-18 -39 L-27 -46 L-12 -43Z M4 -44 L9 -53 L12 -44Z" fill="#14141c"/>
+  <g transform="translate(-8 -20)"><ellipse rx="5" ry="6" fill="#fff"/><circle cx="2.4" cy="0.6" r="3" fill="#1F2A44"/><circle cx="3.4" cy="-.6" r="1" fill="#fff"/></g>
+  <g transform="translate(9 -20)"><ellipse rx="5" ry="6" fill="#fff"/><circle cx="2.4" cy="0.6" r="3" fill="#1F2A44"/><circle cx="3.4" cy="-.6" r="1" fill="#fff"/></g>
+  <path d="M-13 -29 Q-8 -32 -3 -29 M5 -30 Q10 -33 14 -29" stroke="#14141c" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+  <circle cx="-14" cy="-10" r="3.8" fill="#C8452F" opacity=".22"/><circle cx="15" cy="-10" r="3.8" fill="#C8452F" opacity=".22"/>
+  <path d="M-5 -8 Q1 -4 7 -9" stroke="#7a2f2a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <g transform="translate(0 -35) rotate(-11)"><path d="M-17 7 L-14 -14 Q0 -27 14 -14 L17 7Z" fill="#cfd4dc" stroke="#8e96a3" stroke-width="1.6"/><rect x="-19" y="2" width="38" height="6.5" rx="2.8" fill="#aab1bd"/><g fill="#8e96a3"><circle cx="-6" cy="-8" r="1.3"/><circle cx="2" cy="-13" r="1.3"/><circle cx="9" cy="-5" r="1.3"/><circle cx="-1" cy="-3" r="1.3"/><circle cx="-10" cy="-1" r="1.3"/></g></g>
+ </g>
+ 
+</g>
+<rect width="1080" height="1920" fill="url(#vig)"/>
+</svg></body></html>

@@ -1,0 +1,358 @@
+{
+ "entry": 3,
+ "gap": 0.45,
+ "gaps": {
+  "velvet2": 2.2
+ },
+ "beds": [
+  {
+   "name": "lounge",
+   "gain": -36,
+   "to": 8
+  },
+  {
+   "name": "room",
+   "gain": -36
+  }
+ ],
+ "shots": [
+  {
+   "id": "s1",
+   "lines": [
+    "n1"
+   ],
+   "bg": "lounge",
+   "cam": [
+    {
+     "at": 0,
+     "x": 270,
+     "y": 560,
+     "z": 1
+    },
+    {
+     "at": "n1.end",
+     "x": 270,
+     "y": 580,
+     "z": 1.12
+    }
+   ],
+   "props": [
+    {
+     "kind": "pole",
+     "layer": "front",
+     "still": true,
+     "keys": [
+      {
+       "at": 0,
+       "x": 270,
+       "y": 752
+      }
+     ]
+    }
+   ],
+   "sfx": [
+    {
+     "at": 0.1,
+     "name": "piano_soft",
+     "gain": -16
+    }
+   ]
+  },
+  {
+   "id": "s2",
+   "lines": [
+    "velvet1"
+   ],
+   "bg": "lounge",
+   "pre": 0.22,
+   "cam": [
+    {
+     "at": 0,
+     "x": 270,
+     "y": 560,
+     "z": 1.1
+    },
+    {
+     "at": "velvet1.end",
+     "x": 270,
+     "y": 580,
+     "z": 1.28
+    }
+   ],
+   "actors": [
+    {
+     "who": "velvet",
+     "keys": [
+      {
+       "at": 0,
+       "x": 270,
+       "y": 760,
+       "mood": "smirk",
+       "armL": 50,
+       "armR": 50,
+       "s": 1.2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "lines": [
+    "fuzz1",
+    "pip1",
+    "fuzz2"
+   ],
+   "bg": "lounge",
+   "pre": 0.22,
+   "cam": [
+    {
+     "at": 0,
+     "x": 230,
+     "y": 570,
+     "z": 1.1
+    },
+    {
+     "at": "fuzz2.end",
+     "x": 240,
+     "y": 575,
+     "z": 1.2
+    }
+   ],
+   "actors": [
+    {
+     "who": "pip",
+     "keys": [
+      {
+       "at": 0,
+       "x": 120,
+       "y": 760,
+       "mood": "curious",
+       "lx": 1
+      }
+     ]
+    },
+    {
+     "who": "fuzz",
+     "keys": [
+      {
+       "at": 0,
+       "x": -160,
+       "y": 760,
+       "mood": "sly"
+      },
+      {
+       "at": "fuzz1.start+0.2",
+       "x": 330,
+       "y": 760,
+       "lx": -1
+      }
+     ]
+    }
+   ],
+   "props": [
+    {
+     "kind": "crumb",
+     "layer": "front",
+     "keys": [
+      {
+       "at": 0,
+       "x": 165,
+       "y": 690,
+       "s": 0.0001
+      },
+      {
+       "at": "pip1.start+0.1",
+       "x": 165,
+       "y": 690,
+       "s": 1.8
+      },
+      {
+       "at": "pip1.end",
+       "x": 280,
+       "y": 705,
+       "s": 1.8
+      },
+      {
+       "at": "pip1.end+0.2",
+       "x": 290,
+       "y": 710,
+       "s": 0.0001
+      }
+     ]
+    }
+   ],
+   "sfx": [
+    {
+     "at": "fuzz1.start+0.2",
+     "name": "dust_puff",
+     "gain": -12
+    },
+    {
+     "at": "pip1.end",
+     "name": "crumb",
+     "gain": -6
+    }
+   ]
+  },
+  {
+   "id": "s4",
+   "lines": [
+    "n2"
+   ],
+   "bg": "lounge",
+   "bgopts": {
+    "dark": true
+   },
+   "pre": 0.22,
+   "cam": [
+    {
+     "at": 0,
+     "x": 270,
+     "y": 560,
+     "z": 1
+    }
+   ],
+   "cues": [
+    {
+     "at": "n2.start+0.1",
+     "until": "n2.end",
+     "do": "clue",
+     "card": "seal",
+     "label": "CLUE No. 3",
+     "sub": "THE SEAL"
+    }
+   ]
+  },
+  {
+   "id": "s5",
+   "lines": [
+    "velvet2"
+   ],
+   "bg": "lounge",
+   "bgopts": {
+    "dark": true
+   },
+   "pre": 0.22,
+   "cam": [
+    {
+     "at": 0,
+     "x": 270,
+     "y": 570,
+     "z": 1.2
+    },
+    {
+     "at": "velvet2.end",
+     "x": 270,
+     "y": 580,
+     "z": 1.45
+    }
+   ],
+   "actors": [
+    {
+     "who": "velvet",
+     "keys": [
+      {
+       "at": 0,
+       "x": 270,
+       "y": 760,
+       "mood": "worried",
+       "armL": 22,
+       "armR": 22,
+       "trem": 1,
+       "s": 1.2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s6",
+   "lines": [
+    "pip2"
+   ],
+   "bg": "lounge",
+   "bgopts": {
+    "dark": true
+   },
+   "pre": 2.3,
+   "cam": [
+    {
+     "at": 0,
+     "x": 240,
+     "y": 570,
+     "z": 1.1
+    },
+    {
+     "at": "pip2.end",
+     "x": 230,
+     "y": 575,
+     "z": 1.3
+    }
+   ],
+   "actors": [
+    {
+     "who": "pip",
+     "keys": [
+      {
+       "at": 0,
+       "x": 40,
+       "y": 760,
+       "mv": 1,
+       "mood": "neutral"
+      },
+      {
+       "at": "pip2.start-1.05",
+       "x": 220,
+       "mv": 1
+      },
+      {
+       "at": "pip2.start-0.95",
+       "mv": 0,
+       "mood": "surprised"
+      },
+      {
+       "at": "pip2.start",
+       "mood": "whisper"
+      },
+      {
+       "at": "pip2.start+1.6",
+       "mood": "worried"
+      }
+     ]
+    },
+    {
+     "who": "velvet",
+     "keys": [
+      {
+       "at": 0,
+       "x": 430,
+       "y": 760,
+       "s": 1.0,
+       "flip": 1,
+       "mood": "neutral",
+       "armL": 12,
+       "armR": 12
+      }
+     ]
+    }
+   ],
+   "cues": [
+    {
+     "at": 0.05,
+     "dur": 2.3,
+     "do": "notes",
+     "x": 330,
+     "y": 420
+    }
+   ],
+   "sfx": [
+    {
+     "at": 0.05,
+     "name": "music_notes",
+     "gain": -9
+    }
+   ]
+  }
+ ]
+}
