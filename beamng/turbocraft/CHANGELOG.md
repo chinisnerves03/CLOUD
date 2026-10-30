@@ -1,5 +1,16 @@
 # Changelog
 
+## Overrun window: RPM-driven burble, anti-lag flames and turbo whistle (r31 candidate)
+
+- `popBang.lua`: a lift-off, upshift or downshift opens an overrun window (lift 0.8-2.4 s, downshift
+  0.7-1.9 s, upshift 0.3-0.8 s, longer at high RPM/boost). During it the exhaust keeps burbling, popping
+  and banging; at high RPM it crackles every ~60 ms, at low RPM it burbles lazily every ~250 ms and thins
+  out as the window runs down. Bangs always and hot pops sometimes fire a tailpipe flame (with the light
+  flash). The turbo whistles (`antilag_spool_a/b`) as if anti-lag holds it spinning. Back on the throttle
+  ends a lift window. Shifts no longer stop dead after one clip.
+- Sound set now one car: anti-lag, burble and spool cut from the author's 2JZ GT86 clip.
+- Checked with a mocked API in lupa only; **not tested in game**.
+
 ## Tailpipe flame flash and tip fireball (r30 candidate)
 
 - New `flameLight.lua` + GameEngine extension `turbocraftFlameLight`: every afterfire flame on the

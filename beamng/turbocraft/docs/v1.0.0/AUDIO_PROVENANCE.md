@@ -82,3 +82,47 @@ game-acceptance results.
 The local model drafted a provenance note. Its incorrect claims that **all**
 induction audio was original and all APIs were officially documented were rejected;
 the main agent replaced that draft with this source-verified record.
+
+## Recorded audio supplied by the mod author (2026-10-30)
+Source: `RB26_DRIFT_SILVIA_S14_ANTI_LAG_BEST_SOUND.mp3` (14.3 s, 78 kbps), supplied by the mod author.
+Origin and licence: **unknown [verify]**. Do not publish the mod with these files until the author confirms
+they have the right to redistribute them (CC0/CC-BY or own recording); otherwise restore the synthesized
+versions from git history.
+
+| file | cut from (s) | content |
+|---|---|---|
+| antilag_up_a.wav | 3.98-4.63 | anti-lag crackle cluster |
+| antilag_up_b.wav | 5.10-5.75 | anti-lag crackle cluster |
+| antilag_up_c.wav | 6.28-6.98 | densest crackle cluster |
+| limiter_whine_a.wav | 2.00-2.80 | RB26 revs bouncing |
+| limiter_whine_b.wav | 9.40-10.20 | RB26 revs bouncing |
+
+Processing (ffmpeg): mono 44.1 kHz 16-bit, 5 ms fade-in, 80 ms fade-out, loudnorm I=-14 TP=-3.
+
+Second source: `SOUNDS_OF_THE_HKS_DRIFT_2JZ_GT86_ANTILAG_AND_BACKFIRE.mp3` (31 s, 78 kbps), supplied by
+the mod author. Origin and licence: **unknown [verify]**, same restriction as above.
+
+| file | cut from (s) | content |
+|---|---|---|
+| bang_a.wav | 25.20-25.95 | strongest backfire bang |
+| bang_b.wav | 3.80-4.55 | backfire bang |
+| bang_c.wav | 27.86-28.61 | backfire bang |
+| pop_a.wav | 2.00-2.35 | pop |
+| pop_b.wav | 21.99-22.34 | pop |
+| pop_c.wav | 22.93-23.28 | pop |
+| pop_d.wav | 19.39-19.74 | pop |
+
+Processing: as above, but 120 ms fade-out and loudnorm I=-12 TP=-2.
+
+### Update: one car only (2JZ GT86)
+The author asked for one car's sound throughout. These files were re-cut from the 2JZ GT86 clip with the
+"Blend v2" chain (highpass 30 Hz, +3 dB at 90 Hz, compressor 2.5:1, loudnorm, fades) and replace the RB26 cuts:
+
+| file | cut from (s) | content |
+|---|---|---|
+| antilag_up_a/b/c.wav | 10.05 / 25.00 / 20.25 (0.65-0.7 s) | hard anti-lag burst |
+| antilag_down_a/b/c.wav | 19.35 / 22.00 / 29.50 (1.05 s) | ragged anti-lag crackle |
+| burble_a/b/c.wav | 20.40 / 22.90 / 27.80 (0.95 s) | overrun burble |
+| antilag_spool_a/b.wav (new) | 12.70 / 14.40 (1.6 s) | turbo whistle while anti-lag holds it spinning |
+
+`limiter_whine_a/b.wav` are still RB26 cuts (the 2JZ clip has no clean limiter section).

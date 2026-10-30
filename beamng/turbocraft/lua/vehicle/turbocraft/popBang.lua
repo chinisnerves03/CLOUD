@@ -1,7 +1,11 @@
--- Overrun pop/bang and anti-lag shift sounds. Sound only: no fuel, spark or boost physics are changed.
--- Samples are original synthesis (tools/make_original_audio.py); variants are picked at random so
--- repeated lifts and shifts never sound like the same clip.
+-- Overrun pop/bang, burble and anti-lag shift sounds. Sound only: no fuel, spark or boost physics are changed.
+-- Samples are cut from one recorded car (docs/v1.0.0/AUDIO_PROVENANCE.md); variants are picked at random
+-- so repeated lifts and shifts never sound like the same clip.
+-- A lift-off or gear change opens an "overrun window": for a time that grows with RPM the exhaust keeps
+-- burbling, popping and banging (with tailpipe flames), the turbo whistles as if anti-lag holds it spinning,
+-- and the crackle thins out as the window runs down or RPM falls. Back on the throttle ends a lift window.
 local M = {}
+local eventEffects = require("turbocraft/eventEffects")
 
 local DIR = "art/sound/turbocraft/"
 local POOLS = {
@@ -11,6 +15,7 @@ local POOLS = {
   up = {"antilag_up_a", "antilag_up_b", "antilag_up_c"},
   down = {"antilag_down_a", "antilag_down_b", "antilag_down_c"},
   whine = {"limiter_whine_a", "limiter_whine_b"},
+  spool = {"antilag_spool_a", "antilag_spool_b"},
 }
 local MIN_RPM, COOLDOWN = 3000, 1.0
 local WHINE_COOLDOWN = .35
@@ -20,6 +25,10 @@ local ready, volumeCoef, status = false, 1, "pop_bang_off"
 local queue, clock = {}, 0
 local armed, cooldown = false, 0
 local limiterHeld, whineCooldown = false, 0
+-- overrun window: mode ("lift"/"up"/"down"), time left/total, next event time, last burble/flame times
+local window
+local lastEngine, lastData, lastRpm, lastBoost = nil, nil, 0, 0
+local FLAME_GAP = .09
 
 local function finite(value)
   value = tonumber(value)
@@ -72,26 +81,47 @@ function M.configure(data, node)
   return true
 end
 
-local function enqueue(delay, pool, volume, pitch)
-  queue[#queue + 1] = {at = clock + delay, pool = pool, volume = volume, pitch = pitch}
+local function rpmIntensity(rpm, boost)
+  return clamp(clamp((rpm - 2800) / 3700, 0, 1) * .6 + clamp(boost / 15, 0, 1) * .4, 0, 1)
 end
 
-local function schedule(intensity)
-  local t = .03
-  if intensity >= .6 then
-    enqueue(t, "bang", .62 + .38 * intensity, .95 + math.random() * .1)
-    t = t + .14 + math.random() * .08
+local function flame()
+  if not window or clock - window.lastFlame < FLAME_GAP or not lastEngine then return end
+  window.lastFlame = clock
+  eventEffects.flame(lastEngine, lastData)
+end
+
+local DURATION = {lift = {.8, 1.6}, down = {.7, 1.2}, up = {.3, .5}}
+
+local function openWindow(mode, intensity)
+  local d = DURATION[mode]
+  local total = d[1] + d[2] * intensity
+  if window and window.left > total then return end  -- a longer window is already running
+  window = {mode = mode, total = total, left = total, nextAt = clock + .02, boost = lastBoost,
+    lastBurble = -1, lastFlame = window and window.lastFlame or -1}
+  if intensity >= .25 then
+    play(pick("spool"), .35 + .55 * intensity, .92 + .16 * intensity + math.random() * .04)
   end
-  if intensity >= .35 then
-    enqueue(t, "burble", .5 + .4 * intensity, .96 + math.random() * .1)
-    t = t + .2 + math.random() * .12
+end
+
+-- One event of the running window: rate, size and flame chance follow live RPM and fade with time left.
+local function stepWindow()
+  local fade = clamp(window.left / window.total, 0, 1)
+  -- anti-lag holds the turbo spinning, so boost from the moment the window opened keeps counting
+  local heat = rpmIntensity(lastRpm, math.max(lastBoost, window.boost * fade)) * (.35 + .65 * fade)
+  local r = math.random()
+  if r < .08 + .22 * heat then
+    play(pick("bang"), .55 + .45 * heat, .94 + math.random() * .1)
+    flame()
+  elseif clock - window.lastBurble > .45 and r < .55 then
+    window.lastBurble = clock
+    play(pick("burble"), .45 + .45 * heat, .94 + math.random() * .12)
+  else
+    play(pick("pop"), .4 + .55 * heat, .88 + math.random() * .24)
+    if math.random() < heat * .6 then flame() end
   end
-  local volume = .75 + .25 * intensity
-  for _ = 1, 2 + math.floor(intensity * 5) do
-    enqueue(t, "pop", volume, .9 + math.random() * .2)
-    t = t + .07 + math.random() * .15
-    volume = volume * .86
-  end
+  -- high RPM: dense crackle every ~60 ms; low RPM or late in the window: lazy burble every ~250 ms
+  window.nextAt = clock + (.26 - .22 * heat) * (.7 + math.random() * .6)
 end
 
 function M.update(dt, engine, values, data)
@@ -105,9 +135,11 @@ function M.update(dt, engine, values, data)
   local rpm = av and math.abs(av) * 30 / math.pi
   if not throttle or not rpm or engine.isDisabled or engine.isBroken
       or engine.requiredEnergyType == "diesel" or rpm < 1800 then
-    queue, armed = {}, false
+    queue, armed, window = {}, false, nil
     return
   end
+  lastEngine, lastData, lastRpm = engine, data, rpm
+  lastBoost = math.max(0, finite(values.turboBoost) or finite(values.superchargerBoost) or 0)
   -- Held-throttle rev-limiter cut on drift/hardcut profiles: one rising whine per cut.
   local profile = data and data.mainEngine and data.mainEngine.turbocraftEffectsProfile
   local limit = finite(engine.revLimiterAV)
@@ -120,16 +152,25 @@ function M.update(dt, engine, values, data)
   end
   limiterHeld = cutting
 
-  if throttle >= .4 then queue = {} end
+  if throttle >= .4 then
+    queue = {}
+    if window and window.mode == "lift" then window = nil end
+  end
   if throttle >= .55 then armed = true end
   if armed and throttle <= .12 and cooldown <= 0 then
     armed = false
     if rpm >= MIN_RPM then
-      local boost = math.max(0, finite(values.turboBoost) or finite(values.superchargerBoost) or 0)
-      local intensity = clamp(clamp((rpm - 2800) / 3700, 0, 1) * .6 + clamp(boost / 15, 0, 1) * .4, 0, 1)
-      schedule(intensity)
+      openWindow("lift", rpmIntensity(rpm, lastBoost))
       cooldown = COOLDOWN
-      status = "pop_bang_sequence_queued"
+      status = "pop_bang_overrun_window"
+    end
+  end
+  if window then
+    window.left = window.left - dt
+    if window.left <= 0 or rpm < MIN_RPM * .8 then
+      window = nil
+    elseif clock >= window.nextAt then
+      stepWindow()
     end
   end
   local index = 1
@@ -144,11 +185,14 @@ function M.update(dt, engine, values, data)
   end
 end
 
--- Gear-change anti-lag: upshifts get a short hard burst, downshifts a ragged trailing crackle.
+-- Gear-change anti-lag: upshifts get a short hard burst then a brief crackle and turbo whistle,
+-- downshifts a ragged crackle that keeps burbling while the revs fall.
 function M.playShift(kind, load)
   if not ready then return false end
   local pool = kind == "down" and "down" or "up"
+  local intensity = rpmIntensity(lastRpm, lastBoost)
   play(pick(pool), .55 + .45 * clamp(finite(load) or 0, 0, 1), .96 + math.random() * .1)
+  if lastRpm >= MIN_RPM then openWindow(pool, intensity) end
   status = "pop_bang_shift_" .. pool
   return true
 end
@@ -156,6 +200,7 @@ end
 function M.onReset()
   queue, clock, armed, cooldown = {}, 0, false, 0
   limiterHeld, whineCooldown = false, 0
+  window, lastEngine, lastData, lastRpm, lastBoost = nil, nil, nil, 0, 0
 end
 
 function M.getStatus() return status end

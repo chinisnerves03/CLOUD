@@ -34,6 +34,25 @@ Do not copy files from the Volumetric Backfire mod (someone else's work); recrea
 - Clip frames: flames are short glowing balls with bloom, lighting the bumper.
 
 ## Next steps
+- 2026-10-30: author supplied 3 clips (RB26 S14 anti-lag, 2JZ GT86 backfire, 25-min dyno compilation;
+  uploads, not in git, licence unknown). 12 mod WAVs now cut from RB26/2JZ (see AUDIO_PROVENANCE.md).
+  `tools/blend_reference_audio.py` matches all 3 sources (band-limit, LTAS EQ, level, comp, room) ->
+  demo.wav + matched set (incl. burble_a/b/c from dyno 477.5 s). Blend v1 sent for approval; if it passes,
+  copy set/*.wav into art/sound/turbocraft, update manifest, then merge with the user's local "R29" work.
+  Old TikTok reference audio is not in this container.
+- User rejected Blend v1 (two engines mixed). Rule: ONE car only; engine pull only at the start, rest =
+  anti-lag, turbo, pops/bangs. Blend v2 = 2JZ GT86 clip only (5.3-12.7 pull+bangs, 12.6-16.2 turbo,
+  18.2-28.6 anti-lag), ffmpeg xfades, low shelf +3 dB, light comp, -14 LUFS. APPROVED by user.
+  Flame mock-up video (tools/flame_preview_mock.py) synced to v2 sent; awaiting feedback. Todo: re-cut
+  antilag_up/limiter from the 2JZ clip so the whole mod is one car.
+- Done r31: popBang overrun window (burble/pops/bangs/flames/turbo whistle by RPM on lift + shifts), anti-lag,
+  burble, spool re-cut from 2JZ (limiter still RB26). Mock-tested in lupa only. Next: in-game test, zip.
+- Full summary + merge notes for the local R29 copy: beamng/TURBOCRAFT_R31_HANDOVER.md.
+- USER FEEDBACK (todo next): flames look like a light flash only, not a fire jet "whoosh" out of the pipe.
+  Make real flame particles (bigger/longer jet, orange core, blue edge; maybe whoosh sound).
+0. 2026-10-30: blocked. Env network policy denies freesound.org, cdn.freesound.org and github.com
+   (proxy 403; earshot clone also blocked). Key is set. User must add these hosts under the environment's
+   Network access -> Allowed domains (https://code.claude.com/docs/en/cloud-environments#network-access).
 1. Get real CC0 car sounds via Freesound API (`FREESOUND_API_KEY` env var; send it as
    `Authorization: Token $FREESOUND_API_KEY`, use an honest User-Agent, download `previews.preview-hq-mp3`).
    Never print or commit the key. Candidates (all CC0, found via Openverse):
