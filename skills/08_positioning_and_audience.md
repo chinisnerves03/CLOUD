@@ -40,3 +40,16 @@ Casual crash-fans, drifters/racers, realism/sim fans, builders/tuners, map explo
 
 ## Series thinking
 Release in a **series** (mod #1, #2, #3 with the same style). Each release feeds the next one's audience.
+
+## Making a paid mod worth more than its price (TurboCraft, $5 critique)
+Buyers compare a paid mod with free repository mods. Pay is justified only by what free mods do not give.
+1. **Visible wow in 5 seconds**: tip fireball + light on bumper/road, colour by gear (orange/white/blue). Show it in the first frame of every clip.
+2. **Real sound, not synthesized**: CC0 recordings for pops, bangs and the drift limiter; earshot `match` should read "strong" before shipping.
+3. **Universal = the real selling point**: works on many cars without per-car setup. Publish a tested-cars list (car, engine, result) and keep it growing.
+4. **Control**: in-game sliders/presets (street / race / drift / anti-lag), live monitor app, per-car profiles saved.
+5. **Proof, not claims**: side-by-side clip stock vs TurboCraft, same car, same camera, same throttle input; numbers from the monitor (boost, rpm).
+6. **Trust**: changelog, version, licences/credits file, clean uninstall, no broken saves, fast bug replies.
+7. **Ongoing value**: roadmap + regular updates included in the price (buyers pay for the future, not one file).
+8. **Free tier**: a free "lite" (sound or flames only) on the repository; paid version adds the rest. Critics then see the free version is already good. Check BeamNG repository rules for lite/paid splits [verify].
+9. **Price anchor**: show what $5 buys vs separate mods (backfire + sound + turbo + monitor).
+Avoid: anything copied from other mods, BY-NC sounds, claims not tested in game.
