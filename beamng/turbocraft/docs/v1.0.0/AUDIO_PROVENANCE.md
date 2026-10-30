@@ -98,3 +98,18 @@ versions from git history.
 | limiter_whine_b.wav | 9.40-10.20 | RB26 revs bouncing |
 
 Processing (ffmpeg): mono 44.1 kHz 16-bit, 5 ms fade-in, 80 ms fade-out, loudnorm I=-14 TP=-3.
+
+Second source: `SOUNDS_OF_THE_HKS_DRIFT_2JZ_GT86_ANTILAG_AND_BACKFIRE.mp3` (31 s, 78 kbps), supplied by
+the mod author. Origin and licence: **unknown [verify]**, same restriction as above.
+
+| file | cut from (s) | content |
+|---|---|---|
+| bang_a.wav | 25.20-25.95 | strongest backfire bang |
+| bang_b.wav | 3.80-4.55 | backfire bang |
+| bang_c.wav | 27.86-28.61 | backfire bang |
+| pop_a.wav | 2.00-2.35 | pop |
+| pop_b.wav | 21.99-22.34 | pop |
+| pop_c.wav | 22.93-23.28 | pop |
+| pop_d.wav | 19.39-19.74 | pop |
+
+Processing: as above, but 120 ms fade-out and loudnorm I=-12 TP=-2.
