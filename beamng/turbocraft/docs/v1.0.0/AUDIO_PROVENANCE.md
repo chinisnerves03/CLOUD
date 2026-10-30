@@ -82,3 +82,19 @@ game-acceptance results.
 The local model drafted a provenance note. Its incorrect claims that **all**
 induction audio was original and all APIs were officially documented were rejected;
 the main agent replaced that draft with this source-verified record.
+
+## Recorded audio supplied by the mod author (2026-10-30)
+Source: `RB26_DRIFT_SILVIA_S14_ANTI_LAG_BEST_SOUND.mp3` (14.3 s, 78 kbps), supplied by the mod author.
+Origin and licence: **unknown [verify]**. Do not publish the mod with these files until the author confirms
+they have the right to redistribute them (CC0/CC-BY or own recording); otherwise restore the synthesized
+versions from git history.
+
+| file | cut from (s) | content |
+|---|---|---|
+| antilag_up_a.wav | 3.98-4.63 | anti-lag crackle cluster |
+| antilag_up_b.wav | 5.10-5.75 | anti-lag crackle cluster |
+| antilag_up_c.wav | 6.28-6.98 | densest crackle cluster |
+| limiter_whine_a.wav | 2.00-2.80 | RB26 revs bouncing |
+| limiter_whine_b.wav | 9.40-10.20 | RB26 revs bouncing |
+
+Processing (ffmpeg): mono 44.1 kHz 16-bit, 5 ms fade-in, 80 ms fade-out, loudnorm I=-14 TP=-3.

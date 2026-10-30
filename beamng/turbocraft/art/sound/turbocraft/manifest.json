@@ -462,42 +462,42 @@
     },
     {
       "file": "art/sound/turbocraft/antilag_up_a.wav",
-      "sha256": "417EC46FDD2A4822498B3F940F148F66A2A4428FDC50441AA1416DC8C9619E9B",
+      "sha256": "B56D2FE3AD10B9F71A47D1A1872FC3D576AF8BA76492A599CBCD970FE743501B",
       "frames": 28665,
       "rate": 44100,
       "duration_s": 0.65,
-      "peak_dbfs": -0.7244048029535365,
-      "rms_dbfs": -19.36644987873365,
+      "peak_dbfs": -3.02623712594233,
+      "rms_dbfs": -17.48222666114152,
       "loop": false,
       "reference_shaft_rpm": null,
       "runtime": "pop_bang_antilag_overlay",
-      "acoustic_model": "deterministic multi-tone noise loop or enveloped one-shot"
+      "acoustic_model": "recorded RB26 S14 anti-lag/limiter clip supplied by the mod author (see AUDIO_PROVENANCE.md)"
     },
     {
       "file": "art/sound/turbocraft/antilag_up_b.wav",
-      "sha256": "2CF2CEED9526CDCD5409D83E8F526376A80714C0750FA7900F5D0C3F8BFBA331",
+      "sha256": "83E17992744BF71915F735959FF34603AEAA5C696528ACA4F0CFB7CAB08C2389",
       "frames": 28665,
       "rate": 44100,
       "duration_s": 0.65,
-      "peak_dbfs": -0.7244048029535365,
-      "rms_dbfs": -18.81812513837438,
+      "peak_dbfs": -3.1259544702564583,
+      "rms_dbfs": -19.756879327485187,
       "loop": false,
       "reference_shaft_rpm": null,
       "runtime": "pop_bang_antilag_overlay",
-      "acoustic_model": "deterministic multi-tone noise loop or enveloped one-shot"
+      "acoustic_model": "recorded RB26 S14 anti-lag/limiter clip supplied by the mod author (see AUDIO_PROVENANCE.md)"
     },
     {
       "file": "art/sound/turbocraft/antilag_up_c.wav",
-      "sha256": "1E960581C9BBA9226F4AD1015F010585BB6DCB11954CFD9D7D10F518A218466B",
-      "frames": 28665,
+      "sha256": "20B7CB419A28B1727EF4D4010725C50D67AF482E64E751D7F5053CA1BA77754B",
+      "frames": 30870,
       "rate": 44100,
-      "duration_s": 0.65,
-      "peak_dbfs": -0.7244048029535365,
-      "rms_dbfs": -19.126441188177694,
+      "duration_s": 0.7,
+      "peak_dbfs": -3.002609181270022,
+      "rms_dbfs": -18.926097322136247,
       "loop": false,
       "reference_shaft_rpm": null,
       "runtime": "pop_bang_antilag_overlay",
-      "acoustic_model": "deterministic multi-tone noise loop or enveloped one-shot"
+      "acoustic_model": "recorded RB26 S14 anti-lag/limiter clip supplied by the mod author (see AUDIO_PROVENANCE.md)"
     },
     {
       "file": "art/sound/turbocraft/antilag_down_a.wav",
@@ -540,27 +540,27 @@
     },
     {
       "file": "art/sound/turbocraft/limiter_whine_a.wav",
-      "sha256": "68E8DDF6B45D8AF62A97E911B4643E0EADC4D4F54459C2657F9063952DEA0689",
+      "sha256": "864E913E6212B2A0C5C86E40C6479EA1A84554914C21D1674EA2D66F47478974",
       "frames": 35280,
       "rate": 44100,
       "duration_s": 0.8,
-      "peak_dbfs": -6.020864997729863,
-      "rms_dbfs": -15.135894991002123,
+      "peak_dbfs": -3.48624592437508,
+      "rms_dbfs": -14.580117836582362,
       "loop": false,
       "runtime": "limiter_whine_one_shot",
-      "acoustic_model": "rising sawtooth-like buzz (harmonics 1-6) with slight flutter and fast attack"
+      "acoustic_model": "recorded RB26 S14 anti-lag/limiter clip supplied by the mod author (see AUDIO_PROVENANCE.md)"
     },
     {
       "file": "art/sound/turbocraft/limiter_whine_b.wav",
-      "sha256": "FBDD38CD1B170C35F0FA31385467C36CED07D59108024AA53ECC8D8E3B8AC09C",
+      "sha256": "26CD84F324A42525F77D80EE27A5E86EB3F14A49FE12C6758D8AF91BC7355BB7",
       "frames": 35280,
       "rate": 44100,
       "duration_s": 0.8,
-      "peak_dbfs": -6.020864997729863,
-      "rms_dbfs": -15.030326866759356,
+      "peak_dbfs": -3.0699113921251255,
+      "rms_dbfs": -17.706499573078425,
       "loop": false,
       "runtime": "limiter_whine_one_shot",
-      "acoustic_model": "rising sawtooth-like buzz (harmonics 1-6) with slight flutter and fast attack"
+      "acoustic_model": "recorded RB26 S14 anti-lag/limiter clip supplied by the mod author (see AUDIO_PROVENANCE.md)"
     }
   ],
   "legacy_unreferenced_files": [
