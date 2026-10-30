@@ -34,6 +34,9 @@ Do not copy files from the Volumetric Backfire mod (someone else's work); recrea
 - Clip frames: flames are short glowing balls with bloom, lighting the bumper.
 
 ## Next steps
+0. 2026-10-30: blocked. Env network policy denies freesound.org, cdn.freesound.org and github.com
+   (proxy 403; earshot clone also blocked). Key is set. User must add these hosts under the environment's
+   Network access -> Allowed domains (https://code.claude.com/docs/en/cloud-environments#network-access).
 1. Get real CC0 car sounds via Freesound API (`FREESOUND_API_KEY` env var; send it as
    `Authorization: Token $FREESOUND_API_KEY`, use an honest User-Agent, download `previews.preview-hq-mp3`).
    Never print or commit the key. Candidates (all CC0, found via Openverse):
