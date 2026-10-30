@@ -45,3 +45,9 @@ AI voice / sponsorship disclosures if used
 - [ ] Category Gaming, audience "not for kids" unless applicable
 - [ ] Cards/end screen
 - [ ] Share to community tab / other platforms 30 min after launch
+
+## Tool: claude-youtube (https://github.com/AgriciDaniel/claude-youtube, beta, Apr 2026)
+Claude Code skill pack for YouTube growth: `/youtube seo` (3 titles, description, tags, chapters), `hook` (5 variants
+with drop-off risk), `thumbnail` (3 A/B briefs), `shorts`, `script`, `analyze`, `competitor`, `calendar`, `monetize`.
+Transcripts = spoken subtitles via paid DataForSEO API (~$0.002/call [verify]); it does NOT download video/audio.
+Use it for mod-trailer titles/thumbnails/Shorts; not for sourcing engine sounds (copyright + YouTube ToS).
